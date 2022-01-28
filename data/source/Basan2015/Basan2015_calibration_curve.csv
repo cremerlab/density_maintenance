@@ -1,0 +1,7 @@
+medium,growth_rate_hr,ug_protein_per_OD,cells_per_OD,cell_length,cell_width,source
+RDM + glucose,1.84,329,343000000,4.94,1.36,Basan et al. 2015
+Glucose + cAA,1.29,317,793000000,3.29,1.21,Basan et al. 2015
+glucose ,0.98,333,1070000000,2.95,1.07,Basan et al. 2015
+glycerol,0.7,355,1600000000,2.84,0.92,Basan et al. 2015
+acetate,0.47,378,1710000000,2.51,0.98,Basan et al. 2015
+mannose,0.42,391,1940000000,2.37,0.91,Basan et al. 2015

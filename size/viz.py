@@ -5,6 +5,7 @@ import bokeh.plotting
 import bokeh.io 
 import bokeh.palettes
 import bokeh.themes
+import altair as alt
 from bokeh.models import * 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.offsetbox import AnchoredText
@@ -333,3 +334,103 @@ def load_js(fname, args):
 
     cb = CustomJS(code=js, args=args)
     return cb
+
+def altair_style(return_colors=True, return_palette=True, **kwargs):
+    """
+    Assigns the plotting style for matplotlib generated figures. 
+    
+    Parameters
+    ----------
+    return_colors : bool
+        If True, a dictionary of the colors is returned. Default is True.
+    return_palette: bool
+        If True, a sequential color palette is returned. Default is True.
+    """
+    colors, palette = get_colors(**kwargs)
+    primary_palette = palette
+    def _theme():
+        return {
+            'config': {
+                'background': 'white',
+                    'group': { 
+                    'fill': 'white', 
+                    },
+                'view': {
+                    'strokeWidth': 0,
+                    'height': 300,
+                    'width': 400,
+                    'fill': '#f0f3f7', 
+                    },
+                'point': {
+                    'size': 40,
+                    'filled': True,
+                    'opacity': 1,
+                    'strokeWidth': 0.75,
+                    'stroke': '#FFFFFF'
+                    },    
+                'square': {
+                    'size': 40,
+                    'filled': True,
+                    'opacity': 1,
+                    'strokeWidth': 0.75,
+                    'stroke': '#FFFFFF'
+                    },      
+                'circle': {
+                    'size': 40,
+                    'filled': True,
+                    'opacity': 1,
+                    'strokeWidth': 0.75,
+                    'stroke': '#FFFFFF'
+                    },  
+                'line': {
+                    'size': 2,
+                },
+                'axis': {
+                    'domainColor': '#ffffff', 
+                    'domainWidth': 0.5,
+                    'labelColor': '#5b5b5b',
+                    'labelFontSize': 10,
+                    'labelFont': 'Arial',
+                    'titleFont': 'Arial',
+                    'titleFontWeight': 700,
+                    'titleFontSize':14,
+                    'titleColor': '#4b4b4b',
+                    'grid': True,
+                    'gridColor': '#ffffff',
+                    'gridWidth': 0.5,
+                    'ticks': False,
+                },
+                'range': {
+                    'category': primary_palette
+                },
+                'legend': {
+                    'labelFontSize': 14,
+                    'labelFont': 'Nunito Sans',
+                    'titleFont': 'Nunito Sans',
+                    'titleFontSize': 14,
+                    'titleFontWeight': 700,
+                    'titleFontColor': '#44b4b4b',
+                    'symbolSize': 75,
+                },
+                'title' : { 
+                    'font': 'Nunito Sans',
+                    'fontWeight': 700,
+                    'fontSize': 14,
+                    'fontColor': '#4b4b4b',
+                }
+                  }
+                }
+
+    alt.themes.register('personal', _theme)# enable the newly registered theme
+    alt.themes.enable('personal')
+    # Determine what, if anything should be returned
+    out = []
+    if return_colors == True:
+        out.append(colors)
+    if return_palette == True:
+        out.append(palette)
+    
+    if len(out) == 1:
+        return out[0]
+    else:
+        return out
