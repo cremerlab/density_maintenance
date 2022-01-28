@@ -59,7 +59,7 @@ table9_melted = table9.melt(['Gene name', 'Gene locus', 'Protein ID'], var_name=
 
 # Restrict the datatable to only those valid idx
 table8_valid = table8_melted[table8_melted['idx'].isin(table8_valid_idx)]
-table9_valid = table8_melted[table8_melted['idx'].isin(table9_valid_idx)]
+table9_valid = table9_melted[table9_melted['idx'].isin(table9_valid_idx)]
 
 # Populate the tables with identifiers captured in the dict
 for tab, keys in zip([table8_valid, table9_valid], [table8_dict, table9_dict]):
