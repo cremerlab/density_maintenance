@@ -8,24 +8,9 @@ colors, palette = size.viz.matplotlib_style()
 
 # Load the data set
 data = pd.read_csv('../../data/compiled_absolute_measurements.csv')
-data.head()
+
 periplasm = data[data['go_terms'].str.contains('GO:0042597')]
 valg = periplasm[periplasm['dataset_name'] == 'Valgepea et al. 2013']
-#%%
-# hib = pd.DataFrame({})
-# for g, d in data.groupby(['dataset_name', 'condition', 'growth_rate_hr']):
-#     tot_mass = d['fg_per_cell'].sum()
-#     rmf = d[d['gene_name'].isin(['rmf'])]['fg_per_cell'].sum()
-#     hib = hib.append({'growth_rate_hr': g[-1], 'dataset_name':g[0],
-#                       'frac': rmf / tot_mass}, ignore_index=True)
-
-#%%
-# fig, ax = plt.subplots()
-# for g, d in hib.groupby(['dataset_name']):
-#     ax.plot(d['growth_rate_hr'], d['frac'] * 100, 'o', label=g)
-# ax.legend()
-# ax.set_xlabel('growth rate [inv hr]')
-# ax.set_ylabel('mass fraction (rmf)')
 
 #%%
 subfracs = pd.DataFrame([])
