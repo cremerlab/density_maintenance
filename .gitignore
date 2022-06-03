@@ -1,0 +1,8 @@
+*.DS_store
+*.swp
+*.png
+*.log
+*.bbl
+*egg*
+*_checkpoints*
+*.zip*
