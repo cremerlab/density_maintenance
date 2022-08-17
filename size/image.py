@@ -4,112 +4,11 @@ import skimage.io
 import skimage.measure
 import skimage.morphology
 import skimage.segmentation
+import skimage.filters
 from .analytical import *
 import tqdm
 import pandas as pd 
-
-def contour_seg(image, level=0.3, selem='default', perim_bounds=(5, 1E3),
-                ip_dist=0.160, ecc_bounds=(0.7, 1), area_bounds=(1, 50),
-                return_conts=False, min_int=0.2):
-    """
-    Identifies contours around dark objects in a phase contrast image.
-    Parameters
-    ----------
-    image: 2d-array
-        Phase contrast image of interest.
-    level: float
-        Level at which to draw contours on black top-hat filtered image.
-        Default value is 0.3.
-    selem: 2d-array or string
-        Structuring element to use for the black top-hat filtering procedure
-        Default value is a disk with a diameter of 20 pixels.
-    perim_bounds: length 2 tuple
-        Lower and upper perimeter bounds of approved objects. This should be
-        in units of microns. The default values are 5 and 25 microns for the
-        lower and upper bound, respectively.
-    ip_dist : float
-        Interpixel distance of the image in units of microns per pixel. The
-        default value is 0.160 microns per pixel.
-    area_bounds : tuple of float
-        Upper and lower bounds for selected object areas. These should be
-        given in units of square microns.
-    ecc_bounds : tuple of float
-        Bounds for object eccentricity. Default values are between 0.5 and 1.0.
-    return_conts : bool
-        If True, the x and y coordinates of the individual contours will be
-        returned. Default value is False
-    Returns
-    -------
-    im_lab : 2d-array, int
-        Two dimensional image where each individual object is labeled.
-    conts : 1d-array
-        List of contour coordinates. Each entry of this array comes as
-        an x,y pair of arrays. Has the same length as the number of
-        contoured objects. This is only returned if `return_conts` is
-        True.
-    """
-
-    # Apply the white top-hat filter.
-    if selem == 'default':
-        selem = skimage.morphology.disk(20)
-
-    # Normalize the image.
-    image = (image - image.min()) / (image.max() - image.min())
-
-    # Blur and background subtract the image.
-    im_blur = skimage.filters.gaussian(image, sigma=5)
-    im_sub = image - im_blur
-
-    # Apply the black tophat filter.
-    im_filt = skimage.morphology.black_tophat(im_sub, selem)
-
-    # Find the contours and return.
-    conts = skimage.measure.find_contours(im_filt, level)
-
-    # Make an empty image for adding the approved objects.
-    objs = np.zeros_like(image)
-
-    # Loop through each contour.
-    for _, c in enumerate(conts):
-        perim = 0
-        for j in range(len(c) - 1):
-            # Compute the distance between points.
-            distance = np.sqrt((c[j + 1, 0] - c[j, 0])**2 +
-                               (c[j + 1, 1] - c[j, 1])**2)
-            perim += distance * ip_dist
-
-        # Test if the perimeter is allowed by the user defined bounds.
-        if (perim > perim_bounds[0]) & (perim < perim_bounds[1]):
-
-            # Round the contours.
-            c_int = np.round(c).astype(int)
-
-            # Color the image with the contours and fill.
-            objs[c_int[:, 0], c_int[:, 1]] = 1.0
-
-    # Fill and label the objects.
-    objs_fill = scipy.ndimage.binary_fill_holes(objs)
-    objs_fill = skimage.morphology.remove_small_objects(objs_fill)
-    im_lab = skimage.measure.label(objs_fill)
-
-    # Apply filters.
-    approved_obj = np.zeros_like(im_lab)
-    props = skimage.measure.regionprops(im_lab, image)
-    for prop in props:
-        area = prop.area * ip_dist**2
-        ecc = prop.eccentricity
-        if (area < area_bounds[1]) & (area > area_bounds[0]) &\
-            (ecc < ecc_bounds[1]) & (ecc > ecc_bounds[0]) &\
-                (prop.mean_intensity < min_int):
-            approved_obj += (im_lab == prop.label)
-    im_lab = skimage.measure.label(approved_obj)
-
-    if return_conts is True:
-        return conts, im_lab
-    else:
-        return [im_lab, im_filt]
-
-
+import cv2
 
 def find_zero_crossings(im, selem, thresh):
     """
@@ -273,16 +172,19 @@ def tophat_filter(image,
     sm_selem = skimage.morphology.disk(small_selem_diam)
 
     # Perform filtering and closing operations
-    blk_tophat = skimage.morphology.black_tophat(im_sub, lg_selem)
-    wht_tophat = skimage.morphology.white_tophat(blk_tophat, lg_selem)
+
+    blk_tophat = cv2.morphologyEx(im_sub, cv2.MORPH_BLACKHAT, lg_selem)
+        #skimage.morphology.black_tophat(im_sub, lg_selem)
+    wht_tophat = cv2.morphologyEx(blk_tophat, cv2.MORPH_TOPHAT, lg_selem)
+        #skimage.morphology.white_tophat(blk_tophat, lg_selem)
     closing = scipy.ndimage.grey_closing(wht_tophat, footprint=sm_selem)
 
     if threshold == 'otsu':
-        thresh = skimage.filter.threshold_otsu(closing)
+        thresh = skimage.filters.threshold_otsu(closing)
     elif threshold == 'none':
         return closing
     else:
-        thresh = skimage.filter.threshold_otsu(closing)
+        thresh = skimage.filters.threshold_otsu(closing)
     return closing * (closing > thresh)
 
 def contour_segmentation(image, 
@@ -343,7 +245,7 @@ def contour_segmentation(image,
         _image = image
     # Perform the laplacian of gaussian segmentation
     log_selem = skimage.morphology.square(2)
-    seg = log_segmentation(image, radius=1, selem=log_selem, 
+    seg = log_segmentation(_image, radius=1, selem=log_selem, 
                             thresh=0.001, median_filt=False, 
                             label=False)
 
@@ -460,8 +362,8 @@ def assign_anatomy(data,
               max_curve=0.5,
               columns = {'groupby' :'cell_id',
                          'curve'   : 'curvature',
-                         'x'       : 'spl_x',
-                         'y'       : 'spl_y'},
+                         'x'       : 'x_coords',
+                         'y'       : 'y_coords'},
               ip_dist=0.0167 ):
 
     # Convert supplied curvature threshold to pixel value.
@@ -479,7 +381,7 @@ def assign_anatomy(data,
 
         # Label caps as top and bottom
         caps['component'] = 'bottom'
-        caps.loc[d[columns['y'] > bottom_cap_bound], 'component'] = 'top'
+        caps.loc[caps[columns['y']] > bottom_cap_bound, 'component'] = 'top'
 
         # Find and label edges as left and right
         sides = d[(d[columns['y']] > bottom_cap_bound) & (d[columns['y']] < upper_cap_bound)].copy()
@@ -494,8 +396,8 @@ def measure_biometrics(data,
                        ip_dist = 0.0167,
                        columns = {'groupby' :'cell_id',
                                   'curve'   : 'curvature',
-                                  'x'       : 'spl_x',
-                                  'y'       : 'spl_y',
+                                  'x'       : 'x_coords',
+                                  'y'       : 'y_coords',
                                   'component': 'component'}):
     """
     Computes properties of cells with assigned anatomy.  
@@ -508,9 +410,13 @@ def measure_biometrics(data,
     for g, d in data.groupby(data[columns['groupby']]):
         # Make measurements
         length = (d[columns['y']].max() - d[columns['y']].min()) * ip_dist
-        left = d[columns['component']=='left'][columns['y']].values
-        right = d[columns['component']=='right'][columns['x']].values
-        width = [np.min(rval - left) * ip_dist for rval in right] 
+        left_x = d[d[columns['component']]=='left'][columns['x']].values
+        left_y = d[d[columns['component']]=='left'][columns['y']].values
+        right_x = d[d[columns['component']]=='right'][columns['x']].values
+        right_y = d[d[columns['component']]=='right'][columns['y']].values
+        def hypot(p1, p2):
+            return np.sqrt((p2[0] - p1[0])**2 + (p2[1] - p2[0])**2)
+        width = [np.min(hypot((_x,_y), (left_x, left_y))) * ip_dist for _x, _y in zip(right_x, right_y)] 
         width_mean = np.mean(width)
         width_var  = np.var(width)
 
@@ -522,16 +428,16 @@ def measure_biometrics(data,
         frac_vol = env_vol / vol
 
         # Assemble dataframe
-        _df = pd.DataFrame([])
-        _df['length'] = length
-        _df['width_mean'] = width_mean
-        _df['width_var'] = width_var
-        _df['volume'] = vol
-        _df['surface_area'] = sa
-        _df['surface_to_volume'] = sav
-        _df['periplasm_volume'] = env_vol
-        _df['periplasm_fractional_volume'] = frac_vol
-        _df[columns['groupby']] = g
-        biometrics = pd.concat([_df, biometrics])
+        _df = pd.DataFrame(
+        {'length' : length,
+        'width_mean': width_mean,
+        'width_var' : width_var,
+        'volume': vol,
+        'surface_area': sa,
+        'surface_to_volume' : sav,
+        'periplasm_volume' : env_vol,
+        'periplasm_fractional_volume': frac_vol,
+        columns['groupby'] : g}, index=[0])
+        biometrics = pd.concat([biometrics, _df])
     return biometrics
 
