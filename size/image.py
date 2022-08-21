@@ -5,6 +5,7 @@ import skimage.measure
 import skimage.morphology
 import skimage.segmentation
 import skimage.filters
+import warnings
 from .analytical import *
 import tqdm
 import pandas as pd 
@@ -180,21 +181,22 @@ def tophat_filter(image,
     closing = scipy.ndimage.grey_closing(wht_tophat, footprint=sm_selem)
 
     if threshold == 'otsu':
-        thresh = skimage.filters.threshold_otsu(closing)
+        thresh = skimage.filters.threshold_multiotsu(closing)
     elif threshold == 'none':
         return closing
     else:
-        thresh = skimage.filters.threshold_otsu(closing)
-    return closing * (closing > thresh)
+        thresh = [threshold]
+    return closing * (closing > np.mean(thresh))
 
 def contour_segmentation(image, 
                          filter=True,
-                         area_bounds=(10, 100),
+                         area_bounds=(1, 1000),
                          ecc_bound=0.5,
                          solidity_bound=0.9,
-                         ip_dist=0.0167,
+                         ip_dist=0.0319,
                          return_mask=False,
                          return_cells=False,
+                         intensity_image=None,
                          **tophat_kwargs):
     """
     Segments an image using Laplacian of Gaussian then computes smoothed contours 
@@ -250,7 +252,8 @@ def contour_segmentation(image,
                             label=False)
 
     # Clean up the mask and label
-    seg = skimage.morphology.binary_erosion(seg, log_selem)
+    erode_selem = skimage.morphology.disk(6)
+    seg = skimage.morphology.binary_erosion(seg, erode_selem)
     seg = skimage.morphology.remove_small_holes(seg)
     seg = skimage.morphology.remove_small_objects(seg)
     labeled = skimage.measure.label(seg)
@@ -264,8 +267,10 @@ def contour_segmentation(image,
     # Iterate through each segmented object
     idx = 0
     for p in tqdm.tqdm(props):
-        if ((p.area >= area_bounds[0]/ip_dist) & (p.area < area_bounds[1]/ip_dist)) &\
-            (p.solidity > solidity_bound) & (p.eccentricity > ecc_bound):
+        area = p.area_filled * ip_dist**2
+        if ( area >= area_bounds[0]) & (area <= area_bounds[1]) &\
+            (p.solidity >= solidity_bound) & (p.eccentricity >= ecc_bound):
+
             # Update the mask
             mask += labeled==p.label
             # Crop the original object and rotate.
@@ -273,19 +278,24 @@ def contour_segmentation(image,
             rot = scipy.ndimage.rotate(labeled[padded]==p.label, -np.rad2deg(p.orientation), order=0) > 0
             rot = skimage.morphology.remove_small_holes(rot)
             rot = skimage.morphology.remove_small_objects(rot)
+            rot = scipy.ndimage.binary_fill_holes(rot)
             relab = skimage.measure.label(rot.astype(int))
             if return_cells:
-                rot_int = scipy.ndimage.rotate(_image, -np.rad2deg(p.orientation), order=0)
+                if intensity_image is None:
+                    rot_int = scipy.ndimage.rotate(image[padded], -np.rad2deg(p.orientation), order=0, mode='nearest')
+                else:
+                    rot_int = scipy.ndimage.rotate(intensity_image[padded], -np.rad2deg(p.orientation), order=0, mode='nearest')
                 rot_props = skimage.measure.regionprops(relab, intensity_image=rot_int)
             else:
                 rot_props = skimage.measure.regionprops(relab)
+            if len(rot_props) == 0:
+                continue
             bbox = rot_props[0].bbox
             rot_pad, _ = pad_bbox(bbox, np.shape(rot), pad=10)
             
             # If an intensity image is desired, also rotate
             if return_cells:
-                rot_intensity = scipy.ndimage.rotate(image[padded], -np.rad2deg(p.orientation),  mode='nearest')
-                cell_images[idx] = {'intensity_image':rot_intensity[rot_pad],
+                cell_images[idx] = {'intensity_image':rot_int[rot_pad],
                                     'segmentation_mask':rot[rot_pad]}                
             # Find contours and perform a uniform filtering of indices
             cont = skimage.measure.find_contours(rot[rot_pad], 0)[0]
@@ -293,9 +303,11 @@ def contour_segmentation(image,
             cy = scipy.ndimage.uniform_filter(cont[:, 0], 10, mode='wrap')  
 
             # Compute the spline.
-            tck, u = scipy.interpolate.splprep([cx, cy], per=1, k=5, s=100)
-            unew = np.arange(0, 1.0001, 0.0001)
-            out = scipy.interpolate.splev(unew, tck)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                tck, _ = scipy.interpolate.splprep([cx, cy], per=1, k=5, s=100)
+                unew = np.arange(0, 1.0001, 0.0001)
+                out = scipy.interpolate.splev(unew, tck)
 
             # Compute the curvature and assemble the dataframe
             k = compute_curvature(out)
@@ -364,10 +376,10 @@ def assign_anatomy(data,
                          'curve'   : 'curvature',
                          'x'       : 'x_coords',
                          'y'       : 'y_coords'},
-              ip_dist=0.0167 ):
+              ip_dist=0.031):
 
     # Convert supplied curvature threshold to pixel value.
-    curve_thresh = ip_dist/max_curve
+    curve_thresh = max_curve * ip_dist 
 
     df = pd.DataFrame([])  
     for g, d in data.groupby(columns['groupby']):
@@ -380,20 +392,21 @@ def assign_anatomy(data,
         upper_cap_bound = caps[(caps[columns['y']] - caps[columns['y']].mean() ) > 0 ][columns['y']].min()
 
         # Label caps as top and bottom
-        caps['component'] = 'bottom'
-        caps.loc[caps[columns['y']] > bottom_cap_bound, 'component'] = 'top'
+        d['component'] = 'bottom'
+        d.loc[d[columns['y']] > bottom_cap_bound, 'component'] = 'top'
 
         # Find and label edges as left and right
+        _caps = d[(d[columns['y']] < bottom_cap_bound) | (d[columns['y']] > upper_cap_bound)].copy()
         sides = d[(d[columns['y']] > bottom_cap_bound) & (d[columns['y']] < upper_cap_bound)].copy()
         sides['component'] = 'right'
         sides.loc[(sides[columns['x']] - sides[columns['x']].mean()) < 0, 
                 'component'] = 'left'
-        df = pd.concat([df, caps, sides], sort=False)
+        df = pd.concat([df, _caps, sides], sort=False)
     return df
 
 def measure_biometrics(data,                       
                        peri_width=0.025,
-                       ip_dist = 0.0167,
+                       ip_dist = 0.0319,
                        columns = {'groupby' :'cell_id',
                                   'curve'   : 'curvature',
                                   'x'       : 'x_coords',
@@ -414,6 +427,8 @@ def measure_biometrics(data,
         left_y = d[d[columns['component']]=='left'][columns['y']].values
         right_x = d[d[columns['component']]=='right'][columns['x']].values
         right_y = d[d[columns['component']]=='right'][columns['y']].values
+        if (len(left_x) == 0) | (len(left_y)==0):
+            continue
         def hypot(p1, p2):
             return np.sqrt((p2[0] - p1[0])**2 + (p2[1] - p2[0])**2)
         width = [np.min(hypot((_x,_y), (left_x, left_y))) * ip_dist for _x, _y in zip(right_x, right_y)] 
