@@ -1,6 +1,6 @@
 import numpy as np
-import scipy.ndimage 
-import skimage.io 
+import scipy.ndimage
+import skimage.io
 import skimage.measure
 import skimage.morphology
 import skimage.segmentation
@@ -8,8 +8,9 @@ import skimage.filters
 import warnings
 from .analytical import *
 import tqdm
-import pandas as pd 
+import pandas as pd
 import cv2
+
 
 def find_zero_crossings(im, selem, thresh):
     """
@@ -132,8 +133,8 @@ def log_segmentation(im, selem=None, thresh=0.0001, radius=2.0,
     return im_final
 
 
-def tophat_filter(image, 
-                  large_selem_diam=50, 
+def tophat_filter(image,
+                  large_selem_diam=50,
                   small_selem_diam=2,
                   threshold='otsu'):
     """
@@ -161,7 +162,7 @@ def tophat_filter(image,
         The filtered and thresholded (if desired) image. 
     """
 
-    # Normalize the image. 
+    # Normalize the image.
     im_norm = (image - image.min()) / (image.max() - image.min())
 
     # Perform background subtraction to correct of uneven illumination
@@ -175,20 +176,21 @@ def tophat_filter(image,
     # Perform filtering and closing operations
 
     blk_tophat = cv2.morphologyEx(im_sub, cv2.MORPH_BLACKHAT, lg_selem)
-        #skimage.morphology.black_tophat(im_sub, lg_selem)
+    #skimage.morphology.black_tophat(im_sub, lg_selem)
     wht_tophat = cv2.morphologyEx(blk_tophat, cv2.MORPH_TOPHAT, lg_selem)
-        #skimage.morphology.white_tophat(blk_tophat, lg_selem)
+    #skimage.morphology.white_tophat(blk_tophat, lg_selem)
     closing = scipy.ndimage.grey_closing(wht_tophat, footprint=sm_selem)
 
     if threshold == 'otsu':
-        thresh = skimage.filters.threshold_multiotsu(closing)
+        thresh = skimage.filters.threshold_multiotsu(closing)[1]
     elif threshold == 'none':
         return closing
     else:
-        thresh = [threshold]
-    return closing * (closing > np.mean(thresh))
+        thresh = threshold
+    return closing * (closing > thresh)
 
-def contour_segmentation(image, 
+
+def contour_segmentation(image,
                          filter=True,
                          area_bounds=(1, 1000),
                          ecc_bound=0.5,
@@ -247,13 +249,11 @@ def contour_segmentation(image,
         _image = image
     # Perform the laplacian of gaussian segmentation
     log_selem = skimage.morphology.square(2)
-    seg = log_segmentation(_image, radius=1, selem=log_selem, 
-                            thresh=0.001, median_filt=False, 
-                            label=False)
+    seg = log_segmentation(_image, radius=1, selem=log_selem,
+                           thresh=0.001, median_filt=False,
+                           label=False)
 
     # Clean up the mask and label
-    erode_selem = skimage.morphology.disk(6)
-    seg = skimage.morphology.binary_erosion(seg, erode_selem)
     seg = skimage.morphology.remove_small_holes(seg)
     seg = skimage.morphology.remove_small_objects(seg)
     labeled = skimage.measure.label(seg)
@@ -268,59 +268,67 @@ def contour_segmentation(image,
     idx = 0
     for p in tqdm.tqdm(props):
         area = p.area_filled * ip_dist**2
-        if ( area >= area_bounds[0]) & (area <= area_bounds[1]) &\
-            (p.solidity >= solidity_bound) & (p.eccentricity >= ecc_bound):
+        if (area >= area_bounds[0]) & (area <= area_bounds[1]) &\
+                (p.solidity >= solidity_bound) & (p.eccentricity >= ecc_bound):
 
             # Update the mask
-            mask += labeled==p.label
+            mask += labeled == p.label
             # Crop the original object and rotate.
             padded, _ = pad_bbox(p.bbox, np.shape(labeled), pad=10)
-            rot = scipy.ndimage.rotate(labeled[padded]==p.label, -np.rad2deg(p.orientation), order=0) > 0
+            rot = scipy.ndimage.rotate(
+                labeled[padded] == p.label, -np.rad2deg(p.orientation), order=0) > 0
+            erode_selem = skimage.morphology.square(2)
+            rot = skimage.morphology.binary_erosion(rot, erode_selem)
             rot = skimage.morphology.remove_small_holes(rot)
             rot = skimage.morphology.remove_small_objects(rot)
             rot = scipy.ndimage.binary_fill_holes(rot)
+
             relab = skimage.measure.label(rot.astype(int))
             if return_cells:
                 if intensity_image is None:
-                    rot_int = scipy.ndimage.rotate(image[padded], -np.rad2deg(p.orientation), order=0, mode='nearest')
+                    rot_int = scipy.ndimage.rotate(
+                        image[padded], -np.rad2deg(p.orientation), order=0, mode='nearest')
                 else:
-                    rot_int = scipy.ndimage.rotate(intensity_image[padded], -np.rad2deg(p.orientation), order=0, mode='nearest')
-                rot_props = skimage.measure.regionprops(relab, intensity_image=rot_int)
+                    rot_int = scipy.ndimage.rotate(
+                        intensity_image[padded], -np.rad2deg(p.orientation), order=0, mode='nearest')
+                rot_props = skimage.measure.regionprops(
+                    relab, intensity_image=rot_int)
             else:
                 rot_props = skimage.measure.regionprops(relab)
             if len(rot_props) == 0:
                 continue
             bbox = rot_props[0].bbox
             rot_pad, _ = pad_bbox(bbox, np.shape(rot), pad=10)
-            
+
             # If an intensity image is desired, also rotate
             if return_cells:
-                cell_images[idx] = {'intensity_image':rot_int[rot_pad],
-                                    'segmentation_mask':rot[rot_pad]}                
+                cell_images[idx] = {'intensity_image': rot_int[rot_pad],
+                                    'segmentation_mask': rot[rot_pad]}
             # Find contours and perform a uniform filtering of indices
             cont = skimage.measure.find_contours(rot[rot_pad], 0)[0]
             cx = scipy.ndimage.uniform_filter(cont[:, 1], 10, mode='wrap')
-            cy = scipy.ndimage.uniform_filter(cont[:, 0], 10, mode='wrap')  
-
+            cy = scipy.ndimage.uniform_filter(cont[:, 0], 10, mode='wrap')
+            if len(cx) < 10:
+                continue
             # Compute the spline.
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                tck, _ = scipy.interpolate.splprep([cx, cy], per=1, k=5, s=100)
+                tck, _ = scipy.interpolate.splprep([cx, cy], per=1, k=3, s=80)
                 unew = np.arange(0, 1.0001, 0.0001)
                 out = scipy.interpolate.splev(unew, tck)
 
             # Compute the curvature and assemble the dataframe
             k = compute_curvature(out)
-            _df = pd.DataFrame([]) 
+            _df = pd.DataFrame([])
             _df['x_coords'] = out[0][:-2]
             _df['y_coords'] = out[1][:-2]
-            _df['curvature'] = k
+            _df['curvature'] = k / ip_dist
             _df['cell_id'] = idx
             _df.dropna(inplace=True)
             objects = pd.concat([objects, _df], sort=False)
             # Update the cell counter
             idx += 1
-            
+
     # Determine what needs to be returned
     out = [objects]
     if return_mask:
@@ -346,18 +354,18 @@ def pad_bbox(bbox, dims, pad=10):
     pad : int
         The number of pixels to add to each side of the bounding box. Default 
         is 10 pixels.
-    
+
     Returns
     =======
     bbox_new :  (numpy slice object, padded_bbox)
         New bbox as a tuple of a slice index and new bbox coordinates)
     """
-    x_lower = [bbox[0]-pad if (bbox[0] - pad) >= 0 else bbox[0]][0] 
-    x_upper = [bbox[2]+pad if (bbox[2] + pad) <= dims[0]  else bbox[2]][0]
+    x_lower = [bbox[0]-pad if (bbox[0] - pad) >= 0 else bbox[0]][0]
+    x_upper = [bbox[2]+pad if (bbox[2] + pad) <= dims[0] else bbox[2]][0]
     y_lower = [bbox[1]-pad if (bbox[1] - pad) >= 0 else bbox[1]][0]
-    y_upper = [bbox[3]+pad if (bbox[3] + pad) <= dims[1]  else bbox[3]][0]
+    y_upper = [bbox[3]+pad if (bbox[3] + pad) <= dims[1] else bbox[3]][0]
     padded_bbox = (x_lower, y_lower, x_upper, y_upper)
-    return [np.s_[x_lower:x_upper, y_lower:y_upper], padded_bbox] 
+    return [np.s_[x_lower:x_upper, y_lower:y_upper], padded_bbox]
 
 
 def compute_curvature(arr):
@@ -366,93 +374,97 @@ def compute_curvature(arr):
     ddx = np.diff(dx)
     dy = np.diff(arr[1])
     ddy = np.diff(dy)
-    k = (dx[:-1] * ddy  - dy[:-1] * ddx)/((dx[:-1]**2  + dy[:-1]**2)**(3/2))     
+    k = (dx[:-1] * ddy - dy[:-1] * ddx)/((dx[:-1]**2 + dy[:-1]**2)**(3/2))
     return k
 
 
-def assign_anatomy(data, 
-              max_curve=0.5,
-              columns = {'groupby' :'cell_id',
-                         'curve'   : 'curvature',
-                         'x'       : 'x_coords',
-                         'y'       : 'y_coords'},
-              ip_dist=0.031):
+def assign_anatomy(data,
+                   cap_radius=0.5,
+                   columns={'groupby': 'cell_id',
+                            'curve': 'curvature',
+                            'x': 'x_coords',
+                            'y': 'y_coords'}):
 
     # Convert supplied curvature threshold to pixel value.
-    curve_thresh = max_curve * ip_dist 
 
-    df = pd.DataFrame([])  
+    df = pd.DataFrame([])
     for g, d in data.groupby(columns['groupby']):
         # Find the caps
         d = d.copy()
-        caps = d[(d[columns['curve']] >= curve_thresh)].copy()
- 
+        caps = d[d[columns['curve']] >= 1/cap_radius].copy()
+
         # Determine contour points the cell planes
-        bottom_cap_bound = caps[(caps[columns['y']] - caps[columns['y']].mean() ) < 0 ][columns['y']].max()
-        upper_cap_bound = caps[(caps[columns['y']] - caps[columns['y']].mean() ) > 0 ][columns['y']].min()
+        bottom_cap_bound = caps[(
+            caps[columns['y']] - caps[columns['y']].mean()) < 0][columns['y']].max()
+        upper_cap_bound = caps[(
+            caps[columns['y']] - caps[columns['y']].mean()) > 0][columns['y']].min()
 
         # Label caps as top and bottom
         d['component'] = 'bottom'
         d.loc[d[columns['y']] > bottom_cap_bound, 'component'] = 'top'
 
         # Find and label edges as left and right
-        _caps = d[(d[columns['y']] < bottom_cap_bound) | (d[columns['y']] > upper_cap_bound)].copy()
-        sides = d[(d[columns['y']] > bottom_cap_bound) & (d[columns['y']] < upper_cap_bound)].copy()
+        _caps = d[(d[columns['y']] < bottom_cap_bound) | (
+            d[columns['y']] > upper_cap_bound)].copy()
+        sides = d[(d[columns['y']] > bottom_cap_bound) & (
+            d[columns['y']] < upper_cap_bound)].copy()
         sides['component'] = 'right'
-        sides.loc[(sides[columns['x']] - sides[columns['x']].mean()) < 0, 
-                'component'] = 'left'
+        sides.loc[(sides[columns['x']] - sides[columns['x']].mean()) < 0,
+                  'component'] = 'left'
         df = pd.concat([df, _caps, sides], sort=False)
     return df
 
-def measure_biometrics(data,                       
+
+def measure_biometrics(data,
                        peri_width=0.025,
-                       ip_dist = 0.0319,
-                       columns = {'groupby' :'cell_id',
-                                  'curve'   : 'curvature',
-                                  'x'       : 'x_coords',
-                                  'y'       : 'y_coords',
-                                  'component': 'component'}):
+                       ip_dist=0.0319,
+                       columns={'groupby': 'cell_id',
+                                'curve': 'curvature',
+                                'x': 'x_coords',
+                                'y': 'y_coords',
+                                'component': 'component'}):
     """
     Computes properties of cells with assigned anatomy.  
     """
-    #TODO. Better way to calculate this length. maximize distance between sides 
+    # TODO. Better way to calculate this length. maximize distance between sides
     # connecting poles.
-        
+
     # Compute width properties
     biometrics = pd.DataFrame([])
     for g, d in data.groupby(data[columns['groupby']]):
         # Make measurements
         length = (d[columns['y']].max() - d[columns['y']].min()) * ip_dist
-        left_x = d[d[columns['component']]=='left'][columns['x']].values
-        left_y = d[d[columns['component']]=='left'][columns['y']].values
-        right_x = d[d[columns['component']]=='right'][columns['x']].values
-        right_y = d[d[columns['component']]=='right'][columns['y']].values
-        if (len(left_x) == 0) | (len(left_y)==0):
+        left_x = d[d[columns['component']] == 'left'][columns['x']].values
+        left_y = d[d[columns['component']] == 'left'][columns['y']].values
+        right_x = d[d[columns['component']] == 'right'][columns['x']].values
+        right_y = d[d[columns['component']] == 'right'][columns['y']].values
+        if (len(left_x) == 0) | (len(left_y) == 0):
             continue
+
         def hypot(p1, p2):
             return np.sqrt((p2[0] - p1[0])**2 + (p2[1] - p2[0])**2)
-        width = [np.min(hypot((_x,_y), (left_x, left_y))) * ip_dist for _x, _y in zip(right_x, right_y)] 
-        width_mean = np.mean(width)
-        width_var  = np.var(width)
+        width = [np.min(hypot((_x, _y), (left_x, left_y))) *
+                 ip_dist for _x, _y in zip(right_x, right_y)]
+        width_median = np.median(width)
+        width_var = np.var(width)
 
-        # Compute features 
-        vol = volume(length, width_mean)
-        sa = surface_area(length, width_mean)
+        # Compute features
+        vol = volume(length, width_median)
+        sa = surface_area(length, width_median)
         sav = sa / vol
-        env_vol = envelope_volume(length, width_mean, peri_width)
+        env_vol = envelope_volume(length, width_median, peri_width)
         frac_vol = env_vol / vol
 
         # Assemble dataframe
         _df = pd.DataFrame(
-        {'length' : length,
-        'width_mean': width_mean,
-        'width_var' : width_var,
-        'volume': vol,
-        'surface_area': sa,
-        'surface_to_volume' : sav,
-        'periplasm_volume' : env_vol,
-        'periplasm_fractional_volume': frac_vol,
-        columns['groupby'] : g}, index=[0])
+            {'length': length,
+             'width_median': width_median,
+             'width_var': width_var,
+             'volume': vol,
+             'surface_area': sa,
+             'surface_to_volume': sav,
+             'periplasm_volume': env_vol,
+             'periplasm_fractional_volume': frac_vol,
+             columns['groupby']: g}, index=[0])
         biometrics = pd.concat([biometrics, _df])
     return biometrics
-

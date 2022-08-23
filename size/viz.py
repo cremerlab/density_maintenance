@@ -1,13 +1,15 @@
 
-import matplotlib.pyplot 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 import matplotlib
 import seaborn as sns
-import bokeh.plotting 
-import bokeh.io 
+import bokeh.plotting
+import bokeh.io
 import bokeh.palettes
 import bokeh.themes
 import altair as alt
-from bokeh.models import * 
+from bokeh.models import *
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.offsetbox import AnchoredText
 import seaborn as sns
@@ -20,46 +22,46 @@ def load_markercolors():
     """
     colors, _ = get_colors()
     mapper = {
-        'Bremer & Dennis, 2008': {'m':'X', 'm_bokeh':'circle_dot'},
-        'Brunschede et al., 1977': {'m':'s', 'm_bokeh':'square'},
-        'Dai et al., 2016': {'m':'o',  'm_bokeh': 'circle'},
+        'Bremer & Dennis, 2008': {'m': 'X', 'm_bokeh': 'circle_dot'},
+        'Brunschede et al., 1977': {'m': 's', 'm_bokeh': 'square'},
+        'Dai et al., 2016': {'m': 'o',  'm_bokeh': 'circle'},
         'Forchhammer & Lindahl, 1971': {'m': 'v', 'm_bokeh': 'inverted_triangle'},
-        'Li et al., 2014': {'m':'d', 'm_bokeh':'diamond'},
-        'Schmidt et al., 2016': {'m':'8', 'm_bokeh':'hex'},
-        'Scott et al., 2010': {'m':'^', 'm_bokeh': 'square_pin'},
-        'Wu et al., 2021': {'m':'<', 'm_bokeh': 'square_dot'},
-        'Bremer & Dennis, 1996': {'m':'>', 'm_bokeh': 'circle_cross'},
-        'Dalbow & Young, 1975': {'m':'P', 'm_bokeh': 'hex_dot'},
-        'Young & Bremer, 1976': {'m':'h', 'm_bokeh': 'triangle_pin'},
-        'Skjold et al., 1973' : {'m': '*', 'm_bokeh': 'star'},
-        'Dong et al., 1996' : {'m': 'p', 'm_bokeh': 'diamond_dot'},
-        'Dong et al., 1995' : {'m':'v', 'm_bokeh': 'triangle_pin'},
+        'Li et al., 2014': {'m': 'd', 'm_bokeh': 'diamond'},
+        'Schmidt et al., 2016': {'m': '8', 'm_bokeh': 'hex'},
+        'Scott et al., 2010': {'m': '^', 'm_bokeh': 'square_pin'},
+        'Wu et al., 2021': {'m': '<', 'm_bokeh': 'square_dot'},
+        'Bremer & Dennis, 1996': {'m': '>', 'm_bokeh': 'circle_cross'},
+        'Dalbow & Young, 1975': {'m': 'P', 'm_bokeh': 'hex_dot'},
+        'Young & Bremer, 1976': {'m': 'h', 'm_bokeh': 'triangle_pin'},
+        'Skjold et al., 1973': {'m': '*', 'm_bokeh': 'star'},
+        'Dong et al., 1996': {'m': 'p', 'm_bokeh': 'diamond_dot'},
+        'Dong et al., 1995': {'m': 'v', 'm_bokeh': 'triangle_pin'},
         'Bentley et al., 1990': {'m': 'X', 'm_bokeh': 'star'},
         'Erickson et al., 2017': {'m': 'o', 'm_bokeh': 'hex_dot'},
         'Oldewurtle et al., 2021': {'m': 's', 'm_bokeh': 'square_pin'},
         'Mori et al., 2017': {'m': '*', 'm_bokeh': 'hex_dot'},
         'Sloan and Urban, 1976': {'m': 'h', 'm_bokeh': 'star'},
-        'Li et al., 2018': {'m':'>', 'm_bokeh': 'triangle_pin'},
-        'Korem Kohanim et al., 2018': {'m':'d', 'm_bokeh': 'diamond'},
-        'Panlilio et al., 2021': {'m': 'p', 'm_bokeh':'diamond_dot'},
-        'Basan et al., 2015' : {'m': '8', 'm_bokeh': 'circle'},
-        'You et al., 2013' : {'m': 'h', 'm_bokeh':'hex_dot'},
-        'Hernandez & Bremer, 1993' : {'m':'X', 'm_bokeh': 'diamond_dot'},
-        'Farewell & Neidhart, 1998' : {'m': 'h', 'm_bokeh': 'circle_cross'},
-        'Kepes & Beguin, 1966' : {'m':'o', 'm_bokeh': 'circle'},
-        'Coffman et al., 1971' :  {'m':'s', 'm_bokeh': 'square'},
+        'Li et al., 2018': {'m': '>', 'm_bokeh': 'triangle_pin'},
+        'Korem Kohanim et al., 2018': {'m': 'd', 'm_bokeh': 'diamond'},
+        'Panlilio et al., 2021': {'m': 'p', 'm_bokeh': 'diamond_dot'},
+        'Basan et al., 2015': {'m': '8', 'm_bokeh': 'circle'},
+        'You et al., 2013': {'m': 'h', 'm_bokeh': 'hex_dot'},
+        'Hernandez & Bremer, 1993': {'m': 'X', 'm_bokeh': 'diamond_dot'},
+        'Farewell & Neidhart, 1998': {'m': 'h', 'm_bokeh': 'circle_cross'},
+        'Kepes & Beguin, 1966': {'m': 'o', 'm_bokeh': 'circle'},
+        'Coffman et al., 1971':  {'m': 's', 'm_bokeh': 'square'},
         'Morris & Hansen, 1973': {'m': '*', 'm_bokeh': 'star'},
-        'Schleif et al., 1973' : {'m':'v', 'm_bokeh': 'triangle'},
-        'Lacroute & Stent, 1968': {'m':'p', 'm_bokeh':'hex'},
-        'Dennis & Bremer, 1974' : {'m': 's', 'm_bokeh': 'square'},
-        'Albertson & Nyström, 1994': {'m':'^', 'm_bokeh': 'circle_cross'},
-        'Gausing, 1972': {'m':'>', 'm_bokeh':'diamond'},
+        'Schleif et al., 1973': {'m': 'v', 'm_bokeh': 'triangle'},
+        'Lacroute & Stent, 1968': {'m': 'p', 'm_bokeh': 'hex'},
+        'Dennis & Bremer, 1974': {'m': 's', 'm_bokeh': 'square'},
+        'Albertson & Nyström, 1994': {'m': '^', 'm_bokeh': 'circle_cross'},
+        'Gausing, 1972': {'m': '>', 'm_bokeh': 'diamond'},
         'Schleif, 1967': {'m': '<', 'm_bokeh': 'diamond_dot'},
-        'Hernandez & Bremer, 1993': {'m': 'v', 'm_bokeh':'star'},
-        'Pedersen, 1984': {'m':'X', 'm_bokeh':'triangle_pin'}
-        }
+        'Hernandez & Bremer, 1993': {'m': 'v', 'm_bokeh': 'star'},
+        'Pedersen, 1984': {'m': 'X', 'm_bokeh': 'triangle_pin'}
+    }
     # Set colors rooted in blue
-    cmap = sns.color_palette(f"light:{colors['primary_black']}", 
+    cmap = sns.color_palette(f"light:{colors['primary_black']}",
                              n_colors=len(mapper)).as_hex()
     cmap.reverse()
     counter = 0
@@ -67,6 +69,7 @@ def load_markercolors():
         mapper[k]['c'] = cmap[counter]
         counter += 1
     return mapper
+
 
 def get_colors(all_palettes=False):
     """
@@ -110,8 +113,8 @@ def get_colors(all_palettes=False):
         'purple': '#5d4a7e',
         'primary_purple': '#8066ad',
         'light_purple': '#a897c5',
-        'pale_purple': '#c2b6d6' 
-        }
+        'pale_purple': '#c2b6d6'
+    }
 
     # Generate the sequential color palettes.
     keys = ['black', 'blue', 'green', 'red', 'purple', 'gold']
@@ -119,7 +122,7 @@ def get_colors(all_palettes=False):
     primary_palette = [colors[f'primary_{k}'] for k in keys]
     light_palette = [colors[f'light_{k}'] for k in keys]
 
-    # Determine what to return. 
+    # Determine what to return.
     if all_palettes:
         palette = [dark_palette, primary_palette, light_palette]
     else:
@@ -128,11 +131,10 @@ def get_colors(all_palettes=False):
     return [colors, palette]
 
 
-
 def matplotlib_style(return_colors=True, return_palette=True, **kwargs):
     """
     Assigns the plotting style for matplotlib generated figures. 
-    
+
     Parameters
     ----------
     return_colors : bool
@@ -144,7 +146,7 @@ def matplotlib_style(return_colors=True, return_palette=True, **kwargs):
     rc = {
         # Axes formatting
         "axes.facecolor": "#f0f3f7",
-        "axes.edgecolor": "#ffffff", #5b5b5b",
+        "axes.edgecolor": "#ffffff",  # 5b5b5b",
         "axes.labelcolor": "#5b5b5b",
         "axes.spines.right": False,
         "axes.spines.top": False,
@@ -154,7 +156,7 @@ def matplotlib_style(return_colors=True, return_palette=True, **kwargs):
         "axes.linewidth": 0.15,
         "axes.grid": True,
 
-        # Formatting of lines and points. 
+        # Formatting of lines and points.
         "lines.linewidth": 0.5,
         "lines.dash_capstyle": "butt",
         "patch.linewidth": 0.25,
@@ -172,7 +174,7 @@ def matplotlib_style(return_colors=True, return_palette=True, **kwargs):
         "axes.titlepad": 3,
         "axes.titlelocation": "left",
 
-        # Axes label formatting. 
+        # Axes label formatting.
         "axes.labelpad": 0,
         "axes.labelweight": 700,
         "xaxis.labellocation": "center",
@@ -205,9 +207,9 @@ def matplotlib_style(return_colors=True, return_palette=True, **kwargs):
         # General Font styling
         "font.family": "sans-serif",
         "font.family": "Nunito",
-        "font.weight": 400, # Weight of all fonts unless overriden.
+        "font.weight": 400,  # Weight of all fonts unless overriden.
         "font.style": "normal",
-        "text.color": "#3d3d3d", #"#5b5b5b",
+        "text.color": "#3d3d3d",  # "#5b5b5b",
 
         # Higher-order things
         "pdf.fonttype": 42,
@@ -220,7 +222,7 @@ def matplotlib_style(return_colors=True, return_palette=True, **kwargs):
     }
     matplotlib.style.use(rc)
 
-    # Load the colors and palettes. 
+    # Load the colors and palettes.
     colors, palette = get_colors(**kwargs)
     sns.set_palette(palette)
 
@@ -230,7 +232,7 @@ def matplotlib_style(return_colors=True, return_palette=True, **kwargs):
         out.append(colors)
     if return_palette == True:
         out.append(palette)
-    
+
     if len(out) == 1:
         return out[0]
     else:
@@ -240,7 +242,7 @@ def matplotlib_style(return_colors=True, return_palette=True, **kwargs):
 def bokeh_style(return_colors=True, return_palette=True):
     theme_json = {
         "attrs": {
-            "Figure": {"background_fill_color": "#f0f3f7",},
+            "Figure": {"background_fill_color": "#f0f3f7", },
             "Axis": {
                 "axis_line_color": None,
                 "major_tick_line_color": None,
@@ -252,7 +254,7 @@ def bokeh_style(return_colors=True, return_palette=True):
                 "border_line_width": 0.75,
                 "background_fill_alpha": 0.75,
             },
-            "Grid": {"grid_line_color": "#FFFFFF", "grid_line_width": 0.75,},
+            "Grid": {"grid_line_color": "#FFFFFF", "grid_line_width": 0.75, },
             "Text": {
                 "text_font_style": "regular",
                 "text_font_size": "12pt",
@@ -264,7 +266,7 @@ def bokeh_style(return_colors=True, return_palette=True):
                 "align": "left",
                 'text_font_style': 'normal',
                 'text_font_size': "10pt",
-                "offset": 5 
+                "offset": 5
             },
         }
     }
@@ -274,9 +276,9 @@ def bokeh_style(return_colors=True, return_palette=True):
     bokeh.io.curdoc().theme = theme
     out = []
     if return_colors:
-        out.append(colors)  
-    if return_palette:  
-       out.append(palette) 
+        out.append(colors)
+    if return_palette:
+        out.append(palette)
     if return_colors | return_palette:
         return out
 
@@ -285,7 +287,7 @@ def load_js(fname, args):
     """
     Given external javascript file names and arguments, load a bokeh CustomJS
     object
-    
+
     Parameters
     ----------
     fname: str or list of str
@@ -294,7 +296,7 @@ def load_js(fname, args):
         strings.
     args: dict
         The arguments to supply to the custom JS callback. 
-    
+
     Returns
     -------
     cb : bokeh CustomJS model object
@@ -303,7 +305,7 @@ def load_js(fname, args):
     """
     if type(fname) == str:
         with open(fname) as f:
-            js = f.read() 
+            js = f.read()
     elif type(fname) == list:
         js = ''
         for _fname in fname:
@@ -313,10 +315,11 @@ def load_js(fname, args):
     cb = CustomJS(code=js, args=args)
     return cb
 
+
 def altair_style(return_colors=True, return_palette=True, **kwargs):
     """
     Assigns the plotting style for matplotlib generated figures. 
-    
+
     Parameters
     ----------
     return_colors : bool
@@ -326,52 +329,53 @@ def altair_style(return_colors=True, return_palette=True, **kwargs):
     """
     colors, palette = get_colors(**kwargs)
     primary_palette = palette
+
     def _theme():
         return {
             'config': {
                 'background': 'white',
-                    'group': { 
-                    'fill': 'white', 
-                    },
+                'group': {
+                    'fill': 'white',
+                },
                 'view': {
                     'strokeWidth': 0,
                     'height': 300,
                     'width': 400,
-                    'fill': '#f0f3f7', 
-                    },
+                    'fill': '#f0f3f7',
+                },
                 'point': {
                     'size': 40,
                     'filled': True,
                     'opacity': 1,
                     'strokeWidth': 0.75,
                     'stroke': '#FFFFFF'
-                    },    
+                },
                 'square': {
                     'size': 40,
                     'filled': True,
                     'opacity': 1,
                     'strokeWidth': 0.75,
                     'stroke': '#FFFFFF'
-                    },      
+                },
                 'circle': {
                     'size': 40,
                     'filled': True,
                     'opacity': 1,
                     'strokeWidth': 0.75,
                     'stroke': '#FFFFFF'
-                    },  
+                },
                 'line': {
                     'size': 2,
                 },
                 'axis': {
-                    'domainColor': '#ffffff', 
+                    'domainColor': '#ffffff',
                     'domainWidth': 0.5,
                     'labelColor': '#5b5b5b',
                     'labelFontSize': 10,
                     'labelFont': 'Arial',
                     'titleFont': 'Arial',
                     'titleFontWeight': 700,
-                    'titleFontSize':14,
+                    'titleFontSize': 14,
                     'titleColor': '#4b4b4b',
                     'grid': True,
                     'gridColor': '#ffffff',
@@ -390,16 +394,17 @@ def altair_style(return_colors=True, return_palette=True, **kwargs):
                     'titleFontColor': '#44b4b4b',
                     'symbolSize': 75,
                 },
-                'title' : { 
+                'title': {
                     'font': 'Nunito Sans',
                     'fontWeight': 700,
                     'fontSize': 14,
                     'fontColor': '#4b4b4b',
                 }
-                  }
-                }
+            }
+        }
 
-    alt.themes.register('personal', _theme)# enable the newly registered theme
+    # enable the newly registered theme
+    alt.themes.register('personal', _theme)
     alt.themes.enable('personal')
     # Determine what, if anything should be returned
     out = []
@@ -407,10 +412,123 @@ def altair_style(return_colors=True, return_palette=True, **kwargs):
         out.append(colors)
     if return_palette == True:
         out.append(palette)
-    
+
     if len(out) == 1:
         return out[0]
     else:
         return out
 
 
+def cell_gallery(biometrics,
+                 anatomy,
+                 fname,
+                 suptitle=None,
+                 groupby=['cell_id', 'image'],
+                 cols=10):
+    """
+    Creates and saves a figure of each cell segmentation mask, its labeled 
+    contours, and its dimensions.
+
+    Parameters 
+    -----------
+    biometrics : pandas DataFrame
+        A DataFrame containing dimension measurements for each cell as well as 
+        the intensity image. This dataframe can be the default output from
+        `size.image.measure_biometrics`.    
+    anatomy :  pandas DataFrame
+        A DataFrame containing contour coordinates for each individual cell and 
+        their labeled regions. This DataFrame can be the default output from 
+        `size.image.assign_anatomy` 
+    fname : str
+        The filename of the plot output.
+    suptitle : str or None
+        The title of the entire plot. If `None`, no title is added.
+    groupby : list
+        The elements by which to group the DataFrame. Default is to group by the
+        cell_id and the image from which the cell was segmented. 
+    cols : int 
+        The number of columns in the displayed plot. Default is 10 
+
+    Returns
+    -------
+    [fig, ax] : matplotlib figure canvas and axes
+        The figure canvas and axes artists.
+    """
+    cor, _ = matplotlib_style()
+    # Determine the total number of cells to display
+    n_cells = biometrics.groupby(groupby).ngroups
+    n_rows = int(np.ceil(n_cells/cols))
+    figsize = (8.5, n_rows)
+    n_blank = (n_rows * cols) - n_cells
+    fig, ax = plt.subplots(n_rows, cols, figsize=figsize)
+    ax = ax.ravel()
+    for a in ax:
+        a.grid(False)
+        a.set_xticks([])
+        a.set_yticks([])
+    if n_blank != 0:
+        for i in range(n_blank):
+            ax[-(i+1)].axis('off')
+    _idx = 0
+    for g, d in biometrics.groupby(groupby):
+        # Get the cell image
+        image = d['cell_image'].values[0]
+
+        # Get the contours
+        anat = anatomy[(anatomy[groupby[0]] == g[0]) &
+                       (anatomy[groupby[1]] == g[1])]
+
+        ax[_idx].imshow(image, cmap='Greys_r')
+        caps = anat[(anat['component'] == 'top') |
+                    (anat['component'] == 'bottom')]
+        sides = anat[(anat['component'] == 'left') |
+                     (anat['component'] == 'right')]
+        ax[_idx].plot(caps['x_coords'], caps['y_coords'], '.', ms=2, color=cor['light_blue'],
+                      markeredgewidth=0)
+
+        ax[_idx].plot(sides['x_coords'], sides['y_coords'], '.', ms=2, color=cor['primary_green'],
+                      markeredgewidth=0)
+
+        # Assign bar coords for width
+        median_left_x = sides[sides['component']
+                              == 'left']['x_coords'].median()
+        median_right_x = sides[sides['component']
+                               == 'right']['x_coords'].median()
+        median_left_y = sides[sides['component']
+                              == 'left']['y_coords'].median()
+        median_right_y = sides[sides['component']
+                               == 'right']['y_coords'].median()
+
+        # Assign bar coords for length
+        median_top_x = caps[caps['component']
+                            == 'top']['x_coords'].median()
+        median_bottom_x = caps[caps['component']
+                               == 'bottom']['x_coords'].median()
+        median_top_y = caps[caps['component']
+                            == 'top']['y_coords'].max()
+        median_bottom_y = caps[caps['component']
+                               == 'bottom']['y_coords'].min()
+
+        # Plot measurement bars
+        ax[_idx].plot([median_left_x, median_right_x], [
+            median_left_y, median_right_y], '-', color='white')
+        ax[_idx].plot([median_left_x, median_right_x], [
+            median_left_y, median_right_y], '|', ms=3, color='white')
+        ax[_idx].plot([median_top_x, median_bottom_x], [
+            median_top_y, median_bottom_y], '-', color='white')
+        ax[_idx].plot([median_top_x, median_bottom_x], [
+            median_top_y, median_bottom_y], '_', ms=3, color='white')
+
+        # Add text label
+        ax[_idx].set_xlabel(
+            f'$w$={d["width_median"].values[0]:0.2f} µm', fontsize=5)
+        ax[_idx].set_ylabel(
+            f'$\ell$={d["length"].values[0]:0.2f} µm', fontsize=5)
+        _idx += 1
+
+    plt.tight_layout()
+    plt.subplots_adjust(wspace=0)
+    if suptitle != None:
+        fig.text(0, 1,  suptitle, fontsize=10)
+    plt.savefig(fname, dpi=200)
+    return [fig, ax]
