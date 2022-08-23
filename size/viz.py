@@ -420,21 +420,22 @@ def altair_style(return_colors=True, return_palette=True, **kwargs):
 
 
 def cell_gallery(biometrics,
+                 cells,
                  anatomy,
                  fname,
                  suptitle=None,
-                 groupby=['cell_id', 'image'],
                  cols=10):
     """
     Creates and saves a figure of each cell segmentation mask, its labeled 
-    contours, and its dimensions.
+    contours, and its dimensions, grouped by the cell ID and the image from 
+    which it was segmented.
 
     Parameters 
     -----------
     biometrics : pandas DataFrame
-        A DataFrame containing dimension measurements for each cell as well as 
-        the intensity image. This dataframe can be the default output from
-        `size.image.measure_biometrics`.    
+        A DataFrame containing dimension measurements for each cell.
+    cells : pandas DataFrame 
+        A Dataframe containing the cell intensity images.
     anatomy :  pandas DataFrame
         A DataFrame containing contour coordinates for each individual cell and 
         their labeled regions. This DataFrame can be the default output from 
@@ -443,9 +444,6 @@ def cell_gallery(biometrics,
         The filename of the plot output.
     suptitle : str or None
         The title of the entire plot. If `None`, no title is added.
-    groupby : list
-        The elements by which to group the DataFrame. Default is to group by the
-        cell_id and the image from which the cell was segmented. 
     cols : int 
         The number of columns in the displayed plot. Default is 10 
 
@@ -456,7 +454,7 @@ def cell_gallery(biometrics,
     """
     cor, _ = matplotlib_style()
     # Determine the total number of cells to display
-    n_cells = biometrics.groupby(groupby).ngroups
+    n_cells = biometrics.groupby(['cell_id', 'image']).ngroups
     n_rows = int(np.ceil(n_cells/cols))
     figsize = (8.5, n_rows)
     n_blank = (n_rows * cols) - n_cells
@@ -470,13 +468,15 @@ def cell_gallery(biometrics,
         for i in range(n_blank):
             ax[-(i+1)].axis('off')
     _idx = 0
-    for g, d in biometrics.groupby(groupby):
+    for g, d in biometrics.groupby(['cell_id', 'image']):
         # Get the cell image
-        image = d['cell_image'].values[0]
+
+        image = cells[(cells['cell_id'] == g[0]) & (
+            cells['image'] == g[1])]['cell_image'].values[0]
 
         # Get the contours
-        anat = anatomy[(anatomy[groupby[0]] == g[0]) &
-                       (anatomy[groupby[1]] == g[1])]
+        anat = anatomy[(anatomy['cell_id'] == g[0]) &
+                       (anatomy['image'] == g[1])]
 
         ax[_idx].imshow(image, cmap='Greys_r')
         caps = anat[(anat['component'] == 'top') |

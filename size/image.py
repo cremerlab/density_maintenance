@@ -239,9 +239,10 @@ def contour_segmentation(image,
     mask : 2d-array of ints
         The object segmentation mask after object filtering.  This is only 
         returned if `return_mask == True`.
-    cells : dict of dicts
-        A dictionary with each segmentation and intensity image for each cell,
-        rotated to be aligned. This is only returned if `return_cells==True`.
+    cell_df : pandas DataFrame
+        A  pandas DataFrame containing cell ID number, segmentation mask, 
+        and intensity image.
+
     """
     if filter:
         _image = tophat_filter(image, **tophat_kwargs)
@@ -261,7 +262,7 @@ def contour_segmentation(image,
     # Compute properties and create storage objects
     mask = np.zeros_like(image)
     props = skimage.measure.regionprops(labeled)
-    cell_images = {}
+    cell_df = pd.DataFrame([])
     objects = pd.DataFrame([])
 
     # Iterate through each segmented object
@@ -302,8 +303,12 @@ def contour_segmentation(image,
 
             # If an intensity image is desired, also rotate
             if return_cells:
-                cell_images[idx] = {'intensity_image': rot_int[rot_pad],
-                                    'segmentation_mask': rot[rot_pad]}
+                _cell_df = pd.DataFrame([], index=[0])
+                _cell_df['cell_id'] = idx
+                _cell_df['cell_image'] = [rot_int[rot_pad]]
+                _cell_df['mask'] = [rot[rot_pad]]
+                cell_df = pd.concat([cell_df, _cell_df], sort=False)
+
             # Find contours and perform a uniform filtering of indices
             cont = skimage.measure.find_contours(rot[rot_pad], 0)[0]
             cx = scipy.ndimage.uniform_filter(cont[:, 1], 10, mode='wrap')
@@ -334,7 +339,7 @@ def contour_segmentation(image,
     if return_mask:
         out.append(mask)
     if return_cells:
-        out.append(cell_images)
+        out.append(cell_df)
     if len(out) == 1:
         out = out[0]
     return out
