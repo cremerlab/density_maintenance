@@ -195,6 +195,7 @@ def contour_segmentation(image,
                          area_bounds=(1, 1000),
                          ecc_bound=0.5,
                          solidity_bound=0.9,
+                         perim_bounds=(2, 15),
                          ip_dist=0.0319,
                          return_mask=False,
                          return_cells=False,
@@ -221,6 +222,10 @@ def contour_segmentation(image,
         The solidity below chich objects should be discarded. Solidity is 
         defined as the area fraction of the convex hull that is occupied by 
         the object. Default is 0.9.
+    perim_bound : tuple of positive floats
+        The object perimeter between which cells should be kept. This should be 
+        provided in distance units that can be converted to pixel number 
+        through the interpixel distance.
     ip_dist : float
         The interpixel distance in the same units as `area_bounds`. Default is 
         0.0167 microns per pixel
@@ -269,9 +274,10 @@ def contour_segmentation(image,
     idx = 0
     for p in tqdm.tqdm(props):
         area = p.area_filled * ip_dist**2
+        perim = p.perimeter * ip_dist
         if (area >= area_bounds[0]) & (area <= area_bounds[1]) &\
-                (p.solidity >= solidity_bound) & (p.eccentricity >= ecc_bound):
-
+                (p.solidity >= solidity_bound) & (p.eccentricity >= ecc_bound) &\
+                ((perim >= perim_bounds[0]) & (perim <= perim_bounds[1])):
             # Update the mask
             mask += labeled == p.label
             # Crop the original object and rotate.
