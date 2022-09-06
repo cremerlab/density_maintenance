@@ -7,3 +7,5 @@
 *_checkpoints*
 *.zip*
 *.tif
+*.hpp
+*checkpoints*

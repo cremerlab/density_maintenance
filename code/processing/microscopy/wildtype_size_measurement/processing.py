@@ -15,8 +15,9 @@ mp.cpu_count()
 ROOT = '../../../../data/images/wildtype/'
 # Load images, convert to greyscale,and filter.
 dirs = np.sort(glob.glob(f'{ROOT}/*/'))
-
+# %%
 size_df = pd.DataFrame([])
+biom = []
 for direc in tqdm.tqdm(dirs):
     # Get the images
     files = glob.glob(f'{direc}*.tif')
@@ -42,12 +43,13 @@ for direc in tqdm.tqdm(dirs):
         temp = float(temp[:-1])
 
         # Process the image
-        print('Performing segmentation...')
+        print(f'Performing segmentation of {carbon}...')
         objs, cell_df = size.image.contour_segmentation(filt_ims[i], filter=False,
                                                         area_bounds=(0.5, 15),
                                                         ecc_bounds=0.8,
                                                         solidity_bound=0.9,
-                                                        perim_bounds=(0.5, 20),
+                                                        perim_bounds=(
+                                                            0.1, 200),
                                                         return_cells=True,
                                                         intensity_image=ims[i])
         print('done!')
@@ -72,6 +74,9 @@ for direc in tqdm.tqdm(dirs):
             d['inducer_conc'] = inducer_conc
             d['image'] = suffix
             d['strain'] = 'wildtype'
+        size_df = pd.concat([size_df, biometrics])
+        biom.append(biometrics)
+
         sizes.append(biometrics)
         splines.append(anatomy)
         cells.append(cell_df)
@@ -81,8 +86,7 @@ for direc in tqdm.tqdm(dirs):
     cell_splines = pd.concat(splines, sort=False)
 
     # Save size measurements
-    size_df = pd.concat([size_df, cell_sizes])
-
+    cell_sizes.to_csv(f'{direc}/{carbon}_sizes.csv', index=False)
     # Generate the gallerires
     print('Generating cell galleries...')
     for g, d in cell_sizes.groupby(['carbon_source']):
@@ -92,6 +96,7 @@ for direc in tqdm.tqdm(dirs):
         splines = cell_splines[cell_splines['carbon_source'] == g]
         _ = size.viz.cell_gallery(
             d, cells, splines, fname=fname, suptitle=suptitle)
+        plt.close()
     print('done!')
 
 # %%
