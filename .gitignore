@@ -10,3 +10,4 @@
 *.hpp
 *checkpoints*
 *splines.csv
+*.netcdf

@@ -51,12 +51,11 @@ model {
     sa_mu ~ std_normal();
     ar_mu ~ normal(0, 5);
 
-    if ( J > 1 )  
-        width_sigma ~ std_normal();
-        length_sigma ~ std_normal();
-        vol_sigma ~ std_normal();
-        sa_sigma ~ std_normal();
-        ar_sigma ~ std_normal();
+    width_sigma ~ std_normal();
+    length_sigma ~ std_normal();
+    vol_sigma ~ std_normal();
+    sa_sigma ~ std_normal();
+    ar_sigma ~ std_normal();
       
 
     homosced_width_sigma ~ std_normal();
