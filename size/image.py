@@ -98,6 +98,7 @@ def log_segmentation(im, selem=None, thresh=0.0001, radius=2.0,
         im_filt = scipy.ndimage.median_filter(im, footprint=selem)
     else:
         im_filt = im
+
     # Ensure that the provided image is a float.
     if np.max(im) > 1.0:
         im_float = skimage.img_as_float(im_filt)
@@ -176,9 +177,7 @@ def tophat_filter(image,
     # Perform filtering and closing operations
 
     blk_tophat = cv2.morphologyEx(im_sub, cv2.MORPH_BLACKHAT, lg_selem)
-    #skimage.morphology.black_tophat(im_sub, lg_selem)
     wht_tophat = cv2.morphologyEx(blk_tophat, cv2.MORPH_TOPHAT, lg_selem)
-    #skimage.morphology.white_tophat(blk_tophat, lg_selem)
     closing = scipy.ndimage.grey_closing(wht_tophat, footprint=sm_selem)
 
     if threshold == 'otsu':
@@ -255,8 +254,8 @@ def contour_segmentation(image,
         _image = image
     # Perform the laplacian of gaussian segmentation
     log_selem = skimage.morphology.square(2)
-    seg = log_segmentation(_image, radius=1, selem=log_selem,
-                           thresh=0.001, median_filt=False,
+    seg = log_segmentation(_image, radius=2, selem=log_selem,
+                           thresh=0.0001, median_filt=False,
                            label=False)
 
     # Clean up the mask and label
@@ -284,7 +283,7 @@ def contour_segmentation(image,
             padded, _ = pad_bbox(p.bbox, np.shape(labeled), pad=10)
             rot = scipy.ndimage.rotate(
                 labeled[padded] == p.label, -np.rad2deg(p.orientation), order=0) > 0
-            erode_selem = skimage.morphology.square(2)
+            erode_selem = skimage.morphology.rectangle(1, 5)  # 2 orig
             rot = skimage.morphology.binary_erosion(rot, erode_selem)
             rot = skimage.morphology.remove_small_holes(rot)
             rot = skimage.morphology.remove_small_objects(rot)
@@ -391,6 +390,7 @@ def compute_curvature(arr):
 
 def assign_anatomy(data,
                    cap_radius=0.5,
+                   sept_radius=1,
                    columns={'groupby': 'cell_id',
                             'curve': 'curvature',
                             'x': 'x_coords',
@@ -399,9 +399,15 @@ def assign_anatomy(data,
     # Convert supplied curvature threshold to pixel value.
 
     df = pd.DataFrame([])
-    for g, d in data.groupby(columns['groupby']):
-        # Find the caps
+    for _, d in data.groupby(columns['groupby']):
         d = d.copy()
+
+        # Find segmented objects with negative curvature, indicating septa, and
+        # skip it.
+        if d['curvature'].min() <= (-1 / sept_radius):
+            continue
+
+        # Find the caps
         caps = d[d[columns['curve']] >= 1/cap_radius].copy()
 
         # Determine contour points the cell planes

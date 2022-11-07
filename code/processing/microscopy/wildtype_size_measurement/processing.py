@@ -11,7 +11,6 @@ import joblib
 import multiprocessing as mp
 cor, pal = size.viz.matplotlib_style()
 mp.cpu_count()
-
 ROOT = '../../../../data/images/wildtype/'
 # Load images, convert to greyscale,and filter.
 dirs = np.sort(glob.glob(f'{ROOT}/*/'))
@@ -86,7 +85,7 @@ for direc in tqdm.tqdm(dirs):
     cell_splines = pd.concat(splines, sort=False)
 
     # Save size measurements
-    cell_sizes.to_csv(f'{direc}/{carbon}_sizes.csv', index=False)
+    cell_sizes.to_csv(f'{direc}/{date}_sizes.csv', index=False)
     # Generate the gallerires
     print('Generating cell galleries...')
     for g, d in cell_sizes.groupby(['carbon_source']):
@@ -101,6 +100,6 @@ for direc in tqdm.tqdm(dirs):
 
 # %%
 # Save the huge size dataframe
+size_df = pd.concat([pd.read_csv(f)
+                    for f in glob.glob(f'{ROOT}/*/*.csv')], sort=False)
 size_df.to_csv('./output/wildtype_size_measurements.csv')
-
-# %%

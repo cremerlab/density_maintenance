@@ -11,3 +11,5 @@
 *checkpoints*
 *splines.csv
 *.netcdf
+*samples.csv
+*.netcdf

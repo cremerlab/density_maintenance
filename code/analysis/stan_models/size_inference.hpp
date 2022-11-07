@@ -8,33 +8,23 @@ using namespace stan::math;
 
 
 stan::math::profile_map profiles__;
-static constexpr std::array<const char*, 40> locations_array__ = 
+static constexpr std::array<const char*, 24> locations_array__ = 
 {" (found before start of program)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 20, column 4 to column 27)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 21, column 4 to column 28)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 22, column 4 to column 25)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 23, column 4 to column 24)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 24, column 4 to column 24)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 26, column 4 to column 39)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 27, column 4 to column 40)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 28, column 4 to column 37)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 29, column 4 to column 36)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 30, column 4 to column 36)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 34, column 4 to column 28)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 35, column 4 to column 29)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 36, column 4 to column 26)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 37, column 4 to column 25)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 38, column 4 to column 25)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 40, column 4 to column 40)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 41, column 4 to column 41)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 42, column 4 to column 38)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 43, column 4 to column 37)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 44, column 4 to column 37)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 46, column 4 to column 52)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 47, column 4 to column 55)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 48, column 4 to column 49)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 49, column 4 to column 53)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 50, column 4 to column 53)",
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 17, column 4 to column 27)",
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 18, column 4 to column 28)",
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 19, column 4 to column 25)",
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 20, column 4 to column 39)",
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 21, column 4 to column 40)",
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 22, column 4 to column 37)",
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 26, column 4 to column 31)",
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 27, column 4 to column 33)",
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 28, column 4 to column 30)",
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 31, column 4 to column 40)",
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 32, column 4 to column 41)",
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 33, column 4 to column 38)",
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 35, column 4 to column 52)",
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 36, column 4 to column 55)",
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 37, column 4 to column 49)",
  " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 3, column 4 to column 19)",
  " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 4, column 4 to column 35)",
  " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 7, column 20 to column 21)",
@@ -42,13 +32,7 @@ static constexpr std::array<const char*, 40> locations_array__ =
  " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 8, column 20 to column 21)",
  " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 8, column 4 to column 31)",
  " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 12, column 20 to column 21)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 12, column 4 to column 67)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 13, column 20 to column 21)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 13, column 4 to column 56)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 14, column 20 to column 21)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 14, column 4 to column 96)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 15, column 20 to column 21)",
- " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 15, column 4 to column 64)"};
+ " (in '/Users/gchure/Dropbox/git/postdoc_projects/size_control/code/analysis/stan_models/size_inference.stan', line 12, column 4 to column 88)"};
 
 
 
@@ -60,16 +44,10 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
   double periplasmic_diam;
   Eigen::Matrix<double, -1, 1> widths_data__;
   Eigen::Matrix<double, -1, 1> lengths_data__;
-  Eigen::Matrix<double, -1, 1> cyto_width_data__;
-  Eigen::Matrix<double, -1, 1> aspect_ratio_data__;
-  Eigen::Matrix<double, -1, 1> volume_data__;
-  Eigen::Matrix<double, -1, 1> surface_area_data__; 
+  Eigen::Matrix<double, -1, 1> volume_data__; 
   Eigen::Map<Eigen::Matrix<double, -1, 1>> widths{nullptr, 0};
   Eigen::Map<Eigen::Matrix<double, -1, 1>> lengths{nullptr, 0};
-  Eigen::Map<Eigen::Matrix<double, -1, 1>> cyto_width{nullptr, 0};
-  Eigen::Map<Eigen::Matrix<double, -1, 1>> aspect_ratio{nullptr, 0};
   Eigen::Map<Eigen::Matrix<double, -1, 1>> volume{nullptr, 0};
-  Eigen::Map<Eigen::Matrix<double, -1, 1>> surface_area{nullptr, 0};
  
  public:
   ~size_inference_model() { }
@@ -96,30 +74,30 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
     try {
       int pos__ = std::numeric_limits<int>::min();
       pos__ = 1;
-      current_statement__ = 26;
+      current_statement__ = 16;
       context__.validate_dims("data initialization","N","int",
            std::vector<size_t>{});
       N = std::numeric_limits<int>::min();
       
       
-      current_statement__ = 26;
+      current_statement__ = 16;
       N = context__.vals_i("N")[(1 - 1)];
-      current_statement__ = 26;
+      current_statement__ = 16;
       stan::math::check_greater_or_equal(function__, "N", N, 1);
-      current_statement__ = 27;
+      current_statement__ = 17;
       context__.validate_dims("data initialization","periplasmic_diam",
           "double", std::vector<size_t>{});
       periplasmic_diam = std::numeric_limits<double>::quiet_NaN();
       
       
-      current_statement__ = 27;
+      current_statement__ = 17;
       periplasmic_diam = context__.vals_r("periplasmic_diam")[(1 - 1)];
-      current_statement__ = 27;
+      current_statement__ = 17;
       stan::math::check_greater_or_equal(function__, "periplasmic_diam",
                                             periplasmic_diam, 0);
-      current_statement__ = 28;
+      current_statement__ = 18;
       stan::math::validate_non_negative_index("widths", "N", N);
-      current_statement__ = 29;
+      current_statement__ = 19;
       context__.validate_dims("data initialization","widths","double",
            std::vector<size_t>{static_cast<size_t>(N)});
       widths_data__ = 
@@ -130,24 +108,24 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
       
       {
         std::vector<local_scalar_t__> widths_flat__;
-        current_statement__ = 29;
+        current_statement__ = 19;
         widths_flat__ = context__.vals_r("widths");
-        current_statement__ = 29;
+        current_statement__ = 19;
         pos__ = 1;
-        current_statement__ = 29;
+        current_statement__ = 19;
         for (int sym1__ = 1; sym1__ <= N; ++sym1__) {
-          current_statement__ = 29;
+          current_statement__ = 19;
           stan::model::assign(widths, widths_flat__[(pos__ - 1)],
             "assigning variable widths", stan::model::index_uni(sym1__));
-          current_statement__ = 29;
+          current_statement__ = 19;
           pos__ = (pos__ + 1);
         }
       }
-      current_statement__ = 29;
+      current_statement__ = 19;
       stan::math::check_greater_or_equal(function__, "widths", widths, 0);
-      current_statement__ = 30;
+      current_statement__ = 20;
       stan::math::validate_non_negative_index("lengths", "N", N);
-      current_statement__ = 31;
+      current_statement__ = 21;
       context__.validate_dims("data initialization","lengths","double",
            std::vector<size_t>{static_cast<size_t>(N)});
       lengths_data__ = 
@@ -158,92 +136,43 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
       
       {
         std::vector<local_scalar_t__> lengths_flat__;
-        current_statement__ = 31;
+        current_statement__ = 21;
         lengths_flat__ = context__.vals_r("lengths");
-        current_statement__ = 31;
+        current_statement__ = 21;
         pos__ = 1;
-        current_statement__ = 31;
+        current_statement__ = 21;
         for (int sym1__ = 1; sym1__ <= N; ++sym1__) {
-          current_statement__ = 31;
+          current_statement__ = 21;
           stan::model::assign(lengths, lengths_flat__[(pos__ - 1)],
             "assigning variable lengths", stan::model::index_uni(sym1__));
-          current_statement__ = 31;
+          current_statement__ = 21;
           pos__ = (pos__ + 1);
         }
       }
-      current_statement__ = 31;
+      current_statement__ = 21;
       stan::math::check_greater_or_equal(function__, "lengths", lengths, 0);
-      current_statement__ = 32;
-      stan::math::validate_non_negative_index("cyto_width", "N", N);
-      current_statement__ = 33;
-      cyto_width_data__ = 
-        Eigen::Matrix<double, -1, 1>::Constant(N,
-          std::numeric_limits<double>::quiet_NaN());
-      new (&cyto_width) Eigen::Map<Eigen::Matrix<double, -1, 1>>(cyto_width_data__.data(), N);
-        
-      
-      current_statement__ = 33;
-      stan::model::assign(cyto_width,
-        stan::math::subtract(widths, (2 * periplasmic_diam)),
-        "assigning variable cyto_width");
-      current_statement__ = 34;
-      stan::math::validate_non_negative_index("aspect_ratio", "N", N);
-      current_statement__ = 35;
-      aspect_ratio_data__ = 
-        Eigen::Matrix<double, -1, 1>::Constant(N,
-          std::numeric_limits<double>::quiet_NaN());
-      new (&aspect_ratio) Eigen::Map<Eigen::Matrix<double, -1, 1>>(aspect_ratio_data__.data(), N);
-        
-      
-      current_statement__ = 35;
-      stan::model::assign(aspect_ratio,
-        stan::math::elt_divide(lengths, widths),
-        "assigning variable aspect_ratio");
-      current_statement__ = 36;
+      current_statement__ = 22;
       stan::math::validate_non_negative_index("volume", "N", N);
-      current_statement__ = 37;
+      current_statement__ = 23;
       volume_data__ = 
         Eigen::Matrix<double, -1, 1>::Constant(N,
           std::numeric_limits<double>::quiet_NaN());
       new (&volume) Eigen::Map<Eigen::Matrix<double, -1, 1>>(volume_data__.data(), N);
         
       
-      current_statement__ = 37;
+      current_statement__ = 23;
       stan::model::assign(volume,
         stan::math::elt_multiply(
           stan::math::elt_multiply(stan::math::pi(),
-            stan::math::elt_divide(stan::math::pow(cyto_width, 2), 12)),
-          stan::math::subtract(stan::math::elt_multiply(3, lengths),
-            cyto_width)), "assigning variable volume");
-      current_statement__ = 38;
-      stan::math::validate_non_negative_index("surface_area", "N", N);
-      current_statement__ = 39;
-      surface_area_data__ = 
-        Eigen::Matrix<double, -1, 1>::Constant(N,
-          std::numeric_limits<double>::quiet_NaN());
-      new (&surface_area) Eigen::Map<Eigen::Matrix<double, -1, 1>>(surface_area_data__.data(), N);
-        
-      
-      current_statement__ = 39;
-      stan::model::assign(surface_area,
-        stan::math::elt_multiply(
-          stan::math::elt_multiply(stan::math::pi(), lengths), widths),
-        "assigning variable surface_area");
-      current_statement__ = 33;
-      stan::math::check_greater_or_equal(function__, "cyto_width",
-                                            cyto_width, 0);
-      current_statement__ = 35;
-      stan::math::check_greater_or_equal(function__, "aspect_ratio",
-                                            aspect_ratio, 0);
-      current_statement__ = 37;
+            stan::math::elt_divide(stan::math::pow(widths, 2), 12)),
+          stan::math::subtract(stan::math::elt_multiply(3, lengths), widths)),
+        "assigning variable volume");
+      current_statement__ = 23;
       stan::math::check_greater_or_equal(function__, "volume", volume, 0);
-      current_statement__ = 39;
-      stan::math::check_greater_or_equal(function__, "surface_area",
-                                            surface_area, 0);
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
     }
-    num_params_r__ = 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1;
+    num_params_r__ = 1 + 1 + 1 + 1 + 1 + 1;
     
   }
   
@@ -277,80 +206,46 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
       current_statement__ = 3;
       vol_mu = in__.template read_constrain_lb<local_scalar_t__, jacobian__>(
                  0, lp__);
-      local_scalar_t__ sa_mu = DUMMY_VAR__;
-      current_statement__ = 4;
-      sa_mu = in__.template read_constrain_lb<local_scalar_t__, jacobian__>(
-                0, lp__);
-      local_scalar_t__ ar_mu = DUMMY_VAR__;
-      current_statement__ = 5;
-      ar_mu = in__.template read_constrain_lb<local_scalar_t__, jacobian__>(
-                0, lp__);
       local_scalar_t__ homosced_width_sigma = DUMMY_VAR__;
-      current_statement__ = 6;
+      current_statement__ = 4;
       homosced_width_sigma = in__.template read_constrain_lb<
                                local_scalar_t__, jacobian__>(0, lp__);
       local_scalar_t__ homosced_length_sigma = DUMMY_VAR__;
-      current_statement__ = 7;
+      current_statement__ = 5;
       homosced_length_sigma = in__.template read_constrain_lb<
                                 local_scalar_t__, jacobian__>(0, lp__);
       local_scalar_t__ homosced_vol_sigma = DUMMY_VAR__;
-      current_statement__ = 8;
+      current_statement__ = 6;
       homosced_vol_sigma = in__.template read_constrain_lb<local_scalar_t__, 
                              jacobian__>(0, lp__);
-      local_scalar_t__ homosced_ar_sigma = DUMMY_VAR__;
-      current_statement__ = 9;
-      homosced_ar_sigma = in__.template read_constrain_lb<local_scalar_t__, 
-                            jacobian__>(0, lp__);
-      local_scalar_t__ homosced_sa_sigma = DUMMY_VAR__;
-      current_statement__ = 10;
-      homosced_sa_sigma = in__.template read_constrain_lb<local_scalar_t__, 
-                            jacobian__>(0, lp__);
       {
-        current_statement__ = 11;
-        lp_accum__.add(stan::math::std_normal_lpdf<propto__>(width_mu));
-        current_statement__ = 12;
-        lp_accum__.add(stan::math::std_normal_lpdf<propto__>(length_mu));
-        current_statement__ = 13;
-        lp_accum__.add(stan::math::std_normal_lpdf<propto__>(vol_mu));
-        current_statement__ = 14;
-        lp_accum__.add(stan::math::std_normal_lpdf<propto__>(sa_mu));
-        current_statement__ = 15;
-        lp_accum__.add(stan::math::normal_lpdf<propto__>(ar_mu, 0, 5));
-        current_statement__ = 16;
+        current_statement__ = 7;
+        lp_accum__.add(stan::math::gamma_lpdf<propto__>(width_mu, 4.2, 4.5));
+        current_statement__ = 8;
+        lp_accum__.add(stan::math::gamma_lpdf<propto__>(length_mu, 4.5, 2.75));
+        current_statement__ = 9;
+        lp_accum__.add(stan::math::gamma_lpdf<propto__>(vol_mu, 4.5, 2.75));
+        current_statement__ = 10;
         lp_accum__.add(
           stan::math::std_normal_lpdf<propto__>(homosced_width_sigma));
-        current_statement__ = 17;
+        current_statement__ = 11;
         lp_accum__.add(
           stan::math::std_normal_lpdf<propto__>(homosced_length_sigma));
-        current_statement__ = 18;
+        current_statement__ = 12;
         lp_accum__.add(
           stan::math::std_normal_lpdf<propto__>(homosced_vol_sigma));
-        current_statement__ = 19;
-        lp_accum__.add(
-          stan::math::std_normal_lpdf<propto__>(homosced_sa_sigma));
-        current_statement__ = 20;
-        lp_accum__.add(
-          stan::math::std_normal_lpdf<propto__>(homosced_ar_sigma));
-        current_statement__ = 21;
+        current_statement__ = 13;
         lp_accum__.add(
           stan::math::normal_lpdf<propto__>(widths, width_mu,
             homosced_width_sigma));
-        current_statement__ = 22;
+        current_statement__ = 14;
         lp_accum__.add(
           stan::math::normal_lpdf<propto__>(lengths, length_mu,
             homosced_length_sigma));
-        current_statement__ = 23;
+        current_statement__ = 15;
         lp_accum__.add(
           stan::math::normal_lpdf<propto__>(volume, vol_mu,
             homosced_vol_sigma));
-        current_statement__ = 24;
-        lp_accum__.add(
-          stan::math::normal_lpdf<propto__>(surface_area, sa_mu,
-            homosced_sa_sigma));
-        current_statement__ = 25;
-        lp_accum__.add(
-          stan::math::normal_lpdf<propto__>(aspect_ratio, ar_mu,
-            homosced_ar_sigma));
       }
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
@@ -396,45 +291,25 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
       current_statement__ = 3;
       vol_mu = in__.template read_constrain_lb<local_scalar_t__, jacobian__>(
                  0, lp__);
-      double sa_mu = std::numeric_limits<double>::quiet_NaN();
-      current_statement__ = 4;
-      sa_mu = in__.template read_constrain_lb<local_scalar_t__, jacobian__>(
-                0, lp__);
-      double ar_mu = std::numeric_limits<double>::quiet_NaN();
-      current_statement__ = 5;
-      ar_mu = in__.template read_constrain_lb<local_scalar_t__, jacobian__>(
-                0, lp__);
       double homosced_width_sigma = std::numeric_limits<double>::quiet_NaN();
-      current_statement__ = 6;
+      current_statement__ = 4;
       homosced_width_sigma = in__.template read_constrain_lb<
                                local_scalar_t__, jacobian__>(0, lp__);
       double homosced_length_sigma =
          std::numeric_limits<double>::quiet_NaN();
-      current_statement__ = 7;
+      current_statement__ = 5;
       homosced_length_sigma = in__.template read_constrain_lb<
                                 local_scalar_t__, jacobian__>(0, lp__);
       double homosced_vol_sigma = std::numeric_limits<double>::quiet_NaN();
-      current_statement__ = 8;
+      current_statement__ = 6;
       homosced_vol_sigma = in__.template read_constrain_lb<local_scalar_t__, 
                              jacobian__>(0, lp__);
-      double homosced_ar_sigma = std::numeric_limits<double>::quiet_NaN();
-      current_statement__ = 9;
-      homosced_ar_sigma = in__.template read_constrain_lb<local_scalar_t__, 
-                            jacobian__>(0, lp__);
-      double homosced_sa_sigma = std::numeric_limits<double>::quiet_NaN();
-      current_statement__ = 10;
-      homosced_sa_sigma = in__.template read_constrain_lb<local_scalar_t__, 
-                            jacobian__>(0, lp__);
       out__.write(width_mu);
       out__.write(length_mu);
       out__.write(vol_mu);
-      out__.write(sa_mu);
-      out__.write(ar_mu);
       out__.write(homosced_width_sigma);
       out__.write(homosced_length_sigma);
       out__.write(homosced_vol_sigma);
-      out__.write(homosced_ar_sigma);
-      out__.write(homosced_sa_sigma);
       if (stan::math::logical_negation((stan::math::primitive_value(
             emit_transformed_parameters__) || stan::math::primitive_value(
             emit_generated_quantities__)))) {
@@ -472,12 +347,6 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
       local_scalar_t__ vol_mu = DUMMY_VAR__;
       vol_mu = in__.read<local_scalar_t__>();
       out__.write_free_lb(0, vol_mu);
-      local_scalar_t__ sa_mu = DUMMY_VAR__;
-      sa_mu = in__.read<local_scalar_t__>();
-      out__.write_free_lb(0, sa_mu);
-      local_scalar_t__ ar_mu = DUMMY_VAR__;
-      ar_mu = in__.read<local_scalar_t__>();
-      out__.write_free_lb(0, ar_mu);
       local_scalar_t__ homosced_width_sigma = DUMMY_VAR__;
       homosced_width_sigma = in__.read<local_scalar_t__>();
       out__.write_free_lb(0, homosced_width_sigma);
@@ -487,12 +356,6 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
       local_scalar_t__ homosced_vol_sigma = DUMMY_VAR__;
       homosced_vol_sigma = in__.read<local_scalar_t__>();
       out__.write_free_lb(0, homosced_vol_sigma);
-      local_scalar_t__ homosced_ar_sigma = DUMMY_VAR__;
-      homosced_ar_sigma = in__.read<local_scalar_t__>();
-      out__.write_free_lb(0, homosced_ar_sigma);
-      local_scalar_t__ homosced_sa_sigma = DUMMY_VAR__;
-      homosced_sa_sigma = in__.read<local_scalar_t__>();
-      out__.write_free_lb(0, homosced_sa_sigma);
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
     }
@@ -501,8 +364,7 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
   inline void get_param_names(std::vector<std::string>& names__) const {
     
     names__ = std::vector<std::string>{"width_mu", "length_mu", "vol_mu",
-      "sa_mu", "ar_mu", "homosced_width_sigma", "homosced_length_sigma",
-      "homosced_vol_sigma", "homosced_ar_sigma", "homosced_sa_sigma"};
+      "homosced_width_sigma", "homosced_length_sigma", "homosced_vol_sigma"};
     
     } // get_param_names() 
     
@@ -510,9 +372,7 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
     
     dimss__ = std::vector<std::vector<size_t>>{std::vector<size_t>{},
       std::vector<size_t>{}, std::vector<size_t>{}, std::vector<size_t>{
-      }, std::vector<size_t>{}, std::vector<size_t>{}, std::vector<size_t>{
-      }, std::vector<size_t>{}, std::vector<size_t>{},
-      std::vector<size_t>{}};
+      }, std::vector<size_t>{}, std::vector<size_t>{}};
     
     } // get_dims() 
     
@@ -525,13 +385,9 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
     param_names__.emplace_back(std::string() + "width_mu");
     param_names__.emplace_back(std::string() + "length_mu");
     param_names__.emplace_back(std::string() + "vol_mu");
-    param_names__.emplace_back(std::string() + "sa_mu");
-    param_names__.emplace_back(std::string() + "ar_mu");
     param_names__.emplace_back(std::string() + "homosced_width_sigma");
     param_names__.emplace_back(std::string() + "homosced_length_sigma");
     param_names__.emplace_back(std::string() + "homosced_vol_sigma");
-    param_names__.emplace_back(std::string() + "homosced_ar_sigma");
-    param_names__.emplace_back(std::string() + "homosced_sa_sigma");
     if (emit_transformed_parameters__) {
       
     }
@@ -551,13 +407,9 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
     param_names__.emplace_back(std::string() + "width_mu");
     param_names__.emplace_back(std::string() + "length_mu");
     param_names__.emplace_back(std::string() + "vol_mu");
-    param_names__.emplace_back(std::string() + "sa_mu");
-    param_names__.emplace_back(std::string() + "ar_mu");
     param_names__.emplace_back(std::string() + "homosced_width_sigma");
     param_names__.emplace_back(std::string() + "homosced_length_sigma");
     param_names__.emplace_back(std::string() + "homosced_vol_sigma");
-    param_names__.emplace_back(std::string() + "homosced_ar_sigma");
-    param_names__.emplace_back(std::string() + "homosced_sa_sigma");
     if (emit_transformed_parameters__) {
       
     }
@@ -570,13 +422,13 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
     
   inline std::string get_constrained_sizedtypes() const {
     
-    return std::string("[{\"name\":\"width_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"length_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"vol_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"sa_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"ar_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_width_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_length_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_vol_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_ar_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_sa_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"}]");
+    return std::string("[{\"name\":\"width_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"length_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"vol_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_width_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_length_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_vol_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"}]");
     
     } // get_constrained_sizedtypes() 
     
   inline std::string get_unconstrained_sizedtypes() const {
     
-    return std::string("[{\"name\":\"width_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"length_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"vol_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"sa_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"ar_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_width_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_length_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_vol_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_ar_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_sa_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"}]");
+    return std::string("[{\"name\":\"width_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"length_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"vol_mu\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_width_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_length_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"homosced_vol_sigma\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"}]");
     
     } // get_unconstrained_sizedtypes() 
     
@@ -590,7 +442,7 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
                             const bool emit_generated_quantities = true,
                             std::ostream* pstream = nullptr) const {
       const size_t num_params__ = 
-  (((((((((1 + 1) + 1) + 1) + 1) + 1) + 1) + 1) + 1) + 1);
+  (((((1 + 1) + 1) + 1) + 1) + 1);
       const size_t num_transformed = emit_transformed_parameters * 0;
       const size_t num_gen_quantities = emit_generated_quantities * 0;
       const size_t num_to_write = num_params__ + num_transformed +
@@ -610,7 +462,7 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
                             bool emit_generated_quantities = true,
                             std::ostream* pstream = nullptr) const {
       const size_t num_params__ = 
-  (((((((((1 + 1) + 1) + 1) + 1) + 1) + 1) + 1) + 1) + 1);
+  (((((1 + 1) + 1) + 1) + 1) + 1);
       const size_t num_transformed = emit_transformed_parameters * 0;
       const size_t num_gen_quantities = emit_generated_quantities * 0;
       const size_t num_to_write = num_params__ + num_transformed +
@@ -650,12 +502,11 @@ class size_inference_model final : public model_base_crtp<size_inference_model> 
                               std::vector<int>& params_i,
                               std::vector<double>& vars,
                               std::ostream* pstream__ = nullptr) const {
-     constexpr std::array<const char*, 10> names__{"width_mu", "length_mu",
-      "vol_mu", "sa_mu", "ar_mu", "homosced_width_sigma",
-      "homosced_length_sigma", "homosced_vol_sigma", "homosced_ar_sigma",
-      "homosced_sa_sigma"};
-      const std::array<Eigen::Index, 10> constrain_param_sizes__{1, 1, 
-       1, 1, 1, 1, 1, 1, 1, 1};
+     constexpr std::array<const char*, 6> names__{"width_mu", "length_mu",
+      "vol_mu", "homosced_width_sigma", "homosced_length_sigma",
+      "homosced_vol_sigma"};
+      const std::array<Eigen::Index, 6> constrain_param_sizes__{1, 1, 
+       1, 1, 1, 1};
       const auto num_constrained_params__ = std::accumulate(
         constrain_param_sizes__.begin(), constrain_param_sizes__.end(), 0);
     
