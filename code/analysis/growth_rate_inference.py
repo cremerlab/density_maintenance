@@ -13,8 +13,11 @@ data = pd.read_csv(
     '../../data/growth_curves/wt_growth_measurements_processed.csv')
 
 # Load and compile the inference model
-model = cmdstanpy.CmdStanModel(
+hier_model = cmdstanpy.CmdStanModel(
     stan_file='./stan_models/hierarchical_growth_inference.stan')
+# Load and compile the inference model
+simple_model = cmdstanpy.CmdStanModel(
+    stan_file='./stan_models/growth_inference.stan')
 
 # %%
 lam_df = pd.DataFrame([])
@@ -30,12 +33,16 @@ for g, d in tqdm.tqdm(data.groupby(['carbon_source'])):
                  'idx': d['J_idx'].values,
                  'elapsed_time': d['elapsed_time_hr'].values.astype(float),
                  'optical_density': d['od_600nm'].values.astype(float)}
-    samples = model.sample(data=data_dict, adapt_delta=0.9)
+    if data_dict['J'] > 1:
+        model = hier_model
+    else:
+        model = simple_model
+    samples = model.sample(data=data_dict, adapt_delta=0.95)
 
     samples = arviz.from_cmdstanpy(samples)
     samples_df = samples.posterior.to_dataframe().reset_index()
     print('Processing growth rate....')
-    lam = [d['mu'].values[0] for g, d in samples_df.groupby(['chain', 'draw'])]
+    lam = [d['mu'].values[0] for _, d in samples_df.groupby(['chain', 'draw'])]
     print('done!')
     _df = pd.DataFrame([])
     _df['growth_rate_hr'] = lam
@@ -43,8 +50,9 @@ for g, d in tqdm.tqdm(data.groupby(['carbon_source'])):
     lam_df = pd.concat([lam_df, _df], sort=False)
 
 # %%
+
 # Compute the percentiles of the samples.
-percs = [2.5, 12.5, 25, 45, 55, 75, 87.5, 97.5]
+5percs = [2.5, 12.5, 25, 45, 55, 75, 87.5, 97.5]
 perc_cols = ['2.5%', '12.5%', '25%', '45%', '55%', '75%', '87.5%', '97.5%']
 hyper_vars = ['mu', 'mu_1']
 summary_df = pd.DataFrame([])

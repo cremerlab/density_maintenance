@@ -293,10 +293,10 @@ def contour_segmentation(image,
             if return_cells:
                 if intensity_image is None:
                     rot_int = scipy.ndimage.rotate(
-                        image[padded], -np.rad2deg(p.orientation), order=0, mode='nearest')
+                        image[padded], -np.rad2deg(p.orientation), order=5, mode='nearest')
                 else:
                     rot_int = scipy.ndimage.rotate(
-                        intensity_image[padded], -np.rad2deg(p.orientation), order=0, mode='nearest')
+                        intensity_image[padded], -np.rad2deg(p.orientation), order=5, mode='nearest')
                 rot_props = skimage.measure.regionprops(
                     relab, intensity_image=rot_int)
             else:
@@ -323,7 +323,7 @@ def contour_segmentation(image,
             # Compute the spline.
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                tck, _ = scipy.interpolate.splprep([cx, cy], per=1, k=3, s=80)
+                tck, _ = scipy.interpolate.splprep([cx, cy], per=1, k=3, s=30)
                 unew = np.arange(0, 1.0001, 0.0001)
                 out = scipy.interpolate.splev(unew, tck)
 
@@ -459,7 +459,7 @@ def measure_biometrics(data,
             continue
 
         def hypot(p1, p2):
-            return np.sqrt((p2[0] - p1[0])**2 + (p2[1] - p2[0])**2)
+            return np.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
         width = [np.min(hypot((_x, _y), (left_x, left_y))) *
                  ip_dist for _x, _y in zip(right_x, right_y)]
         width_median = np.median(width)

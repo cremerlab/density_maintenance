@@ -22,7 +22,11 @@ for direc in tqdm.tqdm(dirs):
     files = glob.glob(f'{direc}*.tif')
 
     # Convert to grey scale
-    ims = [skimage.color.rgb2gray(skimage.io.imread(f)) for f in files]
+    try:
+        ims = [skimage.color.rgb2gray(skimage.io.imread(f)) for f in files]
+    except ValueError:
+        ims = [skimage.io.imread(f) for f in files]
+
     # Apply tophat filtering
     print('Filtering images....')
     filt_ims = joblib.Parallel(n_jobs=mp.cpu_count()-2)(
@@ -37,9 +41,13 @@ for direc in tqdm.tqdm(dirs):
         # Parse file information
         date, fname = f.split('/')[-2:]
         date = date[:-2]
-        _, carbon, over_expression, inducer, inducer_conc, temp, suffix = fname.split(
+        _date, carbon, over_expression, inducer, inducer_conc, temp, suffix = fname.split(
             '_')
         temp = float(temp[:-1])
+        if _date == '2022-09-29':
+            ip_dist = 0.065
+        else:
+            ip_dist = 0.032
 
         # Process the image
         print(f'Performing segmentation of {carbon}...')
@@ -50,12 +58,14 @@ for direc in tqdm.tqdm(dirs):
                                                         perim_bounds=(
                                                             0.1, 200),
                                                         return_cells=True,
+                                                        ip_dist=ip_dist,
                                                         intensity_image=ims[i])
         print('done!')
         if len(objs) == 0:
             continue
-        anatomy = size.image.assign_anatomy(objs, cap_radius=1)
-        biometrics = size.image.measure_biometrics(anatomy)
+        anatomy = size.image.assign_anatomy(
+            objs, cap_radius=0.75, sept_radius=0.3)
+        biometrics = size.image.measure_biometrics(anatomy, ip_dist=ip_dist)
 
         if len(biometrics) == 0:
             continue

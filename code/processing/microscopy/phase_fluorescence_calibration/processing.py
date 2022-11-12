@@ -1,4 +1,5 @@
 # %%
+import imp
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -7,6 +8,7 @@ import size.viz
 import skimage.io
 import scipy.ndimage
 import glob
+
 import tqdm
 cor, pal = size.viz.matplotlib_style()
 
@@ -21,10 +23,10 @@ plt.imshow(fluo_ims[-3])
 plt.imshow(phase_ims[-3])
 
 # %%
+imp.reload(size.image)
 coords, mask, cells = size.image.contour_segmentation(
     phase_ims[-3], return_mask=True, return_cells=True, ip_dist=0.065,
     area_bounds=(1, 100))  # , intensity_image=fluo_ims[-3])
-
 
 # %%
 anatomy = size.image.assign_anatomy(coords, cap_radius=1)
@@ -35,7 +37,7 @@ cells['image'] = 1
 
 
 # %%
-gal = size.viz.cell_gallery(biometrics, cells, anatomy, './test.pdf')
+gal = size.viz.cell_gallery(biometrics, cells, anatomy, './test.png')
 
 # %%
 coords, mask, cells = size.image.contour_segmentation(
