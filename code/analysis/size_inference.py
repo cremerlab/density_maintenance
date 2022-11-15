@@ -57,10 +57,8 @@ for g, d in tqdm.tqdm(data.groupby(['carbon_source'])):
         model = hierarchical_model
     else:
         model = simple_model
-    samples = model.sample(
-        data=data_dict)  # , adapt_delta=0.9, iter_sampling=5000)
-    #    iter_sampling=3000, iter_warmup=1000)
-
+    samples = model.sample(data=data_dict, adapt_delta=0.9,
+                           iter_warmup=1000, iter_sampling=5000)
     samples = arviz.from_cmdstanpy(samples)
     samples.to_netcdf(
         f'../../data/mcmc/wildtype_{g}_size_inference_object.netcdf')
