@@ -13,7 +13,8 @@ cor, pal = size.viz.matplotlib_style()
 mp.cpu_count()
 ROOT = '../../../../data/images/wildtype/'
 # Load images, convert to greyscale,and filter.
-dirs = np.sort(glob.glob(f'{ROOT}/*/'))
+dirs = np.sort(glob.glob(f'{ROOT}/2022-09-29_r1/'))
+
 # %%
 size_df = pd.DataFrame([])
 biom = []
@@ -41,14 +42,14 @@ for direc in tqdm.tqdm(dirs):
         # Parse file information
         date, fname = f.split('/')[-2:]
         date = date[:-2]
-        _date, carbon, over_expression, inducer, inducer_conc, temp, suffix = fname.split(
+        _, carbon, over_expression, inducer, inducer_conc, temp, suffix = fname.split(
             '_')
         temp = float(temp[:-1])
-        if _date == '2022-09-29':
+        if date == '2022-09-29_':
             ip_dist = 0.065
         else:
             ip_dist = 0.032
-
+        print(ip_dist)
         # Process the image
         print(f'Performing segmentation of {carbon}...')
         objs, cell_df = size.image.contour_segmentation(filt_ims[i], filter=False,

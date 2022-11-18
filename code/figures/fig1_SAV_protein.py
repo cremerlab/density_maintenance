@@ -18,7 +18,7 @@ sizedata = pd.read_csv(
 protdata = pd.read_csv(
     '../../data/protein_quantification/protein_quantification_summary.csv')
 cmap = sns.color_palette("ch:start=.2,rot=-.3", n_colors=8).as_hex()
-carbons = ['ezMOPS', 'glucoseCAA',
+carbons = ['LB', 'ezMOPS', 'glucoseCAA',
            'glucose', 'glycerol', 'sorbitol', 'acetate']
 carb_cor = {c: cmap[-i - 1] for i, c in enumerate(carbons)}
 
@@ -58,18 +58,19 @@ for g, d in sizedata.groupby(['carbon_source']):
         ax[0].plot(_gr['median'], _SAV['median'],
                    'o', ms=3, markeredgewidth=0.5, markerfacecolor='w',
                    markeredgecolor=_color)
-        # Protein data
-        ax[1].vlines(_gr['median'], _prot['2.5%'],
-                     _prot['97.5%'], lw=0.5, color=_color)
-        ax[1].vlines(_gr['median'], _prot['12.5%'],
-                     _prot['87.5%'], lw=1.5, color=_color)
-        ax[1].hlines(_prot['median'], _gr['2.5%'],
-                     _gr['97.5%'], lw=0.5, color=_color)
-        ax[1].hlines(_prot['median'], _gr['12.5%'],
-                     _gr['87.5%'], lw=1.5, color=_color)
-        ax[1].plot(_gr['median'], _prot['median'],
-                   'o', ms=3, markeredgewidth=0.5, markerfacecolor='w',
-                   markeredgecolor=_color)
+        if g != 'LB':
+            # Protein data
+            ax[1].vlines(_gr['median'], _prot['2.5%'],
+                         _prot['97.5%'], lw=0.5, color=_color)
+            ax[1].vlines(_gr['median'], _prot['12.5%'],
+                         _prot['87.5%'], lw=1.5, color=_color)
+            ax[1].hlines(_prot['median'], _gr['2.5%'],
+                         _gr['97.5%'], lw=0.5, color=_color)
+            ax[1].hlines(_prot['median'], _gr['12.5%'],
+                         _gr['87.5%'], lw=1.5, color=_color)
+            ax[1].plot(_gr['median'], _prot['median'],
+                       'o', ms=3, markeredgewidth=0.5, markerfacecolor='w',
+                       markeredgecolor=_color)
 
 
 # Format axes
@@ -115,4 +116,3 @@ ax.set_xticks([6, 6.5, 7, 7.5])
 ax.set_yticks([0, 0.05, 0.1, 0.15])
 ax.set_xlabel('surface area to volume [µm$^{-1}$]\n$Q_{AV}$', fontsize=6)
 ax.set_ylabel('$\phi_{peri}$\nperiplasmic mass fraction', fontsize=6)
-ax.

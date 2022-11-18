@@ -195,7 +195,7 @@ def contour_segmentation(image,
                          ecc_bound=0.5,
                          solidity_bound=0.9,
                          perim_bounds=(2, 15),
-                         ip_dist=0.0319,
+                         ip_dist=0.032,
                          return_mask=False,
                          return_cells=False,
                          intensity_image=None,
@@ -434,7 +434,7 @@ def assign_anatomy(data,
 
 def measure_biometrics(data,
                        peri_width=0.025,
-                       ip_dist=0.0319,
+                       ip_dist=0.032,
                        columns={'groupby': 'cell_id',
                                 'curve': 'curvature',
                                 'x': 'x_coords',
@@ -460,7 +460,7 @@ def measure_biometrics(data,
 
         def hypot(p1, p2):
             return np.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
-        width = [np.min(hypot((_x, _y), (left_x, left_y))) *
+        width = [np.min(hypot((left_x, left_y), (_x, _y))) *
                  ip_dist for _x, _y in zip(right_x, right_y)]
         width_median = np.median(width)
         width_var = np.var(width)

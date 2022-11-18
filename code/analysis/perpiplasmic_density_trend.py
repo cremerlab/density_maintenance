@@ -10,6 +10,7 @@ cor, pal = size.viz.matplotlib_style()
 cmap = sns.color_palette("ch:start=.2,rot=-.3", n_colors=8)
 
 data = pd.read_csv('../../data/mcmc/wildtype_hyperparameter_size_samples.csv')
+# data['width_um'] -= 0.3
 voldata = pd.read_csv(
     '../../data/mcmc/wildtype_hyperparameter_size_summary.csv')
 grdata = pd.read_csv('../../data/mcmc/wildtype_growth_rate_summary.csv')
@@ -92,7 +93,7 @@ mass_spec['phi_peri'] = mass_spec['periplasmic_protein_mass_fg'].values / \
 mass_spec['tot_prot'] = 0.55 * 0.3 * 1.1 * mass_spec['volume']
 mass_spec['m_peri'] = mass_spec['phi_peri'] * mass_spec['tot_prot']
 mass_spec['rho_peri'] = (mass_spec['m_peri'] / mass_spec['V_peri']) * 1E3
-mass_spec
+
 # %%
 fig, ax = plt.subplots(1, 2, figsize=(6, 4))
 gr_range = np.linspace(0.3, 1.3, 200)

@@ -13,12 +13,16 @@ PERIPLASMIC_DIAM = 0.025  # in microns
 # Load data and compile the stan model
 data = pd.read_csv(
     '../processing/microscopy/wildtype_size_measurement/output/wildtype_size_measurements.csv')
-# & (data['date'] != '2022-09-29_')]
-data = data[(data['date'] != '2022-03-11_')]
+data = data[(data['date'] != '2022-03-11_') &
+            (data['date'] != '2022-09-29_')]
 
-# %%
+
+# Restrict to physical bounds
+# data['width_median'] -= 0.3
+# data = data[(data['width_median'] >= 0.1) & (data['width_median'] <= 2)]
+
 hierarchical_model = cmdstanpy.CmdStanModel(
-    stan_file='stan_models/hierarchical_size_inference.stan')
+    stan_file='stan_models/hierarchical_size_inference_uncentered.stan')
 simple_model = cmdstanpy.CmdStanModel(
     stan_file='stan_models/size_inference.stan')
 
@@ -32,7 +36,10 @@ rename_cols = {'width_mu': 'width_um',
                'length_mu': 'length_um',
                'SAV_mu': 'SAV_inv_um',
                'vol_mu': 'volume_fL'}
-
+inits = {'width_mu': 1,
+         'length_mu': 1,
+         'vol_mu': 1,
+         'SAV_mu': 1}
 # Define the percentiles to compute for each hyperparameter
 percs = [2.5, 12.5, 25, 45, 55, 75, 87.5, 97.5]
 perc_cols = ['2.5%', '12.5%', '25%', '45%', '55%', '75%', '87.5%', '97.5%']
@@ -57,8 +64,10 @@ for g, d in tqdm.tqdm(data.groupby(['carbon_source'])):
         model = hierarchical_model
     else:
         model = simple_model
-    samples = model.sample(data=data_dict, adapt_delta=0.9,
-                           iter_warmup=1000, iter_sampling=5000)
+    # , adapt_delta=0.9, iter_sampling=3500)
+    samples = model.sample(data=data_dict)
+    #    iter_warmup=1000,
+    #    iter_sampling=5000)
     samples = arviz.from_cmdstanpy(samples)
     samples.to_netcdf(
         f'../../data/mcmc/wildtype_{g}_size_inference_object.netcdf')
