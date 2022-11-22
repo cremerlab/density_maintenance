@@ -3,7 +3,6 @@ data {
     int<lower=1> J; // Number of biological replicates
     int<lower=1> N; // Number of cell measurements
     array[N] int<lower=1, upper=J> idx; // ID vector mapping each cell to biological replicate
-    real<lower=0> periplasmic_diam;
 
     // Measured information
     vector<lower=0>[N] widths;
@@ -11,7 +10,7 @@ data {
 }
 
 transformed data {
-    vector<lower=0>[N] volume = pi() .* ( (widths - 2 * periplasmic_diam).^ 2 ./ 12) .* (3 .* (lengths - 2 * periplasmic_diam) - (widths - 2 * periplasmic_diam));
+    vector<lower=0>[N] volume = pi() .* widths^2 .* (3 .* lengths - widths);
     vector<lower=0>[N] SA = pi() .* widths .* lengths;
     vector<lower=0>[N] SAV = SA ./ volume;
 }
@@ -39,20 +38,20 @@ parameters {
 
 transformed parameters {
     // Perform uncentering
-    vector<lower=0>[J] width_mu_1 = abs(width_mu + tau * width_mu_1_tilde);
-    vector<lower=0>[J] length_mu_1 = abs(length_mu + tau * length_mu_1_tilde);
-    vector<lower=0>[J] vol_mu_1 = abs(vol_mu + tau * vol_mu_1_tilde);
-    vector<lower=0>[J] sav_mu_1 = abs(SAV_mu + tau * sav_mu_1_tilde);
-    vector<lower=0>[J] length_alpha = abs(length_beta_1 .* length_mu_1);
+    vector<lower=0>[J] width_mu_1 = width_mu + tau * width_mu_1_tilde;
+    vector<lower=0>[J] length_mu_1 = length_mu + tau * length_mu_1_tilde;
+    vector<lower=0>[J] vol_mu_1 = vol_mu + tau * vol_mu_1_tilde;
+    vector<lower=0>[J] sav_mu_1 = SAV_mu + tau * sav_mu_1_tilde;
+    vector<lower=0>[J] length_alpha = length_beta_1 .* length_mu_1;
 }
 
 
 model {
     // Hyperparameters
-    width_mu ~ gamma(5, 5.5);
-    length_mu ~ gamma(4.5, 4.5);
-    vol_mu ~ gamma(4.5, 4.5);   
-    SAV_mu ~ gamma(5, 1);
+    width_mu ~ std_normal(); 
+    length_mu ~ std_normal();
+    vol_mu ~ std_normal();
+    SAV_mu ~ std_normal();
     tau ~ std_normal(); 
 
     // Low-level parameter
@@ -60,7 +59,7 @@ model {
     length_mu_1_tilde ~ std_normal(); 
     vol_mu_1_tilde ~ std_normal(); 
     sav_mu_1_tilde ~ std_normal(); 
-    length_beta_1 ~ std_normal();
+    length_beta_1 ~ normal(0, 5);
 
     // Homoscedastic error parameters 
     homosced_width_sigma ~ std_normal();
