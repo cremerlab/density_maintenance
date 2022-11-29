@@ -13,7 +13,7 @@ cor, pal = size.viz.matplotlib_style()
 mp.cpu_count()
 ROOT = '../../../../data/images/wildtype/'
 # Load images, convert to greyscale,and filter.
-dirs = np.sort(glob.glob(f'{ROOT}/2022-09-29_r1/'))
+dirs = np.sort(glob.glob(f'{ROOT}/*/'))
 
 # %%
 size_df = pd.DataFrame([])

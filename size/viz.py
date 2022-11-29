@@ -8,6 +8,7 @@ import bokeh.plotting
 import bokeh.io
 import bokeh.palettes
 import bokeh.themes
+import corner
 import altair as alt
 from bokeh.models import *
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -532,3 +533,84 @@ def cell_gallery(biometrics,
         fig.text(0, 1,  suptitle, fontsize=10)
     plt.savefig(fname, dpi=200)
     return [fig, ax]
+
+
+def diagnostic_size_viz(samples,
+                        data,
+                        metadata,
+                        dst,
+                        hypervars=['width_mu',
+                                   'vol_mu',
+                                   'length_alpha',
+                                   'length_beta',
+                                   'SAV_mu'],
+                        thin=10
+                        ):
+    cor, _ = matplotlib_style()
+    out = f'{dst}/{metadata["strain"]}_{metadata["carbon"]}_{metadata["temp"]}C_{metadata["oe"]}OE_{metadata["ind"]}'
+    # Generate the corner plot
+    fig = plt.figure(figsize=(4, 4))
+    _ = corner.corner(samples,
+                      var_names=hypervars,
+                      divergences=True,
+                      smooth=1,
+                      fig=fig,
+                      divergences_kwargs={
+                          'color': cor['light_blue'],
+                          'ms': 4,
+                          'markeredgewidth': 0})
+    fig.text(
+        0, 1, f'{metadata["strain"]}; {metadata["carbon"]} ; {metadata["temp"]} °C ; overexpression: {metadata["oe"]} @ {metadata["ind"]} ng/mL')
+    plt.savefig(f'{out}_hyperparameter_joint_dists.pdf', bbox_inches='tight')
+
+    # Generate the posterior predictive plots
+    n_reps = data['idx'].max()
+    fig, ax = plt.subplots(n_reps, 4, figsize=(6, n_reps * 1))
+
+    # Format axes
+    for i in range(n_reps - 1):
+        for j in range(4):
+            ax[i, j].set_xticklabels([])
+    for i in range(n_reps):
+        for j in range(1, 4):
+            ax[i, j].set_yticklabels([])
+    width_rep = samples.posterior.width_rep.to_dataframe().reset_index()
+    length_rep = samples.posterior.length_rep.to_dataframe().reset_index()
+    volume_rep = samples.posterior.volume_rep.to_dataframe().reset_index()
+    sav_rep = samples.posterior.SAV_rep.to_dataframe().reset_index()
+    titles = ['width', 'length', 'volume', 'SA/V']
+    labs = ['µm', 'µm', 'µm$^3$', 'µm$^{-1}$']
+    for i in range(4):
+        ax[0, i].set_title(titles[i], fontsize=6)
+        ax[-1, i].set_xlabel(labs[i], fontsize=6)
+    for i in range(n_reps):
+        ax[i, 0].set_ylabel('ECDF')
+
+    # Generate ECDFs
+    for i in range(n_reps):
+        # Get width draws for each day
+        loc = np.where(data['idx'].values == i + 1)[0]
+
+        for j, ppc in enumerate([width_rep, length_rep, volume_rep, sav_rep]):
+            k = 0
+            for g, _d in ppc.groupby(['chain', 'draw']):
+                if k % thin == 0:
+                    _x = np.sort(_d[_d[_d.keys()[-2]].isin(loc)]
+                                 [_d.keys()[-1]].values)
+                    _y = np.arange(len(_x)) / len(_x)
+                ax[i, j].plot(_x, _y, 'k-', lw=0.1, alpha=0.1)
+                k += 1
+        rep = data[data['idx'] == (i + 1)]
+        width_x = np.sort(rep['width_median'].values)
+        length_x = np.sort(rep['length'].values)
+        vol_x = np.sort(rep['volume'].values)
+        sav_x = np.sort(rep['surface_to_volume'].values)
+        y = np.arange(len(sav_x)) / len(sav_x)
+        for j, val in enumerate([width_x, length_x, vol_x, sav_x]):
+            ax[i, j].plot(val, y, '-', lw=1.5, color=cor['primary_red'])
+    fig.text(
+        0, 1, f'{metadata["strain"]}; {metadata["carbon"]} ; {metadata["temp"]} °C ; overexpression: {metadata["oe"]} @ {metadata["ind"]} ng/mL')
+    plt.tight_layout()
+
+    # save figure
+    plt.savefig(f'{out}_ppc.pdf', bbox_inches='tight')
