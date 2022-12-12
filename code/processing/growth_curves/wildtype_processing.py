@@ -15,7 +15,8 @@ for g, d in data.groupby(['strain', 'carbon_source', 'date']):
     _d = d.copy()
     _d['elapsed_time_hr'] = (
         d['clock_time'] - d['clock_time'].min()).dt.total_seconds() / 3600
-    processed.append(_d)
+    if len(_d) >= 3:
+        processed.append(_d)
 processed = pd.concat(processed, sort=False)
 processed.to_csv(
     '../../../data/growth_curves/wt_growth_measurements_processed.csv', index=False)

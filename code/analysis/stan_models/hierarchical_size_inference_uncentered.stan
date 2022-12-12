@@ -17,11 +17,11 @@ transformed data {
 
 parameters {
     // Hyper parameters
-    real<lower=0> width_mu;
+    real<lower=0, upper=10> width_mu;
     real<lower=0> length_alpha;
     real<lower=0> length_beta;
-    real<lower=0> vol_mu;
-    real<lower=0> SAV_mu;
+    real<lower=0, upper=10> vol_mu;
+    real<lower=0, upper=10> SAV_mu;
     real tau;
 
     // Lower-level parameters
@@ -39,9 +39,9 @@ parameters {
 
 transformed parameters {
     // Perform uncentering
-    vector<lower=0>[J] width_mu_1 = width_mu + tau * width_mu_1_tilde;
-    vector<lower=0>[J] vol_mu_1 = vol_mu + tau * vol_mu_1_tilde;
-    vector<lower=0>[J] sav_mu_1 = SAV_mu + tau * sav_mu_1_tilde;
+    vector<lower=0, upper=10>[J] width_mu_1 = width_mu + tau * width_mu_1_tilde;
+    vector<lower=0, upper=10>[J] vol_mu_1 = vol_mu + tau * vol_mu_1_tilde;
+    vector<lower=0, upper=10>[J] sav_mu_1 = SAV_mu + tau * sav_mu_1_tilde;
     vector<lower=0>[J] length_alpha_1 = length_alpha + tau * length_alpha_1_tilde;
     vector<lower=0>[J] length_beta_1 = length_beta + tau * length_beta_1_tilde ;
 }
@@ -60,8 +60,8 @@ model {
     width_mu_1_tilde  ~ std_normal(); 
     length_alpha_1_tilde ~ std_normal(); 
     length_beta_1_tilde ~ std_normal(); 
-    vol_mu_1_tilde ~ std_normal(); 
-    sav_mu_1_tilde ~ std_normal(); 
+    vol_mu_1_tilde ~ normal(0, 3); 
+    sav_mu_1_tilde ~ normal(0, 3); 
 
     // Homoscedastic error parameters 
     homosced_width_sigma ~ std_normal();

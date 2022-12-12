@@ -13,13 +13,12 @@ PERIPLASMIC_DIAM = 0.025  # in microns
 # Load data and compile the stan model
 data = pd.read_csv(
     '../processing/microscopy/wildtype_size_measurement/output/wildtype_size_measurements.csv')
-data = data[(data['date'] != '2022-03-11_') &
-            (data['date'] != '2022-09-29_')]
-
+data = data[data['carbon_source'] != 'ezMOPS']
+# data = data[(data['date'] != '2022-03-11_') &
 
 # Restrict to physical bounds
-# data['width_median'] -= 0.3
-# data = data[(data['width_median'] >= 0.1) & (data['width_median'] <= 2)]
+data = data[(data['width_median'] <= 2) & (data['width_median'] >= 0.2) &
+            (data['length'] >= 0.2) & (data['length'] <= 7)]
 
 hierarchical_model = cmdstanpy.CmdStanModel(
     stan_file='stan_models/hierarchical_size_inference_uncentered.stan')
@@ -30,16 +29,14 @@ simple_model = cmdstanpy.CmdStanModel(
 # Define aspects of the hyper parameters to save
 hyper_dfs = []
 summary_dfs = []
-hyper_vars = ['width_mu', 'length_mu', 'vol_mu', 'SAV_mu']
-_hyper_vars = ['width_mu', 'length_mu', 'vol_mu', 'SAV_mu']
+hyper_vars = ['width_mu', 'length_alpha', 'length_beta', 'vol_mu', 'SAV_mu']
+_hyper_vars = ['width_mu', 'length_alpha', 'length_beta', 'vol_mu', 'SAV_mu']
 rename_cols = {'width_mu': 'width_um',
-               'length_mu': 'length_um',
+               'length_alpha': 'length_alpha',
+               'length_beta': 'length_beta',
                'SAV_mu': 'SAV_inv_um',
                'vol_mu': 'volume_fL'}
-inits = {'width_mu': 1,
-         'length_mu': 1,
-         'vol_mu': 1,
-         'SAV_mu': 1}
+
 # Define the percentiles to compute for each hyperparameter
 percs = [2.5, 12.5, 25, 45, 55, 75, 87.5, 97.5]
 perc_cols = ['2.5%', '12.5%', '25%', '45%', '55%', '75%', '87.5%', '97.5%']
@@ -60,18 +57,29 @@ for g, d in tqdm.tqdm(data.groupby(['carbon_source'])):
         'periplasmic_diam': PERIPLASMIC_DIAM}
 
     # Sample the model and save full output to disk
-    if data_dict['J'] > 1:
-        model = hierarchical_model
-    else:
-        model = simple_model
-    # , adapt_delta=0.9, iter_sampling=3500)
-    samples = model.sample(data=data_dict)
-    #    iter_warmup=1000,
-    #    iter_sampling=5000)
+    # if data_dict['J'] > 1:
+    model = hierarchical_model
+    # else:
+    #     model = simple_model
+
+    samples = model.sample(data=data_dict, adapt_delta=0.9, iter_warmup=3000)
+
     samples = arviz.from_cmdstanpy(samples)
     samples.to_netcdf(
         f'../../data/mcmc/wildtype_{g}_size_inference_object.netcdf')
 
+    # Make the diagnostic plots
+    strain = d['strain'].values[0]
+    carbon = g
+    temp = d['temperature_C'].values[0]
+    oe = d['overexpression'].values[0]
+    ind = d['inducer_conc'].values[0]
+    metadata = {'strain': strain,
+                'carbon': carbon,
+                'temp': int(temp),
+                'oe': oe,
+                'ind': ind}
+    size.viz.diagnostic_size_viz(samples, d, metadata, './size_diagnostics/')
     # Unpack hyperparameters
     hyper_df = samples.posterior[hyper_vars].to_dataframe().reset_index()
     lp = samples.sample_stats.lp

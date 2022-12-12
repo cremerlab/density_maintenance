@@ -2,7 +2,7 @@ data {
     // Dimensional parameters
     int<lower=1> J;
     int<lower=1> N;
-    int<lower=1, upper=J> idx[N];
+    array[N] int<lower=1, upper=J> idx;
 
     // Observed parameters
     vector<lower=0>[N] elapsed_time;
@@ -35,13 +35,19 @@ transformed parameters {
 model { 
 
     // Priors
-    mu ~ std_normal();
-    tau ~ normal(0, 5);
+    mu ~ gamma(2.85, 3.30);
+    tau ~ std_normal();
     mu_1_tilde ~ std_normal();
     sigma ~ normal(0, 0.1); 
     od_init ~ normal(0, 0.1);
 
     // Likelihood
     log_optical_density ~ normal(log_od_init[idx] + mu_1[idx] .* elapsed_time, sigma);
+}
 
+generated quantities { 
+    vector[N] optical_density_rep;
+    for (i in 1:N) {
+        optical_density_rep[i] = exp(normal_rng(log_od_init[idx[i]] + mu_1[idx[i]] .* elapsed_time[i], sigma));
+    }
 }

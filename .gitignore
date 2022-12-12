@@ -13,3 +13,5 @@
 *.netcdf
 *samples.csv
 *.netcdf
+*.fcs
+*__pycache__
