@@ -24,7 +24,10 @@ for g, d in size_data.groupby(['carbon_source']):
     _len = d[d['parameter'] == 'length_um']
     _width = d[d['parameter'] == 'width_um']
     _gr = gr_data[(gr_data['carbon_source'] == g)]
-
+    if (len(_gr) == 0) | (len(_len) == 0):
+        continue
+    if g == 'glucoseCAA':
+        continue
     # Plot the error bars for length
     ax[0].vlines(_gr['median'], _len["97.5%"], _len["2.5%"], lw=0.5,
                  color=carb_cor[g])
@@ -51,13 +54,13 @@ for g, d in size_data.groupby(['carbon_source']):
 plt.tight_layout()
 plt.savefig('../../Fig1_cell_length_width.pdf')
 
-
 # %%
 for g, d in size_data.groupby(['carbon_source']):
     _len = d[d['parameter'] == 'length_um']
     _width = d[d['parameter'] == 'width_um']
     _gr = gr_data[(gr_data['carbon_source'] == g)]
-
+    if g == 'glucoseCAA':
+        continue
     # Plot the error bars for length
     ax[0].vlines(_gr['median'], _len["97.5%"], _len["2.5%"], lw=0.5,
                  color=carb_cor[g])
@@ -88,6 +91,7 @@ plt.savefig('../../Fig1_cell_length_width.pdf')
 # %%
 # Load the sampling
 data = pd.read_csv('../../data/mcmc/wildtype_hyperparameter_size_samples.csv')
+data = pd.read_csv('../../data/')
 
 # Select the carbon sources
 carbons = ['LB', 'glucoseCAA', 'glucose', 'glycerol', 'sorbitol', 'acetate']
@@ -109,6 +113,8 @@ l_range = np.linspace(1.5, 4, 200)[:, np.newaxis]
 nudge = 0.6
 for g, d in data.groupby(['carbon_source']):
     print(g)
+    if g == 'glucoseCAA':
+        continue
     width_kde = KernelDensity(kernel='gaussian', bandwidth=0.1).fit(
         d['width_um'].values[:, np.newaxis])
     width_dens = np.exp(width_kde.score_samples(w_range))
@@ -141,3 +147,40 @@ _kde = KernelDensity(kernel='gaussian', bandwidth=0.1).fit(
 log_dens = _kde.score_samples(w_range)
 # plt.hist(d['width_um'])
 plt.plot(w_range[:, 0], np.exp(log_dens))
+
+# %%
+fig, ax = plt.subplots(1, 2, figsize=(2.8, 1.8), sharey=True)
+ax[0].set_xlabel('cell length [µm]', fontsize=6)
+ax[0].set_xticks([1, 2, 3, 4])
+ax[1].set_xlabel('cell width [µm]', fontsize=6)
+ind = {k: i for i, k in enumerate(carbons)}
+
+
+w_range = np.linspace(0.1, 1.5, 200)[:, np.newaxis]
+l_range = np.linspace(1.5, 4, 200)[:, np.newaxis]
+nudge = 0.6
+width_bins = np.linspace(0.1, 2, 400)
+length_bins = np.linspace(1, 4, 400)
+for g, d in data.groupby(['carbon_source']):
+    print(g)
+    # if g == 'glucoseCAA':
+    # continue
+    bins, hist = np.histogram(d['width_um'])
+    ax[1].plot(w_range[:, 0], width_dens + nudge *
+               ind[g], zorder=-ind[g], color=carb_cor[g])
+    ax[1].fill_between(w_range[:, 0],  nudge * ind[g] + width_dens.min(),
+                       width_dens + nudge * ind[g], alpha=0.5, zorder=-ind[g], color=carb_cor[g])
+    ax[0].plot(l_range[:, 0], len_dens + nudge * ind[g], color=carb_cor[g])
+    ax[1].fill_between(w_range[:, 0],  nudge * ind[g] + width_dens.min(),
+                       width_dens + nudge * ind[g], alpha=0.5, zorder=-ind[g], color=carb_cor[g])
+    ax[0].fill_between(l_range[:, 0],  nudge * ind[g] + len_dens.min(),
+                       len_dens + nudge * ind[g], alpha=0.5, zorder=-ind[g], color=carb_cor[g])
+
+for i, a in enumerate(ax):
+    if i == 0:
+        a.set_yticks(nudge * np.arange(len(carbons)))
+        a.set_yticklabels(_carbons)
+    a.set_facecolor('none')
+    a.grid(False)
+plt.tight_layout()
+plt.savefig('../../figures/fig1_cell_length_width_posteriors.pdf')
