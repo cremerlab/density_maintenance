@@ -24,8 +24,8 @@ calib_curve['idx'] = calib_curve.groupby(
     ['replicate', 'protein_standard']).ngroup() + 1
 
 # Generate the data dictionary
-data_dict = {'J': protein_meas['idx'].max(),
-             'K': calib_curve['idx'].max(),
+data_dict = {'J_cond': protein_meas['idx'].max(),
+             'J_calib': calib_curve['idx'].max(),
              'N_meas': len(protein_meas),
              'N_calib': len(calib_curve),
              'meas_idx': protein_meas['idx'].values.astype(int),
@@ -35,7 +35,7 @@ data_dict = {'J': protein_meas['idx'].max(),
              'od_595nm_meas':  protein_meas['od_595nm'].values.astype(float),
              'od_600nm_meas': protein_meas['od_600nm'].values.astype(float),
              'dil_factor': protein_meas['dilution_factor'].values.astype(float),
-             'ext_volume': protein_meas['extract_volume'].values.astype(float),
+             'ext_volume': protein_meas['extract_volume'].values.astype(float) / 1E3,
              'cult_volume': protein_meas['culture_volume'].values.astype(float),
              }
 
@@ -46,10 +46,10 @@ samples = arviz.from_cmdstanpy(samples)
 # %%
 fig = plt.figure(figsize=(8, 8))
 _ = corner.corner(samples,
-                  var_names=['slope',
-                             'intercept',
+                  var_names=['slope_mu',
+                             'intercept_mu',
                              'od_per_biomass_mu',
-                             'calib_sigma'],
+                             ],
                   divergences=False,
                   smooth=1,
                   fig=fig,
@@ -58,14 +58,13 @@ _ = corner.corner(samples,
                       'ms': 4,
                       'markeredgewidth': 0})
 fig.text(0, 1, 'wildtype protein quantification')
-# plt.savefig('../../figures/wildtype_periplasmic_protein_diagnostics.pdf',
-# bbox_inches='tight')
+plt.savefig('../../figures/mcmc/protein_diagnostics/wildtype_periplasmic_protein_diagnostics.pdf',
+            bbox_inches='tight')
 # %%
 fig, ax = plt.subplots(1, 3, figsize=(7, 2))
 
 # Plot the ppcs
 calib_rep = samples.posterior.od_595nm_calib_rep.to_dataframe().reset_index()
-
 for i in range(3):
     ind = np.where(calib_curve['idx'] == i+1)[0]
     concs = calib_curve[calib_curve['idx'] == i+1]
@@ -77,7 +76,6 @@ for i in range(3):
                        '-', color=cor['primary_black'], lw=0.1)
         j += 1
 
-
 i = 0
 for g, d in calib_curve.groupby(['protein_standard', 'replicate']):
     ax[i].plot(d['protein_conc_ug_ml'], d['od_595nm'],
@@ -86,3 +84,29 @@ for g, d in calib_curve.groupby(['protein_standard', 'replicate']):
     ax[i].set_xlabel('concentration [µg/mL]')
     ax[0].set_ylabel('OD$_{595nm}$')
     i += 1
+plt.savefig('../../figures/mcmc/protein_diagnostics/bradford_calibration_ppc.pdf',
+            bbox_inches='tight')
+
+
+# %%
+fig, ax = plt.subplots(1, 1, figsize=(4, 2))
+ax.set_yticks(protein_meas['idx'].unique())
+ax.set_yticklabels(protein_meas['carbon_source'].unique())
+
+# Plot ppc for OD per biomass
+od595_rep = samples.posterior.od_per_biomass_rep.to_dataframe().reset_index()
+for i in protein_meas['idx'].unique():
+    ind = np.where(protein_meas['idx'] == i)[0]
+    ppc = od595_rep[od595_rep['od_per_biomass_rep_dim_0'].isin(ind)]
+    j = 0
+    for g, d in ppc.groupby(['chain', 'draw']):
+        if j % 10 == 0:
+            ax.plot(d['od_per_biomass_rep'], np.ones(len(d)) * i + np.random.normal(0, 0.05, len(d)),
+                    '.', color=cor['primary_black'], lw=0.1, markeredgewidth=0, alpha=0.5, ms=2)
+        j += 1
+for g, d in protein_meas.groupby(['idx']):
+    d['resc'] = d['od_595nm'] * d['dilution_factor'] * \
+        (d['extract_volume'].values / 1E3) / \
+        (d['culture_volume'] * d['od_600nm'])
+    ax.plot(d['resc'], np.ones(len(d)) * g + np.random.normal(0, 0.05, len(d)), 'o', ms=3,
+            color=cor['primary_red'], markeredgewidth=0.5)

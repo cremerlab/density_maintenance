@@ -27,7 +27,7 @@ date,strain,carbon_source,od_600nm,od_595nm,dilution_factor,culture_volume,extra
 2021-08-10,WT,glucose,0.34866,0.727,2,1,400
 2022-03-03,WT,glucoseCAA,0.12714,0.841,2,3,400
 2022-03-04,WT,sorbitol,0.2106,0.76,2,1,400
-2022-03-04,WT,glucoseglucoseCAA,0.0624,0.614,2,1,400
+2022-03-04,WT,glucoseCAA,0.0624,0.614,2,1,400
 2022-03-05,WT,sorbitol,0.096,0.664,2,1,400
 2022-03-05,WT,glucoseCAA,0.39168,0.722,2,1,400
 2022-03-06,WT,sorbitol,0.128,0.81,2,2,400
