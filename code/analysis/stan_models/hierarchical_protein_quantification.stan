@@ -24,14 +24,13 @@ transformed data {
 
 parameters {
     // Hyperparameters for calibration
-    real slope_mu;
-    real<lower=0> slope_sigma;
-    real intercept_mu;
-    real<lower=0> intercept_sigma;
+    real<lower=0> slope;
+    real<lower=0> intercept;
+    real tau;
 
     // Low-level parameter
-    vector[J_calib] slope_1;
-    vector[J_calib] intercept_1;
+    vector[J_calib] slope_1_tilde;
+    vector[J_calib] intercept_1_tilde;
     real<lower=0> calib_sigma;
 
     // Parameters for protein measurements 
@@ -40,19 +39,20 @@ parameters {
 }
 
 transformed parameters {
-    vector<lower=0>[J_cond] prot_per_biomass = (od_per_biomass_mu - intercept_mu) ./ slope_mu;
+    vector[J_calib] slope_1 = slope_1_tilde + tau * slope;
+    vector[J_calib] intercept_1 = intercept_1_tilde + tau * intercept;
+    vector<lower=0>[J_cond] prot_per_biomass = (od_per_biomass_mu - intercept) ./ slope;
 }
 
 model {
     // Hyper priors
-    slope_mu ~ std_normal();
-    slope_sigma ~ std_normal(); 
-    intercept_mu ~ std_normal();
-    intercept_sigma ~ std_normal();
+    slope ~ normal(0, 0.1);
+    intercept ~ normal(0, 0.1);
+    tau ~ std_normal();
 
     // Low-level priors
-    slope_1 ~ normal(slope_mu, slope_sigma);
-    intercept_1 ~ normal(intercept_mu, intercept_sigma);
+    slope_1_tilde ~ std_normal();
+    intercept_1_tilde ~ std_normal();
     calib_sigma ~ normal(0, 0.1);
 
     // Measurement priors
@@ -61,12 +61,12 @@ model {
 
     // Likelihoods
     od_595nm_calib ~ normal(intercept_1[calib_idx] + slope_1[calib_idx] .* concentration, calib_sigma);
-    od_per_biomass ~ normal(od_per_biomass_mu[meas_idx], od_per_biomass_sigma[meas_idx]);
+    od_per_biomass ~ cauchy(od_per_biomass_mu[meas_idx], od_per_biomass_sigma[meas_idx]);
 }
 
 generated quantities { 
     vector<lower=0>[N_meas] od_per_biomass_rep;
-    vector<lower=0>[N_calib] od_595nm_calib_rep;
+    vector<lower=0>[N_calib] od_595nm_calib_rep; 
     //Posterior Predictive Checks
     for (i in 1:N_meas) {
         od_per_biomass_rep[i] = normal_rng(od_per_biomass_mu[meas_idx[i]], od_per_biomass_sigma[meas_idx[i]]);

@@ -177,8 +177,7 @@ def tophat_filter(image,
     # Perform filtering and closing operations
 
     blk_tophat = cv2.morphologyEx(im_sub, cv2.MORPH_BLACKHAT, lg_selem)
-    wht_tophat = cv2.morphologyEx(blk_tophat, cv2.MORPH_TOPHAT, lg_selem)
-    closing = scipy.ndimage.grey_closing(wht_tophat, footprint=sm_selem)
+    closing = scipy.ndimage.grey_closing(blk_tophat, footprint=sm_selem)
 
     if threshold == 'otsu':
         thresh = skimage.filters.threshold_multiotsu(closing)[1]

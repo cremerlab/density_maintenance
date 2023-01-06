@@ -6,7 +6,7 @@
 *egg*
 *_checkpoints*
 *.zip*
-*.tif
+*.tif*
 *.hpp
 *checkpoints*
 *splines.csv

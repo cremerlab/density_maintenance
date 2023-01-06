@@ -35,7 +35,7 @@ data_dict = {'J_cond': protein_meas['idx'].max(),
              'od_595nm_meas':  protein_meas['od_595nm'].values.astype(float),
              'od_600nm_meas': protein_meas['od_600nm'].values.astype(float),
              'dil_factor': protein_meas['dilution_factor'].values.astype(float),
-             'ext_volume': protein_meas['extract_volume'].values.astype(float) / 1E3,
+             'ext_volume': protein_meas['extract_volume'].values.astype(float),
              'cult_volume': protein_meas['culture_volume'].values.astype(float),
              }
 
@@ -43,11 +43,41 @@ data_dict = {'J_cond': protein_meas['idx'].max(),
 samples = model.sample(data=data_dict, iter_warmup=6000, adapt_delta=0.99)
 # %%
 samples = arviz.from_cmdstanpy(samples)
+
+# %% save hyperparameter distributions
+prot_per_biomass = samples.posterior['prot_per_biomass'].to_dataframe(
+).reset_index()
+for g, d in protein_meas.groupby(['carbon_source', 'idx']):
+    prot_per_biomass.loc[prot_per_biomass['prot_per_biomass_dim_0']
+                         == (g[1] - 1), 'carbon_source'] = g[0]
+prot_per_biomass['strain'] = 'wildtype'
+prot_per_biomass = prot_per_biomass[[
+    'carbon_source', 'prot_per_biomass', 'strain']]
+prot_per_biomass.to_csv(
+    '../../data/protein_quantification/mcmc/wildtype_protein_per_biomass_hyperparameter_samples.csv', index=False)
+
+
+# %% Compute summary statistics
+percs = [2.5, 12.5, 25, 45, 55, 75, 87.5, 97.5]
+perc_cols = ['2.5%', '12.5%', '25%', '45%', '55%', '75%', '87.5%', '97.5%']
+summary_df = pd.DataFrame([])
+for g, d in prot_per_biomass.groupby(['carbon_source']):
+    _percs = pd.DataFrame([np.percentile(d['prot_per_biomass'], percs)],
+                          columns=perc_cols)
+    _percs['mean'] = d['prot_per_biomass'].mean()
+    _percs['median'] = d['prot_per_biomass'].median()
+    _percs['carbon_source'] = g
+    _percs['strain'] = 'wildtype'
+    _percs['parameter'] = 'ug protein per OD mL'
+    summary_df = pd.concat([summary_df, _percs])
+summary_df.to_csv(
+    '../../data/protein_quantification/mcmc/wildtype_protein_per_biomass_hyperparameter_summary.csv', index=False)
+
 # %%
 fig = plt.figure(figsize=(8, 8))
 _ = corner.corner(samples,
-                  var_names=['slope_mu',
-                             'intercept_mu',
+                  var_names=['slope',
+                             'intercept',
                              'od_per_biomass_mu',
                              ],
                   divergences=False,
@@ -98,15 +128,16 @@ od595_rep = samples.posterior.od_per_biomass_rep.to_dataframe().reset_index()
 for i in protein_meas['idx'].unique():
     ind = np.where(protein_meas['idx'] == i)[0]
     ppc = od595_rep[od595_rep['od_per_biomass_rep_dim_0'].isin(ind)]
-    j = 0
     for g, d in ppc.groupby(['chain', 'draw']):
         if j % 10 == 0:
             ax.plot(d['od_per_biomass_rep'], np.ones(len(d)) * i + np.random.normal(0, 0.05, len(d)),
                     '.', color=cor['primary_black'], lw=0.1, markeredgewidth=0, alpha=0.5, ms=2)
-        j += 1
 for g, d in protein_meas.groupby(['idx']):
     d['resc'] = d['od_595nm'] * d['dilution_factor'] * \
-        (d['extract_volume'].values / 1E3) / \
+        (d['extract_volume'].values) / \
         (d['culture_volume'] * d['od_600nm'])
     ax.plot(d['resc'], np.ones(len(d)) * g + np.random.normal(0, 0.05, len(d)), 'o', ms=3,
             color=cor['primary_red'], markeredgewidth=0.5)
+ax.set_xlabel('OD$_{595nm}$ per OD$_{600nm}$ mL', fontsize=6)
+plt.savefig('../../figures/mcmc/protein_diagnostics/wildtype_OD_per_biomass_ppc.pdf',
+            bbox_inches='tight')
