@@ -1,10 +1,25 @@
 # %%
 import numpy as np
 import pandas as pd
+<<<<<<< HEAD
 import cmdstanpy
 import arviz
 import size.viz
 cor, pal = size.viz.matplotlib_style()
+=======
+import bebi103
+import cmdstanpy
+import arviz
+import corner
+import bebi103.viz
+import bokeh.io
+import size.viz
+import matplotlib.pyplot as plt
+cor, pal = size.viz.matplotlib_style()
+_ = size.viz.bokeh_style()
+bokeh.io.output_notebook()
+
+>>>>>>> 564609427da8d23a582a8e0406d4913a12c22f2d
 
 # Load the data
 data = pd.read_csv(
@@ -16,6 +31,12 @@ data = data[(data['width_median'] <= 2) & (data['width_median'] >= 0.2) &
 model = cmdstanpy.CmdStanModel(
     stan_file='./stan_models/hierarchical_size_inference_uncentered.stan')
 
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> 564609427da8d23a582a8e0406d4913a12c22f2d
 # %%
 for g, d in data.groupby(['carbon_source']):
     # Assemble the data dictionary
@@ -25,7 +46,12 @@ for g, d in data.groupby(['carbon_source']):
                  'idx': d['idx'].values.astype(int),
                  'widths': d['width_median'].values.astype(float),
                  'lengths': d['length'].values.astype(float)}
+<<<<<<< HEAD
     samples = model.sample(data=data_dict)
+=======
+    samples = model.sample(data=data_dict, adapt_delta=0.95,
+                           iter_warmup=3000)
+>>>>>>> 564609427da8d23a582a8e0406d4913a12c22f2d
     strain = d['strain'].values[0]
     carbon = g
     temp = d['temperature_C'].values[0]
@@ -40,4 +66,8 @@ metadata = {'strain': strain,
             'temp': int(temp),
             'oe': oe,
             'ind': ind}
+<<<<<<< HEAD
 size.viz.diagnostic_size_viz(samples, d, metadata, './')
+=======
+diagnostic_size_viz(samples, d, metadata, './')
+>>>>>>> 564609427da8d23a582a8e0406d4913a12c22f2d

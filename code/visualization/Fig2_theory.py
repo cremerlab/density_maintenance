@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import size.viz
+<<<<<<< HEAD
 import seaborn as sns
 cor, pal = size.viz.matplotlib_style()
 cmap = sns.color_palette("ch:start=.2,rot=-.3", n_colors=7).as_hex()
@@ -36,3 +37,33 @@ for g, d in protdata.groupby(['carbon_source']):
 ax.set_xlabel('periplasmic protein per biomass')
 ax.set_ylabel('SAV')
 ax.plot(theta_range, theory, 'k--')
+=======
+cor, pal = size.viz.matplotlib_style()
+
+voldata = pd.read_csv(
+    '../../data/mcmc/wildtype_hyperparameter_size_summary.csv')
+grdata = pd.read_csv('../../data/mcmc/wildtype_growth_rate_summary.csv')
+
+
+def width_pred(lam,
+               delta=0.025,
+               k=1,
+               alpha=4,
+               kappa=0.04,
+               phi_0=0.15):
+    return (12 * alpha * k * delta * (1 - phi_0 + kappa * lam))/((phi_0 - kappa * lam) * (3 * alpha - 1))
+
+
+# %%
+lam_range = np.linspace(0, 1.99, 200)
+w = width_pred(lam_range)
+plt.plot(lam_range, w, '--')
+
+for g, d in grdata.groupby(['carbon_source']):
+    vol = voldata[(voldata['carbon_source'] == g) &
+                  (voldata['parameter'] == 'width_um')]
+    plt.plot(d['median'], vol['median'], 'o')
+
+# %%
+voldata
+>>>>>>> 564609427da8d23a582a8e0406d4913a12c22f2d
