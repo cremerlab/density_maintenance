@@ -24,6 +24,8 @@ for s in tqdm.tqdm(strains, desc='Strains...'):
         continue
     for direc in tqdm.tqdm(dirs, desc='Directories...'):
         # Get the images
+        if len(glob.glob(f'{direc}*sizes.csv*')) > 0:
+            continue
         files = glob.glob(f'{direc}*.tif')
 
         # Convert to grey scale
