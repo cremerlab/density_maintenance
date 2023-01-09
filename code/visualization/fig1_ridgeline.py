@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.neighbors import KernelDensity
 cor, pal = size.viz.matplotlib_style()
-<<<<<<< HEAD
+
 gr_data = pd.read_csv('../../data/mcmc/wildtype_growth_rate_summary.csv')
 size_data = pd.read_csv(
     '../processing/microscopy/wildtype_size_measurement/output/wildtype_size_measurements.csv')
@@ -15,18 +15,12 @@ size_data = size_data[(size_data['width_median'] >= 0.2)
                       & (size_data['length'] <= 6.5)]
 prot_data = pd.read_csv(
     '../../data/protein_quantification/wildtype_simple_quantification.csv')
-=======
-size_data = pd.read_csv(
-    '../../data/mcmc/wildtype_hyperparameter_size_summary.csv')
-size_data = size_data[size_data['carbon_source'] != 'ezMOPS']
-gr_data = pd.read_csv('../../data/mcmc/wildtype_growth_rate_summary.csv')
->>>>>>> 564609427da8d23a582a8e0406d4913a12c22f2d
 cmap = sns.color_palette("ch:start=.2,rot=-.3", n_colors=7).as_hex()
 carbons = ['LB', 'glucoseCAA', 'glucose', 'glycerol', 'sorbitol', 'acetate']
 carb_cor = {c: cmap[-i - 1] for i, c in enumerate(carbons)}
 
 # %%
-<<<<<<< HEAD
+
 _carbons = ['LB', 'glucose +\nCAA', 'glucose',
             'glycerol', 'sorbitol', 'acetate']
 # Select the carbon sources
@@ -121,7 +115,6 @@ for g, d in prot_data.groupby(['carbon_source']):
                    marker='o', ms=4, lw=1)
 plt.tight_layout()
 plt.savefig('../../figures/fig1_SVR_Mperi.pdf', bbox_inches='tight')
-=======
 fig, ax = plt.subplots(2, 1, figsize=(2.5, 2), sharex=True)
 ax[0].set_ylabel('cell length [µm]', fontsize=6)
 ax[1].set_ylabel('cell width [µm]', fontsize=6)
@@ -248,4 +241,3 @@ _kde = KernelDensity(kernel='gaussian', bandwidth=0.1).fit(
 log_dens = _kde.score_samples(w_range)
 # plt.hist(d['width_um'])
 plt.plot(w_range[:, 0], np.exp(log_dens))
->>>>>>> 564609427da8d23a582a8e0406d4913a12c22f2d
