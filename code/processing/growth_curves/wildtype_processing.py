@@ -11,7 +11,7 @@ data = data[(data['od_600nm'] >= 0.04) & (data['od_600nm'] <= 0.4)]
 # convert clock time to elapsed time
 data['clock_time'] = pd.to_datetime(data['clock_time'].values)
 processed = []
-for g, d in data.groupby(['strain', 'carbon_source', 'date']):
+for g, d in data.groupby(['strain', 'carbon_source', 'date', 'run_no']):
     _d = d.copy()
     _d['elapsed_time_hr'] = (
         d['clock_time'] - d['clock_time'].min()).dt.total_seconds() / 3600
@@ -20,4 +20,4 @@ for g, d in data.groupby(['strain', 'carbon_source', 'date']):
         processed.append(_d)
 processed = pd.concat(processed, sort=False)
 processed.to_csv(
-    '../../../data/growth_curves/wt_growth_measurements_processed.csv', index=False)
+    '../../../data/growth_curves/growth_measurements_processed.csv', index=False)
