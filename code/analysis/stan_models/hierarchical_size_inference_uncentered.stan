@@ -23,11 +23,6 @@ parameters {
     real<lower=0> length_beta;
     real<lower=0, upper=10> vol_mu;
     real<lower=0, upper=10> SAV_mu;
-    real<lower=0> width_mu;
-    real<lower=0> length_alpha;
-    real<lower=0> length_beta;
-    real<lower=0> vol_mu;
-    real<lower=0> SAV_mu;
     real tau;
 
     // Lower-level parameters

@@ -568,22 +568,12 @@ def diagnostic_size_viz(samples,
     fig, ax = plt.subplots(n_reps, 4, figsize=(6, n_reps * 1))
 
     # Format axes
-<<<<<<< HEAD:software/size/viz.py
-=======
-    for i in range(n_reps - 1):
-        for j in range(4):
-            ax[i, j].set_xticklabels([])
-    for i in range(n_reps):
-        for j in range(1, 4):
-            ax[i, j].set_yticklabels([])
->>>>>>> 564609427da8d23a582a8e0406d4913a12c22f2d:size/viz.py
     width_rep = samples.posterior.width_rep.to_dataframe().reset_index()
     length_rep = samples.posterior.length_rep.to_dataframe().reset_index()
     volume_rep = samples.posterior.volume_rep.to_dataframe().reset_index()
     sav_rep = samples.posterior.SAV_rep.to_dataframe().reset_index()
     titles = ['width', 'length', 'volume', 'SA/V']
     labs = ['µm', 'µm', 'µm$^3$', 'µm$^{-1}$']
-<<<<<<< HEAD:software/size/viz.py
     if n_reps == 1:
         for i in range(4):
             ax[i].set_title(titles[i], fontsize=6)
@@ -595,13 +585,6 @@ def diagnostic_size_viz(samples,
             ax[-1, i].set_xlabel(labs[i], fontsize=6)
         for i in range(n_reps):
             ax[i, 0].set_ylabel('ECDF')
-=======
-    for i in range(4):
-        ax[0, i].set_title(titles[i], fontsize=6)
-        ax[-1, i].set_xlabel(labs[i], fontsize=6)
-    for i in range(n_reps):
-        ax[i, 0].set_ylabel('ECDF')
->>>>>>> 564609427da8d23a582a8e0406d4913a12c22f2d:size/viz.py
 
     # Generate ECDFs
     for i in range(n_reps):
@@ -610,23 +593,16 @@ def diagnostic_size_viz(samples,
 
         for j, ppc in enumerate([width_rep, length_rep, volume_rep, sav_rep]):
             k = 0
-<<<<<<< HEAD:software/size/viz.py
             if n_reps == 1:
                 _ax = ax[j]
             else:
                 _ax = ax[i, j]
-=======
->>>>>>> 564609427da8d23a582a8e0406d4913a12c22f2d:size/viz.py
             for g, _d in ppc.groupby(['chain', 'draw']):
                 if k % thin == 0:
                     _x = np.sort(_d[_d[_d.keys()[-2]].isin(loc)]
                                  [_d.keys()[-1]].values)
                     _y = np.arange(len(_x)) / len(_x)
-<<<<<<< HEAD:software/size/viz.py
                 _ax.plot(_x, _y, 'k-', lw=0.1, alpha=0.1)
-=======
-                ax[i, j].plot(_x, _y, 'k-', lw=0.1, alpha=0.1)
->>>>>>> 564609427da8d23a582a8e0406d4913a12c22f2d:size/viz.py
                 k += 1
         rep = data[data['idx'] == (i + 1)]
         width_x = np.sort(rep['width_median'].values)
@@ -635,22 +611,17 @@ def diagnostic_size_viz(samples,
         sav_x = np.sort(rep['surface_to_volume'].values)
         y = np.arange(len(sav_x)) / len(sav_x)
         for j, val in enumerate([width_x, length_x, vol_x, sav_x]):
-<<<<<<< HEAD:software/size/viz.py
             if n_reps == 1:
                 _ax = ax[j]
             else:
                 _ax = ax[i, j]
             _ax.plot(val, y, '-', lw=1.5, color=cor['primary_red'])
-=======
-            ax[i, j].plot(val, y, '-', lw=1.5, color=cor['primary_red'])
->>>>>>> 564609427da8d23a582a8e0406d4913a12c22f2d:size/viz.py
     fig.text(
         0, 1, f'{metadata["strain"]}; {metadata["carbon"]} ; {metadata["temp"]} °C ; overexpression: {metadata["oe"]} @ {metadata["ind"]} ng/mL')
     plt.tight_layout()
 
     # save figure
     plt.savefig(f'{out}_ppc.pdf', bbox_inches='tight')
-<<<<<<< HEAD:software/size/viz.py
 
 
 def diagnostic_growth_viz(samples,
@@ -719,5 +690,3 @@ def diagnostic_growth_viz(samples,
     # save figure
     plt.savefig(f'{out}_growth_ppc.pdf', bbox_inches='tight')
     plt.close()
-=======
->>>>>>> 564609427da8d23a582a8e0406d4913a12c22f2d:size/viz.py
