@@ -3,7 +3,7 @@ import pandas as pd
 
 # Load the dataset
 data = pd.read_csv(
-    '../../../data/growth_curves/wt_growth_measurements_raw.csv')
+    '../../../data/growth_curves/growth_measurements_raw.csv')
 
 # Filter on OD bounds
 data = data[(data['od_600nm'] >= 0.04) & (data['od_600nm'] <= 0.4)]
