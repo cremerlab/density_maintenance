@@ -40,7 +40,8 @@ for i, f in enumerate(tqdm.tqdm(files)):
         culture_volume * 1E3 / (flow_rate * time * od)
 
     # Pack the output
-    _data = {'strain': strain,
+    _data = {'date': date,
+             'strain': strain,
              'carbon_source': carbon,
              'overexpression': 'none',
              'inducer': 'none',
