@@ -34,7 +34,6 @@ transformed parameters {
 model { 
 
     // Priors
-
     mu ~ gamma(2.85, 3.30);
     tau ~ std_normal();
     mu_1_tilde ~ std_normal();
