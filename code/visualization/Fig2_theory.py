@@ -57,7 +57,7 @@ lam_range = np.linspace(0, 1.99, 200)
 w = width_pred(lam_range)
 plt.plot(lam_range, w, '--')
 
-for g, d in grdata.groupby(['carbon_source']):
-    vol = voldata[(voldata['carbon_source'] == g) &
-                  (voldata['parameter'] == 'width_um')]
-    plt.plot(d['median'], vol['median'], 'o')
+# for g, d in grdata.groupby(['carbon_source']):
+#     vol = voldata[(voldata['carbon_source'] == g) &
+#                   (voldata['parameter'] == 'width_um')]
+#     plt.plot(d['median'], vol['median'], 'o')
