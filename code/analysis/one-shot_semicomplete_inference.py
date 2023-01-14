@@ -122,18 +122,36 @@ data_dict = {
 # %%
 # Sample the model
 # , adapt_delta=0.99, max_treedepth=15)
-_samples = model.sample(data=data_dict) #, max_treedepth=15,
-                        # adapt_delta=0.99, iter_sampling=2000, iter_warmup=1000)
+_samples = model.sample(data=data_dict, max_treedepth=15, adapt_delta=0.95)  # , max_treedepth=15,
+# adapt_delta=0.99, iter_sampling=2000, iter_warmup=1000)
 
 # %%
 samples = az.from_cmdstanpy(_samples)
 
+#%%
+
+
 # %%
 cpb = samples.posterior.growth_cells_per_biomass.to_dataframe().reset_index()
 cpb
+
+# %%
+rho = samples.posterior.peri_density.to_dataframe().reset_index()
+rho
+
+# %%
+ppb = samples.posterior.prot_per_biomass.to_dataframe().reset_index()
+ppb
+
+#%%
+cal = samples.posterior.cal_slope
+cal
 # %%
 growth_mu_df = samples.posterior.growth_mu.to_dataframe().reset_index()
 growth_mu_df.groupby(['growth_mu_dim_0'])['growth_mu'].mean()
+growth_mu_df
 
 
-growth_data
+#%%
+width_mu = samples.posterior.width_mu.to_dataframe().reset_index()
+width_mu

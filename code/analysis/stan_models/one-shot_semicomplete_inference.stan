@@ -4,9 +4,7 @@ data {
     // Bradford Calibration Curve
     // -------------------------------------------------------------------------
     // Dimensional information
-    int<lower=1> J_cal_brep; // Number of biological replicates for Bradford calibration curve
     int<lower=1> N_cal_meas; // Number of Bradford calibration curve measurements
-    array[N_cal_meas] int<lower=1, upper=J_cal_brep> cal_idx; // ID vector for calibration curve
 
     // Measured information
     vector<lower=0>[N_cal_meas] concentration; // Protein concentrations for cal curve
@@ -58,7 +56,6 @@ data {
     int<lower=1> J_size_cond; // Number of conditions in which size was measured.
     int<lower=1> N_size_meas; // Total number of size measurements
     array[N_size_meas] int<lower=1, upper=J_size_cond> size_idx; //ID vector for sizes.
-    // array[N_size_meas] int<lower=1, upper=J_growth_cond> size_growth_idx; // ID vector mapping conditions to those of the growth rate determination 
 
     // Measured parameters
     vector<lower=0>[N_size_meas] mean_width;
@@ -132,11 +129,6 @@ parameters {
     // Hyperparameters for calibration
     real<lower=0> cal_slope;
     real<lower=0> cal_intercept;
-    real cal_tau;
-
-    // Low-level parameter
-    vector<lower=0>[J_cal_brep] cal_slope_1_tilde;
-    vector<lower=0>[J_cal_brep] cal_intercept_1_tilde;
     real<lower=0> cal_sigma;
 
     // Parameters for protein measurements 
@@ -188,8 +180,6 @@ transformed parameters {
     // -------------------------------------------------------------------------
     // Protein Quantification Transformed Parameters
     // -------------------------------------------------------------------------
-    vector<lower=0>[J_cal_brep] cal_slope_1 = cal_slope_1_tilde + cal_tau * cal_slope;
-    vector<lower=0>[J_cal_brep] cal_intercept_1 = cal_intercept_1_tilde + cal_tau * cal_intercept;
     vector<lower=0>[J_prot_cond] od595_per_biomass_mu = (od595_per_biomass_mu_tilde .* std_prot_od) + mean_prot_od;
     vector<lower=0>[J_prot_cond] prot_per_biomass = (od595_per_biomass_mu - cal_intercept) ./ cal_slope;
 
@@ -224,11 +214,8 @@ model {
     // Hyper priors
     cal_slope ~ normal(0, 0.1);
     cal_intercept ~ normal(0, 0.1);
-    cal_tau ~ std_normal();
 
     // Low-level priors
-    cal_slope_1_tilde ~ std_normal();
-    cal_intercept_1_tilde ~ std_normal();
     cal_sigma ~ normal(0, 0.1);
 
     // Measurement priors
@@ -236,7 +223,7 @@ model {
     od595_per_biomass_sigma ~ std_normal();//normal(0, 0.1);
 
     // Likelihoods
-    cal_od ~ normal(cal_intercept_1[cal_idx] + cal_slope_1[cal_idx] .* concentration, cal_sigma);
+    cal_od ~ normal(cal_intercept + cal_slope .* concentration, cal_sigma);
     prot_od_tilde ~ cauchy(od595_per_biomass_mu_tilde[prot_idx], od595_per_biomass_sigma[prot_idx]);
 
     // -------------------------------------------------------------------------
@@ -303,7 +290,7 @@ generated quantities {
         od595_per_biomass_rep[i] = mean_prot_od[prot_idx[i]]  + (std_prot_od[prot_idx[i]] * normal_rng(od595_per_biomass_mu_tilde[prot_idx[i]], od595_per_biomass_sigma[prot_idx[i]]));
     }
     for (i in 1:N_cal_meas) { 
-        od595_calib_rep[i] = normal_rng(cal_intercept_1[cal_idx[i]] + cal_slope_1[cal_idx[i]] * concentration[i] , cal_sigma);
+        od595_calib_rep[i] = normal_rng(cal_intercept + cal_slope * concentration[i] , cal_sigma);
     } 
 
     // -------------------------------------------------------------------------
@@ -347,7 +334,7 @@ generated quantities {
     // Compute properties
     // -------------------------------------------------------------------------
     vector[J_prot_cond] n_cells = 1E9 .* beta_0_tilde .* exp(-k_cells_per_biomass_tilde * growth_mu[prot_cond_map]); 
-    vector[J_prot_cond] peri_density = prot_per_biomass * 1E6 ./ (n_cells .* peri_vol_mu[prot_cond_map]); 
+    vector[J_prot_cond] peri_density = prot_per_biomass * 1E9 ./ (n_cells .* peri_vol_mu[prot_cond_map]); 
     vector[J_prot_cond] peri_mass_frac = prot_per_biomass ./ (n_cells .* vol_mu[prot_cond_map] * 500);
  
 }
