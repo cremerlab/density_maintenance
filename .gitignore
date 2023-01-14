@@ -14,3 +14,4 @@
 *samples.csv
 *.netcdf
 *.fcs
+*.tmp

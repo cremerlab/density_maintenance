@@ -13,6 +13,8 @@ data = pd.read_csv(
 popt = scipy.stats.linregress(calib['protein_conc_ug_ml'], calib['od_595nm'])
 slope = popt[0]
 intercept = popt[1]
+print(intercept)
+print(slope)
 # %%
 # Convert the measured OD595 in the data to ug protein
 data['ug_protein'] = (data['od_595nm'] - intercept) / slope
