@@ -131,6 +131,14 @@ samples = az.from_cmdstanpy(_samples)
 # %%
 cpb = samples.posterior.growth_cells_per_biomass.to_dataframe().reset_index()
 cpb
+
+#%%
+rho = samples.posterior.peri_density.to_dataframe().reset_index()
+rho
+
+#%%
+ppb =samples.posterior.prot_per_biomass.to_dataframe().reset_index()
+ppb['prot_per_biomass'].max()
 # %%
 growth_mu_df = samples.posterior.growth_mu.to_dataframe().reset_index()
 growth_mu_df.groupby(['growth_mu_dim_0'])['growth_mu'].mean()

@@ -23,6 +23,8 @@ data {
 
     // Measured information
     vector<lower=0>[N_prot_meas] prot_od; // OD595 per unit biomass measurements for periplasmic protein
+
+    // Measured information for standardization
     vector<lower=0>[J_prot_cond] mean_prot_od;
     vector<lower=0>[J_prot_cond] std_prot_od;
 
@@ -45,14 +47,50 @@ data {
     // -------------------------------------------------------------------------
     // Dimensional information
     int<lower=1> N_cell_meas; // Total number of flow cytometry measurements
-    array[N_cell_meas] int<lower=1, upper=J_growth_cond> cells_per_biomass_growth_idx; // ID vector for technical replicates
-
+    
     // Measured information
     vector<lower=1>[N_cell_meas] cells_per_biomass; // Measurements of  cells per mL of experimental culture
 
     // -------------------------------------------------------------------------
     // Size Data
     // -------------------------------------------------------------------------
+    // Dimensional Parameters
+    int<lower=1> J_size_cond; // Number of conditions in which size was measured.
+    int<lower=1> N_size_meas; // Total number of size measurements
+    array[N_size_meas] int<lower=1, upper=J_size_cond> size_idx; //ID vector for sizes.
+    // array[N_size_meas] int<lower=1, upper=J_growth_cond> size_growth_idx; // ID vector mapping conditions to those of the growth rate determination 
+
+    // Measured parameters
+    vector<lower=0>[N_size_meas] mean_width;
+    vector<lower=0>[N_size_meas] mean_length;
+    vector<lower=0>[N_size_meas] mean_vol;
+    vector<lower=0>[N_size_meas] mean_peri_vol;
+    vector<lower=0>[N_size_meas] mean_peri_vol_frac;
+    vector<lower=0>[N_size_meas] mean_sa;
+    vector<lower=0>[N_size_meas] mean_sav;
+
+    // Parameters for standardization
+    vector<lower=0>[J_size_cond] mean_width_mean;
+    vector<lower=0>[J_size_cond] mean_width_std;
+    vector<lower=0>[J_size_cond] mean_length_mean;
+    vector<lower=0>[J_size_cond] mean_length_std;
+    vector<lower=0>[J_size_cond] mean_vol_mean;
+    vector<lower=0>[J_size_cond] mean_vol_std;
+    vector<lower=0>[J_size_cond] mean_peri_vol_mean;
+    vector<lower=0>[J_size_cond] mean_peri_vol_std;
+    vector<lower=0>[J_size_cond] mean_peri_vol_frac_mean;
+    vector<lower=0>[J_size_cond] mean_peri_vol_frac_std;
+    vector<lower=0>[J_size_cond] mean_sa_mean;
+    vector<lower=0>[J_size_cond] mean_sa_std;
+    vector<lower=0>[J_size_cond] mean_sav_mean;
+    vector<lower=0>[J_size_cond] mean_sav_std;
+
+    // -------------------------------------------------------------------------
+    // Linking Indices
+    // -------------------------------------------------------------------------
+    array[N_cell_meas] int<lower=1, upper=J_growth_cond> cells_per_biomass_growth_idx; 
+    array[J_prot_cond] int<lower=1, upper=J_growth_cond> prot_cond_map;
+
 
 
 }
@@ -65,14 +103,25 @@ transformed data{
     vector[N_prot_meas] prot_od_tilde = (prot_od - mean_prot_od[prot_idx]) ./ (std_prot_od[prot_idx]);
 
     // -------------------------------------------------------------------------
-    // Growth Rate Transformed Parameters
+    // Growth Rate Transformations
     // -------------------------------------------------------------------------
     vector[N_growth_meas]  log_growth_od = log(growth_od); // Compute the log density to permit linear regression
     
     // -------------------------------------------------------------------------
-    // Flow Cytometry Transformed Parameters
+    // Flow Cytometry Transformations
     // -------------------------------------------------------------------------
     vector[N_cell_meas] billion_cells_per_biomass = cells_per_biomass ./ 1E9;
+
+    // -------------------------------------------------------------------------
+    // Size Measurement Transformations
+    // -------------------------------------------------------------------------
+    vector[N_size_meas] mean_width_tilde = (mean_width - mean_width_mean[size_idx]) ./ mean_width_std[size_idx];
+    vector[N_size_meas] mean_length_tilde = (mean_length - mean_length_mean[size_idx]) ./ mean_length_std[size_idx];
+    vector[N_size_meas] mean_vol_tilde = (mean_vol - mean_vol_mean[size_idx]) ./ mean_vol_std[size_idx];
+    vector[N_size_meas] mean_peri_vol_tilde = (mean_peri_vol - mean_peri_vol_mean[size_idx]) ./ mean_peri_vol_std[size_idx];
+    vector[N_size_meas] mean_peri_vol_frac_tilde = (mean_peri_vol_frac - mean_peri_vol_frac_mean[size_idx]) ./ mean_peri_vol_frac_std[size_idx];
+    vector[N_size_meas] mean_sa_tilde = (mean_sa - mean_sa_mean[size_idx]) ./ mean_sa_std[size_idx];
+    vector[N_size_meas] mean_sav_tilde = (mean_sav - mean_sav_mean[size_idx]) ./ mean_sav_std[size_idx];    
 }
 
 
@@ -115,6 +164,24 @@ parameters {
     real<lower=0> beta_0_tilde;
     real<lower=0> cells_per_biomass_sigma;
 
+    // -------------------------------------------------------------------------
+    // Size parameters
+    // -------------------------------------------------------------------------
+    vector[J_size_cond] width_mu_tilde;
+    vector<lower=0>[J_size_cond] width_sigma;
+    vector[J_size_cond] length_mu_tilde;
+    vector<lower=0>[J_size_cond] length_sigma;
+    vector[J_size_cond] vol_mu_tilde;
+    vector<lower=0>[J_size_cond] vol_sigma;
+    vector[J_size_cond] peri_vol_mu_tilde;
+    vector<lower=0>[J_size_cond] peri_vol_sigma;
+    vector[J_size_cond] peri_vol_frac_mu_tilde;
+    vector<lower=0>[J_size_cond] peri_vol_frac_sigma;
+    vector[J_size_cond] sa_mu_tilde;
+    vector<lower=0>[J_size_cond] sa_sigma;
+    vector[J_size_cond] sav_mu_tilde;
+    vector<lower=0>[J_size_cond] sav_sigma;
+
 }
 
 transformed parameters {
@@ -136,6 +203,17 @@ transformed parameters {
     // Cells per Biomass Transformed Parameters
     // -------------------------------------------------------------------------
     vector<lower=0>[J_growth_cond] growth_cells_per_biomass = 1E9 .* (beta_0_tilde * exp(-k_cells_per_biomass_tilde * growth_mu));
+
+    // -------------------------------------------------------------------------
+    // Size Measurement Transformed Parameters
+    // -------------------------------------------------------------------------
+    vector[J_size_cond] width_mu = mean_width_std .* width_mu_tilde + mean_width_mean;
+    vector[J_size_cond] length_mu = mean_length_std .* length_mu_tilde + mean_length_mean;
+    vector[J_size_cond] vol_mu = mean_vol_std .* vol_mu_tilde + mean_vol_mean;
+    vector[J_size_cond] peri_vol_mu = mean_peri_vol_std .* peri_vol_mu_tilde + mean_peri_vol_mean;
+    vector[J_size_cond] peri_vol_frac_mu = mean_peri_vol_frac_std .* peri_vol_frac_mu_tilde + mean_peri_vol_frac_mean;
+    vector[J_size_cond] sa_mu = mean_sa_std .* sa_mu_tilde + mean_sa_mean;
+    vector[J_size_cond] sav_mu = mean_sav_std .* sav_mu_tilde + mean_sav_mean;
 
 }
 
@@ -177,11 +255,41 @@ model {
     // -------------------------------------------------------------------------
     // Flow cytometry model
     // -------------------------------------------------------------------------
+    // Priors
     k_cells_per_biomass_tilde ~ std_normal();
     beta_0_tilde ~ std_normal();
     cells_per_biomass_sigma ~ std_normal();
+
+    // Likelihood
     billion_cells_per_biomass ~ normal(beta_0_tilde * exp(-k_cells_per_biomass_tilde * growth_mu[cells_per_biomass_growth_idx]), cells_per_biomass_sigma);
  
+    // -------------------------------------------------------------------------
+    // Size model 
+    // -------------------------------------------------------------------------
+    // Size priors
+    width_mu_tilde ~ std_normal();
+    width_sigma ~ normal(0, 0.1);
+    length_mu_tilde ~ std_normal();
+    length_sigma ~ normal(0, 0.1);
+    vol_mu_tilde ~ std_normal();
+    vol_sigma ~ normal(0, 0.1);
+    peri_vol_mu_tilde ~ std_normal();
+    peri_vol_sigma ~ normal(0, 0.1);
+    peri_vol_frac_mu_tilde ~ std_normal();
+    peri_vol_frac_sigma ~ normal(0, 0.1);
+    sa_mu_tilde ~ std_normal();
+    sa_sigma ~ normal(0, 0.1);
+    sav_mu_tilde ~ std_normal();
+    sav_sigma ~ normal(0, 0.1);
+
+    // Likelihoods
+    mean_width_tilde ~ normal(width_mu_tilde[size_idx], width_sigma[size_idx]);
+    mean_length_tilde ~ normal(length_mu_tilde[size_idx], length_sigma[size_idx]);
+    mean_vol_tilde  ~ normal(vol_mu_tilde[size_idx],  vol_sigma[size_idx]);
+    mean_peri_vol_tilde ~ normal(peri_vol_mu_tilde[size_idx], peri_vol_sigma[size_idx]);
+    mean_peri_vol_frac_tilde ~ normal(peri_vol_frac_mu_tilde[size_idx], peri_vol_frac_sigma[size_idx]);
+    mean_sa_tilde ~ normal(sa_mu_tilde[size_idx], sa_sigma[size_idx]);
+    mean_sav_tilde ~ normal(sav_mu_tilde[size_idx], sav_sigma[size_idx]);
 }
 
 generated quantities { 
@@ -213,4 +321,33 @@ generated quantities {
     for (i in 1:N_cell_meas) {
         cells_per_biomass_rep[i] = 1E9 * normal_rng(beta_0_tilde * exp(-k_cells_per_biomass_tilde * growth_mu[cells_per_biomass_growth_idx[i]]), cells_per_biomass_sigma);
     }
+
+    // -------------------------------------------------------------------------
+    // Size PPC
+    // -------------------------------------------------------------------------
+    vector[N_size_meas] width_rep;
+    vector[N_size_meas] length_rep;
+    vector[N_size_meas] vol_rep;
+    vector[N_size_meas] peri_vol_rep;
+    vector[N_size_meas] peri_vol_frac_rep;
+    vector[N_size_meas] sa_rep;
+    vector[N_size_meas] sav_rep;
+
+    for (i in 1:N_size_meas) {
+        width_rep[i] = mean_width_mean[size_idx[i]] + mean_width_std[size_idx[i]] * normal_rng(width_mu_tilde[size_idx[i]], width_sigma[size_idx[i]]); 
+        length_rep[i] = mean_length_mean[size_idx[i]] + mean_length_std[size_idx[i]] * normal_rng(length_mu_tilde[size_idx[i]], length_sigma[size_idx[i]]); 
+        vol_rep[i] = mean_vol_mean[size_idx[i]] + mean_vol_std[size_idx[i]] * normal_rng(vol_mu_tilde[size_idx[i]], vol_sigma[size_idx[i]]); 
+        peri_vol_rep[i] = mean_peri_vol_mean[size_idx[i]] + mean_peri_vol_std[size_idx[i]] * normal_rng(peri_vol_mu_tilde[size_idx[i]], peri_vol_sigma[size_idx[i]]); 
+        peri_vol_frac_rep[i] = mean_peri_vol_frac_mean[size_idx[i]] + mean_peri_vol_frac_std[size_idx[i]] *normal_rng(peri_vol_frac_mu_tilde[size_idx[i]], peri_vol_frac_sigma[size_idx[i]]); 
+        sa_rep[i] = mean_sa_mean[size_idx[i]] + mean_sa_std[size_idx[i]] * normal_rng(sa_mu_tilde[size_idx[i]], sa_sigma[size_idx[i]]); 
+        sav_rep[i] = mean_sav_mean[size_idx[i]] + mean_sav_std[size_idx[i]] * normal_rng(sav_mu_tilde[size_idx[i]], sav_sigma[size_idx[i]]); 
+    }
+
+    // -------------------------------------------------------------------------
+    // Compute properties
+    // -------------------------------------------------------------------------
+    vector[J_prot_cond] n_cells = 1E9 .* beta_0_tilde .* exp(-k_cells_per_biomass_tilde * growth_mu[prot_cond_map]); 
+    vector[J_prot_cond] peri_density = prot_per_biomass * 1E6 ./ (n_cells .* peri_vol_mu[prot_cond_map]); 
+    vector[J_prot_cond] peri_mass_frac = prot_per_biomass ./ (n_cells .* vol_mu[prot_cond_map] * 500);
+ 
 }
