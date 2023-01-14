@@ -35,31 +35,31 @@ model = cmdstanpy.CmdStanModel(
 # %%
 # Compute the necessary properties and idx groups
 bradford_prot_data['od_meas'] = (bradford_prot_data['od_595nm'] * bradford_prot_data['extraction_volume_ml'] *
-    bradford_prot_data['dilution_factor'] /
-    (bradford_prot_data['od_600nm'] * bradford_prot_data['culture_volume_ml'])
+                                 bradford_prot_data['dilution_factor']) /
+(bradford_prot_data['od_600nm'] * bradford_prot_data['culture_volume_ml'])
 
-bradford_prot_data['cond_idx']=bradford_prot_data.groupby(
+bradford_prot_data['cond_idx'] = bradford_prot_data.groupby(
     ['carbon_source']).ngroup() + 1
 # bradford_prot_data['brep_idx'] = bradford_prot_data.groupby(['date', 'carbon_source']).ngroup() + 1
-bradford_cal_data['brep_idx']=bradford_cal_data.groupby(
+bradford_cal_data['brep_idx'] = bradford_cal_data.groupby(
     ['replicate', 'protein_standard']).ngroup() + 1
-growth_data['cond_idx']=growth_data.groupby(['carbon_source']).ngroup() + 1
-growth_data['brep_idx']=growth_data.groupby(
+growth_data['cond_idx'] = growth_data.groupby(['carbon_source']).ngroup() + 1
+growth_data['brep_idx'] = growth_data.groupby(
     ['carbon_source', 'date', 'run_no']).ngroup() + 1
 
 
 # Map flow cytometry data to appropriate carbon source index
-carb_idx_dict={g[0]: g[1] for g, _ in growth_data[growth_data['elapsed_time_hr'] == 0].groupby([
-                                                                                                 'carbon_source', 'cond_idx'])}
-flow_data['growth_idx']=[carb_idx_dict[i]
+carb_idx_dict = {g[0]: g[1] for g, _ in growth_data[growth_data['elapsed_time_hr'] == 0].groupby([
+    'carbon_source', 'cond_idx'])}
+flow_data['growth_idx'] = [carb_idx_dict[i]
                            for i in flow_data['carbon_source'].values]
-carb_idx=[v for _, v in carb_idx_dict.items()]
+carb_idx = [v for _, v in carb_idx_dict.items()]
 
 # Add identifying information to size data
-size_data['cond_idx']=size_data.groupby(['carbon_source']).ngroup() + 1
+size_data['cond_idx'] = size_data.groupby(['carbon_source']).ngroup() + 1
 
 # Define the data dictionary
-data_dict={
+data_dict = {
     # Bradford calibration curve inputs
     'J_cal_brep': bradford_cal_data['brep_idx'].max(),
     'N_cal_meas': len(bradford_cal_data),
@@ -123,45 +123,48 @@ data_dict={
 # %%
 # Sample the model
 # , adapt_delta=0.99, max_treedepth=15)
-_samples=model.sample(data=data_dict, max_treedepth=15,
+_samples = model.sample(data=data_dict, max_treedepth=15,
                         adapt_delta=0.95)  # , max_treedepth=15,
 # adapt_delta=0.99, iter_sampling=2000, iter_warmup=1000)
 
 # %%
-samples=az.from_cmdstanpy(_samples)
+samples = az.from_cmdstanpy(_samples)
 
 # %%
 
 
 # %%
-cpb=samples.posterior.growth_cells_per_biomass.to_dataframe().reset_index()
+cpb = samples.posterior.growth_cells_per_biomass.to_dataframe().reset_index()
 cpb
 
 # %%
-rho=samples.posterior.peri_density.to_dataframe().reset_index()
+rho = samples.posterior.peri_density.to_dataframe().reset_index()
 rho.groupby(['peri_density_dim_0'])['peri_density'].mean().reset_index()
 
 # %%
-ppb=samples.posterior.prot_per_biomass.to_dataframe().reset_index()
+ppb = samples.posterior.prot_per_biomass.to_dataframe().reset_index()
 ppb.groupby(['prot_per_biomass_dim_0']).mean().reset_index()
 
 # %%
-cal=samples.posterior.cal_slope
+cal = samples.posterior.cal_slope
 
 # %%
-growth_mu_df=samples.posterior.growth_mu.to_dataframe().reset_index()
+growth_mu_df = samples.posterior.growth_mu.to_dataframe().reset_index()
 growth_mu_df.groupby(['growth_mu_dim_0'])['growth_mu'].mean()
 
 
 # %%
-width_mu=samples.posterior.width_mu.to_dataframe().reset_index()
+width_mu = samples.posterior.width_mu.to_dataframe().reset_index()
 width_mu.groupby(['width_mu_dim_0'])['width_mu'].mean().reset_index()
 
 # %%
-length_mu=samples.posterior.length_mu.to_dataframe().reset_index()
+length_mu = samples.posterior.length_mu.to_dataframe().reset_index()
 length_mu.groupby(['length_mu_dim_0'])['length_mu'].mean().reset_index()
 
 # %%
-od_pb=samples.posterior.od595_per_biomass_mu.to_dataframe().reset_index()
+od_pb = samples.posterior.od595_per_biomass_mu.to_dataframe().reset_index()
 od_pb.groupby(['od595_per_biomass_mu_dim_0'])[
     'od595_per_biomass_mu'].mean().reset_index()
+
+# %%
+mass_frac = samples.post
