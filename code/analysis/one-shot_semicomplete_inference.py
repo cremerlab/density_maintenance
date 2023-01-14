@@ -35,7 +35,7 @@ model = cmdstanpy.CmdStanModel(
 # %%
 # Compute the necessary properties and idx groups
 bradford_prot_data['od_meas'] = (bradford_prot_data['od_595nm'] * bradford_prot_data['extraction_volume_ml'] *
-                                 bradford_prot_data['dilution_factor']) /(bradford_prot_data['od_600nm'] * bradford_prot_data['culture_volume_ml'])
+                                 bradford_prot_data['dilution_factor']) / (bradford_prot_data['od_600nm'] * bradford_prot_data['culture_volume_ml'])
 
 bradford_prot_data['cond_idx'] = bradford_prot_data.groupby(
     ['carbon_source']).ngroup() + 1
@@ -121,14 +121,11 @@ data_dict = {
 
 # %%
 # Sample the model
-# , adapt_delta=0.99, max_treedepth=15)
-_samples = model.sample(data=data_dict, max_treedepth=15,
-                        adapt_delta=0.95)  # , max_treedepth=15,
-# adapt_delta=0.99, iter_sampling=2000, iter_warmup=1000)
+_samples = model.sample(data=data_dict, seed=666)
+
 
 # %%
 samples = az.from_cmdstanpy(_samples)
-
 # %%
 
 
@@ -142,7 +139,9 @@ rho.groupby(['peri_density_dim_0'])['peri_density'].mean().reset_index()
 
 # %%
 ppb = samples.posterior.prot_per_biomass.to_dataframe().reset_index()
-ppb.groupby(['prot_per_biomass_dim_0']).mean().reset_index()
+ppb.groupby(['prot_per_biomass_dim_0'])[
+    'prot_per_biomass'].mean().reset_index()
+
 
 # %%
 cal = samples.posterior.cal_slope
@@ -167,4 +166,5 @@ od_pb.groupby(['od595_per_biomass_mu_dim_0'])[
 
 # %%
 mass_frac = samples.posterior.peri_mass_frac.to_dataframe().reset_index()
-mass_frac.groupby(['peri_mass_frac_dim_0'])['peri_mass_frac'].agg(('mean', 'std')).reset_index()
+mass_frac.groupby(['peri_mass_frac_dim_0'])[
+    'peri_mass_frac'].agg(('mean', 'std')).reset_index()
