@@ -35,8 +35,7 @@ model = cmdstanpy.CmdStanModel(
 # %%
 # Compute the necessary properties and idx groups
 bradford_prot_data['od_meas'] = (bradford_prot_data['od_595nm'] * bradford_prot_data['extraction_volume_ml'] *
-                                 bradford_prot_data['dilution_factor']) /
-(bradford_prot_data['od_600nm'] * bradford_prot_data['culture_volume_ml'])
+                                 bradford_prot_data['dilution_factor']) /(bradford_prot_data['od_600nm'] * bradford_prot_data['culture_volume_ml'])
 
 bradford_prot_data['cond_idx'] = bradford_prot_data.groupby(
     ['carbon_source']).ngroup() + 1
@@ -167,4 +166,5 @@ od_pb.groupby(['od595_per_biomass_mu_dim_0'])[
     'od595_per_biomass_mu'].mean().reset_index()
 
 # %%
-mass_frac = samples.post
+mass_frac = samples.posterior.peri_mass_frac.to_dataframe().reset_index()
+mass_frac.groupby(['peri_mass_frac_dim_0'])['peri_mass_frac'].agg(('mean', 'std')).reset_index()
