@@ -68,10 +68,11 @@ data_dict = {
 
 # %%
 # Sample the model
-_samples = model.sample(data=data_dict, adapt_delta=0.95, max_treedepth=15)
+# , adapt_delta=0.99, max_treedepth=15)
+_samples = model.sample(data=data_dict)
 
 # %%
-samples = az.from_cmdstanpy(samples)
+samples = az.from_cmdstanpy(_samples)
 # %%
 growth_mu_df = samples.posterior.growth_mu.to_dataframe().reset_index()
 growth_mu_df.groupby(['growth_mu_dim_0'])['growth_mu'].mean()
