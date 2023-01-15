@@ -87,9 +87,6 @@ data {
     // -------------------------------------------------------------------------
     array[N_cell_meas] int<lower=1, upper=J_growth_cond> cells_per_biomass_growth_idx; 
     array[J_prot_cond] int<lower=1, upper=J_growth_cond> prot_cond_map;
-
-
-
 }
 
 transformed data{
@@ -107,7 +104,7 @@ transformed data{
     // -------------------------------------------------------------------------
     // Flow Cytometry Transformations
     // -------------------------------------------------------------------------
-    vector[N_cell_meas] billion_cells_per_biomass = cells_per_biomass ./ 1E9;
+    vector[N_cell_meas] log_billion_cells_per_biomass = log(cells_per_biomass ./ 1E9);
 
     // -------------------------------------------------------------------------
     // Size Measurement Transformations
@@ -152,8 +149,8 @@ parameters {
     // -------------------------------------------------------------------------
     // Flow Cytometry Parameters
     // -------------------------------------------------------------------------
-    real<lower=0> k_cells_per_biomass_tilde;  
-    real<lower=0> beta_0_tilde;
+    real k_cells_per_biomass_tilde;  
+    real beta_0_tilde;
     real<lower=0> cells_per_biomass_sigma;
 
     // -------------------------------------------------------------------------
@@ -249,7 +246,7 @@ model {
     cells_per_biomass_sigma ~ std_normal();
 
     // Likelihood
-    billion_cells_per_biomass ~ normal(beta_0_tilde * exp(-k_cells_per_biomass_tilde * growth_mu[cells_per_biomass_growth_idx]), cells_per_biomass_sigma);
+    log_billion_cells_per_biomass ~ normal(beta_0_tilde - k_cells_per_biomass_tilde * growth_mu[cells_per_biomass_growth_idx], cells_per_biomass_sigma);
  
     // -------------------------------------------------------------------------
     // Size model 
@@ -307,7 +304,7 @@ generated quantities {
     // -------------------------------------------------------------------------
     vector[N_cell_meas] cells_per_biomass_rep;
     for (i in 1:N_cell_meas) {
-        cells_per_biomass_rep[i] = 1E9 * normal_rng(beta_0_tilde * exp(-k_cells_per_biomass_tilde * growth_mu[cells_per_biomass_growth_idx[i]]), cells_per_biomass_sigma);
+        cells_per_biomass_rep[i] = 1E9 * exp(normal_rng(beta_0_tilde - k_cells_per_biomass_tilde * growth_mu[cells_per_biomass_growth_idx[i]], cells_per_biomass_sigma));
     }
 
     // -------------------------------------------------------------------------

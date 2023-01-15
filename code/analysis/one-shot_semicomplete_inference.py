@@ -47,11 +47,10 @@ bradford_cal_data['brep_idx'] = bradford_cal_data.groupby(
     ['replicate', 'protein_standard']).ngroup() + 1
 
 # Hardcode the indexing for the growth data conditions
-growth_data['cond_idx'] = growth_data.groupby(['carbon_source'], sort=False).ngroup()
+growth_data['cond_idx'] = growth_data.groupby(
+    ['carbon_source'], sort=False).ngroup()
 
-growth_data.loc[growth_data['carbon_source']=='LB', 'cond_idx'] = 6
-
-
+growth_data.loc[growth_data['carbon_source'] == 'LB', 'cond_idx'] = 6
 
 
 growth_data['brep_idx'] = growth_data.groupby(
@@ -149,11 +148,11 @@ for i, c in enumerate(concs):
 def compute_percentiles(df,
                         quantity,
                         groupby,
-                        lower_bounds=[5, 10, 15, 20, 25, 30, 35, 40, 45,],
-                            # [0.5, 2.5, 12.5, 25, 37.5, 45, 49.5],
+                        lower_bounds=[5, 10, 15, 20, 25, 30, 35, 40, 45, ],
+                        # [0.5, 2.5, 12.5, 25, 37.5, 45, 49.5],
                         upper_bounds=[95, 90, 85, 80, 75, 70, 65, 60, 55],
                         # [99.5, 97.5, 87.5, 75, 62.5, 55, 50.5],
-                        interval_labels=['90%', '80%', '70%', '60%', 
+                        interval_labels=['90%', '80%', '70%', '60%',
                                          '50%', '40%', '30%', '20%', '10%']):
 
     # Allow flexibility in what quantities are being supplied
@@ -213,62 +212,54 @@ plt.savefig('../../figures/mcmc/one-shot_calibration_curve_ppc.pdf')
 # %%
 # PPC for bradford assay
 prot_ppc_df = samples.posterior.od595_per_biomass_rep.to_dataframe().reset_index()
-for k, v in carb_idx_dict.items():
+# Map the index to the carbon source
+_prot_data = bradford_prot_data[['carbon_source', 'cond_idx']]
+_prot_data['n'] = np.arange(len(_prot_data))
+for k, v in zip(_prot_data['carbon_source'].values, _prot_data['n'].values):
     prot_ppc_df.loc[prot_ppc_df['od595_per_biomass_rep_dim_0']
-                    == v-1, 'carbon_source'] = k
+                    == v, 'carbon_source'] = k
 
 prot_ppc_df
 
 # Compute the percentiles
-prot_ppc_percs = compute_percentiles(prot_ppc_df, 'od595_per_biomass_rep', 'carbon_source')
+prot_ppc_percs = compute_percentiles(
+    prot_ppc_df, 'od595_per_biomass_rep', 'carbon_source')
 
 # Plot the PPC under the measurements
-fig, ax = plt.subplots(1, 1, figsize=(4,2))
-carb_loc = {'acetate': 1, 'sorbitol': 2, 'glycerol':3, 'glucose':4, 'glucoseCAA':5, 'LB':6}
+fig, ax = plt.subplots(1, 1, figsize=(4, 2))
+carb_loc = {'acetate': 1, 'sorbitol': 2, 'glycerol': 3,
+            'glucose': 4, 'glucoseCAA': 5, 'LB': 6}
 for i, (g, d) in enumerate(prot_ppc_percs.groupby(['carbon_source', 'interval'], sort=False)):
-    ax.hlines(carb_loc[g[0]], d['lower'], d['upper'], color=ppc_cmap_dict[g[1]], lw=15, zorder=i)
+    ax.hlines(carb_loc[g[0]], d['lower'], d['upper'],
+              color=ppc_cmap_dict[g[1]], lw=15, zorder=i)
 
 for g, d in bradford_prot_data.groupby(['carbon_source']):
-    ax.plot(d['od_meas'], carb_loc[g] + np.random.normal(0, 0.01, len(d)), 'o', ms=3, color=cor['primary_red'], zorder=1000)
+    ax.plot(d['od_meas'], carb_loc[g] + np.random.normal(0, 0.01,
+            len(d)), 'o', ms=3, color=cor['primary_red'], zorder=1000)
 
-# Pl
+_ = ax.set_yticks(list(carb_loc.values())[:-1])
+_ = ax.set_yticklabels(list(carb_loc.keys())[:-1])
+_ = ax.set_xlabel('OD$_{595nm}$ per biomass')
+ax.set_title('Periplasmic protein quantification measurements')
+plt.tight_layout()
+plt.savefig('../../figures/mcmc/one-shot_periprot_quantification_ppc.pdf')
 # %%
 # %%
-cpb = samples.posterior.growth_cells_per_biomass.to_dataframe().reset_index()
-cpb
+cpb_ppc_df = samples.posterior[[
+    'cells_per_biomass_rep']].to_dataframe().reset_index()
 
+# Map conditions to carbon_source
+flow_data['n'] = np.arange(len(flow_data))
+for dim, carb in zip(flow_data['n'].values, flow_data['carbon_source'].values):
+    cpb_ppc_df.loc[cpb_ppc_df['cells_per_biomass_rep_dim_0']
+                   == dim, 'carbon_source'] = carb
+
+# Compute the percentiles
+cpb_perc_df = compute_percentiles(
+    cpb_ppc_df, 'cells_per_biomass_rep', 'carbon_source')
+fig, ax = plt.subplots(1, 1, figsize=(4, 2))
+
+for i, (g, d) in enumerate(cpb_perc_df.groupby(['carbon_source', 'interval'], sort=False)):
+    ax.hlines(carb_loc[g[0]], d['lower']/1E9, d['upper'] /
+              1E9, zorder=i, lw=15, color=ppc_cmap_dict[g[1]])
 # %%
-rho = samples.posterior.peri_density.to_dataframe().reset_index()
-rho.groupby(['peri_density_dim_0'])['peri_density'].mean().reset_index()
-
-# %%
-ppb = samples.posterior.prot_per_biomass.to_dataframe().reset_index()
-ppb.groupby(['prot_per_biomass_dim_0'])[
-    'prot_per_biomass'].mean().reset_index()
-
-
-# %%
-cal = samples.posterior.cal_slope
-
-# %%
-growth_mu_df = samples.posterior.growth_mu.to_dataframe().reset_index()
-growth_mu_df.groupby(['growth_mu_dim_0'])['growth_mu'].mean()
-
-
-# %%
-width_mu = samples.posterior.width_mu.to_dataframe().reset_index()
-width_mu.groupby(['width_mu_dim_0'])['width_mu'].mean().reset_index()
-
-# %%
-length_mu = samples.posterior.length_mu.to_dataframe().reset_index()
-length_mu.groupby(['length_mu_dim_0'])['length_mu'].mean().reset_index()
-
-# %%
-od_pb = samples.posterior.od595_per_biomass_mu.to_dataframe().reset_index()
-od_pb.groupby(['od595_per_biomass_mu_dim_0'])[
-    'od595_per_biomass_mu'].mean().reset_index()
-
-# %%
-mass_frac = samples.posterior.peri_mass_frac.to_dataframe().reset_index()
-mass_frac.groupby(['peri_mass_frac_dim_0'])[
-    'peri_mass_frac'].agg(('mean', 'std')).reset_index()
