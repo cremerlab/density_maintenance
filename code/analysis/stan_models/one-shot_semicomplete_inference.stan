@@ -246,7 +246,7 @@ model {
     cells_per_biomass_sigma ~ std_normal();
 
     // Likelihood
-    log_billion_cells_per_biomass ~ normal(beta_0_tilde - k_cells_per_biomass_tilde * growth_mu[cells_per_biomass_growth_idx], cells_per_biomass_sigma);
+    log_billion_cells_per_biomass ~ cauchy(beta_0_tilde - k_cells_per_biomass_tilde * growth_mu[cells_per_biomass_growth_idx], cells_per_biomass_sigma);
  
     // -------------------------------------------------------------------------
     // Size model 
@@ -285,7 +285,7 @@ generated quantities {
     vector[N_cal_meas] od595_calib_rep; 
     //Posterior Predictive Checks
     for (i in 1:N_prot_meas) {
-        od595_per_biomass_rep[i] = mean_prot_od[prot_idx[i]]  + (std_prot_od[prot_idx[i]] * normal_rng(od595_per_biomass_mu_tilde[prot_idx[i]], od595_per_biomass_sigma[prot_idx[i]]));
+        od595_per_biomass_rep[i] = mean_prot_od[prot_idx[i]]  + (std_prot_od[prot_idx[i]] * cauchy_rng(od595_per_biomass_mu_tilde[prot_idx[i]], od595_per_biomass_sigma[prot_idx[i]]));
     }
     for (i in 1:N_cal_meas) { 
         od595_calib_rep[i] = normal_rng(cal_intercept + cal_slope * concentration[i] , cal_sigma);
@@ -296,7 +296,7 @@ generated quantities {
     // -------------------------------------------------------------------------
     vector[N_growth_meas] growth_od_rep;
     for (i in 1:N_growth_meas) {
-        growth_od_rep[i] = exp(normal_rng(log_growth_od_init[growth_brep_idx[i]] + growth_mu_1[growth_brep_idx[i]] .* growth_time[i], growth_sigma));
+        growth_od_rep[i] = exp(cauchy_rng(log_growth_od_init[growth_brep_idx[i]] + growth_mu_1[growth_brep_idx[i]] .* growth_time[i], growth_sigma));
     }
 
     // -------------------------------------------------------------------------

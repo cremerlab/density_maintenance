@@ -260,6 +260,11 @@ cpb_perc_df = compute_percentiles(
 fig, ax = plt.subplots(1, 1, figsize=(4, 2))
 
 for i, (g, d) in enumerate(cpb_perc_df.groupby(['carbon_source', 'interval'], sort=False)):
-    ax.hlines(carb_loc[g[0]], d['lower']/1E9, d['upper'] /
-              1E9, zorder=i, lw=15, color=ppc_cmap_dict[g[1]])
+    ax.hlines(carb_loc[g[0]], d['lower'], d['upper'],
+              zorder=i, lw=15, color=ppc_cmap_dict[g[1]])
+ax.set_xscale('log')
+
+for g, d in flow_data.groupby(['carbon_source']):
+    ax.plot(d['cells_per_biomass'], carb_loc[g] + np.random.normal(0, 0.1, len(d)), 'o',
+            color=cor['primary_red'], ms=4, zorder=1000)
 # %%
