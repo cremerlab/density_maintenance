@@ -3,6 +3,10 @@ import numpy as np
 import pandas as pd
 import cmdstanpy
 import arviz as az
+import matplotlib.pyplot as plt
+import size.viz
+import seaborn as sns
+cor, pal = size.viz.matplotlib_style()
 
 # Load the necessary datasets
 bradford_cal_data = pd.read_csv(
@@ -39,10 +43,17 @@ bradford_prot_data['od_meas'] = (bradford_prot_data['od_595nm'] * bradford_prot_
 
 bradford_prot_data['cond_idx'] = bradford_prot_data.groupby(
     ['carbon_source']).ngroup() + 1
-# bradford_prot_data['brep_idx'] = bradford_prot_data.groupby(['date', 'carbon_source']).ngroup() + 1
 bradford_cal_data['brep_idx'] = bradford_cal_data.groupby(
     ['replicate', 'protein_standard']).ngroup() + 1
-growth_data['cond_idx'] = growth_data.groupby(['carbon_source']).ngroup() + 1
+
+# Hardcode the indexing for the growth data conditions
+growth_data['cond_idx'] = growth_data.groupby(['carbon_source'], sort=False).ngroup()
+
+growth_data.loc[growth_data['carbon_source']=='LB', 'cond_idx'] = 6
+
+
+
+
 growth_data['brep_idx'] = growth_data.groupby(
     ['carbon_source', 'date', 'run_no']).ngroup() + 1
 
@@ -121,14 +132,107 @@ data_dict = {
 
 # %%
 # Sample the model
-_samples = model.sample(data=data_dict, seed=666)
-
-
-# %%
+_samples = model.sample(data=data_dict)
 samples = az.from_cmdstanpy(_samples)
+
 # %%
+# Calibration curve ppc
+
+# Unpack the calbiration curve ppc
+concs = bradford_cal_data['protein_conc_ug_ml'].values
+cal_ppc_df = samples.posterior.od595_calib_rep.to_dataframe().reset_index()
+for i, c in enumerate(concs):
+    cal_ppc_df.loc[cal_ppc_df['od595_calib_rep_dim_0']
+                   == i, 'protein_conc_ug_ml'] = c
 
 
+def compute_percentiles(df,
+                        quantity,
+                        groupby,
+                        lower_bounds=[5, 10, 15, 20, 25, 30, 35, 40, 45,],
+                            # [0.5, 2.5, 12.5, 25, 37.5, 45, 49.5],
+                        upper_bounds=[95, 90, 85, 80, 75, 70, 65, 60, 55],
+                        # [99.5, 97.5, 87.5, 75, 62.5, 55, 50.5],
+                        interval_labels=['90%', '80%', '70%', '60%', 
+                                         '50%', '40%', '30%', '20%', '10%']):
+
+    # Allow flexibility in what quantities are being supplied
+    if type(quantity) != str:
+        if type(quantity) != list:
+            raise TypeError("`quantity` must be a `str` or list of `str.`")
+    else:
+        quantity = [quantity]
+
+    # Instantiate the dataframe and loop through every group
+    perc_df = pd.DataFrame([])
+    if type(groupby) != list:
+        groupby = [groupby]
+
+    for g, d in df.groupby(groupby):
+        if type(g) != list:
+            g = [g]
+        # Compute the percentiles for different quantities
+        for q in quantity:
+            lower = np.percentile(d[f'{q}'].values, lower_bounds)
+            upper = np.percentile(d[f'{q}'].values, upper_bounds)
+            _df = pd.DataFrame(np.array([lower, upper]).T, columns=[
+                               'lower', 'upper'])
+            _df['quantity'] = q
+            _df['interval'] = interval_labels
+
+            # Add the grouping informaton
+            for i, _g in enumerate(g):
+                _df[groupby[i]] = _g
+            perc_df = pd.concat([perc_df, _df], sort=False)
+    return perc_df
+
+
+# %%
+# PPC for calibration curve
+cal_ppc_percs = compute_percentiles(
+    cal_ppc_df, 'od595_calib_rep', 'protein_conc_ug_ml')
+cal_ppc_percs
+
+fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+ppc_cmap = sns.color_palette('Greys_r', n_colors=len(
+    cal_ppc_percs['interval'].unique()) + 2).as_hex()
+ppc_cmap_dict = {i: c for i, c in zip(
+    [f'{k}%' for k in np.arange(10, 100, 10)], ppc_cmap)}
+for i, (g, d) in enumerate(cal_ppc_percs.groupby('interval', sort=False)):
+    ax.fill_between(d['protein_conc_ug_ml'], d['lower'], d['upper'],
+                    color=ppc_cmap_dict[g], zorder=i+1, label=g)
+
+ax.plot(bradford_cal_data['protein_conc_ug_ml'], bradford_cal_data['od_595nm'], 'o', color=cor['primary_red'],
+        label='measurement', ms=3, zorder=1000)
+ax.legend()
+ax.set_xlabel('protein concentration [µg / mL]')
+ax.set_ylabel('OD$_{595nm}$ [a.u.]')
+ax.set_title('Bradford assay calibration curve')
+plt.tight_layout()
+plt.savefig('../../figures/mcmc/one-shot_calibration_curve_ppc.pdf')
+# %%
+# PPC for bradford assay
+prot_ppc_df = samples.posterior.od595_per_biomass_rep.to_dataframe().reset_index()
+for k, v in carb_idx_dict.items():
+    prot_ppc_df.loc[prot_ppc_df['od595_per_biomass_rep_dim_0']
+                    == v-1, 'carbon_source'] = k
+
+prot_ppc_df
+
+# Compute the percentiles
+prot_ppc_percs = compute_percentiles(prot_ppc_df, 'od595_per_biomass_rep', 'carbon_source')
+
+# Plot the PPC under the measurements
+fig, ax = plt.subplots(1, 1, figsize=(4,2))
+carb_loc = {'acetate': 1, 'sorbitol': 2, 'glycerol':3, 'glucose':4, 'glucoseCAA':5, 'LB':6}
+for i, (g, d) in enumerate(prot_ppc_percs.groupby(['carbon_source', 'interval'], sort=False)):
+    ax.hlines(carb_loc[g[0]], d['lower'], d['upper'], color=ppc_cmap_dict[g[1]], lw=15, zorder=i)
+
+for g, d in bradford_prot_data.groupby(['carbon_source']):
+    ax.plot(d['od_meas'], carb_loc[g] + np.random.normal(0, 0.01, len(d)), 'o', ms=3, color=cor['primary_red'], zorder=1000)
+
+# Pl
+# %%
 # %%
 cpb = samples.posterior.growth_cells_per_biomass.to_dataframe().reset_index()
 cpb

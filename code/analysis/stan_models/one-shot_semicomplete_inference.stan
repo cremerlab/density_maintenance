@@ -217,7 +217,7 @@ model {
 
 
     // Low-level priors
-    cal_sigma ~ normal(0, 0.1);
+    cal_sigma ~ normal(0, 1);
 
     // Measurement priors
     od595_per_biomass_mu_tilde ~ std_normal();
@@ -336,6 +336,4 @@ generated quantities {
     // -------------------------------------------------------------------------
     vector[J_prot_cond] n_cells = 1E9 .* beta_0_tilde .* exp(-k_cells_per_biomass_tilde * growth_mu[prot_cond_map]); 
     vector[J_prot_cond] peri_density = prot_per_biomass * 1E9 ./ (n_cells .* peri_vol_mu[prot_cond_map]); 
-    vector[J_prot_cond] peri_mass_frac = prot_per_biomass ./ (n_cells .* vol_mu[prot_cond_map] * 500);
- 
 }
