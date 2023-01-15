@@ -267,4 +267,65 @@ ax.set_xscale('log')
 for g, d in flow_data.groupby(['carbon_source']):
     ax.plot(d['cells_per_biomass'], carb_loc[g] + np.random.normal(0, 0.1, len(d)), 'o',
             color=cor['primary_red'], ms=4, zorder=1000)
+ax.set_xlim([1E8, 5E9])
+ax.set_yticks([2, 3, 4, 5, 6])
+ax.set_yticklabels(['sorbitol', 'glycerol', 'glucose', 'glucoseCAA', 'LB'])
+ax.set_xlabel('cells per biomass')
+ax.set_title('Flow cytometry event counts')
+plt.tight_layout()
+plt.savefig('../../figures/mcmc/one-shot_flow_cytometry_ppc.pdf')
 # %%
+# Plot the fit to the flow data
+cpb_fit_df = samples.posterior[[
+    'growth_cells_per_biomass']].to_dataframe().reset_index()
+for carb, dim in carb_idx_dict.items():
+    cpb_fit_df.loc[cpb_fit_df['growth_cells_per_biomass_dim_0']
+                   == dim-1, 'carbon_source'] = carb
+
+_df = samples.posterior[[
+    'growth_mu']].to_dataframe().reset_index()
+cpb_fit_df['growth_mu'] = _df['growth_mu'].values
+
+# Compute the percentiles
+cpb_fit_percs = compute_percentiles(
+    cpb_fit_df, ['growth_cells_per_biomass', 'growth_mu'], 'carbon_source')
+cpb_fit_percs
+
+fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+for g, d in cpb_fit_percs.groupby(['carbon_source'], sort=False):
+    lam = d[d['quantity'] == 'growth_mu']
+    cpb = d[d['quantity'] == 'growth_cells_per_biomass']
+    perc_10_cpb = cpb[cpb['interval'] == '10%']
+    perc_10_lam = lam[lam['interval'] == '10%']
+    x = np.mean([perc_10_lam['lower'].values[0],
+                perc_10_lam['upper'].values[0]])
+    y = np.mean([perc_10_cpb['lower'].values[0],
+                perc_10_cpb['upper'].values[0]])
+    for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
+        _lam = _d[_d['quantity'] == 'growth_mu']
+        _cpb = _d[_d['quantity'] == 'growth_cells_per_biomass']
+        ax.vlines(x, _cpb['lower'], _cpb['upper'], lw=3,
+                  zorder=i+1, color=ppc_cmap_dict[_g])
+        ax.hlines(y, _lam['lower'], _lam['upper'], lw=3,
+                  zorder=i+1, color=ppc_cmap_dict[_g])
+
+    if g in flow_data['carbon_source'].values:
+        _data = flow_data[flow_data['carbon_source'] == g]
+        ax.plot(x * np.ones(len(_data)),
+                _data['cells_per_biomass'], 'o', ms=3, color=cor['primary_red'], zorder=1000)
+
+# compute and plot the main fit
+fit_params = samples.posterior[[
+    'k_cells_per_biomass_tilde', 'beta_0_tilde']].to_dataframe().reset_index()
+lam_range = np.linspace(0.1, 2.5, 200)
+fit = 1E9 * np.exp(fit_params['beta_0_tilde'].mean() -
+                   fit_params['k_cells_per_biomass_tilde'].mean() * lam_range)
+ax.plot(lam_range, fit, '-', lw=1, color=cor['primary_blue'])
+ax.set_xlabel('growth rate [hr$^{-1}$]')
+ax.set_ylabel('cells per biomass')
+ax.set_title('Exponential $\lambda$-dependence on cell density')
+plt.tight_layout()
+plt.savefig('../../figures/mcmc/one-shot_cell_density_lam_dependence.pdf')
+
+# %%
+# Plot the growth ppcs -- tricky!

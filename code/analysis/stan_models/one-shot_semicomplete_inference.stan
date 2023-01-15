@@ -94,7 +94,8 @@ transformed data{
     // Protein Quantification Transformations 
     // -------------------------------------------------------------------------
     // Standardize input data 
-    vector[N_prot_meas] prot_od_tilde = (prot_od - mean_prot_od[prot_idx]) ./ (std_prot_od[prot_idx]);
+    // vector[N_prot_meas] prot_od_tilde = (prot_od - mean_prot_od[prot_idx]) ./ (std_prot_od[prot_idx]);
+    vector[N_prot_meas] log_prot_od = log(prot_od);
 
     // -------------------------------------------------------------------------
     // Growth Rate Transformations
@@ -129,7 +130,7 @@ parameters {
     real<lower=0> cal_sigma;
 
     // Parameters for protein measurements 
-    vector[J_prot_cond] od595_per_biomass_mu_tilde;
+    vector[J_prot_cond] log_od595_per_biomass_mu;
     vector<lower=0>[J_prot_cond] od595_per_biomass_sigma;
 
     // -------------------------------------------------------------------------
@@ -177,8 +178,9 @@ transformed parameters {
     // -------------------------------------------------------------------------
     // Protein Quantification Transformed Parameters
     // -------------------------------------------------------------------------
-    vector<lower=0>[J_prot_cond] od595_per_biomass_mu = (od595_per_biomass_mu_tilde .* std_prot_od) + mean_prot_od;
-    vector<lower=0>[J_prot_cond] prot_per_biomass = (od595_per_biomass_mu - cal_intercept) ./ cal_slope;
+    // vector<lower=0>[J_prot_cond] od595_per_biomass_mu = (od595_per_biomass_mu_tilde .* std_prot_od) + mean_prot_od;
+    vector<lower=0>[J_prot_cond] od595_per_biomass_mu = exp(log_od595_per_biomass_mu);
+    vector[J_prot_cond] prot_per_biomass = (od595_per_biomass_mu - cal_intercept) ./ cal_slope;
 
     // -------------------------------------------------------------------------
     // Growth Rate Transformed Parameters
@@ -189,7 +191,7 @@ transformed parameters {
     // -------------------------------------------------------------------------
     // Cells per Biomass Transformed Parameters
     // -------------------------------------------------------------------------
-    vector<lower=0>[J_growth_cond] growth_cells_per_biomass = 1E9 .* (beta_0_tilde * exp(-k_cells_per_biomass_tilde * growth_mu));
+    vector<lower=0>[J_growth_cond] growth_cells_per_biomass = 1E9 .* exp(beta_0_tilde - k_cells_per_biomass_tilde * growth_mu);
 
     // -------------------------------------------------------------------------
     // Size Measurement Transformed Parameters
@@ -217,12 +219,12 @@ model {
     cal_sigma ~ normal(0, 1);
 
     // Measurement priors
-    od595_per_biomass_mu_tilde ~ std_normal();
+    log_od595_per_biomass_mu ~ std_normal();
     od595_per_biomass_sigma ~ std_normal();//normal(0, 0.1);
 
     // Likelihoods
     cal_od ~ normal(cal_intercept + cal_slope .* concentration, cal_sigma);
-    prot_od_tilde ~ cauchy(od595_per_biomass_mu_tilde[prot_idx], od595_per_biomass_sigma[prot_idx]);
+    log_prot_od ~ cauchy(log_od595_per_biomass_mu[prot_idx], od595_per_biomass_sigma[prot_idx]);
 
     // -------------------------------------------------------------------------
     // Growth Rate Model
@@ -285,7 +287,8 @@ generated quantities {
     vector[N_cal_meas] od595_calib_rep; 
     //Posterior Predictive Checks
     for (i in 1:N_prot_meas) {
-        od595_per_biomass_rep[i] = mean_prot_od[prot_idx[i]]  + (std_prot_od[prot_idx[i]] * cauchy_rng(od595_per_biomass_mu_tilde[prot_idx[i]], od595_per_biomass_sigma[prot_idx[i]]));
+        // od595_per_biomass_rep[i] = mean_prot_od[prot_idx[i]]  + (std_prot_od[prot_idx[i]] * cauchy_rng(od595_per_biomass_mu_tilde[prot_idx[i]], od595_per_biomass_sigma[prot_idx[i]]));
+        od595_per_biomass_rep[i] = exp(cauchy_rng(log_od595_per_biomass_mu[prot_idx[i]], od595_per_biomass_sigma[prot_idx[i]]));
     }
     for (i in 1:N_cal_meas) { 
         od595_calib_rep[i] = normal_rng(cal_intercept + cal_slope * concentration[i] , cal_sigma);
@@ -296,7 +299,7 @@ generated quantities {
     // -------------------------------------------------------------------------
     vector[N_growth_meas] growth_od_rep;
     for (i in 1:N_growth_meas) {
-        growth_od_rep[i] = exp(cauchy_rng(log_growth_od_init[growth_brep_idx[i]] + growth_mu_1[growth_brep_idx[i]] .* growth_time[i], growth_sigma));
+        growth_od_rep[i] = exp(normal_rng(log_growth_od_init[growth_brep_idx[i]] + growth_mu_1[growth_brep_idx[i]] .* growth_time[i], growth_sigma));
     }
 
     // -------------------------------------------------------------------------
@@ -304,7 +307,7 @@ generated quantities {
     // -------------------------------------------------------------------------
     vector[N_cell_meas] cells_per_biomass_rep;
     for (i in 1:N_cell_meas) {
-        cells_per_biomass_rep[i] = 1E9 * exp(normal_rng(beta_0_tilde - k_cells_per_biomass_tilde * growth_mu[cells_per_biomass_growth_idx[i]], cells_per_biomass_sigma));
+        cells_per_biomass_rep[i] = 1E9 * exp(cauchy_rng(beta_0_tilde - k_cells_per_biomass_tilde * growth_mu[cells_per_biomass_growth_idx[i]], cells_per_biomass_sigma));
     }
 
     // -------------------------------------------------------------------------
