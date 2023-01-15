@@ -168,8 +168,8 @@ def compute_percentiles(df,
         groupby = [groupby]
 
     for g, d in df.groupby(groupby):
-        if type(g) != list:
-            g = [g]
+        if type(g) != tuple:
+            g = (g,)
         # Compute the percentiles for different quantities
         for q in quantity:
             lower = np.percentile(d[f'{q}'].values, lower_bounds)
@@ -180,8 +180,8 @@ def compute_percentiles(df,
             _df['interval'] = interval_labels
 
             # Add the grouping informaton
-            for i, _g in enumerate(g):
-                _df[groupby[i]] = _g
+            for i in range(len(groupby)):
+                _df[groupby[i]] = g[i]
             perc_df = pd.concat([perc_df, _df], sort=False)
     return perc_df
 
@@ -312,7 +312,7 @@ for g, d in cpb_fit_percs.groupby(['carbon_source'], sort=False):
     if g in flow_data['carbon_source'].values:
         _data = flow_data[flow_data['carbon_source'] == g]
         ax.plot(x * np.ones(len(_data)),
-                _data['cells_per_biomass'], 'o', ms=3, color=cor['primary_red'], zorder=1000)
+                _data['cells_per_biomass'], 'o', ms=5, color=cor['primary_red'], zorder=1000)
 
 # compute and plot the main fit
 fit_params = samples.posterior[[
@@ -328,4 +328,57 @@ plt.tight_layout()
 plt.savefig('../../figures/mcmc/one-shot_cell_density_lam_dependence.pdf')
 
 # %%
-# Plot the growth ppcs -- tricky!
+# Plot the growth ppcs
+lam_ppc_df = samples.posterior.growth_od_rep.to_dataframe().reset_index()
+
+# Map time and carbon sources to everything
+carbs = growth_data['carbon_source'].values
+breps = growth_data['brep_idx'].values
+elapsed_time = growth_data['elapsed_time_hr'].values
+dims = np.arange(len(growth_data))
+for dim, c, b, t in zip(dims, carbs, breps, elapsed_time):
+    lam_ppc_df.loc[lam_ppc_df['growth_od_rep_dim_0']
+                   == dim, 'carbon_source'] = c
+    lam_ppc_df.loc[lam_ppc_df['growth_od_rep_dim_0'] == dim, 'brep'] = int(b)
+    lam_ppc_df.loc[lam_ppc_df['growth_od_rep_dim_0'] == dim, 'time'] = t
+lam_ppc_percs = compute_percentiles(lam_ppc_df, 'growth_od_rep', [
+                                    'carbon_source', 'brep', 'time'])
+# %%
+for g, d in growth_data.groupby(['carbon_source']):
+    n_reps = len(d[d['elapsed_time_hr'] == 0])
+    cols = 3
+    rows = int(np.ceil(n_reps / cols))
+    ex = cols * rows - n_reps
+    fig, ax = plt.subplots(rows, cols, figsize=(8, 2 * rows))
+
+    # Turn off unpopulated axes
+    if ex != 0:
+        for a in ax.ravel()[-ex:]:
+            a.axis(False)
+        ax = ax.ravel()[:-ex]
+    else:
+        ax = ax.ravel()
+    for a in ax:
+        a.set_xlabel('elapsed time [hr]')
+        a.set_ylabel('log OD$_{600nm}$')
+
+    # get the ppc
+    _ppc = lam_ppc_percs[(lam_ppc_percs['carbon_source'] == g)]
+    ind = 0
+    for i, (_g, _d) in enumerate(_ppc.groupby(['brep', 'interval'], sort=False)):
+        if i == 0:
+            _brep = _g[0]
+        if _g[0] != _brep:
+            ind += 1
+            _brep = _g[0]
+
+        ax[ind].fill_between(_d['time'], np.log(_d['lower']), np.log(_d['upper']),
+                             color=ppc_cmap_dict[_g[1]], zorder=i+1)
+
+    for i, (_g, _d) in enumerate(d.groupby(['brep_idx'])):
+        ax[i].plot(_d['elapsed_time_hr'], np.log(_d['od_600nm']),
+                   '-o', color=cor['primary_red'], ms=4, zorder=1000, lw=1)
+    plt.suptitle(f'wildtype {g} growth curves')
+    plt.tight_layout()
+    plt.savefig(f'../../figures/mcmc/one-shot_{g}_growth_curves_ppc.pdf')
+    plt.close()
