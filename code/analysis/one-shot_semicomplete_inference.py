@@ -38,7 +38,7 @@ model = cmdstanpy.CmdStanModel(
     stan_file='./stan_models/one-shot_semicomplete_inference.stan')
 # %%
 # Compute the necessary properties and idx groups
-bradford_prot_data['od_meas'] = (bradford_prot_data['od_595nm'] * bradford_prot_data['extraction_volume_ml'] *
+bradford_prot_data['conv_factor'] = (bradford_prot_data['extraction_volume_ml'] *
                                  bradford_prot_data['dilution_factor']) / (bradford_prot_data['od_600nm'] * bradford_prot_data['culture_volume_ml'])
 
 bradford_prot_data['cond_idx'] = bradford_prot_data.groupby(
@@ -65,7 +65,8 @@ flow_data['growth_idx'] = [carb_idx_dict[i]
 carb_idx = [v for _, v in carb_idx_dict.items()]
 
 # Add identifying information to size data
-size_data['cond_idx'] = size_data.groupby(['carbon_source']).ngroup() + 1
+size_data['cond_idx'] = size_data.groupby(['carbon_source']).ngroup()
+size_data.loc[size_data['carbon_source'] == 'LB', 'cond_idx'] = 6
 
 # Define the data dictionary
 data_dict = {
@@ -80,7 +81,8 @@ data_dict = {
     'J_prot_cond': bradford_prot_data['cond_idx'].max(),
     'N_prot_meas': len(bradford_prot_data),
     'prot_idx': bradford_prot_data['cond_idx'].values.astype(int),
-    'prot_od': bradford_prot_data['od_meas'].values.astype(float),
+    'prot_od': bradford_prot_data['od_595nm'].values.astype(float),
+    'od_conv_factor': bradford_prot_data['conv_factor'].values.astype(float),
     'mean_prot_od': bradford_prot_data.groupby(['cond_idx'])['od_meas'].mean().astype(float),
     'std_prot_od': bradford_prot_data.groupby(['cond_idx'])['od_meas'].std().astype(float),
 
@@ -382,3 +384,54 @@ for g, d in growth_data.groupby(['carbon_source']):
     plt.tight_layout()
     plt.savefig(f'../../figures/mcmc/one-shot_{g}_growth_curves_ppc.pdf')
     plt.close()
+
+# %%
+# Cell Size ppc -- need to do this piecewise
+size_perc_df = pd.DataFrame([])
+for val in ['width_rep', 'length_rep', 'vol_rep', 'peri_vol_rep',
+            'peri_vol_frac_rep', 'sa_rep', 'sav_rep']:
+    _ppc_df = samples.posterior[f'{val}'].to_dataframe().reset_index()
+    # Map the carbon sources
+    for dim, carb in zip(np.arange(len(size_data)), size_data['carbon_source'].values):
+        _ppc_df.loc[_ppc_df[f'{val}_dim_0'] == dim, 'carbon_source'] = carb
+
+    # Compute percentiles
+    perc_df = compute_percentiles(_ppc_df, f'{val}', ['carbon_source'])
+    size_perc_df = pd.concat([size_perc_df, perc_df], sort=False)
+# %%
+fig, ax = plt.subplots(2, 4, figsize=(8, 4), sharey=True)
+labs = ['width [µm]', 'length [µm]', 'volume [µm$^3$]', 'periplasm volume\n[µm$^3$]',
+        'periplasm volume fraction', 'surface area [µm$^2$]', 'surface-to-volume [µm$^{-1}$] ']
+ax = ax.ravel()
+for i, ell in enumerate(labs):
+    ax[i].set_xlabel(ell)
+
+for a in [ax[0], ax[4]]:
+    a.set_yticks(list(carb_loc.values()))
+    a.set_yticklabels(list(carb_loc.keys()))
+
+
+# Plot the percentiles
+for i, (g, d) in enumerate(size_perc_df.groupby(['quantity'], sort=False)):
+    for j, (_g, _d) in enumerate(d.groupby(['carbon_source', 'interval'], sort=False)):
+        ax[i].hlines(carb_loc[_g[0]], _d['lower'], _d['upper'],
+                     lw=15, color=ppc_cmap_dict[_g[1]])
+
+# Plot the data
+for g, d in size_data.groupby(['carbon_source']):
+    for i, v in enumerate(['width_median', 'length', 'volume', 'periplasm_volume',
+                           'periplasm_volume_fraction', 'surface_area', 'surface_to_volume']):
+        ax[i].plot(d[f'{v}'], carb_loc[g] * np.ones(len(d)) +
+                   np.random.normal(0, 0.05, len(d)), 'o', ms=4, color=cor['primary_red'])
+ax[-1].axis(False)
+plt.suptitle('average cell dimension measurements',
+             fontsize=8, fontweight='bold')
+
+plt.tight_layout()
+plt.savefig('../../figures/mcmc/one-shot_cell_dimension_ppc.pdf')
+
+# %%
+
+
+samples.posterior.peri_density.to_dataframe().reset_index().groupby([
+    'peri_density_dim_0']).median()
