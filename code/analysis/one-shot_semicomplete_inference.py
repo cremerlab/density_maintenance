@@ -18,6 +18,8 @@ growth_data = pd.read_csv(
 flow_data = pd.read_csv('../../data/summaries/flow_cytometry_counts.csv')
 size_data = pd.read_csv(
     '../../data/summaries/summarized_size_measurements.csv')
+lit_data = pd.read_csv(
+    '../../data/literature/Basan2015/Basan2015_drymass_protein_cellcount.csv')
 
 # Restrict the datasets to wildtype
 bradford_prot_data = bradford_prot_data[
@@ -39,7 +41,7 @@ model = cmdstanpy.CmdStanModel(
 # %%
 # Compute the necessary properties and idx groups
 bradford_prot_data['conv_factor'] = (bradford_prot_data['extraction_volume_ml'] *
-                                 bradford_prot_data['dilution_factor']) / (bradford_prot_data['od_600nm'] * bradford_prot_data['culture_volume_ml'])
+                                     bradford_prot_data['dilution_factor']) / (bradford_prot_data['od_600nm'] * bradford_prot_data['culture_volume_ml'])
 
 bradford_prot_data['cond_idx'] = bradford_prot_data.groupby(
     ['carbon_source']).ngroup() + 1
@@ -83,8 +85,10 @@ data_dict = {
     'prot_idx': bradford_prot_data['cond_idx'].values.astype(int),
     'prot_od': bradford_prot_data['od_595nm'].values.astype(float),
     'od_conv_factor': bradford_prot_data['conv_factor'].values.astype(float),
-    'mean_prot_od': bradford_prot_data.groupby(['cond_idx'])['od_meas'].mean().astype(float),
-    'std_prot_od': bradford_prot_data.groupby(['cond_idx'])['od_meas'].std().astype(float),
+
+    # Lit data
+    'N_lit_meas': len(lit_data),
+    'drymass': lit_data['dry_mass_fg'].values.astype(float),
 
     # Growth curve inputs
     'J_growth_cond': growth_data['cond_idx'].max(),
@@ -139,13 +143,6 @@ samples = az.from_cmdstanpy(_samples)
 # %%
 # Calibration curve ppc
 
-# Unpack the calbiration curve ppc
-concs = bradford_cal_data['protein_conc_ug_ml'].values
-cal_ppc_df = samples.posterior.od595_calib_rep.to_dataframe().reset_index()
-for i, c in enumerate(concs):
-    cal_ppc_df.loc[cal_ppc_df['od595_calib_rep_dim_0']
-                   == i, 'protein_conc_ug_ml'] = c
-
 
 def compute_percentiles(df,
                         quantity,
@@ -189,6 +186,14 @@ def compute_percentiles(df,
 
 
 # %%
+# Unpack the calbiration curve ppc
+concs = bradford_cal_data['protein_conc_ug_ml'].values
+cal_ppc_df = samples.posterior.od595_calib_rep.to_dataframe().reset_index()
+for i, c in enumerate(concs):
+    cal_ppc_df.loc[cal_ppc_df['od595_calib_rep_dim_0']
+                   == i, 'protein_conc_ug_ml'] = c
+
+
 # PPC for calibration curve
 cal_ppc_percs = compute_percentiles(
     cal_ppc_df, 'od595_calib_rep', 'protein_conc_ug_ml')
@@ -236,7 +241,7 @@ for i, (g, d) in enumerate(prot_ppc_percs.groupby(['carbon_source', 'interval'],
               color=ppc_cmap_dict[g[1]], lw=15, zorder=i)
 
 for g, d in bradford_prot_data.groupby(['carbon_source']):
-    ax.plot(d['od_meas'], carb_loc[g] + np.random.normal(0, 0.01,
+    ax.plot(d['od_595nm'] * d['conv_factor'], carb_loc[g] + np.random.normal(0, 0.01,
             len(d)), 'o', ms=3, color=cor['primary_red'], zorder=1000)
 
 _ = ax.set_yticks(list(carb_loc.values())[:-1])
@@ -245,7 +250,28 @@ _ = ax.set_xlabel('OD$_{595nm}$ per biomass')
 ax.set_title('Periplasmic protein quantification measurements')
 plt.tight_layout()
 plt.savefig('../../figures/mcmc/one-shot_periprot_quantification_ppc.pdf')
+
+
 # %%
+# Lit data ppc
+lit_data_ppc = samples.posterior.drymass_rep.to_dataframe().reset_index()
+lit_data_ppc['idx'] = 1
+lit_data_percs = compute_percentiles(lit_data_ppc, 'drymass_rep', 'idx')
+
+fig, ax = plt.subplots(1, 1, figsize=(4, 1))
+for i, (g, d) in enumerate(lit_data_percs.groupby(['interval'], sort=False)):
+    ax.hlines(0, d['lower'], d['upper'], zorder=i +
+              1, color=ppc_cmap_dict[g], lw=15)
+
+ax.plot(lit_data['dry_mass_fg'], np.ones(len(lit_data))*0, 'o', ms=4,
+        color=cor['primary_green'], zorder=1000)
+
+ax.set_yticks([])
+ax.set_xlabel('total drymass [µg/OD$_{600nm} \cdot$mL')
+ax.set_title('Basan et al. 2015 drymass measurements')
+plt.tight_layout()
+plt.savefig('../../figures/mcmc/one-shot_drymass_quantification_ppc.pdf')
+
 # %%
 cpb_ppc_df = samples.posterior[[
     'cells_per_biomass_rep']].to_dataframe().reset_index()
@@ -276,6 +302,8 @@ ax.set_xlabel('cells per biomass')
 ax.set_title('Flow cytometry event counts')
 plt.tight_layout()
 plt.savefig('../../figures/mcmc/one-shot_flow_cytometry_ppc.pdf')
+
+
 # %%
 # Plot the fit to the flow data
 cpb_fit_df = samples.posterior[[
@@ -431,7 +459,69 @@ plt.tight_layout()
 plt.savefig('../../figures/mcmc/one-shot_cell_dimension_ppc.pdf')
 
 # %%
+rho_percs = pd.DataFrame([])
+for i, k in enumerate(['peri_density', 'growth_mu']):
+    post_df = samples.posterior[f'{k}'].to_dataframe().reset_index()
+    for key, val in carb_idx_dict.items():
+        post_df.loc[post_df[f'{k}_dim_0'] == val - 1, 'carbon_source'] = key
+    perc = compute_percentiles(post_df, k, 'carbon_source')
+    rho_percs = pd.concat([rho_percs, perc], sort=False)
+
+ # %%
+fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+for g, d in rho_percs.groupby(['carbon_source']):
+    if g == 'LB':
+        continue
+    lam_10 = d[(d['quantity'] == 'growth_mu') & (d['interval'] == '10%')][[
+        'lower', 'upper']].values.mean(axis=1)
+    rho_10 = d[(d['quantity'] == 'peri_density') & (d['interval'] == '10%')][[
+        'lower', 'upper']].values.mean(axis=1)
+    for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
+        lam = _d[_d['quantity'] == 'growth_mu']
+        rho = _d[_d['quantity'] == 'peri_density']
+        ax.hlines(rho_10, lam['lower'], lam['upper'],
+                  lw=2, color=ppc_cmap_dict[_g], zorder=i+1)
+        ax.vlines(lam_10, rho['lower'], rho['upper'],
+                  lw=2, color=ppc_cmap_dict[_g], zorder=i+1)
+
+ax.set_xlabel('growth rate [hr$^{-1}$]')
+ax.set_ylabel('periplasmic protein density [fg/fL]')
+
+# %%
+sav_rho_percs = pd.DataFrame([])
+for i, k in enumerate(['peri_drymass_frac', 'sav_mu']):
+    post_df = samples.posterior[f'{k}'].to_dataframe().reset_index()
+    for key, val in carb_idx_dict.items():
+        post_df.loc[post_df[f'{k}_dim_0'] == val - 1, 'carbon_source'] = key
+    perc = compute_percentiles(post_df, k, 'carbon_source')
+    perc = perc[perc['carbon_source'] != 'LB']
+    sav_rho_percs = pd.concat([sav_rho_percs, perc], sort=False)
 
 
-samples.posterior.peri_density.to_dataframe().reset_index().groupby([
-    'peri_density_dim_0']).median()
+fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+for g, d in sav_rho_percs.groupby(['carbon_source']):
+    if g == 'LB':
+        continue
+    sav_10 = d[(d['quantity'] == 'sav_mu') & (d['interval'] == '10%')][[
+        'lower', 'upper']].values.mean(axis=1)
+    frac_10 = d[(d['quantity'] == 'peri_drymass_frac') & (d['interval'] == '10%')][[
+        'lower', 'upper']].values.mean(axis=1)
+    for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
+        sav = _d[_d['quantity'] == 'sav_mu']
+        frac = _d[_d['quantity'] == 'peri_drymass_frac']
+        ax.vlines(frac_10 * 100, sav['lower'], sav['upper'],
+                  lw=2, color=ppc_cmap_dict[_g], zorder=i+1)
+        ax.hlines(sav_10, frac['lower'] * 100, frac['upper'] * 100,
+                  lw=2, color=ppc_cmap_dict[_g], zorder=i+1)
+
+
+# Plot the theory line
+k = 0.08  # (0.03/0.15) * (1 - 0.15)/(1 - 0.03)
+delta = 0.025
+phi_range = np.linspace(0, 0.05, 200)
+phi_term = k * (1 - phi_range) / phi_range
+theory = (delta * (phi_term))**-1
+ax.plot(phi_range * 100, theory + 1, 'k--')
+ax.set_ylim([4, 8])
+ax.set_xlabel('periplasmic protein drymass fraction [%]')
+ax.set_ylabel('surface-to-volume [µm$^{-1}$]')

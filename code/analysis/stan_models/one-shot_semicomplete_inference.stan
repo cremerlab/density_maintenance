@@ -23,9 +23,11 @@ data {
     vector<lower=0>[N_prot_meas] prot_od; // OD595 per unit biomass measurements for periplasmic protein
     vector<lower=0>[N_prot_meas] od_conv_factor;
 
-    // Measured information for standardization
-    vector<lower=0>[J_prot_cond] mean_prot_od;
-    vector<lower=0>[J_prot_cond] std_prot_od;
+    // -------------------------------------------------------------------------
+    // Literature Values for dry mass and total protein
+    // -------------------------------------------------------------------------
+    int<lower=1> N_lit_meas; 
+    vector<lower=1>[N_lit_meas] drymass;
 
     // -------------------------------------------------------------------------
     // Growth rate measurements
@@ -100,6 +102,11 @@ transformed data{
     vector[N_prot_meas] log_prot_od = log(prot_od);
 
     // -------------------------------------------------------------------------
+    // Lit data transformations
+    // -------------------------------------------------------------------------
+    vector[N_lit_meas] drymass_tilde = (drymass - mean(drymass)) ./ sd(drymass);
+
+    // -------------------------------------------------------------------------
     // Growth Rate Transformations
     // -------------------------------------------------------------------------
     vector[N_growth_meas]  log_growth_od = log(growth_od); // Compute the log density to permit linear regression
@@ -135,6 +142,12 @@ parameters {
     vector[J_prot_cond] log_prot_per_biomass_mu;
     vector<lower=0>[J_prot_cond] od595_per_biomass_sigma;
 
+    // -------------------------------------------------------------------------
+    // Lit data parameters
+    // -------------------------------------------------------------------------
+    real drymass_mu_tilde;
+    real<lower=0> drymass_sigma_tilde;
+    
     // -------------------------------------------------------------------------
     // Growth Rate Parameters
     // -------------------------------------------------------------------------
@@ -180,9 +193,12 @@ transformed parameters {
     // -------------------------------------------------------------------------
     // Protein Quantification Transformed Parameters
     // -------------------------------------------------------------------------
-    // vector<lower=0>[J_prot_cond] od595_per_biomass_mu = (od595_per_biomass_mu_tilde .* std_prot_od) + mean_prot_od;
     vector<lower=0>[J_prot_cond] prot_per_biomass_mu = exp(log_prot_per_biomass_mu);
-    // vector[J_prot_cond] prot_per_biomass = (od595_per_biomass_mu - od_conv_factor * cal_intercept) ./ cal_slope;
+
+    // -------------------------------------------------------------------------
+    // Literature data transformed parameters
+    // -------------------------------------------------------------------------
+    real<lower=0> drymass_mu = drymass_mu_tilde * sd(drymass) + mean(drymass);
 
     // -------------------------------------------------------------------------
     // Growth Rate Transformed Parameters
@@ -222,11 +238,18 @@ model {
 
     // Measurement priors
     log_prot_per_biomass_mu ~ std_normal();
-    od595_per_biomass_sigma ~ std_normal();//normal(0, 0.1);
+    od595_per_biomass_sigma ~ std_normal();
 
     // Likelihoods
     cal_od ~ normal(cal_intercept + cal_slope .* concentration, cal_sigma);
     log_prot_od ~ cauchy(log(cal_intercept + cal_slope * prot_per_biomass_mu[prot_idx]./od_conv_factor), od595_per_biomass_sigma[prot_idx]);
+
+    // -------------------------------------------------------------------------
+    // Literature data model
+    // -------------------------------------------------------------------------
+    drymass_mu_tilde ~ std_normal();
+    drymass_sigma_tilde ~ std_normal();
+    drymass_tilde ~ normal(drymass_mu_tilde, drymass_sigma_tilde);
 
     // -------------------------------------------------------------------------
     // Growth Rate Model
@@ -289,12 +312,19 @@ generated quantities {
     vector[N_cal_meas] od595_calib_rep; 
     //Posterior Predictive Checks
     for (i in 1:N_prot_meas) {
-        // od595_per_biomass_rep[i] = mean_prot_od[prot_idx[i]]  + (std_prot_od[prot_idx[i]] * cauchy_rng(od595_per_biomass_mu_tilde[prot_idx[i]], od595_per_biomass_sigma[prot_idx[i]]));
-        od595_per_biomass_rep[i] = cauchy_rng(log(cal_intercept + cal_slope * prot_per_biomass_mu[prot_idx[i]] / od_conv_factor[i]), od595_per_biomass_sigma[prot_idx[i]]) * od_conv_factor[i];
+        od595_per_biomass_rep[i] = exp(cauchy_rng(log(cal_intercept + cal_slope * prot_per_biomass_mu[prot_idx[i]] / od_conv_factor[i]), od595_per_biomass_sigma[prot_idx[i]])) * od_conv_factor[i];
     }
     for (i in 1:N_cal_meas) { 
         od595_calib_rep[i] = normal_rng(cal_intercept + cal_slope * concentration[i] , cal_sigma);
     } 
+
+    // -------------------------------------------------------------------------
+    // Lit data ppc
+    // -------------------------------------------------------------------------
+    vector[N_lit_meas] drymass_rep;
+    for (i in 1:N_lit_meas) {
+        drymass_rep[i] = normal_rng(drymass_mu_tilde, drymass_sigma_tilde) * sd(drymass) + mean(drymass);
+    }
 
     // -------------------------------------------------------------------------
     // Growth Rate PPC
@@ -337,4 +367,6 @@ generated quantities {
     // Compute properties
     // -------------------------------------------------------------------------
     vector[J_prot_cond] peri_density = prot_per_biomass_mu * 1E9 ./ (growth_cells_per_biomass[prot_cond_map] .* peri_vol_mu[prot_cond_map]); 
+    vector[J_prot_cond] peri_drymass_frac = prot_per_biomass_mu ./ drymass_mu;
+    vector[J_prot_cond] peri_protein_frac = prot_per_biomass_mu ./ (0.55 * drymass_mu);
 }

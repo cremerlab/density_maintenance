@@ -1,0 +1,7 @@
+medium,growth_rate_hr,dry_mass_fg,protein_mass_fg,cell_count,dataset_name
+RDM,1.84,507,329,343000000,Basan et al. 2015
+glucoseCAA,1.27,500,317,793000000,Basan et al. 2015
+glucose,0.98,494,333,1070000000,Basan et al. 2015
+glycerol,0.7,522,355,1600000000,Basan et al. 2015
+acetate,0.45,516,378,1710000000,Basan et al. 2015
+mannose,0.42,513,391,1940000000,Basan et al. 2015
