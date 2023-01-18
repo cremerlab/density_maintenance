@@ -6,6 +6,7 @@ import arviz as az
 import matplotlib.pyplot as plt
 import size.viz
 import seaborn as sns
+import scipy.stats
 cor, pal = size.viz.matplotlib_style()
 
 # Load the necessary datasets
@@ -457,36 +458,6 @@ plt.suptitle('average cell dimension measurements',
 
 plt.tight_layout()
 plt.savefig('../../figures/mcmc/one-shot_cell_dimension_ppc.pdf')
-
-# %%
-rho_percs = pd.DataFrame([])
-for i, k in enumerate(['peri_density', 'growth_mu']):
-    post_df = samples.posterior[f'{k}'].to_dataframe().reset_index()
-    for key, val in carb_idx_dict.items():
-        post_df.loc[post_df[f'{k}_dim_0'] == val - 1, 'carbon_source'] = key
-    perc = compute_percentiles(post_df, k, 'carbon_source')
-    rho_percs = pd.concat([rho_percs, perc], sort=False)
-
- # %%
-fig, ax = plt.subplots(1, 1, figsize=(4, 4))
-for g, d in rho_percs.groupby(['carbon_source']):
-    if g == 'LB':
-        continue
-    lam_10 = d[(d['quantity'] == 'growth_mu') & (d['interval'] == '10%')][[
-        'lower', 'upper']].values.mean(axis=1)
-    rho_10 = d[(d['quantity'] == 'peri_density') & (d['interval'] == '10%')][[
-        'lower', 'upper']].values.mean(axis=1)
-    for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
-        lam = _d[_d['quantity'] == 'growth_mu']
-        rho = _d[_d['quantity'] == 'peri_density']
-        ax.hlines(rho_10, lam['lower'], lam['upper'],
-                  lw=2, color=ppc_cmap_dict[_g], zorder=i+1)
-        ax.vlines(lam_10, rho['lower'], rho['upper'],
-                  lw=2, color=ppc_cmap_dict[_g], zorder=i+1)
-
-ax.set_xlabel('growth rate [hr$^{-1}$]')
-ax.set_ylabel('periplasmic protein density [fg/fL]')
-
 # %%
 sav_rho_percs = pd.DataFrame([])
 for i, k in enumerate(['peri_drymass_frac', 'sav_mu']):
@@ -525,3 +496,123 @@ ax.plot(phi_range * 100, theory + 1, 'k--')
 ax.set_ylim([4, 8])
 ax.set_xlabel('periplasmic protein drymass fraction [%]')
 ax.set_ylabel('surface-to-volume [µm$^{-1}$]')
+
+# %%
+mass_fracs = pd.read_csv('../../data/compiled_mass_fractions.csv')
+gr = samples.posterior.growth_mu.to_dataframe().reset_index()
+for carb, idx in carb_idx_dict.items():
+    gr.loc[gr['growth_mu_dim_0'] == idx-1, 'carbon_source'] = carb
+gr_agg = gr.groupby(['carbon_source'])['growth_mu'].median().reset_index()
+
+for carb, lam in zip(gr_agg['carbon_source'].values, gr_agg['growth_mu'].values):
+    size_data.loc[size_data['carbon_source'] == carb, 'growth_mu'] = lam
+# %%
+peri_mass_fracs = mass_fracs[mass_fracs['periplasm'] == True].groupby(
+    ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
+
+dry_frac = 0.3
+prot_frac = 0.55
+density = 1.1
+
+# COmpute simple fits
+w_popt = scipy.stats.linregress(
+    size_data['growth_mu'], size_data['width_median'])
+ell_popt = scipy.stats.linregress(
+    size_data['growth_mu'], np.log(size_data['length']))
+peri_vol_popt = scipy.stats.linregress(
+    size_data['growth_mu'], np.log(size_data['periplasm_volume']))
+vol_popt = scipy.stats.linregress(
+    size_data['growth_mu'], np.log(size_data['volume']))
+sav_popt = scipy.stats.linregress(
+    size_data['growth_mu'], np.log(size_data['surface_to_volume']))
+
+# Compute the periplasmic protein density
+peri_mass_fracs['width'] = w_popt[0] * \
+    peri_mass_fracs['growth_rate_hr'] + w_popt[1]
+peri_mass_fracs['length'] = np.exp(
+    ell_popt[0] * peri_mass_fracs['growth_rate_hr'] + ell_popt[1])
+peri_mass_fracs['peri_vol'] = np.exp(
+    peri_vol_popt[0] * peri_mass_fracs['growth_rate_hr'] + peri_vol_popt[1])
+peri_mass_fracs['volume'] = np.exp(
+    vol_popt[0] * peri_mass_fracs['growth_rate_hr'] + vol_popt[1])
+peri_mass_fracs['sav'] = np.exp(
+    sav_popt[0] * peri_mass_fracs['growth_rate_hr'] + sav_popt[1])
+# peri_mass_fracs['peri_volume'] = size.analytical.surface_area(peri_mass_fracs['length'], peri_mass_fracs['width']) * 0.025
+peri_mass_fracs['tot_protein'] = density * \
+    dry_frac * prot_frac * peri_mass_fracs['volume']
+peri_mass_fracs['peri_protein'] = peri_mass_fracs['mass_frac'] * \
+    peri_mass_fracs['tot_protein']
+peri_mass_fracs['rho_peri'] = (
+    peri_mass_fracs['peri_protein'] * 1E3) / peri_mass_fracs['peri_vol']
+peri_mass_fracs['biomass_frac'] = peri_mass_fracs['peri_protein'] / \
+    (density * dry_frac * peri_mass_fracs['volume'])
+
+# %%
+
+# %%
+fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+ax.plot(peri_mass_fracs['biomass_frac']*100,
+        peri_mass_fracs['sav'], 'X', alpha=0.2)
+
+for g, d in sav_rho_percs.groupby(['carbon_source']):
+    if g == 'LB':
+        continue
+    sav_10 = d[(d['quantity'] == 'sav_mu') & (d['interval'] == '10%')][[
+        'lower', 'upper']].values.mean(axis=1)
+    frac_10 = d[(d['quantity'] == 'peri_drymass_frac') & (d['interval'] == '10%')][[
+        'lower', 'upper']].values.mean(axis=1)
+    for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
+        sav = _d[_d['quantity'] == 'sav_mu']
+        frac = _d[_d['quantity'] == 'peri_drymass_frac']
+        ax.vlines(frac_10 * 100, sav['lower'], sav['upper'],
+                  lw=2, color=ppc_cmap_dict[_g], zorder=i+8)
+        ax.hlines(sav_10, frac['lower'] * 100, frac['upper'] * 100,
+                  lw=2, color=ppc_cmap_dict[_g], zorder=i+8)
+
+
+# Plot the theory line
+k = (0.03/0.15) * (1 - 0.15)/(1 - 0.03)
+delta = 0.025
+phi_range = np.linspace(0, 0.08, 200)
+phi_term = k * (1 - phi_range) / phi_range
+theory = (delta * (phi_term))**-1
+ax.plot(phi_range * 100, theory, 'k--')
+ax.set_ylim([4, 8])
+ax.set_xlim([0, 8])
+ax.set_xlabel('periplasmic protein drymass fraction [%]')
+ax.set_ylabel('surface-to-volume [µm$^{-1}$]')
+plt.savefig('../../figures/mcmc/one-shot_theory_comparison.pdf')
+
+# %%
+rho_percs = pd.DataFrame([])
+for i, k in enumerate(['peri_density', 'growth_mu']):
+    post_df = samples.posterior[f'{k}'].to_dataframe().reset_index()
+    for key, val in carb_idx_dict.items():
+        post_df.loc[post_df[f'{k}_dim_0'] == val - 1, 'carbon_source'] = key
+    perc = compute_percentiles(post_df, k, 'carbon_source')
+    rho_percs = pd.concat([rho_percs, perc], sort=False)
+
+ # %%
+fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+ax.plot(peri_mass_fracs['growth_rate_hr'],
+        peri_mass_fracs['rho_peri'], 'X', alpha=0.5)
+for g, d in rho_percs.groupby(['carbon_source']):
+    if g == 'LB':
+        continue
+    lam_10 = d[(d['quantity'] == 'growth_mu') & (d['interval'] == '10%')][[
+        'lower', 'upper']].values.mean(axis=1)
+    rho_10 = d[(d['quantity'] == 'peri_density') & (d['interval'] == '10%')][[
+        'lower', 'upper']].values.mean(axis=1)
+    for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
+        lam = _d[_d['quantity'] == 'growth_mu']
+        rho = _d[_d['quantity'] == 'peri_density']
+        ax.hlines(rho_10, lam['lower'], lam['upper'],
+                  lw=2, color=ppc_cmap_dict[_g], zorder=i+1)
+        ax.vlines(lam_10, rho['lower'], rho['upper'],
+                  lw=2, color=ppc_cmap_dict[_g], zorder=i+1)
+
+ax.set_xlabel('growth rate [hr$^{-1}$]')
+ax.set_ylabel('periplasmic protein density [fg/fL]')
+ax.set_ylim([0, 175])
+ax.set_title('Comparison with mass spectrometry data')
+plt.savefig('../../figures/mcmc/one-shot_peri_density_comparison.pdf')
