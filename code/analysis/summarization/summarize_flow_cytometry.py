@@ -15,13 +15,14 @@ sample_ods = pd.read_csv(
     '../../../data/flow_cytometry/flow_cytometry_sample_od600nm.csv')
 
 # Load the files
-files = glob.glob('../../../data/flow_cytometry/2022*/*.fcs')
+files = glob.glob('../../../data/flow_cytometry/202*/*.fcs')
 
 counts = pd.DataFrame([])
 for i, f in enumerate(tqdm.tqdm(files)):
 
     # Parse the metadata
-    date = f.split('/')[-2]
+    date, run_no = f.split('/')[-2].split('_')
+    run_no = int(run_no[1:])
     strain, carbon, _, rep, time = f.split('/')[-1].split('_')
     rep = int(rep)
     time = float(time.split('s')[0])
@@ -33,6 +34,7 @@ for i, f in enumerate(tqdm.tqdm(files)):
     # Determine the biomass of the particular experiment
     od = sample_ods[(sample_ods['strain'] == strain) &
                     (sample_ods['carbon_source'] == carbon) &
+                    (sample_ods['run_no'] == run_no) &
                     (sample_ods['date'] == date)]['od_600nm'].values[0]
 
     # Compute the number of cells per unit biomass
@@ -41,6 +43,7 @@ for i, f in enumerate(tqdm.tqdm(files)):
 
     # Pack the output
     _data = {'date': date,
+             'run_no': run_no,
              'strain': strain,
              'carbon_source': carbon,
              'overexpression': 'none',

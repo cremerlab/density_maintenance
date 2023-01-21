@@ -24,10 +24,12 @@ data {
     vector<lower=0>[N_prot_meas] od_conv_factor;
 
     // -------------------------------------------------------------------------
-    // Literature Values for dry mass and total protein
+    // Literature Values for dry mass and cell counts
     // -------------------------------------------------------------------------
     int<lower=1> N_lit_meas; 
     vector<lower=1>[N_lit_meas] drymass;
+    vector<lower=1>[N_lit_meas] lit_cells_per_biomass;
+    vector<lower=0>[N_lit_meas] lit_growth_rate;
 
     // -------------------------------------------------------------------------
     // Growth rate measurements
@@ -105,7 +107,7 @@ transformed data{
     // Lit data transformations
     // -------------------------------------------------------------------------
     vector[N_lit_meas] drymass_tilde = (drymass - mean(drymass)) ./ sd(drymass);
-
+    vector[N_lit_meas] log_lit_billion_cells_per_biomass = log(lit_cells_per_biomass / 1E9);
     // -------------------------------------------------------------------------
     // Growth Rate Transformations
     // -------------------------------------------------------------------------
@@ -147,7 +149,8 @@ parameters {
     // -------------------------------------------------------------------------
     real drymass_mu_tilde;
     real<lower=0> drymass_sigma_tilde;
-    
+    real<lower=0> lit_cells_per_biomass_sigma;
+   
     // -------------------------------------------------------------------------
     // Growth Rate Parameters
     // -------------------------------------------------------------------------
@@ -199,7 +202,6 @@ transformed parameters {
     // Literature data transformed parameters
     // -------------------------------------------------------------------------
     real<lower=0> drymass_mu = drymass_mu_tilde * sd(drymass) + mean(drymass);
-
     // -------------------------------------------------------------------------
     // Growth Rate Transformed Parameters
     // -------------------------------------------------------------------------
@@ -249,8 +251,9 @@ model {
     // -------------------------------------------------------------------------
     drymass_mu_tilde ~ std_normal();
     drymass_sigma_tilde ~ std_normal();
+    lit_cells_per_biomass_sigma ~ std_normal();
     drymass_tilde ~ normal(drymass_mu_tilde, drymass_sigma_tilde);
-
+    log_lit_billion_cells_per_biomass ~ cauchy(beta_0_tilde - k_cells_per_biomass_tilde * lit_growth_rate, lit_cells_per_biomass_sigma);
     // -------------------------------------------------------------------------
     // Growth Rate Model
     // -------------------------------------------------------------------------
@@ -341,7 +344,10 @@ generated quantities {
     for (i in 1:N_cell_meas) {
         cells_per_biomass_rep[i] = 1E9 * exp(cauchy_rng(beta_0_tilde - k_cells_per_biomass_tilde * growth_mu[cells_per_biomass_growth_idx[i]], cells_per_biomass_sigma));
     }
-
+    vector[N_lit_meas] lit_cells_per_biomass_rep;
+    for (i in 1:N_lit_meas) {
+        lit_cells_per_biomass_rep[i] = 1E9 * exp(cauchy_rng(beta_0_tilde - k_cells_per_biomass_tilde * lit_growth_rate[i], lit_cells_per_biomass_sigma));
+    }
     // -------------------------------------------------------------------------
     // Size PPC
     // -------------------------------------------------------------------------

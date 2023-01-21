@@ -29,7 +29,7 @@ bradford_prot_data = bradford_prot_data[
 ]
 growth_data = growth_data[growth_data['strain'] == 'wildtype']
 flow_data = flow_data[flow_data['strain'] == 'wildtype']
-flow_data = flow_data.groupby(['carbon_source', 'date'])[
+flow_data = flow_data.groupby(['carbon_source', 'date', 'run_no'])[
     'cells_per_biomass'].mean().reset_index()
 size_data = size_data[(size_data['strain'] == 'wildtype')
                       & (size_data['inducer_conc'] == 0) &
@@ -90,6 +90,8 @@ data_dict = {
     # Lit data
     'N_lit_meas': len(lit_data),
     'drymass': lit_data['dry_mass_fg'].values.astype(float),
+    'lit_cells_per_biomass': lit_data['cell_count'].values.astype(float),
+    'lit_growth_rate': lit_data['growth_rate_hr'].values.astype(float),
 
     # Growth curve inputs
     'J_growth_cond': growth_data['cond_idx'].max(),
@@ -149,9 +151,7 @@ def compute_percentiles(df,
                         quantity,
                         groupby,
                         lower_bounds=[5, 10, 15, 20, 25, 30, 35, 40, 45, ],
-                        # [0.5, 2.5, 12.5, 25, 37.5, 45, 49.5],
                         upper_bounds=[95, 90, 85, 80, 75, 70, 65, 60, 55],
-                        # [99.5, 97.5, 87.5, 75, 62.5, 55, 50.5],
                         interval_labels=['90%', '80%', '70%', '60%',
                                          '50%', '40%', '30%', '20%', '10%']):
 
@@ -274,6 +274,22 @@ plt.tight_layout()
 plt.savefig('../../figures/mcmc/one-shot_drymass_quantification_ppc.pdf')
 
 # %%
+lit_cells_ppc = samples.posterior.lit_cells_per_biomass_rep.to_dataframe().reset_index()
+for dim, gr in zip(np.arange(len(lit_data)), lit_data['growth_rate_hr']):
+    lit_cells_ppc.loc[lit_cells_ppc['lit_cells_per_biomass_rep_dim_0']
+                      == dim, 'growth_rate_hr'] = gr
+
+lit_cells_percs = compute_percentiles(
+    lit_cells_ppc, 'lit_cells_per_biomass_rep', 'growth_rate_hr')
+
+fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+for i, (g, d) in enumerate(lit_cells_percs.groupby(['interval'], sort=False)):
+    ax.fill_between(d['growth_rate_hr'], d['lower']/1E9, d['upper']/1E9, color=ppc_cmap_dict[g],
+                    zorder=i+1)
+ax.plot(lit_data['growth_rate_hr'], lit_data['cell_count'] /
+        1E9, 'o', ms=6, color=cor['primary_green'], zorder=1000)
+
+# %%
 cpb_ppc_df = samples.posterior[[
     'cells_per_biomass_rep']].to_dataframe().reset_index()
 
@@ -297,8 +313,9 @@ for g, d in flow_data.groupby(['carbon_source']):
     ax.plot(d['cells_per_biomass'], carb_loc[g] + np.random.normal(0, 0.1, len(d)), 'o',
             color=cor['primary_red'], ms=4, zorder=1000)
 ax.set_xlim([1E8, 5E9])
-ax.set_yticks([2, 3, 4, 5, 6])
-ax.set_yticklabels(['sorbitol', 'glycerol', 'glucose', 'glucoseCAA', 'LB'])
+ax.set_yticks([1, 2, 3, 4, 5, 6])
+ax.set_yticklabels(['acetate', 'sorbitol', 'glycerol',
+                   'glucose', 'glucoseCAA', 'LB'])
 ax.set_xlabel('cells per biomass')
 ax.set_title('Flow cytometry event counts')
 plt.tight_layout()
@@ -355,6 +372,8 @@ ax.plot(lam_range, fit, '-', lw=1, color=cor['primary_blue'])
 ax.set_xlabel('growth rate [hr$^{-1}$]')
 ax.set_ylabel('cells per biomass')
 ax.set_title('Exponential $\lambda$-dependence on cell density')
+
+ax.plot(lit_data['growth_rate_hr'], lit_data['cell_count'], 'o', color=cor['primary_green'])
 plt.tight_layout()
 plt.savefig('../../figures/mcmc/one-shot_cell_density_lam_dependence.pdf')
 
