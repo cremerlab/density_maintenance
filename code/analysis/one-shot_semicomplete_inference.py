@@ -373,7 +373,8 @@ ax.set_xlabel('growth rate [hr$^{-1}$]')
 ax.set_ylabel('cells per biomass')
 ax.set_title('Exponential $\lambda$-dependence on cell density')
 
-ax.plot(lit_data['growth_rate_hr'], lit_data['cell_count'], 'o', color=cor['primary_green'])
+ax.plot(lit_data['growth_rate_hr'], lit_data['cell_count'],
+        'o', color=cor['primary_green'])
 plt.tight_layout()
 plt.savefig('../../figures/mcmc/one-shot_cell_density_lam_dependence.pdf')
 
@@ -518,6 +519,11 @@ ax.set_ylabel('surface-to-volume [µm$^{-1}$]')
 
 # %%
 mass_fracs = pd.read_csv('../../data/compiled_mass_fractions.csv')
+genes = pd.read_csv('./genes_classification_all.csv')
+_genes = genes[genes['location'].isin(['IM', 'OM', 'PE', 'LPO'])]
+mass_fracs = mass_fracs[mass_fracs['gene_name'].isin(_genes['gene'].unique())]
+mass_fracs
+# %%
 gr = samples.posterior.growth_mu.to_dataframe().reset_index()
 for carb, idx in carb_idx_dict.items():
     gr.loc[gr['growth_mu_dim_0'] == idx-1, 'carbon_source'] = carb
@@ -596,7 +602,7 @@ phi_range = np.linspace(0, 0.08, 200)
 phi_term = k * (1 - phi_range) / phi_range
 theory = (delta * (phi_term))**-1
 ax.plot(phi_range * 100, theory, 'k--')
-ax.set_ylim([4, 8])
+# ax.set_ylim([4, 8])
 ax.set_xlim([0, 8])
 ax.set_xlabel('periplasmic protein drymass fraction [%]')
 ax.set_ylabel('surface-to-volume [µm$^{-1}$]')
@@ -634,4 +640,4 @@ ax.set_xlabel('growth rate [hr$^{-1}$]')
 ax.set_ylabel('periplasmic protein density [fg/fL]')
 ax.set_ylim([0, 175])
 ax.set_title('Comparison with mass spectrometry data')
-plt.savefig('../../figures/mcmc/one-shot_peri_density_comparison.pdf')
+# plt.savefig('../../figures/mcmc/one-shot_peri_density_comparison.pdf')
