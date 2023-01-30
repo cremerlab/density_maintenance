@@ -31,6 +31,8 @@ growth_data = growth_data[growth_data['strain'] == 'wildtype']
 flow_data = flow_data[flow_data['strain'] == 'wildtype']
 flow_data = flow_data.groupby(['carbon_source', 'date', 'run_no'])[
     'cells_per_biomass'].mean().reset_index()
+
+# flow_data = flow_data[flow_data['cells_per_biomass'] > 1E6]
 size_data = size_data[(size_data['strain'] == 'wildtype')
                       & (size_data['inducer_conc'] == 0) &
                       (size_data['temperature_C'] == 37) &
@@ -218,6 +220,7 @@ ax.set_title('Bradford assay calibration curve')
 plt.tight_layout()
 plt.savefig('../../figures/mcmc/one-shot_calibration_curve_ppc.pdf')
 # %%
+
 # PPC for bradford assay
 prot_ppc_df = samples.posterior.od595_per_biomass_rep.to_dataframe().reset_index()
 # Map the index to the carbon source
@@ -274,22 +277,6 @@ plt.tight_layout()
 plt.savefig('../../figures/mcmc/one-shot_drymass_quantification_ppc.pdf')
 
 # %%
-lit_cells_ppc = samples.posterior.lit_cells_per_biomass_rep.to_dataframe().reset_index()
-for dim, gr in zip(np.arange(len(lit_data)), lit_data['growth_rate_hr']):
-    lit_cells_ppc.loc[lit_cells_ppc['lit_cells_per_biomass_rep_dim_0']
-                      == dim, 'growth_rate_hr'] = gr
-
-lit_cells_percs = compute_percentiles(
-    lit_cells_ppc, 'lit_cells_per_biomass_rep', 'growth_rate_hr')
-
-fig, ax = plt.subplots(1, 1, figsize=(4, 4))
-for i, (g, d) in enumerate(lit_cells_percs.groupby(['interval'], sort=False)):
-    ax.fill_between(d['growth_rate_hr'], d['lower']/1E9, d['upper']/1E9, color=ppc_cmap_dict[g],
-                    zorder=i+1)
-ax.plot(lit_data['growth_rate_hr'], lit_data['cell_count'] /
-        1E9, 'o', ms=6, color=cor['primary_green'], zorder=1000)
-
-# %%
 cpb_ppc_df = samples.posterior[[
     'cells_per_biomass_rep']].to_dataframe().reset_index()
 
@@ -312,7 +299,7 @@ ax.set_xscale('log')
 for g, d in flow_data.groupby(['carbon_source']):
     ax.plot(d['cells_per_biomass'], carb_loc[g] + np.random.normal(0, 0.1, len(d)), 'o',
             color=cor['primary_red'], ms=4, zorder=1000)
-ax.set_xlim([1E8, 5E9])
+# ax.set_xlim([1E8, 5E9])
 ax.set_yticks([1, 2, 3, 4, 5, 6])
 ax.set_yticklabels(['acetate', 'sorbitol', 'glycerol',
                    'glucose', 'glucoseCAA', 'LB'])
@@ -325,24 +312,24 @@ plt.savefig('../../figures/mcmc/one-shot_flow_cytometry_ppc.pdf')
 # %%
 # Plot the fit to the flow data
 cpb_fit_df = samples.posterior[[
-    'growth_cells_per_biomass']].to_dataframe().reset_index()
+    'vol_cells_per_biomass']].to_dataframe().reset_index()
 for carb, dim in carb_idx_dict.items():
-    cpb_fit_df.loc[cpb_fit_df['growth_cells_per_biomass_dim_0']
+    cpb_fit_df.loc[cpb_fit_df['vol_cells_per_biomass_dim_0']
                    == dim-1, 'carbon_source'] = carb
 
 _df = samples.posterior[[
-    'growth_mu']].to_dataframe().reset_index()
-cpb_fit_df['growth_mu'] = _df['growth_mu'].values
+    'vol_mu']].to_dataframe().reset_index()
+cpb_fit_df['vol_mu'] = _df['vol_mu'].values
 
 # Compute the percentiles
 cpb_fit_percs = compute_percentiles(
-    cpb_fit_df, ['growth_cells_per_biomass', 'growth_mu'], 'carbon_source')
+    cpb_fit_df, ['vol_cells_per_biomass', 'vol_mu'], 'carbon_source')
 cpb_fit_percs
 
 fig, ax = plt.subplots(1, 1, figsize=(4, 4))
 for g, d in cpb_fit_percs.groupby(['carbon_source'], sort=False):
-    lam = d[d['quantity'] == 'growth_mu']
-    cpb = d[d['quantity'] == 'growth_cells_per_biomass']
+    lam = d[d['quantity'] == 'vol_mu']
+    cpb = d[d['quantity'] == 'vol_cells_per_biomass']
     perc_10_cpb = cpb[cpb['interval'] == '10%']
     perc_10_lam = lam[lam['interval'] == '10%']
     x = np.mean([perc_10_lam['lower'].values[0],
@@ -350,8 +337,8 @@ for g, d in cpb_fit_percs.groupby(['carbon_source'], sort=False):
     y = np.mean([perc_10_cpb['lower'].values[0],
                 perc_10_cpb['upper'].values[0]])
     for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
-        _lam = _d[_d['quantity'] == 'growth_mu']
-        _cpb = _d[_d['quantity'] == 'growth_cells_per_biomass']
+        _lam = _d[_d['quantity'] == 'vol_mu']
+        _cpb = _d[_d['quantity'] == 'vol_cells_per_biomass']
         ax.vlines(x, _cpb['lower'], _cpb['upper'], lw=3,
                   zorder=i+1, color=ppc_cmap_dict[_g])
         ax.hlines(y, _lam['lower'], _lam['upper'], lw=3,
@@ -365,18 +352,16 @@ for g, d in cpb_fit_percs.groupby(['carbon_source'], sort=False):
 # compute and plot the main fit
 fit_params = samples.posterior[[
     'k_cells_per_biomass_tilde', 'beta_0_tilde']].to_dataframe().reset_index()
-lam_range = np.linspace(0.1, 2.5, 200)
-fit = 1E9 * np.exp(fit_params['beta_0_tilde'].mean() -
-                   fit_params['k_cells_per_biomass_tilde'].mean() * lam_range)
-ax.plot(lam_range, fit, '-', lw=1, color=cor['primary_blue'])
-ax.set_xlabel('growth rate [hr$^{-1}$]')
+vol_range = np.linspace(0.1, 4, 200)
+fit = 1E9 * (fit_params['beta_0_tilde'].mean() -
+             fit_params['k_cells_per_biomass_tilde'].mean() * vol_range)
+ax.plot(vol_range, fit, '-', lw=1, color=cor['primary_blue'])
+ax.set_xlabel('average cell volume [µm$^{3}$]')
 ax.set_ylabel('cells per biomass')
-ax.set_title('Exponential $\lambda$-dependence on cell density')
+ax.set_title('Linear volume-dependence on cell density')
 
-ax.plot(lit_data['growth_rate_hr'], lit_data['cell_count'],
-        'o', color=cor['primary_green'])
 plt.tight_layout()
-plt.savefig('../../figures/mcmc/one-shot_cell_density_lam_dependence.pdf')
+plt.savefig('../../figures/mcmc/one-shot_cell_density_vol_dependence.pdf')
 
 # %%
 # Plot the growth ppcs
@@ -507,13 +492,13 @@ for g, d in sav_rho_percs.groupby(['carbon_source']):
 
 
 # Plot the theory line
-k = 0.08  # (0.03/0.15) * (1 - 0.15)/(1 - 0.03)
+k = (0.03/0.15) * (1 - 0.15)/(1 - 0.03)
 delta = 0.025
 phi_range = np.linspace(0, 0.05, 200)
 phi_term = k * (1 - phi_range) / phi_range
 theory = (delta * (phi_term))**-1
-ax.plot(phi_range * 100, theory + 1, 'k--')
-ax.set_ylim([4, 8])
+ax.plot(phi_range * 100, theory, 'k--')
+# ax.set_ylim([4, 8])
 ax.set_xlabel('periplasmic protein drymass fraction [%]')
 ax.set_ylabel('surface-to-volume [µm$^{-1}$]')
 
@@ -641,3 +626,60 @@ ax.set_ylabel('periplasmic protein density [fg/fL]')
 ax.set_ylim([0, 175])
 ax.set_title('Comparison with mass spectrometry data')
 # plt.savefig('../../figures/mcmc/one-shot_peri_density_comparison.pdf')
+
+# %%
+ppc_cmap = sns.color_palette('Reds_r', n_colors=len(
+    cal_ppc_percs['interval'].unique()) + 2).as_hex()
+ppc_cmap_dict = {i: c for i, c in zip(
+    [f'{k}%' for k in np.arange(10, 100, 10)], ppc_cmap)}
+
+width_rho_percs = pd.DataFrame([])
+for i, k in enumerate(['peri_drymass_frac', 'width_mu']):
+    post_df = samples.posterior[f'{k}'].to_dataframe().reset_index()
+    for key, val in carb_idx_dict.items():
+        post_df.loc[post_df[f'{k}_dim_0'] == val - 1, 'carbon_source'] = key
+    perc = compute_percentiles(post_df, k, 'carbon_source')
+    perc = perc[perc['carbon_source'] != 'LB']
+    width_rho_percs = pd.concat([width_rho_percs, perc], sort=False)
+
+
+fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+ax.plot(peri_mass_fracs['biomass_frac']*100,
+        peri_mass_fracs['width'], 'X', alpha=0.2, color=cor['primary_black'], zorder=1, ms=4, label='__nolegend__')
+for g, d in width_rho_percs.groupby(['carbon_source']):
+    if g == 'LB':
+        continue
+    width_10 = d[(d['quantity'] == 'width_mu') & (d['interval'] == '10%')][[
+        'lower', 'upper']].values.mean(axis=1)
+    frac_10 = d[(d['quantity'] == 'peri_drymass_frac') & (d['interval'] == '10%')][[
+        'lower', 'upper']].values.mean(axis=1)
+    for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
+        width = _d[_d['quantity'] == 'width_mu']
+        frac = _d[_d['quantity'] == 'peri_drymass_frac']
+        ax.vlines(frac_10 * 100, width['lower'], width['upper'],
+                  lw=2, color=ppc_cmap_dict[_g], zorder=i+1, label='__nolegend__')
+        ax.hlines(width_10, frac['lower'] * 100, frac['upper'] * 100,
+                  lw=2, color=ppc_cmap_dict[_g], zorder=i+1, label='__nolegend__')
+
+k_range = [0.1]
+# k_range = np.linspace(0.05, 0.2, 5)
+phi_range = np.linspace(0.001, .15, 200)
+for _k in k_range:
+    theo_width = 4 * delta * (_k * (phi_range**-1 - 1) + 1) + 0.25
+    ax.plot(phi_range*100, theo_width, lw=1,
+            label='model prediction, $k = 0.1$')
+
+ax.plot([], [], 'X', color='grey', label='mass spectrometry data')
+ax.plot([], [], 'P', lw=2, color=cor['primary_red'],
+        label='inferred from our measurements')
+ax.legend()
+ax.set_title(
+    r'predicted width assuming constant $k$ and $\ell/\omega \approx 4$')
+ax.set_ylim([0.25, 1.50])
+ax.set_xlim([0, 10])
+
+ax.set_xlabel('periplasmic protein drymass fraction [%]')
+ax.set_ylabel('width [µm]')
+
+plt.savefig('../../figures/mcmc/one-shot_revised_model_prediction.pdf',
+            bbox_inches='tight')

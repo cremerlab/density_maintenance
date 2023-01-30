@@ -28,8 +28,6 @@ data {
     // -------------------------------------------------------------------------
     int<lower=1> N_lit_meas; 
     vector<lower=1>[N_lit_meas] drymass;
-    vector<lower=1>[N_lit_meas] lit_cells_per_biomass;
-    vector<lower=0>[N_lit_meas] lit_growth_rate;
 
     // -------------------------------------------------------------------------
     // Growth rate measurements
@@ -107,7 +105,7 @@ transformed data{
     // Lit data transformations
     // -------------------------------------------------------------------------
     vector[N_lit_meas] drymass_tilde = (drymass - mean(drymass)) ./ sd(drymass);
-    vector[N_lit_meas] log_lit_billion_cells_per_biomass = log(lit_cells_per_biomass / 1E9);
+
     // -------------------------------------------------------------------------
     // Growth Rate Transformations
     // -------------------------------------------------------------------------
@@ -149,7 +147,6 @@ parameters {
     // -------------------------------------------------------------------------
     real drymass_mu_tilde;
     real<lower=0> drymass_sigma_tilde;
-    real<lower=0> lit_cells_per_biomass_sigma;
    
     // -------------------------------------------------------------------------
     // Growth Rate Parameters
@@ -209,11 +206,6 @@ transformed parameters {
     vector[J_growth_brep] log_growth_od_init = log(growth_od_init);
 
     // -------------------------------------------------------------------------
-    // Cells per Biomass Transformed Parameters
-    // -------------------------------------------------------------------------
-    vector<lower=0>[J_growth_cond] growth_cells_per_biomass = 1E9 .* exp(beta_0_tilde - k_cells_per_biomass_tilde * growth_mu);
-
-    // -------------------------------------------------------------------------
     // Size Measurement Transformed Parameters
     // -------------------------------------------------------------------------
     vector[J_size_cond] width_mu = mean_width_std .* width_mu_tilde + mean_width_mean;
@@ -223,6 +215,13 @@ transformed parameters {
     vector[J_size_cond] peri_vol_frac_mu = mean_peri_vol_frac_std .* peri_vol_frac_mu_tilde + mean_peri_vol_frac_mean;
     vector[J_size_cond] sa_mu = mean_sa_std .* sa_mu_tilde + mean_sa_mean;
     vector[J_size_cond] sav_mu = mean_sav_std .* sav_mu_tilde + mean_sav_mean;
+
+    // -------------------------------------------------------------------------
+    // Cells per Biomass Transformed Parameters
+    // -------------------------------------------------------------------------
+    vector<lower=0>[J_growth_cond] vol_cells_per_biomass = 1E9 .* (beta_0_tilde - k_cells_per_biomass_tilde * vol_mu);
+
+
 
 }
 
@@ -251,9 +250,8 @@ model {
     // -------------------------------------------------------------------------
     drymass_mu_tilde ~ std_normal();
     drymass_sigma_tilde ~ std_normal();
-    lit_cells_per_biomass_sigma ~ std_normal();
     drymass_tilde ~ normal(drymass_mu_tilde, drymass_sigma_tilde);
-    log_lit_billion_cells_per_biomass ~ cauchy(beta_0_tilde - k_cells_per_biomass_tilde * lit_growth_rate, lit_cells_per_biomass_sigma);
+
     // -------------------------------------------------------------------------
     // Growth Rate Model
     // -------------------------------------------------------------------------
@@ -276,7 +274,7 @@ model {
     cells_per_biomass_sigma ~ std_normal();
 
     // Likelihood
-    log_billion_cells_per_biomass ~ cauchy(beta_0_tilde - k_cells_per_biomass_tilde * growth_mu[cells_per_biomass_growth_idx], cells_per_biomass_sigma);
+    log_billion_cells_per_biomass ~ cauchy(log(beta_0_tilde - k_cells_per_biomass_tilde * vol_mu[cells_per_biomass_growth_idx]), cells_per_biomass_sigma);
  
     // -------------------------------------------------------------------------
     // Size model 
@@ -342,12 +340,9 @@ generated quantities {
     // -------------------------------------------------------------------------
     vector[N_cell_meas] cells_per_biomass_rep;
     for (i in 1:N_cell_meas) {
-        cells_per_biomass_rep[i] = 1E9 * exp(cauchy_rng(beta_0_tilde - k_cells_per_biomass_tilde * growth_mu[cells_per_biomass_growth_idx[i]], cells_per_biomass_sigma));
+        cells_per_biomass_rep[i] = 1E9 * exp(cauchy_rng(log(beta_0_tilde - k_cells_per_biomass_tilde * vol_mu[cells_per_biomass_growth_idx[i]]), cells_per_biomass_sigma));
     }
-    vector[N_lit_meas] lit_cells_per_biomass_rep;
-    for (i in 1:N_lit_meas) {
-        lit_cells_per_biomass_rep[i] = 1E9 * exp(cauchy_rng(beta_0_tilde - k_cells_per_biomass_tilde * lit_growth_rate[i], lit_cells_per_biomass_sigma));
-    }
+
     // -------------------------------------------------------------------------
     // Size PPC
     // -------------------------------------------------------------------------
@@ -372,7 +367,7 @@ generated quantities {
     // -------------------------------------------------------------------------
     // Compute properties
     // -------------------------------------------------------------------------
-    vector[J_prot_cond] peri_density = prot_per_biomass_mu * 1E9 ./ (growth_cells_per_biomass[prot_cond_map] .* peri_vol_mu[prot_cond_map]); 
+    vector[J_prot_cond] peri_density = prot_per_biomass_mu * 1E9 ./ (vol_cells_per_biomass[prot_cond_map] .* peri_vol_mu[prot_cond_map]); 
     vector[J_prot_cond] peri_drymass_frac = prot_per_biomass_mu ./ drymass_mu;
     vector[J_prot_cond] peri_protein_frac = prot_per_biomass_mu ./ (0.55 * drymass_mu);
 }
