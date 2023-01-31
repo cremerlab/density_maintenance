@@ -166,7 +166,6 @@ parameters {
     // Flow Cytometry Parameters
     // -------------------------------------------------------------------------
     real k_cells_per_biomass_tilde;  
-    real beta_0_tilde;
     real<lower=0> cells_per_biomass_sigma;
 
     // -------------------------------------------------------------------------
@@ -274,7 +273,7 @@ model {
     cells_per_biomass_sigma ~ std_normal();
 
     // Likelihood
-    log_billion_cells_per_biomass ~ cauchy(log(beta_0_tilde - k_cells_per_biomass_tilde * vol_mu[cells_per_biomass_growth_idx]), cells_per_biomass_sigma);
+    log_billion_cells_per_biomass ~ cauchy(log(k_cells_per_biomass_tilde * vol_mu[cells_per_biomass_growth_idx]), cells_per_biomass_sigma);
  
     // -------------------------------------------------------------------------
     // Size model 

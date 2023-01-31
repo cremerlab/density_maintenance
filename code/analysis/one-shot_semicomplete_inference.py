@@ -645,7 +645,7 @@ for i, k in enumerate(['peri_drymass_frac', 'width_mu']):
 
 fig, ax = plt.subplots(1, 1, figsize=(4, 4))
 ax.plot(peri_mass_fracs['biomass_frac']*100,
-        peri_mass_fracs['width'], 'X', alpha=0.2, color=cor['primary_black'], zorder=1, ms=4, label='__nolegend__')
+        1/peri_mass_fracs['width'], 'X', alpha=0.2, color=cor['primary_black'], zorder=1, ms=4, label='__nolegend__')
 for g, d in width_rho_percs.groupby(['carbon_source']):
     if g == 'LB':
         continue
@@ -656,9 +656,9 @@ for g, d in width_rho_percs.groupby(['carbon_source']):
     for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
         width = _d[_d['quantity'] == 'width_mu']
         frac = _d[_d['quantity'] == 'peri_drymass_frac']
-        ax.vlines(frac_10 * 100, width['lower'], width['upper'],
+        ax.vlines(frac_10 * 100, 1/width['lower'], 1/width['upper'],
                   lw=2, color=ppc_cmap_dict[_g], zorder=i+1, label='__nolegend__')
-        ax.hlines(width_10, frac['lower'] * 100, frac['upper'] * 100,
+        ax.hlines(1/width_10, frac['lower'] * 100, frac['upper'] * 100,
                   lw=2, color=ppc_cmap_dict[_g], zorder=i+1, label='__nolegend__')
 
 k_range = [0.1]
@@ -666,7 +666,7 @@ k_range = [0.1]
 phi_range = np.linspace(0.001, .15, 200)
 for _k in k_range:
     theo_width = 4 * delta * (_k * (phi_range**-1 - 1) + 1) + 0.25
-    ax.plot(phi_range*100, theo_width, lw=1,
+    ax.plot(phi_range*100, 1/theo_width, lw=1,
             label='model prediction, $k = 0.1$')
 
 ax.plot([], [], 'X', color='grey', label='mass spectrometry data')
@@ -675,8 +675,8 @@ ax.plot([], [], 'P', lw=2, color=cor['primary_red'],
 ax.legend()
 ax.set_title(
     r'predicted width assuming constant $k$ and $\ell/\omega \approx 4$')
-ax.set_ylim([0.25, 1.50])
-ax.set_xlim([0, 10])
+ax.set_ylim([0.25, 2.5])
+ax.set_xlim([0, 6])
 
 ax.set_xlabel('periplasmic protein drymass fraction [%]')
 ax.set_ylabel('width [µm]')
