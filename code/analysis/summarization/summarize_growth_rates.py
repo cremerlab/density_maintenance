@@ -8,7 +8,7 @@ data = pd.read_csv(
 
 summarized = pd.DataFrame([])
 
-for g, d in tqdm.tqdm(data.groupby(['strain', 'carbon_source', 'run_no', 'date'])):
+for g, d in tqdm.tqdm(data.groupby(['strain', 'carbon_source',  'run_no', 'date'])):
     popt = scipy.stats.linregress(
         d['elapsed_time_hr'].values, np.log(d['od_600nm']))
     slope = popt[0]

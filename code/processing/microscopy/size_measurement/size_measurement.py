@@ -20,8 +20,6 @@ size_df = pd.DataFrame([])
 biom = []
 for s in tqdm.tqdm(strains, desc='Strains...'):
     dirs = glob.glob(f'{s}/*/')
-    if 'wildtype' not in s:
-        continue
     for direc in tqdm.tqdm(dirs, desc='Directories...'):
         # Get the images
         if len(glob.glob(f'{direc}*sizes.csv*')) > 0:
@@ -49,6 +47,8 @@ for s in tqdm.tqdm(strains, desc='Strains...'):
             date = date[:-3]
             strain, carbon, over_expression, inducer, inducer_conc, temp, suffix = fname.split(
                 '_')
+            if inducer_conc == 0:
+                inducer = 'none'
             temp = float(temp[:-1])
             if date == '2022-09-29':
                 ip_dist = 0.065
@@ -84,8 +84,6 @@ for s in tqdm.tqdm(strains, desc='Strains...'):
                 d['temperature_C'] = temp
                 if over_expression == 'noOE':
                     over_expression = 'none'
-                if inducer == 'noInd':
-                    inducer = 'none'
                 d['overexpression'] = over_expression
                 d['inducer'] = inducer
                 d['inducer_conc'] = inducer_conc
@@ -106,15 +104,17 @@ for s in tqdm.tqdm(strains, desc='Strains...'):
         cell_sizes.to_csv(f'{direc}/{date}_r{run_no}_sizes.csv', index=False)
         # Generate the gallerires
         print('Generating cell galleries...')
-        for g, d in cell_sizes.groupby(['carbon_source', 'temperature_C', 'inducer', 'inducer_conc', 'run_no']):
-            fname = f'./output/galleries/{date}_r{run_no}_{strain}_{g[0]}_{g[1]}C_{g[2]}_{g[3]}ng_gallery.png'
-            suptitle = f'{date} {strain} {g} run {run_no} OE: {over_expression} Inducer: {inducer} {inducer_conc} Temp: {temp}C'
+        for g, d in cell_sizes.groupby(['carbon_source', 'temperature_C', 'inducer', 'inducer_conc', 'run_no', 'overexpression']):
+            fname = f'./output/galleries/{date}_r{run_no}_{strain}_{g[0]}_{g[1]}C_{g[5]}_{g[2]}_{g[3]}ng_gallery.png'
+            suptitle = f'{date} {strain} {g} run {run_no} OE: {g[5]} Inducer: {inducer} {inducer_conc} Temp: {temp}C'
             cells = cell_images[(cell_images['carbon_source'] == g[0]) &
+                                (cell_images['overexpression'] == g[5]) &
                                 (cell_images['temperature_C'] == g[1]) &
                                 (cell_images['inducer'] == g[2]) &
                                 (cell_images['inducer_conc'] == g[3]) &
                                 (cell_images['run_no'] == g[4])]
             splines = cell_splines[(cell_splines['carbon_source'] == g[0]) &
+                                   (cell_splines['overexpression'] == g[5]) &
                                    (cell_splines['temperature_C'] == g[1]) &
                                    (cell_splines['inducer'] == g[2]) &
                                    (cell_splines['inducer_conc'] == g[3]) &
