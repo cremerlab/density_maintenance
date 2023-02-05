@@ -122,11 +122,8 @@ date,strain,overexpression,inducer_conc_ng_mL,carbon_source,od_600nm,od_595nm,di
 2022-03-05,wildtype,none,0,sorbitol,0.096,0.664,2,1,0.4,37
 2022-03-05,wildtype,none,0,glucoseCAA,0.39168,0.722,2,1,0.4,37
 2022-03-06,wildtype,none,0,sorbitol,0.128,0.81,2,2,0.4,37
-2022-03-06,wildtype,none,0,glucoseCAA,1.7,1.134,2,1,0.4,37
 2022-03-07,wildtype,none,0,sorbitol,0.126,0.928,2,3,0.4,37
-2022-03-07,wildtype,none,0,glucose,1.014,1.382,2,1,0.4,37
 2022-03-08,wildtype,none,0,sorbitol,0.10296,1.07,2,5,0.4,37
-2022-03-08,wildtype,none,0,glucose,0.7293,1.018,2,1,0.4,37
 2022-03-11,wildtype,none,0,glucose,0.32682,0.737,2,1,0.4,37
 2022-03-11,wildtype,none,0,glucoseCAA,0.46098,0.8,2,1,0.4,37
 2022-03-11,wildtype,none,0,glycerol,0.3861,0.844,2,1,0.4,37
