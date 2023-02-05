@@ -166,6 +166,7 @@ parameters {
     // Flow Cytometry Parameters
     // -------------------------------------------------------------------------
     real k_cells_per_biomass_tilde;  
+    real beta_0_tilde;
     real<lower=0> cells_per_biomass_sigma;
 
     // -------------------------------------------------------------------------
@@ -198,6 +199,7 @@ transformed parameters {
     // Literature data transformed parameters
     // -------------------------------------------------------------------------
     real<lower=0> drymass_mu = drymass_mu_tilde * sd(drymass) + mean(drymass);
+
     // -------------------------------------------------------------------------
     // Growth Rate Transformed Parameters
     // -------------------------------------------------------------------------

@@ -24,51 +24,52 @@ lit_data = pd.read_csv(
 
 # Restrict the datasets to wildtype
 bradford_prot_data = bradford_prot_data[
-    (bradford_prot_data['strain'] == 'wildtype') &
-    (bradford_prot_data['inducer_conc_ng_ml'] == 0)
-]
+    (bradford_prot_data['strain'] == 'wildtype')]
 growth_data = growth_data[growth_data['strain'] == 'wildtype']
 flow_data = flow_data[flow_data['strain'] == 'wildtype']
 flow_data = flow_data.groupby(['carbon_source', 'date', 'run_no'])[
     'cells_per_biomass'].mean().reset_index()
 
 # flow_data = flow_data[flow_data['cells_per_biomass'] > 1E6]
-size_data = size_data[(size_data['strain'] == 'wildtype')
-                      & (size_data['inducer_conc'] == 0) &
+size_data = size_data[(size_data['strain'] == 'wildtype') &
+                      #   & (size_data['inducer_conc_ng_ml'] == 0) &
                       (size_data['temperature_C'] == 37) &
                       (size_data['carbon_source'] != 'ezMOPS')]
+
+size_data.loc[size_data['inducer'] == 'noind', 'inducer'] = 'none'
 
 # Compile the inferential model
 model = cmdstanpy.CmdStanModel(
     stan_file='./stan_models/one-shot_semicomplete_inference.stan')
+
 # %%
 # Compute the necessary properties and idx groups
-bradford_prot_data['conv_factor'] = (bradford_prot_data['extraction_volume_ml'] *
-                                     bradford_prot_data['dilution_factor']) / (bradford_prot_data['od_600nm'] * bradford_prot_data['culture_volume_ml'])
+bradford_prot_data['conv_factor'] = (bradford_prot_data['extraction_volume_mL'] *
+                                     bradford_prot_data['dilution_factor']) / (bradford_prot_data['od_600nm'] * bradford_prot_data['culture_volume_mL'])
 
 bradford_prot_data['cond_idx'] = bradford_prot_data.groupby(
-    ['carbon_source']).ngroup() + 1
+    ['carbon_source', 'strain', 'overexpression', 'inducer_conc_ng_mL']).ngroup() + 1
 bradford_cal_data['brep_idx'] = bradford_cal_data.groupby(
     ['replicate', 'protein_standard']).ngroup() + 1
 
 # Hardcode the indexing for the growth data conditions
 growth_data['cond_idx'] = growth_data.groupby(
-    ['carbon_source'], sort=False).ngroup()
+    ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_ml'], sort=False).ngroup()
 
-growth_data.loc[growth_data['carbon_source'] == 'LB', 'cond_idx'] = 6
-
-
+# growth_data.loc[growth_data['carbon_source'] == 'LB', 'cond_idx'] = 6
 growth_data['brep_idx'] = growth_data.groupby(
-    ['carbon_source', 'date', 'run_no']).ngroup() + 1
+    ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_ml', 'run_idx']).ngroup() + 1
 
+# %%
 
 # Map flow cytometry data to appropriate carbon source index
-carb_idx_dict = {g[0]: g[1] for g, _ in growth_data[growth_data['elapsed_time_hr'] == 0].groupby([
+carb_idx_dict = {g[0]: g[1] for g, _ in growth_data[(growth_data['elapsed_time_hr'] == 0) & (growth_data['strain'] == 'wildtype') & (growth_data['overexpression'] == 'none') & (growth_data['inducer_conc_ng_ml'] == 0)].groupby([
     'carbon_source', 'cond_idx'])}
 flow_data['growth_idx'] = [carb_idx_dict[i]
                            for i in flow_data['carbon_source'].values]
 carb_idx = [v for _, v in carb_idx_dict.items()]
 
+#%%
 # Add identifying information to size data
 size_data['cond_idx'] = size_data.groupby(['carbon_source']).ngroup()
 size_data.loc[size_data['carbon_source'] == 'LB', 'cond_idx'] = 6
