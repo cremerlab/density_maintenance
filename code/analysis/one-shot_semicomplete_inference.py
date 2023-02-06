@@ -22,12 +22,21 @@ size_data = pd.read_csv(
 lit_data = pd.read_csv(
     '../../data/literature/Basan2015/Basan2015_drymass_protein_cellcount.csv')
 
-flow_data = flow_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc', 'date', 'run_no'])['cells_per_biomass'].mean().reset_index()
-# %%
+flow_data = flow_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc', 'date', 'run_no'])[
+    'cells_per_biomass'].mean().reset_index()
+
+flow_data = flow_data[flow_data['strain'] == 'wildtype']
+
 # Restrict to temperature = 37 and drop the minKO and d2 samples
 size_data = size_data[size_data['temperature_C'] == 37]
 size_data = size_data[size_data['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO',
                                                 'lpp14', 'lpp21'])].copy()
+# Drop size measurements with only one replicate
+# counted = size_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc']).count().reset_index()
+include = [d for _, d in size_data.groupby(
+    ['strain', 'carbon_source', 'overexpression', 'inducer_conc']) if len(d) > 1]
+size_data = pd.concat(include, sort=False)
+
 bradford_prot_data = bradford_prot_data[bradford_prot_data['strain'].isin(
     ['wildtype', 'malE-rbsB-fliC-KO', 'lpp14', 'lpp21'])].copy()
 bradford_prot_data['conv_factor'] = bradford_prot_data['dilution_factor'] * \
@@ -162,134 +171,10 @@ model = cmdstanpy.CmdStanModel(
 # %%
 _samples = model.sample(data_dict)
 samples = az.from_cmdstanpy(_samples)
-# # %%
 
-# # Restrict the datasets to wildtype
-# bradford_prot_data = bradford_prot_data[
-#     (bradford_prot_data['strain'] == 'wildtype')]
-# growth_data = growth_data[growth_data['strain'] == 'wildtype']
-# flow_data = flow_data[flow_data['strain'] == 'wildtype']
-# flow_data = flow_data.groupby(['carbon_source', 'date', 'run_no'])[
-#     'cells_per_biomass'].mean().reset_index()
-
-# # flow_data = flow_data[flow_data['cells_per_biomass'] > 1E6]
-# size_data = size_data[(size_data['strain'] == 'wildtype') &
-#                       #   & (size_data['inducer_conc_ng_ml'] == 0) &
-#                       (size_data['temperature_C'] == 37) &
-#                       (size_data['carbon_source'] != 'ezMOPS')]
-
-# size_data.loc[size_data['inducer'] == 'noind', 'inducer'] = 'none'
-
-# # Compile the inferential model
-# model = cmdstanpy.CmdStanModel(
-#     stan_file='./stan_models/one-shot_semicomplete_inference.stan')
-
-# # %%
-# # Compute the necessary properties and idx groups
-# bradford_prot_data['conv_factor'] = (bradford_prot_data['extraction_volume_mL'] *
-#                                      bradford_prot_data['dilution_factor']) / (bradford_prot_data['od_600nm'] * bradford_prot_data['culture_volume_mL'])
-
-# bradford_prot_data['cond_idx'] = bradford_prot_data.groupby(
-#     ['carbon_source', 'strain', 'overexpression', 'inducer_conc_ng_mL']).ngroup() + 1
-# bradford_cal_data['brep_idx'] = bradford_cal_data.groupby(
-#     ['replicate', 'protein_standard']).ngroup() + 1
-
-# # Hardcode the indexing for the growth data conditions
-# growth_data['cond_idx'] = growth_data.groupby(
-#     ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_ml'], sort=False).ngroup() + 1
-
-# # growth_data.loc[growth_data['carbon_source'] == 'LB', 'cond_idx'] = 6
-# growth_data['brep_idx'] = growth_data.groupby(
-#     ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_ml', 'run_idx']).ngroup() + 1
-
-# # %%
-
-# # Map flow cytometry data to appropriate carbon source index
-# carb_idx_dict = {g[0]: g[1] for g, _ in growth_data[(growth_data['elapsed_time_hr'] == 0) & (growth_data['strain'] == 'wildtype') & (growth_data['overexpression'] == 'none') & (growth_data['inducer_conc_ng_ml'] == 0)].groupby([
-#     'carbon_source', 'cond_idx'])}
-# flow_data['growth_idx'] = [carb_idx_dict[i]
-#                            for i in flow_data['carbon_source'].values]
-# carb_idx = [v for _, v in carb_idx_dict.items()]
-
-# # %%
-# # Add identifying information to size data
-# size_data['cond_idx'] = size_data.groupby(['carbon_source']).ngroup()
-# size_data.loc[size_data['carbon_source'] == 'LB', 'cond_idx'] = 6
-
-# # Define the data dictionary
-# data_dict = {
-#     # Bradford calibration curve inputs
-#     'J_cal_brep': bradford_cal_data['brep_idx'].max(),
-#     'N_cal_meas': len(bradford_cal_data),
-#     'cal_idx': bradford_cal_data['brep_idx'].values.astype(int),
-#     'concentration': bradford_cal_data['protein_conc_ug_ml'].values.astype(float),
-#     'cal_od': bradford_cal_data['od_595nm'].values.astype(float),
-
-#     # Protein quantification inputs
-#     'J_prot_cond': bradford_prot_data['cond_idx'].max(),
-#     'N_prot_meas': len(bradford_prot_data),
-#     'prot_idx': bradford_prot_data['cond_idx'].values.astype(int),
-#     'prot_od': bradford_prot_data['od_595nm'].values.astype(float),
-#     'od_conv_factor': bradford_prot_data['conv_factor'].values.astype(float),
-
-#     # Lit data
-#     'N_lit_meas': len(lit_data),
-#     'drymass': lit_data['dry_mass_fg'].values.astype(float),
-#     'lit_cells_per_biomass': lit_data['cell_count'].values.astype(float),
-#     'lit_growth_rate': lit_data['growth_rate_hr'].values.astype(float),
-
-#     # Growth curve inputs
-#     'J_growth_cond': growth_data['cond_idx'].max(),
-#     'J_growth_brep': growth_data['brep_idx'].max(),
-#     'N_growth_meas': len(growth_data),
-#     'growth_cond_idx': growth_data.groupby(['brep_idx'])['cond_idx'].min().astype(int),
-#     'growth_brep_idx': growth_data['brep_idx'].values.astype(int),
-#     'growth_time': growth_data['elapsed_time_hr'].values.astype(float),
-#     'growth_od': growth_data['od_600nm'].values.astype(float),
-
-#     # Flow cytometry inputs
-#     'N_cell_meas': len(flow_data),
-#     'cells_per_biomass': flow_data['cells_per_biomass'].values.astype(float),
-
-#     # Size inputs
-#     'J_size_cond': size_data['cond_idx'].max(),
-#     'N_size_meas': len(size_data),
-#     'size_idx': size_data['cond_idx'].values.astype(int),
-#     'mean_width': size_data['width_median'].values.astype(float),
-#     'mean_length': size_data['length'].values.astype(float),
-#     'mean_vol': size_data['volume'].values.astype(float),
-#     'mean_peri_vol': size_data['periplasm_volume'].values.astype(float),
-#     'mean_peri_vol_frac': size_data['periplasm_volume_fraction'].values.astype(float),
-#     'mean_sa': size_data['surface_area'].values.astype(float),
-#     'mean_sav': size_data['surface_to_volume'].values.astype(float),
-#     'mean_width_mean': size_data.groupby(['cond_idx'])['width_median'].mean().astype(float),
-#     'mean_width_std': size_data.groupby(['cond_idx'])['width_median'].std().astype(float),
-#     'mean_length_mean': size_data.groupby(['cond_idx'])['length'].mean().astype(float),
-#     'mean_length_std': size_data.groupby(['cond_idx'])['length'].std().astype(float),
-#     'mean_vol_mean': size_data.groupby(['cond_idx'])['volume'].mean().astype(float),
-#     'mean_vol_std': size_data.groupby(['cond_idx'])['volume'].std().astype(float),
-#     'mean_peri_vol_mean': size_data.groupby(['cond_idx'])['periplasm_volume'].mean().astype(float),
-#     'mean_peri_vol_std': size_data.groupby(['cond_idx'])['periplasm_volume'].std().astype(float),
-#     'mean_peri_vol_frac_mean': size_data.groupby(['cond_idx'])['periplasm_volume_fraction'].mean().astype(float),
-#     'mean_peri_vol_frac_std': size_data.groupby(['cond_idx'])['periplasm_volume_fraction'].std().astype(float),
-#     'mean_sa_mean': size_data.groupby(['cond_idx'])['surface_area'].mean().astype(float),
-#     'mean_sa_std': size_data.groupby(['cond_idx'])['surface_area'].std().astype(float),
-#     'mean_sav_mean': size_data.groupby(['cond_idx'])['surface_to_volume'].mean().astype(float),
-#     'mean_sav_std': size_data.groupby(['cond_idx'])['surface_to_volume'].std().astype(float),
-
-#     # Linking indices
-#     'cells_per_biomass_growth_idx': flow_data['growth_idx'].values.astype(int),
-#     'prot_cond_map': np.array([ind for ind in carb_idx if ind in bradford_prot_data['cond_idx'].values]).astype(int),
-
-# }
 
 # %%
-# Sample the model
-# _samples = model.sample(data=data_dict, show_console=True)
-# samples = az.from_cmdstanpy(_samples)
-
-# # %%
-# # Calibration curve ppc
+# Calibration curve ppc
 
 
 def compute_percentiles(df,
@@ -338,32 +223,32 @@ ppc_cmap_dict = {i: c for i, c in zip(
 
 # # %%
 # # Unpack the calbiration curve ppc
-# concs = bradford_cal_data['protein_conc_ug_ml'].values
-# cal_ppc_df = samples.posterior.od595_calib_rep.to_dataframe().reset_index()
-# for i, c in enumerate(concs):
-#     cal_ppc_df.loc[cal_ppc_df['od595_calib_rep_dim_0']
-#                    == i, 'protein_conc_ug_ml'] = c
+concs = bradford_cal_data['protein_conc_ug_ml'].values
+cal_ppc_df = samples.posterior.od595_calib_rep.to_dataframe().reset_index()
+for i, c in enumerate(concs):
+    cal_ppc_df.loc[cal_ppc_df['od595_calib_rep_dim_0']
+                   == i, 'protein_conc_ug_ml'] = c
 
 
-# # PPC for calibration curve
-# cal_ppc_percs = compute_percentiles(
-#     cal_ppc_df, 'od595_calib_rep', 'protein_conc_ug_ml')
-# cal_ppc_percs
+# PPC for calibration curve
+cal_ppc_percs = compute_percentiles(
+    cal_ppc_df, 'od595_calib_rep', 'protein_conc_ug_ml')
+cal_ppc_percs
 
-# fig, ax = plt.subplots(1, 1, figsize=(4, 4))
-# for i, (g, d) in enumerate(cal_ppc_percs.groupby('interval', sort=False)):
-#     ax.fill_between(d['protein_conc_ug_ml'], d['lower'], d['upper'],
-#                     color=ppc_cmap_dict[g], zorder=i+1, label=g)
+fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+for i, (g, d) in enumerate(cal_ppc_percs.groupby('interval', sort=False)):
+    ax.fill_between(d['protein_conc_ug_ml'], d['lower'], d['upper'],
+                    color=ppc_cmap_dict[g], zorder=i+1, label=g)
 
-# ax.plot(bradford_cal_data['protein_conc_ug_ml'], bradford_cal_data['od_595nm'], 'o', color=cor['primary_red'],
-#         label='measurement', ms=3, zorder=1000)
-# ax.legend()
-# ax.set_xlabel('protein concentration [µg / mL]')
-# ax.set_ylabel('OD$_{595nm}$ [a.u.]')
-# ax.set_title('Bradford assay calibration curve')
-# plt.tight_layout()
+ax.plot(bradford_cal_data['protein_conc_ug_ml'], bradford_cal_data['od_595nm'], 'o', color=cor['primary_red'],
+        label='measurement', ms=3, zorder=1000)
+ax.legend()
+ax.set_xlabel('protein concentration [µg / mL]')
+ax.set_ylabel('OD$_{595nm}$ [a.u.]')
+ax.set_title('Bradford assay calibration curve')
+plt.tight_layout()
 # plt.savefig('../../figures/mcmc/one-shot_calibration_curve_ppc.pdf')
-# # %%
+# %%
 
 # # PPC for bradford assay
 # prot_ppc_df = samples.posterior.od595_per_biomass_rep.to_dataframe().reset_index()
@@ -441,12 +326,13 @@ for i, (g, d) in enumerate(cpb_perc_df[cpb_perc_df['strain'] == 'wildtype'].grou
     # ax.plot(d['lower'], carb_loc[g[0]], 'o', color=ppc_cmap_dict[g[2]])
     # ax.plot(d['upper'], carb_loc[g[0]], 'o', color=ppc_cmap_dict[g[2]])
     ax.hlines(carb_loc[g[0]], d['lower'], d['upper'],
-      lw=100, color=ppc_cmap_dict[g[2]])
+              lw=10, color=ppc_cmap_dict[g[2]])
 # ax.set_xscale('log')
 
-for g, d in flow_data[flow_data['strain']=='wildtype'].groupby(['carbon_source']):
+for g, d in flow_data[flow_data['strain'] == 'wildtype'].groupby(['carbon_source']):
     ax.plot(d['cells_per_biomass'], carb_loc[g] + np.random.normal(0, 0.1, len(d)), 'o',
             color=cor['primary_red'], ms=4, zorder=1000)
+# %%
 # # ax.set_xlim([1E8, 5E9])
 # ax.set_yticks([1, 2, 3, 4, 5, 6])
 # ax.set_yticklabels(['acetate', 'sorbitol', 'glycerol',
@@ -580,6 +466,7 @@ for val in ['width_rep', 'length_rep', 'vol_rep', 'peri_vol_rep',
     # Compute percentiles
     perc_df = compute_percentiles(_ppc_df, f'{val}', ['carbon_source'])
     size_perc_df = pd.concat([size_perc_df, perc_df], sort=False)
+
 # %%
 fig, ax = plt.subplots(2, 4, figsize=(8, 4), sharey=True)
 labs = ['width [µm]', 'length [µm]', 'volume [µm$^3$]', 'periplasm volume\n[µm$^3$]',

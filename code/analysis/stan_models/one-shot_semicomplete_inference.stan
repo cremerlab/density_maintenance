@@ -73,20 +73,20 @@ data {
     vector<lower=0>[N_size] mean_sav;
 
     // Parameters for standardization
-    // vector<lower=0>[J_size_cond] mean_width_mean;
-    // vector<lower=0>[J_size_cond] mean_width_std;
-    // vector<lower=0>[J_size_cond] mean_length_mean;
-    // vector<lower=0>[J_size_cond] mean_length_std;
-    // vector<lower=0>[J_size_cond] mean_vol_mean;
-    // vector<lower=0>[J_size_cond] mean_vol_std;
-    // vector<lower=0>[J_size_cond] mean_peri_vol_mean;
-    // vector<lower=0>[J_size_cond] mean_peri_vol_std;
-    // vector<lower=0>[J_size_cond] mean_peri_vol_frac_mean;
-    // vector<lower=0>[J_size_cond] mean_peri_vol_frac_std;
-    // vector<lower=0>[J_size_cond] mean_sa_mean;
-    // vector<lower=0>[J_size_cond] mean_sa_std;
-    // vector<lower=0>[J_size_cond] mean_sav_mean;
-    // vector<lower=0>[J_size_cond] mean_sav_std;
+    vector<lower=0>[J_size_cond] mean_width_mean;
+    vector<lower=0>[J_size_cond] mean_width_std;
+    vector<lower=0>[J_size_cond] mean_length_mean;
+    vector<lower=0>[J_size_cond] mean_length_std;
+    vector<lower=0>[J_size_cond] mean_vol_mean;
+    vector<lower=0>[J_size_cond] mean_vol_std;
+    vector<lower=0>[J_size_cond] mean_peri_vol_mean;
+    vector<lower=0>[J_size_cond] mean_peri_vol_std;
+    vector<lower=0>[J_size_cond] mean_peri_vol_frac_mean;
+    vector<lower=0>[J_size_cond] mean_peri_vol_frac_std;
+    vector<lower=0>[J_size_cond] mean_sa_mean;
+    vector<lower=0>[J_size_cond] mean_sa_std;
+    vector<lower=0>[J_size_cond] mean_sav_mean;
+    vector<lower=0>[J_size_cond] mean_sav_std;
 
 //     // -------------------------------------------------------------------------
 //     // Linking Indices
@@ -100,7 +100,7 @@ transformed data{
     // Protein Quantification Transformations 
     // -------------------------------------------------------------------------
     // Standardize input data 
-    // vector[N_brad] log_prot_od = log(prot_od);
+    vector[N_brad] log_prot_od = log(prot_od);
 
     // -------------------------------------------------------------------------
     // Lit data transformations
@@ -115,18 +115,18 @@ transformed data{
     // -------------------------------------------------------------------------
     // Flow Cytometry Transformations
     // -------------------------------------------------------------------------
-    // vector[N_flow] log_billion_cells_per_biomass = log(cells_per_biomass ./ 1E9);
+    // vector[N_flow] log_billion_cells_per_biomass = log(1 / (cells_per_biomass ./ 1E9));
 
     // -------------------------------------------------------------------------
     // Size Measurement Transformations
     // -------------------------------------------------------------------------
-    // vector[N_size] mean_width_tilde = (mean_width - mean_width_mean[size_idx]) ./ mean_width_std[size_idx];
-    // vector[N_size] mean_length_tilde = (mean_length - mean_length_mean[size_idx]) ./ mean_length_std[size_idx];
-    // vector[N_size] mean_vol_tilde = (mean_vol - mean_vol_mean[size_idx]) ./ mean_vol_std[size_idx];
-    // vector[N_size] mean_peri_vol_tilde = (mean_peri_vol - mean_peri_vol_mean[size_idx]) ./ mean_peri_vol_std[size_idx];
-    // vector[N_size] mean_peri_vol_frac_tilde = (mean_peri_vol_frac - mean_peri_vol_frac_mean[size_idx]) ./ mean_peri_vol_frac_std[size_idx];
-    // vector[N_size] mean_sa_tilde = (mean_sa - mean_sa_mean[size_idx]) ./ mean_sa_std[size_idx];
-    // vector[N_size] mean_sav_tilde = (mean_sav - mean_sav_mean[size_idx]) ./ mean_sav_std[size_idx];    
+    vector[N_size] mean_width_tilde = (mean_width - mean_width_mean[size_idx]) ./ mean_width_std[size_idx];
+    vector[N_size] mean_length_tilde = (mean_length - mean_length_mean[size_idx]) ./ mean_length_std[size_idx];
+    vector[N_size] mean_vol_tilde = (mean_vol - mean_vol_mean[size_idx]) ./ mean_vol_std[size_idx];
+    vector[N_size] mean_peri_vol_tilde = (mean_peri_vol - mean_peri_vol_mean[size_idx]) ./ mean_peri_vol_std[size_idx];
+    vector[N_size] mean_peri_vol_frac_tilde = (mean_peri_vol_frac - mean_peri_vol_frac_mean[size_idx]) ./ mean_peri_vol_frac_std[size_idx];
+    vector[N_size] mean_sa_tilde = (mean_sa - mean_sa_mean[size_idx]) ./ mean_sa_std[size_idx];
+    vector[N_size] mean_sav_tilde = (mean_sav - mean_sav_mean[size_idx]) ./ mean_sav_std[size_idx];    
 }
 
 
@@ -135,13 +135,13 @@ parameters {
     // Protein Quantification Parameters
     // -------------------------------------------------------------------------
     // Hyperparameters for calibration
-    // real<lower=0> cal_slope;
-    // real<lower=0> cal_intercept;
-    // real<lower=0> cal_sigma;
+    real<lower=0> cal_slope;
+    real<lower=0> cal_intercept;
+    real<lower=0> cal_sigma;
 
-    // // Parameters for protein measurements 
-    // vector[J_brad_cond] log_prot_per_biomass_mu;
-    // vector<lower=0>[J_brad_cond] od595_per_biomass_sigma;
+    // Parameters for protein measurements 
+    vector[J_brad_cond] log_prot_per_biomass_mu;
+    vector<lower=0>[J_brad_cond] od595_per_biomass_sigma;
 
     // -------------------------------------------------------------------------
     // Lit data parameters
@@ -166,26 +166,26 @@ parameters {
     // -------------------------------------------------------------------------
     // Flow Cytometry Parameters
     // -------------------------------------------------------------------------
-    real<lower=0> biomass_per_volume;  
+    // real biomass_per_volume;  
     // real biomass_per_vol_intercept;
-    real<lower=0> cells_per_biomass_sigma;
+    // real<lower=0> cells_per_biomass_sigma;
 
     // -------------------------------------------------------------------------
     // Size parameters
     // -------------------------------------------------------------------------
-    vector[J_size_cond] width_mu;
+    vector[J_size_cond] width_mu_tilde;
     vector<lower=0>[J_size_cond] width_sigma;
-    vector[J_size_cond] length_mu;
+    vector[J_size_cond] length_mu_tilde;
     vector<lower=0>[J_size_cond] length_sigma;
-    vector[J_size_cond] vol_mu;
+    vector[J_size_cond] vol_mu_tilde;
     vector<lower=0>[J_size_cond] vol_sigma;
-    vector[J_size_cond] peri_vol_mu;
+    vector[J_size_cond] peri_vol_mu_tilde;
     vector<lower=0>[J_size_cond] peri_vol_sigma;
-    vector[J_size_cond] peri_vol_frac_mu;
+    vector[J_size_cond] peri_vol_frac_mu_tilde;
     vector<lower=0>[J_size_cond] peri_vol_frac_sigma;
-    vector[J_size_cond] sa_mu;
+    vector[J_size_cond] sa_mu_tilde;
     vector<lower=0>[J_size_cond] sa_sigma;
-    vector[J_size_cond] sav_mu;
+    vector[J_size_cond] sav_mu_tilde;
     vector<lower=0>[J_size_cond] sav_sigma;
 
 }
@@ -194,17 +194,17 @@ transformed parameters {
     // // -------------------------------------------------------------------------
     // // Protein Quantification Transformed Parameters
     // // -------------------------------------------------------------------------
-    // vector<lower=0>[J_prot_cond] prot_per_biomass_mu = exp(log_prot_per_biomass_mu);
+    vector<lower=0>[J_brad_cond] prot_per_biomass_mu = exp(log_prot_per_biomass_mu);
 
     // -------------------------------------------------------------------------
     // Literature data transformed parameters
     // -------------------------------------------------------------------------
-    real<lower=0> drymass_mu = drymass_mu_tilde * sd(drymass) + mean(drymass);
+    // real<lower=0> drymass_mu = drymass_mu_tilde * sd(drymass) + mean(drymass);
 
     // -------------------------------------------------------------------------
     // Flow data transformed parameters
     // -------------------------------------------------------------------------
-    real<lower=0> flow_slope = biomass_per_volume * drymass_mu * 1E9;    
+    // real  flow_slope = biomass_per_volume * drymass_mu;    
 
     // // -------------------------------------------------------------------------
     // // Growth Rate Transformed Parameters
@@ -215,13 +215,13 @@ transformed parameters {
     // // -------------------------------------------------------------------------
     // Size Measurement Transformed Parameters
     // -------------------------------------------------------------------------
-    // vector[J_size_cond] width_mu = mean_width_std .* width_mu_tilde + mean_width_mean;
-    // vector[J_size_cond] length_mu = mean_length_std .* length_mu_tilde + mean_length_mean;
-    // vector[J_size_cond] vol_mu = mean_vol_std .* vol_mu_tilde + mean_vol_mean;
-    // vector[J_size_cond] peri_vol_mu = mean_peri_vol_std .* peri_vol_mu_tilde + mean_peri_vol_mean;
-    // vector[J_size_cond] peri_vol_frac_mu = mean_peri_vol_frac_std .* peri_vol_frac_mu_tilde + mean_peri_vol_frac_mean;
-    // vector[J_size_cond] sa_mu = mean_sa_std .* sa_mu_tilde + mean_sa_mean;
-    // vector[J_size_cond] sav_mu = mean_sav_std .* sav_mu_tilde + mean_sav_mean;
+    vector[J_size_cond] width_mu = mean_width_std .* width_mu_tilde + mean_width_mean;
+    vector[J_size_cond] length_mu = mean_length_std .* length_mu_tilde + mean_length_mean;
+    vector[J_size_cond] vol_mu = mean_vol_std .* vol_mu_tilde + mean_vol_mean;
+    vector[J_size_cond] peri_vol_mu = mean_peri_vol_std .* peri_vol_mu_tilde + mean_peri_vol_mean;
+    vector[J_size_cond] peri_vol_frac_mu = mean_peri_vol_frac_std .* peri_vol_frac_mu_tilde + mean_peri_vol_frac_mean;
+    vector[J_size_cond] sa_mu = mean_sa_std .* sa_mu_tilde + mean_sa_mean;
+    vector[J_size_cond] sav_mu = mean_sav_std .* sav_mu_tilde + mean_sav_mean;
 
     // -------------------------------------------------------------------------
     // Cells per Biomass Transformed Parameters
@@ -233,24 +233,24 @@ transformed parameters {
 }
 
 model {
-    // // -------------------------------------------------------------------------
-    // // Protein Quantification Model
-    // // -------------------------------------------------------------------------
-    // // Hyper priors
-    // cal_slope ~ normal(0, 0.1);
-    // cal_intercept ~ normal(0, 0.1);
+    // -------------------------------------------------------------------------
+    // Protein Quantification Model
+    // -------------------------------------------------------------------------
+    // Hyper priors
+    cal_slope ~ normal(0, 0.1);
+    cal_intercept ~ normal(0, 0.1);
 
 
-    // // Low-level priors
-    // cal_sigma ~ normal(0, 1);
+    // Low-level priors
+    cal_sigma ~ normal(0, 1);
 
-    // // Measurement priors
-    // log_prot_per_biomass_mu ~ std_normal();
-    // od595_per_biomass_sigma ~ std_normal();
+    // Measurement priors
+    log_prot_per_biomass_mu ~ std_normal();
+    od595_per_biomass_sigma ~ std_normal();
 
-    // // Likelihoods
-    // cal_od ~ normal(cal_intercept + cal_slope .* concentration, cal_sigma);
-    // log_prot_od ~ cauchy(log(cal_intercept + cal_slope * prot_per_biomass_mu[brad_idx]./od_conv_factor), od595_per_biomass_sigma[brad_idx]);
+    // Likelihoods
+    cal_od ~ normal(cal_intercept + cal_slope .* concentration, cal_sigma);
+    log_prot_od ~ cauchy(log(cal_intercept + cal_slope * prot_per_biomass_mu[brad_idx]./od_conv_factor), od595_per_biomass_sigma[brad_idx]);
 
     // // -------------------------------------------------------------------------
     // // Literature data model
@@ -276,55 +276,55 @@ model {
     // Flow cytometry model
     // -------------------------------------------------------------------------
     // Priors
-    biomass_per_volume ~ std_normal();
-    cells_per_biomass_sigma ~ std_normal();
+    // biomass_per_volume ~ normal(0, 0.1);
+    // cells_per_biomass_sigma ~ std_normal();
 
     // Likelihood
-    cells_per_biomass ~ normal(flow_slope .* vol_mu[flow_link_idx], cells_per_biomass_sigma);
+    // log_billion_cells_per_biomass ~ normal(log(flow_slope .* vol_mu[flow_link_idx]), cells_per_biomass_sigma);
     // log_billion_cells_per_biomass ~ cauchy(log(k_cells_per_biomass_tilde * vol_mu[cells_per_biomass_growth_idx]), cells_per_biomass_sigma);
  
     // -------------------------------------------------------------------------
     // Size model 
     // -------------------------------------------------------------------------
     // Size priors
-    width_mu ~ std_normal();
+    width_mu_tilde ~ std_normal();
     width_sigma ~ normal(0, 0.1);
-    length_mu ~ std_normal();
+    length_mu_tilde ~ std_normal();
     length_sigma ~ normal(0, 0.1);
-    vol_mu ~ std_normal();
+    vol_mu_tilde ~ std_normal();
     vol_sigma ~ normal(0, 0.1);
-    peri_vol_mu ~ std_normal();
+    peri_vol_mu_tilde ~ std_normal();
     peri_vol_sigma ~ normal(0, 0.1);
-    peri_vol_frac_mu ~ std_normal();
+    peri_vol_frac_mu_tilde ~ std_normal();
     peri_vol_frac_sigma ~ normal(0, 0.1);
-    sa_mu ~ std_normal();
+    sa_mu_tilde ~ std_normal();
     sa_sigma ~ normal(0, 0.1);
-    sav_mu ~ std_normal();
+    sav_mu_tilde ~ std_normal();
     sav_sigma ~ normal(0, 0.1);
 
     // Likelihoods
-    mean_width ~ normal(width_mu[size_idx], width_sigma[size_idx]);
-    mean_length ~ normal(length_mu[size_idx], length_sigma[size_idx]);
-    mean_vol  ~ normal(vol_mu[size_idx],  vol_sigma[size_idx]);
-    mean_peri_vol ~ normal(peri_vol_mu[size_idx], peri_vol_sigma[size_idx]);
-    mean_peri_vol_frac ~ normal(peri_vol_frac_mu[size_idx], peri_vol_frac_sigma[size_idx]);
-    mean_sa ~ normal(sa_mu[size_idx], sa_sigma[size_idx]);
-    mean_sav ~ normal(sav_mu[size_idx], sav_sigma[size_idx]);
+    mean_width_tilde ~ normal(width_mu_tilde[size_idx], width_sigma[size_idx]);
+    mean_length_tilde ~ normal(length_mu_tilde[size_idx], length_sigma[size_idx]);
+    mean_vol_tilde  ~ normal(vol_mu_tilde[size_idx],  vol_sigma[size_idx]);
+    mean_peri_vol_tilde ~ normal(peri_vol_mu_tilde[size_idx], peri_vol_sigma[size_idx]);
+    mean_peri_vol_frac_tilde ~ normal(peri_vol_frac_mu_tilde[size_idx], peri_vol_frac_sigma[size_idx]);
+    mean_sa_tilde ~ normal(sa_mu_tilde[size_idx], sa_sigma[size_idx]);
+    mean_sav_tilde ~ normal(sav_mu_tilde[size_idx], sav_sigma[size_idx]);
 }
 
 generated quantities { 
-    // // -------------------------------------------------------------------------
-    // // Protein Quantification PPC
-    // // -------------------------------------------------------------------------
-    // vector[N_prot_meas] od595_per_biomass_rep;
-    // vector[N_cal_meas] od595_calib_rep; 
-    // //Posterior Predictive Checks
-    // for (i in 1:N_brad) {
-    //     od595_per_biomass_rep[i] = exp(cauchy_rng(log(cal_intercept + cal_slope * prot_per_biomass_mu[brad_idx[i]] / od_conv_factor[i]), od595_per_biomass_sigma[brad_idx[i]])) * od_conv_factor[i];
-    // }
-    // for (i in 1:N_cal_meas) { 
-    //     od595_calib_rep[i] = normal_rng(cal_intercept + cal_slope * concentration[i] , cal_sigma);
-    // } 
+    // -------------------------------------------------------------------------
+    // Protein Quantification PPC
+    // -------------------------------------------------------------------------
+    vector[N_brad] od595_per_biomass_rep;
+    vector[N_cal_meas] od595_calib_rep; 
+    //Posterior Predictive Checks
+    for (i in 1:N_brad) {
+        od595_per_biomass_rep[i] = exp(cauchy_rng(log(cal_intercept + cal_slope * prot_per_biomass_mu[brad_idx[i]] / od_conv_factor[i]), od595_per_biomass_sigma[brad_idx[i]])) * od_conv_factor[i];
+    }
+    for (i in 1:N_cal_meas) { 
+        od595_calib_rep[i] = normal_rng(cal_intercept + cal_slope * concentration[i] , cal_sigma);
+    } 
 
     // // -------------------------------------------------------------------------
     // // Lit data ppc
@@ -345,33 +345,33 @@ generated quantities {
     // -------------------------------------------------------------------------
     // Cells Per Biomass PPC
     // -------------------------------------------------------------------------
-    vector[N_flow] cells_per_biomass_rep;
-    for (i in 1:N_flow) {
-        cells_per_biomass_rep[i] = normal_rng(flow_slope * vol_mu[flow_link_idx[i]], cells_per_biomass_sigma);
+    // vector[N_flow] cells_per_biomass_rep;
+    // for (i in 1:N_flow) {
+    //     cells_per_biomass_rep[i] = 1E9 * exp(1 / normal_rng(log(flow_slope * vol_mu[flow_link_idx[i]]), cells_per_biomass_sigma));
         
         // og(beta_0_tilde - k_cells_per_biomass_tilde * vol_mu[cells_per_biomass_growth_idx[i]]), cells_per_biomass_sigma));
-    }
-
-    // // -------------------------------------------------------------------------
-    // // Size PPC
-    // // -------------------------------------------------------------------------
-    // vector[N_size_meas] width_rep;
-    // vector[N_size_meas] length_rep;
-    // vector[N_size_meas] vol_rep;
-    // vector[N_size_meas] peri_vol_rep;
-    // vector[N_size_meas] peri_vol_frac_rep;
-    // vector[N_size_meas] sa_rep;
-    // vector[N_size_meas] sav_rep;
-
-    // for (i in 1:N_size_meas) {
-    //     width_rep[i] = mean_width_mean[size_idx[i]] + mean_width_std[size_idx[i]] * normal_rng(width_mu_tilde[size_idx[i]], width_sigma[size_idx[i]]); 
-    //     length_rep[i] = mean_length_mean[size_idx[i]] + mean_length_std[size_idx[i]] * normal_rng(length_mu_tilde[size_idx[i]], length_sigma[size_idx[i]]); 
-    //     vol_rep[i] = mean_vol_mean[size_idx[i]] + mean_vol_std[size_idx[i]] * normal_rng(vol_mu_tilde[size_idx[i]], vol_sigma[size_idx[i]]); 
-    //     peri_vol_rep[i] = mean_peri_vol_mean[size_idx[i]] + mean_peri_vol_std[size_idx[i]] * normal_rng(peri_vol_mu_tilde[size_idx[i]], peri_vol_sigma[size_idx[i]]); 
-    //     peri_vol_frac_rep[i] = mean_peri_vol_frac_mean[size_idx[i]] + mean_peri_vol_frac_std[size_idx[i]] *normal_rng(peri_vol_frac_mu_tilde[size_idx[i]], peri_vol_frac_sigma[size_idx[i]]); 
-    //     sa_rep[i] = mean_sa_mean[size_idx[i]] + mean_sa_std[size_idx[i]] * normal_rng(sa_mu_tilde[size_idx[i]], sa_sigma[size_idx[i]]); 
-    //     sav_rep[i] = mean_sav_mean[size_idx[i]] + mean_sav_std[size_idx[i]] * normal_rng(sav_mu_tilde[size_idx[i]], sav_sigma[size_idx[i]]); 
     // }
+
+    // -------------------------------------------------------------------------
+    // Size PPC
+    // -------------------------------------------------------------------------
+    vector[N_size] width_rep;
+    vector[N_size] length_rep;
+    vector[N_size] vol_rep;
+    vector[N_size] peri_vol_rep;
+    vector[N_size] peri_vol_frac_rep;
+    vector[N_size] sa_rep;
+    vector[N_size] sav_rep;
+
+    for (i in 1:N_size) {
+        width_rep[i] = mean_width_mean[size_idx[i]] + mean_width_std[size_idx[i]] * normal_rng(width_mu_tilde[size_idx[i]], width_sigma[size_idx[i]]); 
+        length_rep[i] = mean_length_mean[size_idx[i]] + mean_length_std[size_idx[i]] * normal_rng(length_mu_tilde[size_idx[i]], length_sigma[size_idx[i]]); 
+        vol_rep[i] = mean_vol_mean[size_idx[i]] + mean_vol_std[size_idx[i]] * normal_rng(vol_mu_tilde[size_idx[i]], vol_sigma[size_idx[i]]); 
+        peri_vol_rep[i] = mean_peri_vol_mean[size_idx[i]] + mean_peri_vol_std[size_idx[i]] * normal_rng(peri_vol_mu_tilde[size_idx[i]], peri_vol_sigma[size_idx[i]]); 
+        peri_vol_frac_rep[i] = mean_peri_vol_frac_mean[size_idx[i]] + mean_peri_vol_frac_std[size_idx[i]] *normal_rng(peri_vol_frac_mu_tilde[size_idx[i]], peri_vol_frac_sigma[size_idx[i]]); 
+        sa_rep[i] = mean_sa_mean[size_idx[i]] + mean_sa_std[size_idx[i]] * normal_rng(sa_mu_tilde[size_idx[i]], sa_sigma[size_idx[i]]); 
+        sav_rep[i] = mean_sav_mean[size_idx[i]] + mean_sav_std[size_idx[i]] * normal_rng(sav_mu_tilde[size_idx[i]], sav_sigma[size_idx[i]]); 
+    }
 
     // // -------------------------------------------------------------------------
     // // Compute properties

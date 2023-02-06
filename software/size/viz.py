@@ -690,3 +690,45 @@ def diagnostic_growth_viz(samples,
     # save figure
     plt.savefig(f'{out}_growth_ppc.pdf', bbox_inches='tight')
     plt.close()
+
+
+
+
+
+def compute_percentiles(df,
+                        quantity,
+                        groupby,
+                        lower_bounds=[5, 10, 15, 20, 25, 30, 35, 40, 45, ],
+                        upper_bounds=[95, 90, 85, 80, 75, 70, 65, 60, 55],
+                        interval_labels=['90%', '80%', '70%', '60%',
+                                         '50%', '40%', '30%', '20%', '10%']):
+
+    # Allow flexibility in what quantities are being supplied
+    if type(quantity) != str:
+        if type(quantity) != list:
+            raise TypeError("`quantity` must be a `str` or list of `str.`")
+    else:
+        quantity = [quantity]
+
+    # Instantiate the dataframe and loop through every group
+    perc_df = pd.DataFrame([])
+    if type(groupby) != list:
+        groupby = [groupby]
+
+    for g, d in df.groupby(groupby):
+        if type(g) != tuple:
+            g = (g,)
+        # Compute the percentiles for different quantities
+        for q in quantity:
+            lower = np.percentile(d[f'{q}'].values, lower_bounds)
+            upper = np.percentile(d[f'{q}'].values, upper_bounds)
+            _df = pd.DataFrame(np.array([lower, upper]).T, columns=[
+                               'lower', 'upper'])
+            _df['quantity'] = q
+            _df['interval'] = interval_labels
+
+            # Add the grouping informaton
+            for i in range(len(groupby)):
+                _df[groupby[i]] = g[i]
+            perc_df = pd.concat([perc_df, _df], sort=False)
+    return perc_df
