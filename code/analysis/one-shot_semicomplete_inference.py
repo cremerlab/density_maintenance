@@ -175,8 +175,6 @@ samples = az.from_cmdstanpy(_samples)
 
 # %%
 # Calibration curve ppc
-
-
 def compute_percentiles(df,
                         quantity,
                         groupby,
@@ -261,26 +259,26 @@ plt.tight_layout()
 
 # prot_ppc_df
 
-# # Compute the percentiles
-# prot_ppc_percs = compute_percentiles(
-#     prot_ppc_df, 'od595_per_biomass_rep', 'carbon_source')
+# Compute the percentiles
+prot_ppc_percs = compute_percentiles(
+    prot_ppc_df, 'od595_per_biomass_rep', 'carbon_source')
 
-# # Plot the PPC under the measurements
-# fig, ax = plt.subplots(1, 1, figsize=(4, 2))
-# for i, (g, d) in enumerate(prot_ppc_percs.groupby(['carbon_source', 'interval'], sort=False)):
-#     ax.hlines(carb_loc[g[0]], d['lower'], d['upper'],
-#               color=ppc_cmap_dict[g[1]], lw=15, zorder=i)
+# Plot the PPC under the measurements
+fig, ax = plt.subplots(1, 1, figsize=(4, 2))
+for i, (g, d) in enumerate(prot_ppc_percs.groupby(['carbon_source', 'interval'], sort=False)):
+    ax.hlines(carb_loc[g[0]], d['lower'], d['upper'],
+              color=ppc_cmap_dict[g[1]], lw=15, zorder=i)
 
-# for g, d in bradford_prot_data.groupby(['carbon_source']):
-#     ax.plot(d['od_595nm'] * d['conv_factor'], carb_loc[g] + np.random.normal(0, 0.01,
-#             len(d)), 'o', ms=3, color=cor['primary_red'], zorder=1000)
+for g, d in bradford_prot_data.groupby(['carbon_source']):
+    ax.plot(d['od_595nm'] * d['conv_factor'], carb_loc[g] + np.random.normal(0, 0.01,
+            len(d)), 'o', ms=3, color=cor['primary_red'], zorder=1000)
 
-# _ = ax.set_yticks(list(carb_loc.values())[:-1])
-# _ = ax.set_yticklabels(list(carb_loc.keys())[:-1])
-# _ = ax.set_xlabel('OD$_{595nm}$ per biomass')
-# ax.set_title('Periplasmic protein quantification measurements')
-# plt.tight_layout()
-# plt.savefig('../../figures/mcmc/one-shot_periprot_quantification_ppc.pdf')
+_ = ax.set_yticks(list(carb_loc.values())[:-1])
+_ = ax.set_yticklabels(list(carb_loc.keys())[:-1])
+_ = ax.set_xlabel('OD$_{595nm}$ per biomass')
+ax.set_title('Periplasmic protein quantification measurements')
+plt.tight_layout()
+plt.savefig('../../figures/mcmc/one-shot_periprot_quantification_ppc.pdf')
 
 
 # # %%

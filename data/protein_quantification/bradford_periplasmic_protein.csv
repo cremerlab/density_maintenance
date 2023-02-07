@@ -88,8 +88,8 @@ date,strain,overexpression,inducer_conc_ng_mL,carbon_source,od_600nm,od_595nm,di
 2022-07-20,lpp14,none,0,glycerol,0.3276,0.788,2,1,0.4,37
 2022-07-20,lpp14,none,0,sorbitol,0.4017,0.996,2,1,0.4,37
 2022-07-20,lpp14,none,0,acetate,0.25116,0.81,2,1,0.4,37
-2021-01-24,rbsOE,rbsB,30,glucoseCAA,0.33696,0.78,2,1,0.4,37
-2021-01-24,rbsOE,rbsB,100,glucoseCAA,0.34242,0.834,2,1,0.4,37
+2021-01-24,wildtype,rbsB,30,glucoseCAA,0.33696,0.78,2,1,0.4,37
+2021-01-24,wildtype,rbsB,100,glucoseCAA,0.34242,0.834,2,1,0.4,37
 2020-09-23,wildtype,none,0,glucose,0.38142,0.841,2,1,0.4,37
 2020-09-23,wildtype,none,0,acetate,0.17706,0.826,2,1,0.4,37
 2020-09-29,wildtype,none,0,acetate,0.21918,0.835,2,1,0.4,37

@@ -237,12 +237,12 @@ model {
     // Protein Quantification Model
     // -------------------------------------------------------------------------
     // Hyper priors
-    cal_slope ~ normal(0, 0.1);
-    cal_intercept ~ normal(0, 0.1);
+    cal_slope ~ std_normal();
+    cal_intercept ~ std_normal();
 
 
     // Low-level priors
-    cal_sigma ~ normal(0, 1);
+    cal_sigma ~ std_normal();
 
     // Measurement priors
     log_prot_per_biomass_mu ~ std_normal();
