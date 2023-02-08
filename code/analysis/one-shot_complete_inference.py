@@ -18,7 +18,7 @@ model = cmdstanpy.CmdStanModel(
 cal_data = pd.read_csv(
     '../../data/protein_quantification/bradford_calibration_curve.csv')
 brad_data = pd.read_csv(
-    '../../data/protein_quantification/bradford_periplasmic_protein.csv')
+    '../../data/protein_quantification/bradford_periplasmic_protein_v2.csv')
 size_data = pd.read_csv(
     '../../data/summaries/summarized_size_measurements.csv')
 biomass_data = pd.read_csv(
@@ -258,27 +258,29 @@ for g, d in noind_frac.groupby(['strain', 'carbon_source']):
     frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
     for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
         ax.hlines(1/width10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[0]][_g],
-                  zorder=i + 1, label='__nolegend__')
+                  zorder=i+1, label='__nolegend__')
 
     for i, (_g, _d) in enumerate(_noind_width.groupby(['interval'], sort=False)):
         ax.vlines(frac10, 1/_d['lower'], 1/_d['upper'], lw=2, color=cmaps[g[0]][_g],
                   zorder=i + 1, label='__nolegend__')
 
-ind_width = width_perc[(width_perc['inducer_conc'] > 0) & (
+ind_width = width_perc[(width_perc['overexpression'] != 'none') & (
     width_perc['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO']))]
-ind_frac = frac_perc[(frac_perc['inducer_conc'] > 0) & (
+ind_frac = frac_perc[(frac_perc['inducer_conc'] != 'none') & (
     frac_perc['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO']))]
 
 for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc']):
-    # if g[0] == 'wildtype':
-    # continue
-    if (g[-1] == 50) & (g[2] == 'rbsB'):
+    if g[0] == 'wildtype':
+        continue
+    if (g[2] != 'rbsB'):
         continue
 
     _ind_width = ind_width[(ind_width['strain'] == g[0]) & (
         ind_width['carbon_source'] == g[1]) & (ind_width['overexpression'] == g[2]) &
         (ind_width['inducer_conc'] == g[3])]
-
+    if (len(_ind_width) == 0):
+        continue
+    print(g)
     # find the x,y positions
     width10 = _ind_width[_ind_width['interval']
                          == '10%'][['lower', 'upper']].values.mean()
@@ -305,7 +307,7 @@ ax.plot([], [], '-', lw=1, color=cor['primary_purple'], label='malE OE in d3')
 ax.plot([], [], '-', lw=1, color=cor['primary_black'], label='lacZ OE in WT')
 
 # ax.set_ylim([0.6, 2.5])
-ax.set_xlim([0, 0.05])
+# ax.set_xlim([0, 0.05])
 ax.set_xlabel('$M_{peri} / M_{biomass}$')
 ax.set_ylabel('width$^{-1}$ [µm$^{-1}$]')
 ax.plot(phi_range, 1/pred, 'k-', lw=2)
