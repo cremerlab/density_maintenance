@@ -13,7 +13,8 @@ data {
     int<lower=1> N_brad;  // Total number of bradford measurements
     int<lower=1> J_brad_cond; // Total number of unique conditions
     array[N_brad] int<lower=1, upper=J_brad_cond> brad_cond_idx; // ID vector
-    vector<lower=0>[N_brad] brad_od; // OD595 measurements per sample
+    vector<lower=0>[N_brad] brad_od595; // OD595 measurements per sample
+    vector<lower=0>[N_brad] brad_od600; // OD595 measurements per sample
     vector<lower=0>[N_brad] conv_factor; // Conversion factor from protein per biomass to OD
 
     //--------------------------------------------------------------------------
@@ -40,7 +41,7 @@ transformed data {
     // -------------------------------------------------------------------------
     // Bradford Assay Protein Measurements
     // -------------------------------------------------------------------------
-    vector[N_brad] log_brad_od = log(brad_od);
+    // vector[N_brad] log_brad_od = log(brad_od);
 
 
     // -------------------------------------------------------------------------
@@ -124,7 +125,8 @@ model {
     od595_per_biomass_sigma ~ std_normal();
 
     // Likelihood
-    log_brad_od ~ cauchy(log(cal_intercept + (cal_slope ./ conv_factor) .* prot_per_biomass_mu[brad_cond_idx]), od595_per_biomass_sigma[brad_cond_idx]);
+    (brad_od595 - cal_intercept)./brad_od600  ~ cauchy(cal_slope .* prot_per_biomass_mu[brad_cond_idx] ./ conv_factor[brad_cond_idx], od595_per_biomass_sigma[brad_cond_idx]);
+    // log_brad_od ~ cauchy(log(cal_intercept + (cal_slope * conv_factor) .* prot_per_biomass_mu[brad_cond_idx]), od595_per_biomass_sigma[brad_cond_idx]);
 
     // -------------------------------------------------------------------------
     // Size Measurements
@@ -169,15 +171,15 @@ generated quantities {
     // -------------------------------------------------------------------------
     vector[N_cal] od595_calib_rep; 
     for (i in 1:N_cal) { 
-        od595_calib_rep[i] = cauchy_rng(cal_intercept + cal_slope * concentration[i] , cal_sigma);
+        od595_calib_rep[i] = normal_rng(cal_intercept + cal_slope * concentration[i] , cal_sigma);
     } 
 
     // -------------------------------------------------------------------------
     // Bradford Assay Protein Measurements
     // -------------------------------------------------------------------------
-    vector<lower=0>[N_brad] od595_brad_rep; 
+    vector[N_brad] od595_brad_rep; 
     for (i in 1:N_brad) { 
-        od595_brad_rep[i] = conv_factor[i] * exp(normal_rng(log(cal_intercept + (cal_slope / conv_factor[i]) * prot_per_biomass_mu[brad_cond_idx[i]]), od595_per_biomass_sigma[brad_cond_idx[i]]));
+        od595_brad_rep[i] =cal_intercept + brad_od600[i] * cauchy_rng(cal_slope * prot_per_biomass_mu[brad_cond_idx[i]] ./ conv_factor[i], od595_per_biomass_sigma[brad_cond_idx[i]]);
 
     }   
 

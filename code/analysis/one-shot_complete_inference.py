@@ -43,7 +43,7 @@ brad_data['cond_idx'] = brad_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']).ngroup() + 1
 brad_data['conv_factor'] = brad_data['dilution_factor'] * \
     brad_data['extraction_volume_mL'] / \
-    (brad_data['od_600nm'] * brad_data['culture_volume_mL'])
+    (brad_data['culture_volume_mL'])
 brad_data['od_per_biomass'] = brad_data['od_595nm'] * brad_data['conv_factor']
 
 # Add indexing to the size data
@@ -59,7 +59,8 @@ data_dict = {'N_cal': len(cal_data),
              'N_brad': len(brad_data),
              'J_brad_cond': brad_data['cond_idx'].max(),
              'brad_cond_idx': brad_data['cond_idx'].values.astype(int),
-             'brad_od': brad_data['od_595nm'].values.astype(float),
+             'brad_od595': brad_data['od_595nm'].values.astype(float),
+             'brad_od600': brad_data['od_600nm'].values.astype(float),
              'conv_factor': brad_data['conv_factor'].values.astype(float),
 
              'N_size': len(size_data),
@@ -269,29 +270,30 @@ ind_width = width_perc[(width_perc['overexpression'] != 'none') & (
 ind_frac = frac_perc[(frac_perc['inducer_conc'] != 'none') & (
     frac_perc['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO']))]
 
-for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc']):
-    if g[0] == 'wildtype':
-        continue
-    if (g[2] != 'rbsB'):
-        continue
 
-    _ind_width = ind_width[(ind_width['strain'] == g[0]) & (
-        ind_width['carbon_source'] == g[1]) & (ind_width['overexpression'] == g[2]) &
-        (ind_width['inducer_conc'] == g[3])]
-    if (len(_ind_width) == 0):
-        continue
-    print(g)
-    # find the x,y positions
-    width10 = _ind_width[_ind_width['interval']
-                         == '10%'][['lower', 'upper']].values.mean()
-    frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
-    for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
-        ax.hlines(1/width10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[2]][_g],
-                  zorder=i + 1, label='__nolegend__')
+# for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc']):
+#     if g[0] == 'wildtype':
+#         continue
+#     if (g[2] != 'rbsB'):
+#         continue
 
-    for i, (_g, _d) in enumerate(_ind_width.groupby(['interval'], sort=False)):
-        ax.vlines(frac10, 1/_d['lower'], 1/_d['upper'], lw=2, color=cmaps[g[2]][_g],
-                  zorder=i + 1, label='__nolegend__')
+#     _ind_width = ind_width[(ind_width['strain'] == g[0]) & (
+#         ind_width['carbon_source'] == g[1]) & (ind_width['overexpression'] == g[2]) &
+#         (ind_width['inducer_conc'] == g[3])]
+#     if (len(_ind_width) == 0):
+#         continue
+#     print(g)
+#     # find the x,y positions
+#     width10 = _ind_width[_ind_width['interval']
+#                          == '10%'][['lower', 'upper']].values.mean()
+#     frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
+#     for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
+#         ax.hlines(1/width10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[2]][_g],
+#                   zorder=i + 1, label='__nolegend__')
+
+#     for i, (_g, _d) in enumerate(_ind_width.groupby(['interval'], sort=False)):
+#         ax.vlines(frac10, 1/_d['lower'], 1/_d['upper'], lw=2, color=cmaps[g[2]][_g],
+#                   zorder=i + 1, label='__nolegend__')
 
 phi_range = np.linspace(0.0025, 0.05, 200)
 delta = 0.021
