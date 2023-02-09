@@ -125,7 +125,7 @@ model {
     od595_per_biomass_sigma ~ std_normal();
 
     // Likelihood
-    (brad_od595 - cal_intercept)./brad_od600  ~ cauchy(cal_slope .* prot_per_biomass_mu[brad_cond_idx] ./ conv_factor[brad_cond_idx], od595_per_biomass_sigma[brad_cond_idx]);
+    log((brad_od595 - cal_intercept)./brad_od600)  ~ normal(log(cal_slope .* prot_per_biomass_mu[brad_cond_idx] ./ conv_factor[brad_cond_idx]), od595_per_biomass_sigma[brad_cond_idx]);
     // log_brad_od ~ cauchy(log(cal_intercept + (cal_slope * conv_factor) .* prot_per_biomass_mu[brad_cond_idx]), od595_per_biomass_sigma[brad_cond_idx]);
 
     // -------------------------------------------------------------------------
@@ -179,7 +179,7 @@ generated quantities {
     // -------------------------------------------------------------------------
     vector[N_brad] od595_brad_rep; 
     for (i in 1:N_brad) { 
-        od595_brad_rep[i] =cal_intercept + brad_od600[i] * cauchy_rng(cal_slope * prot_per_biomass_mu[brad_cond_idx[i]] ./ conv_factor[i], od595_per_biomass_sigma[brad_cond_idx[i]]);
+        od595_brad_rep[i] = cal_intercept + brad_od600[i] * exp(normal_rng(log(cal_slope * prot_per_biomass_mu[brad_cond_idx[i]] ./ conv_factor[i]), od595_per_biomass_sigma[brad_cond_idx[i]]));
 
     }   
 

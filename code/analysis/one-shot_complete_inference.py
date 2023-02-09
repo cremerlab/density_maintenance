@@ -18,7 +18,7 @@ model = cmdstanpy.CmdStanModel(
 cal_data = pd.read_csv(
     '../../data/protein_quantification/bradford_calibration_curve.csv')
 brad_data = pd.read_csv(
-    '../../data/protein_quantification/bradford_periplasmic_protein_v2.csv')
+    '../../data/protein_quantification/bradford_periplasmic_protein.csv')
 size_data = pd.read_csv(
     '../../data/summaries/summarized_size_measurements.csv')
 biomass_data = pd.read_csv(
@@ -37,14 +37,14 @@ size_data = pd.concat([d for _, d in size_data.groupby(
 
 # %%
 # Filter, label, and transform bradford data
-# brad_data = brad_data[brad_data['strain'].isin(
-#     ['wildtype', 'malE-rbsB-fliC-KO'])]
+brad_data = brad_data[brad_data['strain'].isin(
+    ['wildtype',  'malE-rbsB-fliC-KO'])]
 brad_data['cond_idx'] = brad_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']).ngroup() + 1
 brad_data['conv_factor'] = brad_data['dilution_factor'] * \
     brad_data['extraction_volume_mL'] / \
     (brad_data['culture_volume_mL'])
-brad_data['od_per_biomass'] = brad_data['od_595nm'] * brad_data['conv_factor']
+brad_data['od_per_biomass'] = brad_data['od_595nm']
 
 # Add indexing to the size data
 size_data['size_cond_idx'] = size_data.groupby(
@@ -205,6 +205,7 @@ width_ppc = samples.posterior.width_mu.to_dataframe().reset_index()
 frac_ppc = samples.posterior.periplasmic_biomass_fraction.to_dataframe().reset_index()
 
 for g, _ in brad_data.groupby(['cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']):
+    print(g[1:])
     frac_ppc.loc[frac_ppc['periplasmic_biomass_fraction_dim_0'] == g[0]-1, [
         'strain', 'carbon_source', 'overexpression', 'inducer_conc']] = g[1:]
     frac_ppc.loc[frac_ppc['periplasmic_biomass_fraction_dim_0']
@@ -227,9 +228,9 @@ width_perc = size.viz.compute_percentiles(width_ppc, 'width_mu', [
 # %%
 # Look only at the no inducer cases
 noind_width = width_perc[(width_perc['inducer_conc'] == 0) & (
-    width_perc['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO']))]
+    width_perc['strain'].isin(['wildtype', 'malE-rbsB-KO', 'malE-rbsB-fliC-KO']))]
 noind_frac = frac_perc[(frac_perc['inducer_conc'] == 0) & (
-    frac_perc['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO']))]
+    frac_perc['strain'].isin(['wildtype', 'malE-rbsB-KO', 'malE-rbsB-fliC-KO']))]
 
 ko_ppc_cmap = {k: c for k, c in zip(frac_perc['interval'].unique(
 ), sns.color_palette('Blues', n_colors=len(frac_perc['interval'].unique())))}
@@ -271,35 +272,34 @@ ind_frac = frac_perc[(frac_perc['inducer_conc'] != 'none') & (
     frac_perc['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO']))]
 
 
-# for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc']):
-#     if g[0] == 'wildtype':
-#         continue
-#     if (g[2] != 'rbsB'):
-#         continue
+for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc']):
+    # if g[0] == 'wildtype':
+    # continue
+    # if (g[2] != 'rbsB'):
+    # continue
 
-#     _ind_width = ind_width[(ind_width['strain'] == g[0]) & (
-#         ind_width['carbon_source'] == g[1]) & (ind_width['overexpression'] == g[2]) &
-#         (ind_width['inducer_conc'] == g[3])]
-#     if (len(_ind_width) == 0):
-#         continue
-#     print(g)
-#     # find the x,y positions
-#     width10 = _ind_width[_ind_width['interval']
-#                          == '10%'][['lower', 'upper']].values.mean()
-#     frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
-#     for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
-#         ax.hlines(1/width10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[2]][_g],
-#                   zorder=i + 1, label='__nolegend__')
+    _ind_width = ind_width[(ind_width['strain'] == g[0]) & (
+        ind_width['carbon_source'] == g[1]) & (ind_width['overexpression'] == g[2]) &
+        (ind_width['inducer_conc'] == g[3])]
+    if (len(_ind_width) == 0):
+        continue
+    print(g)
+    # find the x,y positions
+    width10 = _ind_width[_ind_width['interval']
+                         == '10%'][['lower', 'upper']].values.mean()
+    frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
+    for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
+        ax.hlines(1/width10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[2]][_g],
+                  zorder=i + 1, label='__nolegend__')
 
-#     for i, (_g, _d) in enumerate(_ind_width.groupby(['interval'], sort=False)):
-#         ax.vlines(frac10, 1/_d['lower'], 1/_d['upper'], lw=2, color=cmaps[g[2]][_g],
-#                   zorder=i + 1, label='__nolegend__')
+    for i, (_g, _d) in enumerate(_ind_width.groupby(['interval'], sort=False)):
+        ax.vlines(frac10, 1/_d['lower'], 1/_d['upper'], lw=2, color=cmaps[g[2]][_g],
+                  zorder=i + 1, label='__nolegend__')
 
 phi_range = np.linspace(0.0025, 0.05, 200)
-delta = 0.021
-k = 0.1
-w_min = 0.25
-pred = 4 * delta * (k * (phi_range**-1 - 1) + 1) + w_min
+delta = 0.025
+k = 1
+pred = 4 * delta * (k * (phi_range**-1 - 1) + 1) + 0.25
 
 
 ax.plot([], [], '-', lw=1, color=cor['primary_green'], label='wildtype')
@@ -312,6 +312,6 @@ ax.plot([], [], '-', lw=1, color=cor['primary_black'], label='lacZ OE in WT')
 # ax.set_xlim([0, 0.05])
 ax.set_xlabel('$M_{peri} / M_{biomass}$')
 ax.set_ylabel('width$^{-1}$ [µm$^{-1}$]')
-ax.plot(phi_range, 1/pred, 'k-', lw=2)
+ax.plot(phi_range, 1/pred + 1, 'k-', lw=2)
 ax.legend()
-plt.savefig('/Users/gchure/Desktop/theory_fit_complete_analysis.pdf')
+# plt.savefig('/Users/gchure/Desktop/theory_fit_complete_analysis.pdf')
