@@ -296,10 +296,11 @@ for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'indu
         ax.vlines(frac10, 1/_d['lower'], 1/_d['upper'], lw=2, color=cmaps[g[2]][_g],
                   zorder=i + 1, label='__nolegend__')
 
-phi_range = np.linspace(0.0025, 0.05, 200)
+phi_range = np.linspace(0.005, 0.15, 200)
 delta = 0.025
 k = 1
-pred = 4 * delta * (k * (phi_range**-1 - 1) + 1) + 0.25
+w_min = 0.25
+pred = 4 * delta * (k * ((phi_range)**-1 - 1) + 1)
 
 
 ax.plot([], [], '-', lw=1, color=cor['primary_green'], label='wildtype')
@@ -309,9 +310,10 @@ ax.plot([], [], '-', lw=1, color=cor['primary_purple'], label='malE OE in d3')
 ax.plot([], [], '-', lw=1, color=cor['primary_black'], label='lacZ OE in WT')
 
 # ax.set_ylim([0.6, 2.5])
-# ax.set_xlim([0, 0.05])
+ax.set_xlim([0, 0.06])
 ax.set_xlabel('$M_{peri} / M_{biomass}$')
 ax.set_ylabel('width$^{-1}$ [µm$^{-1}$]')
-ax.plot(phi_range, 1/pred + 1, 'k-', lw=2)
+pred = phi_range * 11 / (48 * k * delta * (1 - phi_range))
+ax.plot(phi_range, pred, 'k-', lw=2)
 ax.legend()
 # plt.savefig('/Users/gchure/Desktop/theory_fit_complete_analysis.pdf')
