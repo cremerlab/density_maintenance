@@ -63,7 +63,7 @@ parameters {
     // -------------------------------------------------------------------------
     // Bradford Assay Protein Measurements
     // -------------------------------------------------------------------------
-    vector<lower=0>[J_brad_cond] log_prot_per_biomass_mu;
+    vector[J_brad_cond] log_prot_per_biomass_mu;
     vector<lower=0>[J_brad_cond] od595_per_biomass_sigma;
 
     // -------------------------------------------------------------------------
@@ -95,7 +95,7 @@ transformed parameters {
     // -------------------------------------------------------------------------
     // Bradford Assay Protein Measurements
     // -------------------------------------------------------------------------
-    vector<lower=0>[J_brad_cond] prot_per_biomass_mu = exp(log_prot_per_biomass_mu);
+    vector[J_brad_cond] prot_per_biomass_mu = exp(log_prot_per_biomass_mu);
 
     // -------------------------------------------------------------------------
     // Literature Biomass Measurements
@@ -180,7 +180,6 @@ generated quantities {
     vector[N_brad] od595_brad_rep; 
     for (i in 1:N_brad) { 
         od595_brad_rep[i] = cal_intercept + brad_od600[i] * exp(normal_rng(log(cal_slope * prot_per_biomass_mu[brad_cond_idx[i]] ./ conv_factor[i]), od595_per_biomass_sigma[brad_cond_idx[i]]));
-
     }   
 
     // -------------------------------------------------------------------------

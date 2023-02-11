@@ -18,20 +18,24 @@ model = cmdstanpy.CmdStanModel(
 cal_data = pd.read_csv(
     '../../data/protein_quantification/bradford_calibration_curve.csv')
 brad_data = pd.read_csv(
-    '../../data/protein_quantification/bradford_periplasmic_protein.csv')
+    '../../data/protein_quantification/bradford_periplasmic_protein_v2.csv')
+brad_data['od_600nm_true'] = brad_data['od_600nm']
+# brad_data['od_600nm'] *= 0.78
+brad_data.loc[brad_data['od_600nm'] >= 0.45, 'od_600nm_true'] = np.exp(
+    1.26 * np.log(brad_data[brad_data['od_600nm'] >= 0.45]['od_600nm'].values) + 0.25)
 size_data = pd.read_csv(
     '../../data/summaries/summarized_size_measurements.csv')
 biomass_data = pd.read_csv(
     '../../data/literature/Basan2015/Basan2015_drymass_protein_cellcount.csv')
-
+# %%
 # Keep only the bradford data with more than two replicates
 brad_data = pd.concat([d for _, d in brad_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']) if len(d) > 2], sort=False)
 brad_data = brad_data[brad_data['strain'].isin(
-    ['wildtype', 'malE-rbsB-fliC-KO'])]
+    ['wildtype', 'malE-rbsB-KO', 'malE-rbsB-fliC-KO'])]
 size_data = size_data[size_data['temperature_C'] == 37]
 size_data = size_data[size_data['strain'].isin(
-    ['wildtype', 'malE-rbsB-fliC-KO'])]
+    ['wildtype', 'malE-rbsB-KO', 'malE-rbsB-fliC-KO'])]
 size_data = pd.concat([d for _, d in size_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc']) if len(d) > 2], sort=False)
 
@@ -60,7 +64,7 @@ data_dict = {'N_cal': len(cal_data),
              'J_brad_cond': brad_data['cond_idx'].max(),
              'brad_cond_idx': brad_data['cond_idx'].values.astype(int),
              'brad_od595': brad_data['od_595nm'].values.astype(float),
-             'brad_od600': brad_data['od_600nm'].values.astype(float),
+             'brad_od600': brad_data['od_600nm_true'].values.astype(float),
              'conv_factor': brad_data['conv_factor'].values.astype(float),
 
              'N_size': len(size_data),
@@ -129,7 +133,7 @@ for g, d in brad_data.groupby(['cond_idx', 'strain', 'carbon_source',
     labels.append(g[1:])
 ax.set_yticks(brad_data['cond_idx'].unique())
 ax.set_yticklabels(labels)
-ax.set_xlabel('OD$_{595nm}$ / OD$_{600nm} \cdot$ mL')
+ax.set_xlabel('OD$_{595nm}$')
 
 # %%
 # Biomass ppc
@@ -227,9 +231,9 @@ width_perc = size.viz.compute_percentiles(width_ppc, 'width_mu', [
 
 # %%
 # Look only at the no inducer cases
-noind_width = width_perc[(width_perc['inducer_conc'] == 0) & (
+noind_width = width_perc[(width_perc['inducer_conc'] == 0) & (width_perc['overexpression'] == 'none') & (
     width_perc['strain'].isin(['wildtype', 'malE-rbsB-KO', 'malE-rbsB-fliC-KO']))]
-noind_frac = frac_perc[(frac_perc['inducer_conc'] == 0) & (
+noind_frac = frac_perc[(frac_perc['inducer_conc'] == 0) & (frac_perc['overexpression'] == 'none') & (
     frac_perc['strain'].isin(['wildtype', 'malE-rbsB-KO', 'malE-rbsB-fliC-KO']))]
 
 ko_ppc_cmap = {k: c for k, c in zip(frac_perc['interval'].unique(
@@ -258,6 +262,8 @@ for g, d in noind_frac.groupby(['strain', 'carbon_source']):
     width10 = _noind_width[_noind_width['interval']
                            == '10%'][['lower', 'upper']].values.mean()
     frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
+    ax.plot(frac10, 1/width10, 'o', markeredgecolor='white',
+            ms=6, markeredgewidth=0.5, color=cmaps[g[0]]['10%'], zorder=1000)
     for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
         ax.hlines(1/width10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[0]][_g],
                   zorder=i+1, label='__nolegend__')
@@ -266,9 +272,9 @@ for g, d in noind_frac.groupby(['strain', 'carbon_source']):
         ax.vlines(frac10, 1/_d['lower'], 1/_d['upper'], lw=2, color=cmaps[g[0]][_g],
                   zorder=i + 1, label='__nolegend__')
 
-ind_width = width_perc[(width_perc['overexpression'] != 'none') & (
+ind_width = width_perc[(width_perc['overexpression'] != 'none') & (width_perc['inducer_conc'] > 0) & (
     width_perc['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO']))]
-ind_frac = frac_perc[(frac_perc['inducer_conc'] != 'none') & (
+ind_frac = frac_perc[(frac_perc['overexpression'] != 'none') & (frac_perc['inducer_conc'] > 0) & (
     frac_perc['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO']))]
 
 
@@ -276,7 +282,7 @@ for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'indu
     # if g[0] == 'wildtype':
     # continue
     # if (g[2] != 'rbsB'):
-    # continue
+    print(g)
 
     _ind_width = ind_width[(ind_width['strain'] == g[0]) & (
         ind_width['carbon_source'] == g[1]) & (ind_width['overexpression'] == g[2]) &
@@ -288,6 +294,8 @@ for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'indu
     width10 = _ind_width[_ind_width['interval']
                          == '10%'][['lower', 'upper']].values.mean()
     frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
+    ax.plot(frac10, 1/width10, 'o', markeredgecolor='white',
+            ms=6, markeredgewidth=0.5, color=cmaps[g[2]]['10%'], zorder=1000)
     for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
         ax.hlines(1/width10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[2]][_g],
                   zorder=i + 1, label='__nolegend__')
@@ -297,9 +305,8 @@ for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'indu
                   zorder=i + 1, label='__nolegend__')
 
 phi_range = np.linspace(0.005, 0.15, 200)
-delta = 0.025
+delta = 0.020
 k = 1
-w_min = 0.25
 pred = 4 * delta * (k * ((phi_range)**-1 - 1) + 1)
 
 
@@ -309,11 +316,11 @@ ax.plot([], [], '-', lw=1, color=cor['primary_gold'], label='rbsB OE in d3')
 ax.plot([], [], '-', lw=1, color=cor['primary_purple'], label='malE OE in d3')
 ax.plot([], [], '-', lw=1, color=cor['primary_black'], label='lacZ OE in WT')
 
-# ax.set_ylim([0.6, 2.5])
-ax.set_xlim([0, 0.06])
+# ax.set_ylim([1, 1.8])
+# ax.set_xlim([0, 0.06])
 ax.set_xlabel('$M_{peri} / M_{biomass}$')
 ax.set_ylabel('width$^{-1}$ [µm$^{-1}$]')
-pred = phi_range * 11 / (48 * k * delta * (1 - phi_range))
-ax.plot(phi_range, pred, 'k-', lw=2)
+
+ax.plot(phi_range, 1/pred, 'k-', lw=2)
 ax.legend()
 # plt.savefig('/Users/gchure/Desktop/theory_fit_complete_analysis.pdf')
