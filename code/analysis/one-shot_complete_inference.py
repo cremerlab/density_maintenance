@@ -262,14 +262,14 @@ for g, d in noind_frac.groupby(['strain', 'carbon_source']):
     width10 = _noind_width[_noind_width['interval']
                            == '10%'][['lower', 'upper']].values.mean()
     frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
-    ax.plot(frac10, 1/width10, 'o', markeredgecolor='white',
+    ax.plot(frac10, width10, 'o', markeredgecolor='white',
             ms=6, markeredgewidth=0.5, color=cmaps[g[0]]['10%'], zorder=1000)
     for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
-        ax.hlines(1/width10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[0]][_g],
+        ax.hlines(width10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[0]][_g],
                   zorder=i+1, label='__nolegend__')
 
     for i, (_g, _d) in enumerate(_noind_width.groupby(['interval'], sort=False)):
-        ax.vlines(frac10, 1/_d['lower'], 1/_d['upper'], lw=2, color=cmaps[g[0]][_g],
+        ax.vlines(frac10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[0]][_g],
                   zorder=i + 1, label='__nolegend__')
 
 ind_width = width_perc[(width_perc['overexpression'] != 'none') & (width_perc['inducer_conc'] > 0) & (
@@ -294,21 +294,27 @@ for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'indu
     width10 = _ind_width[_ind_width['interval']
                          == '10%'][['lower', 'upper']].values.mean()
     frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
-    ax.plot(frac10, 1/width10, 'o', markeredgecolor='white',
+    ax.plot(frac10, width10, 'o', markeredgecolor='white',
             ms=6, markeredgewidth=0.5, color=cmaps[g[2]]['10%'], zorder=1000)
     for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
-        ax.hlines(1/width10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[2]][_g],
+        ax.hlines(width10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[2]][_g],
                   zorder=i + 1, label='__nolegend__')
 
     for i, (_g, _d) in enumerate(_ind_width.groupby(['interval'], sort=False)):
-        ax.vlines(frac10, 1/_d['lower'], 1/_d['upper'], lw=2, color=cmaps[g[2]][_g],
+        ax.vlines(frac10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[2]][_g],
                   zorder=i + 1, label='__nolegend__')
 
-phi_range = np.linspace(0.005, 0.15, 200)
-delta = 0.020
-k = 1
+phi_range = np.linspace(0.01, 0.15, 200)
+delta = 0.025
+k = 0.8
 pred = 4 * delta * (k * ((phi_range)**-1 - 1) + 1)
-
+phi_min = 0.005
+x = 12 * 4 * k * delta
+w_max = x * (-1 + 1/phi_min) + 1
+w = x * (-1 + 1/phi_range) + 1
+phi_term = (k / phi_min) * (1 - phi_min) + 1
+# relW = ((1 - 1/phi_range) / ((1 - 1/phi_min) + x**-1)) + \
+# 1 / (x * (1 - 1/phi_min) + 1)
 
 ax.plot([], [], '-', lw=1, color=cor['primary_green'], label='wildtype')
 ax.plot([], [], '-', lw=1, color=cor['primary_blue'], label='malE-rbsB-fliC KO')
@@ -321,6 +327,6 @@ ax.plot([], [], '-', lw=1, color=cor['primary_black'], label='lacZ OE in WT')
 ax.set_xlabel('$M_{peri} / M_{biomass}$')
 ax.set_ylabel('width$^{-1}$ [µm$^{-1}$]')
 
-ax.plot(phi_range, 1/pred, 'k-', lw=2)
+ax.plot(phi_range, w/w_max, 'k-', lw=2)
 ax.legend()
 # plt.savefig('/Users/gchure/Desktop/theory_fit_complete_analysis.pdf')
