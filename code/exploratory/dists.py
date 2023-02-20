@@ -7,10 +7,16 @@ import size.viz
 cor, pal = size.viz.matplotlib_style()
 sizes = pd.read_csv(
     '../processing/microscopy/size_measurement/output/compiled_size_measurements.csv')
-sizes = sizes[sizes['strain'].isin(['malE-rbsB-fliC-KO'])]
+sizes = sizes[(sizes['strain'].isin(['wildtype'])) &
+              (sizes['overexpression'] == 'none')]
 # sizes = sizes[sizes['overexpression'].isin(['rbsB'])]
-
-
+# sizes['aspect_ratio'] = sizes['length'] / sizes['width_median']
+x = sizes.groupby(['strain', 'carbon_source', 'overexpression',
+                  'inducer_conc', 'date', 'run_no']).mean().reset_index()
+x['aspect_ratio'] = x['length'] / x['width_median']
+x.groupby(['carbon_source', 'overexpression', 'inducer_conc'])[
+    'length'].agg(('mean', 'sem'))
+# %%
 fig, ax = plt.subplots(2, 1, figsize=(8, 8))
 for g, d in sizes.groupby(['strain', 'overexpression', 'inducer_conc']):
     if g[-1] == 0:

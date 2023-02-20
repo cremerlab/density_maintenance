@@ -50,9 +50,8 @@ for g, d in tqdm.tqdm(data.groupby(['carbon_source'])):
     lam_df = pd.concat([lam_df, _df], sort=False)
 
 # %%
-
 # Compute the percentiles of the samples.
-5percs = [2.5, 12.5, 25, 45, 55, 75, 87.5, 97.5]
+percs = [2.5, 12.5, 25, 45, 55, 75, 87.5, 97.5]
 perc_cols = ['2.5%', '12.5%', '25%', '45%', '55%', '75%', '87.5%', '97.5%']
 hyper_vars = ['mu', 'mu_1']
 summary_df = pd.DataFrame([])

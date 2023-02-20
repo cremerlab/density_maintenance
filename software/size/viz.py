@@ -207,7 +207,7 @@ def matplotlib_style(return_colors=True, return_palette=True, **kwargs):
 
         # General Font styling
         "font.family": "sans-serif",
-        "font.family": "Nunito",
+        "font.family": "Lato",
         "font.weight": 400,  # Weight of all fonts unless overriden.
         "font.style": "normal",
         "text.color": "#3d3d3d",  # "#5b5b5b",
@@ -690,9 +690,6 @@ def diagnostic_growth_viz(samples,
     # save figure
     plt.savefig(f'{out}_growth_ppc.pdf', bbox_inches='tight')
     plt.close()
-
-
-
 
 
 def compute_percentiles(df,

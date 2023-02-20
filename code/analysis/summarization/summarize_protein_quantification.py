@@ -17,7 +17,7 @@ slope, intercept = popt[:2]
 
 # For each bradford measurement, compute the concentration of protein
 prot_data['prot_ug_per_biomass'] = ((prot_data['od_595nm'] - intercept)/slope) * prot_data['dilution_factor'] * \
-    prot_data['extraction_volume_ml'] / \
-    (prot_data['culture_volume_ml'] * prot_data['od_600nm'])
+    prot_data['extraction_volume_mL'] / \
+    (prot_data['culture_volume_mL'] * prot_data['od_600nm'])
 prot_data.to_csv(
     '../../../data/summaries/summarized_protein_measurements.csv', index=False)

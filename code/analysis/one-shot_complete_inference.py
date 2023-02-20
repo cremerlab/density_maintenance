@@ -6,6 +6,7 @@ import arviz as az
 import matplotlib.pyplot as plt
 import size.viz
 import seaborn as sns
+import tqdm
 import scipy.stats
 cor, pal = size.viz.matplotlib_style()
 
@@ -23,6 +24,9 @@ brad_data['od_600nm_true'] = brad_data['od_600nm']
 # brad_data['od_600nm'] *= 0.78
 brad_data.loc[brad_data['od_600nm'] >= 0.45, 'od_600nm_true'] = np.exp(
     1.26 * np.log(brad_data[brad_data['od_600nm'] >= 0.45]['od_600nm'].values) + 0.25)
+brad_data = brad_data[brad_data['od_600nm'] <= 0.45]
+brad_data = brad_data[~((brad_data['overexpression'] != 'none') & (
+    brad_data['inducer_conc_ng_mL'] == 0))]
 size_data = pd.read_csv(
     '../../data/summaries/summarized_size_measurements.csv')
 biomass_data = pd.read_csv(
@@ -32,17 +36,21 @@ biomass_data = pd.read_csv(
 brad_data = pd.concat([d for _, d in brad_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']) if len(d) > 2], sort=False)
 brad_data = brad_data[brad_data['strain'].isin(
-    ['wildtype', 'malE-rbsB-KO', 'malE-rbsB-fliC-KO'])]
+    ['wildtype',  'malE-rbsB-fliC-KO'])]
 size_data = size_data[size_data['temperature_C'] == 37]
 size_data = size_data[size_data['strain'].isin(
-    ['wildtype', 'malE-rbsB-KO', 'malE-rbsB-fliC-KO'])]
+    ['wildtype', 'malE-rbsB-fliC-KO'])]
 size_data = pd.concat([d for _, d in size_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc']) if len(d) > 2], sort=False)
+size_data = size_data[~((size_data['overexpression'] != 'none') & (
+    size_data['inducer_conc'] == 0))]
 
 # %%
 # Filter, label, and transform bradford data
 brad_data = brad_data[brad_data['strain'].isin(
     ['wildtype',  'malE-rbsB-fliC-KO'])]
+brad_data = brad_data[~((brad_data['overexpression'] != 'none') & (
+    brad_data['inducer_conc_ng_mL'] == 0))]
 brad_data['cond_idx'] = brad_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']).ngroup() + 1
 brad_data['conv_factor'] = brad_data['dilution_factor'] * \
@@ -84,7 +92,7 @@ data_dict = {'N_cal': len(cal_data),
 
 # %%
 # Sample the posterior
-_samples = model.sample(data_dict)
+_samples = model.sample(data_dict, adapt_delta=0.95, iter_sampling=5000)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
@@ -141,7 +149,7 @@ biomass_ppc = samples.posterior.biomass_rep.to_dataframe()
 biomass_ppc['idx'] = 1
 biomass_percs = size.viz.compute_percentiles(biomass_ppc, 'biomass_rep', 'idx')
 
-fig, ax = plt.subplots(1, 1, figsize=(3, 1))
+fig, ax = plt.subplots(1, 1, figsize=(4, 1))
 
 for i, (g, d) in enumerate(biomass_percs.groupby(['interval'], sort=False)):
     ax.hlines(1, d['lower'], d['upper'], lw=15, zorder=i+1, color=ppc_cmap[g])
@@ -209,7 +217,6 @@ width_ppc = samples.posterior.width_mu.to_dataframe().reset_index()
 frac_ppc = samples.posterior.periplasmic_biomass_fraction.to_dataframe().reset_index()
 
 for g, _ in brad_data.groupby(['cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']):
-    print(g[1:])
     frac_ppc.loc[frac_ppc['periplasmic_biomass_fraction_dim_0'] == g[0]-1, [
         'strain', 'carbon_source', 'overexpression', 'inducer_conc']] = g[1:]
     frac_ppc.loc[frac_ppc['periplasmic_biomass_fraction_dim_0']
@@ -237,23 +244,23 @@ noind_frac = frac_perc[(frac_perc['inducer_conc'] == 0) & (frac_perc['overexpres
     frac_perc['strain'].isin(['wildtype', 'malE-rbsB-KO', 'malE-rbsB-fliC-KO']))]
 
 ko_ppc_cmap = {k: c for k, c in zip(frac_perc['interval'].unique(
-), sns.color_palette('Blues', n_colors=len(frac_perc['interval'].unique())))}
+), sns.color_palette('Blues_r', n_colors=3 + len(frac_perc['interval'].unique())))}
 wt_ppc_cmap = {k: c for k, c in zip(frac_perc['interval'].unique(
-), sns.color_palette('Greens', n_colors=len(frac_perc['interval'].unique())))}
+), sns.color_palette('Greens_r', n_colors=3 + len(frac_perc['interval'].unique())))}
 rbs_ppc_cmap = {k: c for k, c in zip(frac_perc['interval'].unique(
-), sns.color_palette('Oranges', n_colors=len(frac_perc['interval'].unique())))}
+), sns.color_palette('Oranges_r', n_colors=3 + len(frac_perc['interval'].unique())))}
 
 mal_ppc_cmap = {k: c for k, c in zip(frac_perc['interval'].unique(
-), sns.color_palette('Purples', n_colors=len(frac_perc['interval'].unique())))}
+), sns.color_palette('Purples_r', n_colors=3 + len(frac_perc['interval'].unique())))}
 lac_ppc_cmap = {k: c for k, c in zip(frac_perc['interval'].unique(
-), sns.color_palette('Greys', n_colors=len(frac_perc['interval'].unique())))}
+), sns.color_palette('Greys_r', n_colors=3 + len(frac_perc['interval'].unique())))}
 
 cmaps = {'wildtype': wt_ppc_cmap, 'malE-rbsB-fliC-KO': ko_ppc_cmap,
          'rbsB': rbs_ppc_cmap, 'malE': mal_ppc_cmap,
          'lacZ': lac_ppc_cmap}
 
-
-fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+width_inc = 0.3
+fig, ax = plt.subplots(1, 1, figsize=(4, 3))
 for g, d in noind_frac.groupby(['strain', 'carbon_source']):
     _noind_width = noind_width[(noind_width['strain'] == g[0]) & (
         noind_width['carbon_source'] == g[1])]
@@ -263,14 +270,14 @@ for g, d in noind_frac.groupby(['strain', 'carbon_source']):
                            == '10%'][['lower', 'upper']].values.mean()
     frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
     ax.plot(frac10, width10, 'o', markeredgecolor='white',
-            ms=6, markeredgewidth=0.5, color=cmaps[g[0]]['10%'], zorder=1000)
+            ms=4, markeredgewidth=0.5, color=cmaps[g[0]]['10%'], zorder=1000)
     for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
-        ax.hlines(width10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[0]][_g],
-                  zorder=i+1, label='__nolegend__')
+        ax.hlines(width10, _d['lower'], _d['upper'], color=cmaps[g[0]][_g],
+                  zorder=i+1, label='__nolegend__', lw=0.1 + i * width_inc)
 
     for i, (_g, _d) in enumerate(_noind_width.groupby(['interval'], sort=False)):
-        ax.vlines(frac10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[0]][_g],
-                  zorder=i + 1, label='__nolegend__')
+        ax.vlines(frac10, _d['lower'], _d['upper'], color=cmaps[g[0]][_g],
+                  zorder=i + 1, label='__nolegend__', lw=0.1 + i * width_inc)
 
 ind_width = width_perc[(width_perc['overexpression'] != 'none') & (width_perc['inducer_conc'] > 0) & (
     width_perc['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO']))]
@@ -282,51 +289,53 @@ for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'indu
     # if g[0] == 'wildtype':
     # continue
     # if (g[2] != 'rbsB'):
-    print(g)
-
     _ind_width = ind_width[(ind_width['strain'] == g[0]) & (
         ind_width['carbon_source'] == g[1]) & (ind_width['overexpression'] == g[2]) &
         (ind_width['inducer_conc'] == g[3])]
     if (len(_ind_width) == 0):
         continue
-    print(g)
+
     # find the x,y positions
     width10 = _ind_width[_ind_width['interval']
                          == '10%'][['lower', 'upper']].values.mean()
     frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
     ax.plot(frac10, width10, 'o', markeredgecolor='white',
-            ms=6, markeredgewidth=0.5, color=cmaps[g[2]]['10%'], zorder=1000)
+            ms=4, markeredgewidth=0.5, color=cmaps[g[2]]['10%'], zorder=1000)
     for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
-        ax.hlines(width10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[2]][_g],
-                  zorder=i + 1, label='__nolegend__')
+        ax.hlines(width10, _d['lower'], _d['upper'], color=cmaps[g[2]][_g],
+                  zorder=i + 1, label='__nolegend__', lw=0.1 + i * width_inc)
 
     for i, (_g, _d) in enumerate(_ind_width.groupby(['interval'], sort=False)):
-        ax.vlines(frac10, _d['lower'], _d['upper'], lw=2, color=cmaps[g[2]][_g],
-                  zorder=i + 1, label='__nolegend__')
+        ax.vlines(frac10, _d['lower'], _d['upper'], color=cmaps[g[2]][_g],
+                  zorder=i + 1, label='__nolegend__', lw=0.1 + i * width_inc)
 
-phi_range = np.linspace(0.01, 0.15, 200)
-delta = 0.025
-k = 0.8
-pred = 4 * delta * (k * ((phi_range)**-1 - 1) + 1)
-phi_min = 0.005
-x = 12 * 4 * k * delta
-w_max = x * (-1 + 1/phi_min) + 1
-w = x * (-1 + 1/phi_range) + 1
-phi_term = (k / phi_min) * (1 - phi_min) + 1
-# relW = ((1 - 1/phi_range) / ((1 - 1/phi_min) + x**-1)) + \
-# 1 / (x * (1 - 1/phi_min) + 1)
+phi_range = np.linspace(0.004, 0.055, 200)
+n_draws = 2000
+uncertainty = np.zeros((n_draws, len(phi_range)))
+for i in tqdm.tqdm(range(n_draws)):
+    delta = np.random.normal(0.02, 0.001)
+    alpha = np.random.normal(3.2, 0.1)
+    k = 0.1  # np.random.normal(0.1, 0.05)
+    w_max = np.random.normal(1, 0.05)
+    w_min = np.random.normal(0.25, 0.005)
+    Lam = 12 * alpha * delta * k / (3 * alpha - 1)
+    phi_max = k * Lam / (k * w_min + Lam * (k - 1))
+    phi_min = Lam / ((w_max - w_min) + Lam / phi_max)
 
+    slope = Lam / phi_max
+    uncertainty[i, :] = w_max + slope * (1 - phi_range/phi_min)
+    plt.plot(phi_range, uncertainty[i, :], 'k-', lw=0.1, alpha=0.1, zorder=1)
 ax.plot([], [], '-', lw=1, color=cor['primary_green'], label='wildtype')
 ax.plot([], [], '-', lw=1, color=cor['primary_blue'], label='malE-rbsB-fliC KO')
 ax.plot([], [], '-', lw=1, color=cor['primary_gold'], label='rbsB OE in d3')
 ax.plot([], [], '-', lw=1, color=cor['primary_purple'], label='malE OE in d3')
 ax.plot([], [], '-', lw=1, color=cor['primary_black'], label='lacZ OE in WT')
 
-# ax.set_ylim([1, 1.8])
-# ax.set_xlim([0, 0.06])
+ax.set_ylim([0.5, 1])
+ax.set_xlim([0, 0.06])
 ax.set_xlabel('$M_{peri} / M_{biomass}$')
-ax.set_ylabel('width$^{-1}$ [µm$^{-1}$]')
+ax.set_ylabel('width [µm]')
 
-ax.plot(phi_range, w/w_max, 'k-', lw=2)
+# ax.plot(phi_range, 1/pred,  'k-', lw=2)
 ax.legend()
-# plt.savefig('/Users/gchure/Desktop/theory_fit_complete_analysis.pdf')
+plt.savefig('/Users/gchure/Desktop/theory_fit_complete_analysis.pdf')
