@@ -320,6 +320,8 @@ cmaps = {'wildtype': wt_ppc_cmap, 'malE-rbsB-fliC-KO': ko_ppc_cmap,
 width_inc = 0.3
 fig, ax = plt.subplots(1, 1, figsize=(4, 3))
 for g, d in noind_frac.groupby(['strain', 'carbon_source']):
+    if g[0] != 'wildtype':
+        continue
     _noind_width = noind_width[(noind_width['strain'] == g[0]) & (
         noind_width['carbon_source'] == g[1])]
 
@@ -327,14 +329,14 @@ for g, d in noind_frac.groupby(['strain', 'carbon_source']):
     width10 = _noind_width[_noind_width['interval']
                            == '10%'][['lower', 'upper']].values.mean()
     frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
-    ax.plot(frac10, width10, 'o', markeredgecolor='white',
+    ax.plot(frac10, 1/width10, 'o', markeredgecolor='white',
             ms=4, markeredgewidth=0.5, color=cmaps[g[0]]['10%'], zorder=1000)
     for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
-        ax.hlines(width10, _d['lower'], _d['upper'], color=cmaps[g[0]][_g],
+        ax.hlines(1/width10, _d['lower'], _d['upper'], color=cmaps[g[0]][_g],
                   zorder=i+1, label='__nolegend__', lw=0.1 + i * width_inc)
 
     for i, (_g, _d) in enumerate(_noind_width.groupby(['interval'], sort=False)):
-        ax.vlines(frac10, _d['lower'], _d['upper'], color=cmaps[g[0]][_g],
+        ax.vlines(frac10, 1/_d['lower'], 1/_d['upper'], color=cmaps[g[0]][_g],
                   zorder=i + 1, label='__nolegend__', lw=0.1 + i * width_inc)
 
 ind_width = width_perc[(width_perc['overexpression'] != 'none') & (width_perc['inducer_conc'] > 0) & (
@@ -344,9 +346,11 @@ ind_frac = frac_perc[(frac_perc['overexpression'] != 'none') & (frac_perc['induc
 
 
 for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc']):
+    continue
     # if g[0] == 'wildtype':
-    # continue
-    # if (g[2] != 'rbsB'):
+    # kcontinue
+    if (g[2] == 'rbsB'):
+        continue
     _ind_width = ind_width[(ind_width['strain'] == g[0]) & (
         ind_width['carbon_source'] == g[1]) & (ind_width['overexpression'] == g[2]) &
         (ind_width['inducer_conc'] == g[3])]
@@ -357,58 +361,58 @@ for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'indu
     width10 = _ind_width[_ind_width['interval']
                          == '10%'][['lower', 'upper']].values.mean()
     frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
-    ax.plot(frac10, width10, 'o', markeredgecolor='white',
+    ax.plot(frac10, 1/width10, 'o', markeredgecolor='white',
             ms=4, markeredgewidth=0.5, color=cmaps[g[2]]['10%'], zorder=1000)
     for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
-        ax.hlines(width10, _d['lower'], _d['upper'], color=cmaps[g[2]][_g],
+        ax.hlines(1/width10, _d['lower'], _d['upper'], color=cmaps[g[2]][_g],
                   zorder=i + 1, label='__nolegend__', lw=0.1 + i * width_inc)
 
     for i, (_g, _d) in enumerate(_ind_width.groupby(['interval'], sort=False)):
-        ax.vlines(frac10, _d['lower'], _d['upper'], color=cmaps[g[2]][_g],
+        ax.vlines(frac10, 1/_d['lower'], 1/_d['upper'], color=cmaps[g[2]][_g],
                   zorder=i + 1, label='__nolegend__', lw=0.1 + i * width_inc)
 
 
-ax.plot(mass_fracs['biomass_frac'], mass_fracs['width'], 'o')
+# ax.plot(mass_fracs['biomass_frac'], mass_fracs['width'], 'o')
 phi_range = np.linspace(0.004, 0.1)
 n_draws = 2000
 uncertainty = np.zeros((n_draws, len(phi_range)))
 for i in tqdm.tqdm(range(n_draws)):
-    delta = np.random.normal(0.02, 0.001)
-    alpha = 3
-    # alpha = np.random.normal(3.2, 0.1)
+    delta = np.random.normal(0.020, 0.001)
+    # alpha = 3
+    alpha = np.random.normal(3, 0.1)
     k = 0.1
-    w_max = 1  # np.random.normal(0.9, 0.05)
-    w_min = 0.25  # np.random.normal(0.25, 0.005)
+    w_max = np.random.normal(1, 0.05)
+    w_min = np.random.normal(0.25, 0.005)
     Lam = 12 * alpha * delta / (3 * alpha - 1)
     # phi_min = 0.01
     # phi_max = 0.08
-    # phi_range = np.linspace(phi_min, phi_max)
-    # phi_min = 0.01
-    phi_min = Lam * k / (w_max + Lam * (k - 1))
-    # phi_max = 0.08
-    phi_max = Lam * k / (w_min + Lam * (k - 1))
-    # del_phi = phi_range - phi_min
-    # - Lam * k * del_phi**3 / phi_min**4 +  Lam * k * del_phi**5 / phi_min**6
-    # pref = w_max - Lam * k * del_phi / phi_min**2
 
-    # uncertainty[i, :] = pref
+    phi_min = Lam * k / (w_max + Lam * (k - 1))
+    phi_max = Lam * k / (w_min + Lam * (k - 1))
+    phi_range = np.linspace(0, phi_max)
     slope = Lam * k / phi_max
     uncertainty[i, :] = w_max + slope * (1 - phi_range/phi_min)
-    plt.plot(phi_range, uncertainty[i, :], 'k-', lw=0.1, alpha=0.1, zorder=1)
+percs = np.zeros((2, len(phi_range)))
+for i in range(len(phi_range)):
+    percs[:, i] = np.percentile(uncertainty[:, i], (99.5, 0.5))
+ax.fill_between(phi_range, 1/percs[0, :], 1/percs[1, :],
+                color=cor['primary_black'], alpha=0.25, label='prediction')
+# plt.plot(phi_range, uncertainty[i, :], 'k-', lw=0.1, alpha=0.1, zorder=1)
 ax.plot([], [], '-', lw=1, color=cor['primary_green'], label='wildtype')
 ax.plot([], [], '-', lw=1, color=cor['primary_blue'], label='malE-rbsB-fliC KO')
 ax.plot([], [], '-', lw=1, color=cor['primary_gold'], label='rbsB OE in d3')
 ax.plot([], [], '-', lw=1, color=cor['primary_purple'], label='malE OE in d3')
 ax.plot([], [], '-', lw=1, color=cor['primary_black'], label='lacZ OE in WT')
 
-ax.set_ylim([0.5, 1])
-ax.set_xlim([0, 0.08])
+ax.set_ylim([1, 2])
+ax.set_xlim([0, 0.06])
+
 ax.set_xlabel('$M_{peri} / M_{biomass}$')
-ax.set_ylabel('width [µm]')
+ax.set_ylabel('1 / width [µm$^{-1}$]')
 
 # ax.plot(phi_range, 1/pred,  'k-', lw=2)
 ax.legend()
-plt.savefig('/Users/gchure/Desktop/theory_fit_complete_analysis.pdf')
+plt.savefig('/Users/gchure/Desktop/wt_theory_fit_complete_analysis.pdf')
 
 
 # %%
@@ -417,5 +421,72 @@ for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression', 'ind
     widths.loc[widths['width_mu_dim_0'] == g[-1] - 1, ['strain',
                                                        'carbon_source', 'overexpression', 'inducer_conc']] = g[:-1]
 
+# %%
+prot_data = pd.read_csv(
+    '../../data/summaries/summarized_protein_measurements.csv')
+prot_data = prot_data[(prot_data['strain'] == 'wildtype') &
+                      (prot_data['overexpression'] == 'none') &
+                      (prot_data['inducer_conc_ng_mL'] == 0)]
 
-widths
+# %%
+si_data = pd.read_csv('../../data/literature/Si2017/si2017_SAV.csv')
+fig, ax = plt.subplots(1, 2, figsize=(6, 3))
+ax[0].set_xlabel('growth rate [hr$^{-1}$]')
+ax[1].set_xlabel('growth rate [hr$^{-1}$]')
+ax[0].set_ylabel('surface to volume [µm$^{-1}$]')
+ax[1].set_ylabel('periplasmic protein per biomass [µg / OD$_{600}$]')
+ax[0].plot(si_data['growth_rate_hr'], si_data['SAV_inv_um'], '.',
+           markeredgewidth=0, alpha=0.5, label='Si et al., 2017')
+for g, d in wt_size.groupby(['carbon_source']):
+    _growth = growth[growth['carbon_source'] == g]
+    ax[0].plot(_growth['growth_rate_hr'], d['surface_to_volume'].mean(),
+               'o', color=cor['primary_green'], ms=6, label='__nolegend__')
+
+ax[0].plot([], [], 'o', ms=6, color=cor['primary_green'], label='our data')
+
+ax[1].plot(mass_fracs['growth_rate_hr'], mass_fracs['biomass_frac'] * 560, '.', color=cor['light_black'],
+           markeredgewidth=0, alpha=0.5, label='literature proteomics')
+for g, d in prot_data.groupby(['carbon_source']):
+    _growth = growth[growth['carbon_source'] == g]
+    ax[1].plot(_growth['growth_rate_hr'], d['prot_ug_per_biomass'].mean(), 'o',
+               color=cor['primary_green'],  ms=6, label='__nolegend__')
+ax[1].plot([], [], 'o', ms=6, color=cor['primary_green'], label='our data')
+
+ax[0].legend()
+ax[1].legend()
+ax[1].set_ylim([0, 40])
+plt.savefig('/Users/gchure/Desktop/SAV_mass_spec_comparison.pdf')
+
+# %%
+wt_noind = noind_width[(noind_width['strain'] == 'wildtype') &
+                       (noind_width['carbon_source'] == 'acetate')]
+
+d3_noind = noind_width[(noind_width['strain'] == 'malE-rbsB-fliC-KO') &
+                       (noind_width['carbon_source'] == 'acetate')]
+
+d3_ind = ind_width[(ind_width['strain'] == 'malE-rbsB-fliC-KO') &
+                   (ind_width['carbon_source'] == 'acetate') &
+                   (ind_width['overexpression'] == 'malE') &
+                   (ind_width['inducer_conc'] == 100)]
+
+fig, ax = plt.subplots(1, 1, figsize=(1, 4))
+i = 1
+for g, d in wt_noind.groupby(['interval'], sort=False):
+    ax.hlines(1, d['lower'], d['upper'], color=cmaps['wildtype'][g],
+              zorder=i+1, label='__nolegend__', lw=0.1 + 2 * i * width_inc)
+    i += 1
+
+
+i = 1
+for g, d in d3_noind.groupby(['interval'], sort=False):
+    ax.hlines(0.9, d['lower'], d['upper'], color=cmaps['malE-rbsB-fliC-KO'][g],
+              zorder=i+1, label='__nolegend__', lw=0.1 + 2 * i * width_inc)
+    i += 1
+
+i = 1
+for g, d in d3_ind.groupby(['interval'], sort=False):
+    ax.hlines(0.8, d['lower'], d['upper'], color=cmaps['malE'][g],
+              zorder=i+1, label='__nolegend__', lw=0.1 + 2 * i * width_inc)
+    i += 1
+
+ax.set_ylim([0.5, 1.1])
