@@ -536,11 +536,12 @@ plt.savefig('../../figures/mcmc/one-shot_cell_dimension_ppc.pdf')
 # ax.set_ylabel('surface-to-volume [µm$^{-1}$]')
 
 # # %%
-# mass_fracs = pd.read_csv('../../data/compiled_mass_fractions.csv')
-# genes = pd.read_csv('./genes_classification_all.csv')
-# _genes = genes[genes['location'].isin(['IM', 'OM', 'PE', 'LPO'])]
-# mass_fracs = mass_fracs[mass_fracs['gene_name'].isin(_genes['gene'].unique())]
-# mass_fracs
+mass_fracs = pd.read_csv('../../data/compiled_mass_fractions.csv')
+genes = pd.read_csv('./genes_classification_all.csv')
+_genes = genes[genes['location'].isin(['IM', 'OM', 'PE', 'LPO'])]
+mass_fracs = mass_fracs[mass_fracs['gene_name'].isin(_genes['gene'].unique())]
+
+mass_fracs
 # # %%
 # gr = samples.posterior.growth_mu.to_dataframe().reset_index()
 # for carb, idx in carb_idx_dict.items():
@@ -558,37 +559,37 @@ plt.savefig('../../figures/mcmc/one-shot_cell_dimension_ppc.pdf')
 # density = 1.1
 
 # # COmpute simple fits
-# w_popt = scipy.stats.linregress(
-#     size_data['growth_mu'], size_data['width_median'])
-# ell_popt = scipy.stats.linregress(
-#     size_data['growth_mu'], np.log(size_data['length']))
-# peri_vol_popt = scipy.stats.linregress(
-#     size_data['growth_mu'], np.log(size_data['periplasm_volume']))
-# vol_popt = scipy.stats.linregress(
-#     size_data['growth_mu'], np.log(size_data['volume']))
-# sav_popt = scipy.stats.linregress(
-#     size_data['growth_mu'], np.log(size_data['surface_to_volume']))
+w_popt = scipy.stats.linregress(
+    size_data['growth_mu'], size_data['width_median'])
+ell_popt = scipy.stats.linregress(
+    size_data['growth_mu'], np.log(size_data['length']))
+peri_vol_popt = scipy.stats.linregress(
+    size_data['growth_mu'], np.log(size_data['periplasm_volume']))
+vol_popt = scipy.stats.linregress(
+    size_data['growth_mu'], np.log(size_data['volume']))
+sav_popt = scipy.stats.linregress(
+    size_data['growth_mu'], np.log(size_data['surface_to_volume']))
 
-# # Compute the periplasmic protein density
-# peri_mass_fracs['width'] = w_popt[0] * \
-#     peri_mass_fracs['growth_rate_hr'] + w_popt[1]
-# peri_mass_fracs['length'] = np.exp(
-#     ell_popt[0] * peri_mass_fracs['growth_rate_hr'] + ell_popt[1])
-# peri_mass_fracs['peri_vol'] = np.exp(
-#     peri_vol_popt[0] * peri_mass_fracs['growth_rate_hr'] + peri_vol_popt[1])
-# peri_mass_fracs['volume'] = np.exp(
-#     vol_popt[0] * peri_mass_fracs['growth_rate_hr'] + vol_popt[1])
-# peri_mass_fracs['sav'] = np.exp(
-#     sav_popt[0] * peri_mass_fracs['growth_rate_hr'] + sav_popt[1])
-# # peri_mass_fracs['peri_volume'] = size.analytical.surface_area(peri_mass_fracs['length'], peri_mass_fracs['width']) * 0.025
-# peri_mass_fracs['tot_protein'] = density * \
-#     dry_frac * prot_frac * peri_mass_fracs['volume']
-# peri_mass_fracs['peri_protein'] = peri_mass_fracs['mass_frac'] * \
-#     peri_mass_fracs['tot_protein']
-# peri_mass_fracs['rho_peri'] = (
-#     peri_mass_fracs['peri_protein'] * 1E3) / peri_mass_fracs['peri_vol']
-# peri_mass_fracs['biomass_frac'] = peri_mass_fracs['peri_protein'] / \
-#     (density * dry_frac * peri_mass_fracs['volume'])
+# Compute the periplasmic protein density
+peri_mass_fracs['width'] = w_popt[0] * \
+    peri_mass_fracs['growth_rate_hr'] + w_popt[1]
+peri_mass_fracs['length'] = np.exp(
+    ell_popt[0] * peri_mass_fracs['growth_rate_hr'] + ell_popt[1])
+peri_mass_fracs['peri_vol'] = np.exp(
+    peri_vol_popt[0] * peri_mass_fracs['growth_rate_hr'] + peri_vol_popt[1])
+peri_mass_fracs['volume'] = np.exp(
+    vol_popt[0] * peri_mass_fracs['growth_rate_hr'] + vol_popt[1])
+peri_mass_fracs['sav'] = np.exp(
+    sav_popt[0] * peri_mass_fracs['growth_rate_hr'] + sav_popt[1])
+# peri_mass_fracs['peri_volume'] = size.analytical.surface_area(peri_mass_fracs['length'], peri_mass_fracs['width']) * 0.025
+peri_mass_fracs['tot_protein'] = density * \
+    dry_frac * prot_frac * peri_mass_fracs['volume']
+peri_mass_fracs['peri_protein'] = peri_mass_fracs['mass_frac'] * \
+    peri_mass_fracs['tot_protein']
+peri_mass_fracs['rho_peri'] = (
+    peri_mass_fracs['peri_protein'] * 1E3) / peri_mass_fracs['peri_vol']
+peri_mass_fracs['biomass_frac'] = peri_mass_fracs['peri_protein'] / \
+    (
 
 # # %%
 

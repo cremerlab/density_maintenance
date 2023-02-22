@@ -237,6 +237,64 @@ width_perc = size.viz.compute_percentiles(width_ppc, 'width_mu', [
 
 
 # %%
+# Mass spec data
+mass_fracs = pd.read_csv('../../data/literature/compiled_mass_fractions.csv')
+mass_fracs = mass_fracs[mass_fracs['periplasm']]
+dry_frac = 0.3
+prot_frac = 0.55
+density = 1.1
+
+# %%
+# Do the proper classification
+# genes = pd.read_csv('../../data/literature/genes_classification_all.csv')
+# _genes = genes[genes['location'].isin(['IM', 'OM', 'PE', 'LPO'])]
+# mass_fracs = mass_fracs[mass_fracs['gene_name'].isin(_genes['gene'].unique())]
+growth = pd.read_csv('../../data/summaries/summarized_growth_measurements.csv')
+growth = growth[(growth['strain'] == 'wildtype') & (
+    growth['overexpression'] == 'none') & (growth['inducer_conc_ng_ml'] == 0)]
+growth = growth.groupby(['carbon_source']).mean().reset_index()
+wt_size = size_data[(size_data['strain'] == 'wildtype') & (
+    size_data['overexpression'] == 'none') & (size_data['inducer_conc'] == 0)]
+for g, d in growth.groupby(['carbon_source', 'growth_rate_hr']):
+    wt_size.loc[wt_size['carbon_source'] == g[0], 'growth_mu'] = g[1]
+
+# Determine the simple relations
+w_popt = scipy.stats.linregress(
+    wt_size['growth_mu'], wt_size['width_median'])
+ell_popt = scipy.stats.linregress(
+    wt_size['growth_mu'], np.log(wt_size['length']))
+peri_vol_popt = scipy.stats.linregress(
+    wt_size['growth_mu'], np.log(wt_size['periplasm_volume']))
+vol_popt = scipy.stats.linregress(
+    wt_size['growth_mu'], np.log(wt_size['volume']))
+sav_popt = scipy.stats.linregress(
+    wt_size['growth_mu'], np.log(wt_size['surface_to_volume']))
+
+# Compute the periplasmic protein density
+mass_fracs['width'] = w_popt[0] * \
+    mass_fracs['growth_rate_hr'] + w_popt[1]
+mass_fracs['length'] = np.exp(
+    ell_popt[0] * mass_fracs['growth_rate_hr'] + ell_popt[1])
+mass_fracs['peri_vol'] = np.exp(
+    peri_vol_popt[0] * mass_fracs['growth_rate_hr'] + peri_vol_popt[1])
+mass_fracs['volume'] = np.exp(
+    vol_popt[0] * mass_fracs['growth_rate_hr'] + vol_popt[1])
+mass_fracs['sav'] = np.exp(
+    sav_popt[0] * mass_fracs['growth_rate_hr'] + sav_popt[1])
+# mass_fracs['peri_volume'] = size.analytical.surface_area(mass_fracs['length'], mass_fracs['width']) * 0.025
+mass_fracs['tot_protein'] = density * \
+    dry_frac * prot_frac * mass_fracs['volume']
+mass_fracs['peri_protein'] = mass_fracs['mass_frac'] * \
+    mass_fracs['tot_protein']
+mass_fracs['rho_peri'] = (
+    mass_fracs['peri_protein'] * 1E3) / mass_fracs['peri_vol']
+mass_fracs['biomass_frac'] = mass_fracs['peri_protein'] / \
+    (density * dry_frac * mass_fracs['volume'])
+mass_fracs = mass_fracs.groupby(
+    ['dataset_name', 'condition', 'growth_rate_hr', 'width']).sum().reset_index()
+
+
+# %%
 # Look only at the no inducer cases
 noind_width = width_perc[(width_perc['inducer_conc'] == 0) & (width_perc['overexpression'] == 'none') & (
     width_perc['strain'].isin(['wildtype', 'malE-rbsB-KO', 'malE-rbsB-fliC-KO']))]
@@ -309,20 +367,32 @@ for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'indu
         ax.vlines(frac10, _d['lower'], _d['upper'], color=cmaps[g[2]][_g],
                   zorder=i + 1, label='__nolegend__', lw=0.1 + i * width_inc)
 
-phi_range = np.linspace(0.004, 0.055, 200)
+
+ax.plot(mass_fracs['biomass_frac'], mass_fracs['width'], 'o')
+phi_range = np.linspace(0.004, 0.1)
 n_draws = 2000
 uncertainty = np.zeros((n_draws, len(phi_range)))
 for i in tqdm.tqdm(range(n_draws)):
     delta = np.random.normal(0.02, 0.001)
-    alpha = np.random.normal(3.2, 0.1)
-    k = 0.1  # np.random.normal(0.1, 0.05)
-    w_max = np.random.normal(1, 0.05)
-    w_min = np.random.normal(0.25, 0.005)
-    Lam = 12 * alpha * delta * k / (3 * alpha - 1)
-    phi_max = k * Lam / (k * w_min + Lam * (k - 1))
-    phi_min = Lam / ((w_max - w_min) + Lam / phi_max)
+    alpha = 3
+    # alpha = np.random.normal(3.2, 0.1)
+    k = 0.1
+    w_max = 1  # np.random.normal(0.9, 0.05)
+    w_min = 0.25  # np.random.normal(0.25, 0.005)
+    Lam = 12 * alpha * delta / (3 * alpha - 1)
+    # phi_min = 0.01
+    # phi_max = 0.08
+    # phi_range = np.linspace(phi_min, phi_max)
+    # phi_min = 0.01
+    phi_min = Lam * k / (w_max + Lam * (k - 1))
+    # phi_max = 0.08
+    phi_max = Lam * k / (w_min + Lam * (k - 1))
+    # del_phi = phi_range - phi_min
+    # - Lam * k * del_phi**3 / phi_min**4 +  Lam * k * del_phi**5 / phi_min**6
+    # pref = w_max - Lam * k * del_phi / phi_min**2
 
-    slope = Lam / phi_max
+    # uncertainty[i, :] = pref
+    slope = Lam * k / phi_max
     uncertainty[i, :] = w_max + slope * (1 - phi_range/phi_min)
     plt.plot(phi_range, uncertainty[i, :], 'k-', lw=0.1, alpha=0.1, zorder=1)
 ax.plot([], [], '-', lw=1, color=cor['primary_green'], label='wildtype')
@@ -332,10 +402,20 @@ ax.plot([], [], '-', lw=1, color=cor['primary_purple'], label='malE OE in d3')
 ax.plot([], [], '-', lw=1, color=cor['primary_black'], label='lacZ OE in WT')
 
 ax.set_ylim([0.5, 1])
-ax.set_xlim([0, 0.06])
+ax.set_xlim([0, 0.08])
 ax.set_xlabel('$M_{peri} / M_{biomass}$')
 ax.set_ylabel('width [µm]')
 
 # ax.plot(phi_range, 1/pred,  'k-', lw=2)
 ax.legend()
 plt.savefig('/Users/gchure/Desktop/theory_fit_complete_analysis.pdf')
+
+
+# %%
+widths = samples.posterior.width_mu.to_dataframe().reset_index()
+for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc', 'size_cond_idx']):
+    widths.loc[widths['width_mu_dim_0'] == g[-1] - 1, ['strain',
+                                                       'carbon_source', 'overexpression', 'inducer_conc']] = g[:-1]
+
+
+widths
