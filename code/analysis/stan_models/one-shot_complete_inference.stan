@@ -7,15 +7,7 @@ data {
     vector<lower=0>[N_cal] concentration; // Protein concentrations for cal curve
     vector<lower=0>[N_cal] cal_od; // OD595nm measurements for calibration curve
 
-    //--------------------------------------------------------------------------
-    //  Bradford Assay Protein Measurements
-    //--------------------------------------------------------------------------
-    int<lower=1> N_brad;  // Total number of bradford measurements
-    int<lower=1> J_brad_cond; // Total number of unique conditions
-    array[N_brad] int<lower=1, upper=J_brad_cond> brad_cond_idx; // ID vector
-    vector<lower=0>[N_brad] brad_od595; // OD595 measurements per sample
-    vector<lower=0>[N_brad] brad_od600; // OD595 measurements per sample
-    vector<lower=0>[N_brad] conv_factor; // Conversion factor from protein per biomass to OD
+   
 
     //--------------------------------------------------------------------------
     //  Size Measurements
@@ -30,6 +22,25 @@ data {
     vector<lower=0>[N_size] surface_area;
     vector<lower=0>[N_size] surface_area_volume;
 
+ //--------------------------------------------------------------------------
+    //  Bradford Assay Protein Measurements
+    //--------------------------------------------------------------------------
+    int<lower=1> N_brad;  // Total number of bradford measurements
+    int<lower=1> J_brad_cond; // Total number of unique conditions
+    array[N_brad] int<lower=1, upper=J_brad_cond> brad_cond_idx; // ID vector
+    array[J_brad_cond] int<lower=1, upper=J_size_cond> brad_cond_mapper; // Maps bradford conditions to size conditions
+    vector<lower=0>[N_brad] brad_od595; // OD595 measurements per sample
+    vector<lower=0>[N_brad] brad_od600; // OD595 measurements per sample
+    vector<lower=0>[N_brad] conv_factor; // Conversion factor from protein per biomass to OD
+
+
+    //--------------------------------------------------------------------------
+    //  Flow measurements
+    //--------------------------------------------------------------------------
+    int<lower=1> N_flow;
+    array[N_flow] int<lower=1, upper=J_size_cond> flow_mapper;
+    vector<lower=0>[N_flow] cells_per_biomass;
+
     //--------------------------------------------------------------------------
     //  Literature Biomass Measurements
     //--------------------------------------------------------------------------
@@ -38,12 +49,6 @@ data {
 }
 
 transformed data {
-    // -------------------------------------------------------------------------
-    // Bradford Assay Protein Measurements
-    // -------------------------------------------------------------------------
-    // vector[N_brad] log_brad_od = log(brad_od);
-
-
     // -------------------------------------------------------------------------
     // Literature Biomass Measurements
     // -------------------------------------------------------------------------
@@ -87,7 +92,12 @@ parameters {
     // -------------------------------------------------------------------------
     real biomass_centered_mu; // Centered mean biomass
     real<lower=0> biomass_sigma; // scale parameter
-
+        
+    // -------------------------------------------------------------------------
+    // Flow measurements
+    // -------------------------------------------------------------------------
+    real flow_prefactor;
+    real<lower=0> flow_sigma_;
 
 } 
 
@@ -102,6 +112,11 @@ transformed parameters {
     // -------------------------------------------------------------------------
     real<lower=0> biomass_mu = biomass_centered_mu * sd(biomass) + mean(biomass);
 
+    // -------------------------------------------------------------------------
+    // Flow measurements
+    // -------------------------------------------------------------------------
+    real flow_sigma = 1E8 * flow_sigma_;
+    real flow_slope = flow_prefactor * biomass_mu;
 }
 
 model { 
@@ -163,6 +178,13 @@ model {
     // Likelihood
     biomass_centered ~ normal(biomass_centered_mu, biomass_sigma);
 
+    // -------------------------------------------------------------------------
+    // Flow measurments
+    // -------------------------------------------------------------------------    
+    flow_sigma ~ std_normal();
+    flow_prefactor ~ std_normal();
+    cells_per_biomass ~ normal(1./(flow_slope .* volume_mu[flow_mapper]), flow_sigma);
+ 
 }
 
 generated quantities {
@@ -201,6 +223,13 @@ generated quantities {
         surface_area_vol_rep[i] = normal_rng(surface_area_vol_mu[size_cond_idx[i]], surface_area_vol_sigma[size_cond_idx[i]]); 
     }
 
+    // -------------------------------------------------------------------------
+    // Literature Biomass Measurements
+    // -------------------------------------------------------------------------
+    vector[N_flow] cells_per_biomass_rep;
+    for (i in 1:N_flow) {
+        cells_per_biomass_rep[i] =  normal_rng(1/(flow_slope .* volume_mu[flow_mapper[i]]), flow_sigma_);
+    }
 
     // -------------------------------------------------------------------------
     // Literature Biomass Measurements
@@ -213,5 +242,9 @@ generated quantities {
     // -------------------------------------------------------------------------
     // Compute quantities
     // -------------------------------------------------------------------------
+    vector[J_brad_cond] N_cells = 1 ./ (flow_slope .* volume_mu[brad_cond_mapper]);
+    vector[J_brad_cond] periplasmic_density = prot_per_biomass_mu ./ (N_cells .* peri_volume_mu[brad_cond_mapper]);
+    vector[J_brad_cond] cytoplasmic_density = biomass_mu ./ (N_cells .* volume_mu[brad_cond_mapper] .* peri_volume_mu[brad_cond_mapper]);
+    vector[J_brad_cond] rho_ratio = periplasmic_density ./ cytoplasmic_density;
     vector[J_brad_cond] periplasmic_biomass_fraction = prot_per_biomass_mu / biomass_mu;
 }
