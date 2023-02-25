@@ -1,4 +1,14 @@
 data {
+    //--------------------------------------------------------------------------
+    //  Growth Measurements
+    //--------------------------------------------------------------------------
+    int<lower=1> N_growth; // Number of growth measurements
+    int<lower=1> J_growth_cond; // Number of unique conditions
+    int<lower=1> J_growth_curves; // Number of biological replicates
+    array[J_growth_curves] int<lower=1, upper=J_growth_cond> growth_cond_idx;
+    array[N_growth] int<lower=1, upper=J_growth_curves> growth_curve_idx;
+    vector<lower=0>[N_growth] growth_time;
+    vector<lower=0>[N_growth] growth_od;
 
     //--------------------------------------------------------------------------
     //  Bradford Assay Calibration Curve
@@ -6,8 +16,6 @@ data {
     int<lower=1> N_cal; // Number of Bradford calibration curve measurements
     vector<lower=0>[N_cal] concentration; // Protein concentrations for cal curve
     vector<lower=0>[N_cal] cal_od; // OD595nm measurements for calibration curve
-
-   
 
     //--------------------------------------------------------------------------
     //  Size Measurements
@@ -22,7 +30,7 @@ data {
     vector<lower=0>[N_size] surface_area;
     vector<lower=0>[N_size] surface_area_volume;
 
- //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     //  Bradford Assay Protein Measurements
     //--------------------------------------------------------------------------
     int<lower=1> N_brad;  // Total number of bradford measurements
@@ -32,7 +40,6 @@ data {
     vector<lower=0>[N_brad] brad_od595; // OD595 measurements per sample
     vector<lower=0>[N_brad] brad_od600; // OD595 measurements per sample
     vector<lower=0>[N_brad] conv_factor; // Conversion factor from protein per biomass to OD
-
 
     //--------------------------------------------------------------------------
     //  Flow measurements
@@ -50,12 +57,31 @@ data {
 
 transformed data {
     // -------------------------------------------------------------------------
+    // Growth measurements
+    // -------------------------------------------------------------------------
+    vector[N_growth] log_growth_od = log(growth_od);
+
+    // -------------------------------------------------------------------------
     // Literature Biomass Measurements
     // -------------------------------------------------------------------------
     vector[N_biomass] biomass_centered = (biomass - mean(biomass)) ./ sd(biomass);
+
 }
 
 parameters { 
+    // -------------------------------------------------------------------------
+    // Bradford Assay Calibration Curve
+    // -------------------------------------------------------------------------
+    // Hyperparameters 
+    vector<lower=0>[J_growth_cond] growth_mu;
+    real growth_tau;
+
+    // Level 1 hyper parameters
+    vector<lower=0>[J_growth_curves] growth_mu_1_tilde;
+
+    // Singular
+    real<lower=0> growth_sigma;
+    vector<lower=0>[J_growth_curves] growth_od_init;
 
     // -------------------------------------------------------------------------
     // Bradford Assay Calibration Curve
@@ -74,17 +100,17 @@ parameters {
     // -------------------------------------------------------------------------
     // Size Measurements
     // -------------------------------------------------------------------------
-    vector[J_size_cond] width_mu;
+    vector<lower=0>[J_size_cond] width_mu;
     vector<lower=0>[J_size_cond] width_sigma;
-    vector[J_size_cond] length_mu;
+    vector<lower=0>[J_size_cond] length_mu;
     vector<lower=0>[J_size_cond] length_sigma;
-    vector[J_size_cond] volume_mu;
+    vector<lower=0>[J_size_cond] volume_mu;
     vector<lower=0>[J_size_cond] volume_sigma;
-    vector[J_size_cond] peri_volume_mu;
+    vector<lower=0>[J_size_cond] peri_volume_mu;
     vector<lower=0>[J_size_cond] peri_volume_sigma;
-    vector[J_size_cond] surface_area_mu;
+    vector<lower=0>[J_size_cond] surface_area_mu;
     vector<lower=0>[J_size_cond] surface_area_sigma;
-    vector[J_size_cond] surface_area_vol_mu;
+    vector<lower=0>[J_size_cond] surface_area_vol_mu;
     vector<lower=0>[J_size_cond] surface_area_vol_sigma;
 
     // -------------------------------------------------------------------------
@@ -97,11 +123,17 @@ parameters {
     // Flow measurements
     // -------------------------------------------------------------------------
     real flow_prefactor;
-    real<lower=0> flow_sigma_;
+    real<lower=0> flow_sigma;
 
 } 
 
 transformed parameters {
+    // -------------------------------------------------------------------------
+    // Bradford Assay Protein Measurements
+    // -------------------------------------------------------------------------
+    vector[J_growth_curves] growth_mu_1 = growth_mu[growth_cond_idx] + growth_tau * growth_mu_1_tilde;
+    vector[J_growth_curves] log_growth_od_init = log(growth_od_init);
+
     // -------------------------------------------------------------------------
     // Bradford Assay Protein Measurements
     // -------------------------------------------------------------------------
@@ -114,12 +146,24 @@ transformed parameters {
 
     // -------------------------------------------------------------------------
     // Flow measurements
-    // -------------------------------------------------------------------------
-    real flow_sigma = 1E8 * flow_sigma_;
-    real flow_slope = flow_prefactor * biomass_mu;
+    // ------------------------------------------------------------------------- 
+    real<lower=0> flow_slope = flow_prefactor * biomass_mu;
+    vector<lower=0>[N_flow] flow_mu = (flow_prefactor * biomass_mu * volume_mu[flow_mapper]);
 }
 
 model { 
+    // -------------------------------------------------------------------------
+    // Growth curves
+    // -------------------------------------------------------------------------
+    // Prior
+    growth_mu ~ gamma(2.85, 3.30);
+    growth_tau ~ std_normal();
+    growth_mu_1_tilde ~ std_normal();
+    growth_sigma ~ normal(0, 0.1);
+    growth_od_init ~ normal(0, 0.01);
+
+    // Likelihood
+    log_growth_od ~ normal(log_growth_od_init[growth_curve_idx] + growth_mu_1[growth_curve_idx] .* growth_time, growth_sigma);
 
     // -------------------------------------------------------------------------
     // Bradford Assay Calibration Curve
@@ -141,7 +185,6 @@ model {
 
     // Likelihood
     log((brad_od595 - cal_intercept)./brad_od600)  ~ normal(log(cal_slope .* prot_per_biomass_mu[brad_cond_idx] ./ conv_factor[brad_cond_idx]), od595_per_biomass_sigma[brad_cond_idx]);
-    // log_brad_od ~ cauchy(log(cal_intercept + (cal_slope * conv_factor) .* prot_per_biomass_mu[brad_cond_idx]), od595_per_biomass_sigma[brad_cond_idx]);
 
     // -------------------------------------------------------------------------
     // Size Measurements
@@ -181,13 +224,21 @@ model {
     // -------------------------------------------------------------------------
     // Flow measurments
     // -------------------------------------------------------------------------    
-    flow_sigma ~ std_normal();
+    flow_sigma ~ normal(0, 0.1);
     flow_prefactor ~ std_normal();
-    cells_per_biomass ~ normal(1./(flow_slope .* volume_mu[flow_mapper]), flow_sigma);
+    cells_per_biomass/1E9 ~ normal(1/flow_mu, flow_sigma);
  
 }
 
 generated quantities {
+    // -------------------------------------------------------------------------
+    // Bradford Assay Calibration Curve
+    // -------------------------------------------------------------------------
+    vector[N_growth] growth_od_rep;
+    for (i in 1:N_growth) {
+        growth_od_rep[i] = exp(normal_rng(log_growth_od_init[growth_curve_idx[i]] + growth_mu_1[growth_curve_idx[i]] * growth_time[i], growth_sigma));
+    }
+    
     // -------------------------------------------------------------------------
     // Bradford Assay Calibration Curve
     // -------------------------------------------------------------------------
@@ -228,7 +279,7 @@ generated quantities {
     // -------------------------------------------------------------------------
     vector[N_flow] cells_per_biomass_rep;
     for (i in 1:N_flow) {
-        cells_per_biomass_rep[i] =  normal_rng(1/(flow_slope .* volume_mu[flow_mapper[i]]), flow_sigma_);
+        cells_per_biomass_rep[i] = 1E9 * normal_rng(1/flow_mu[i], flow_sigma);
     }
 
     // -------------------------------------------------------------------------

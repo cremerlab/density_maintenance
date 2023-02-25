@@ -27,7 +27,8 @@ size_data = pd.read_csv(
 biomass_data = pd.read_csv(
     '../../data/literature/Basan2015/Basan2015_drymass_protein_cellcount.csv')
 flow_data = pd.read_csv('../../data/summaries/flow_cytometry_counts.csv')
-
+growth_data = pd.read_csv(
+    '../../data/growth_curves/growth_measurements_processed.csv')
 # ##############################################################################
 # DATASET FILTERING
 # ##############################################################################
@@ -38,8 +39,9 @@ brad_data['od_600nm_true'] = brad_data['od_600nm']
 brad_data.loc[brad_data['od_600nm'] >= 0.45, 'od_600nm_true'] = np.exp(
     1.26 * np.log(brad_data[brad_data['od_600nm'] >= 0.45]['od_600nm'].values) + 0.25)
 brad_data = brad_data[brad_data['od_600nm'] <= 0.45]
-# brad_data = brad_data[~((brad_data['overexpression'] != 'none') & (
-# brad_data['inducer_conc_ng_mL'] == 0))]
+
+brad_data = brad_data[~((brad_data['overexpression'] != 'none') & (
+    brad_data['inducer_conc_ng_mL'] == 0))]
 
 # Keep only the bradford data with more than two replicates
 brad_data = pd.concat([d for _, d in brad_data.groupby(
@@ -61,14 +63,21 @@ flow_data = flow_data[flow_data['strain'] == 'wildtype']
 flow_data = flow_data.groupby(
     ['date', 'carbon_source', 'run_no']).mean().reset_index()
 
+# Restrict growth data to only wt and d3
+growth_data = growth_data[growth_data['strain'].isin(
+    ['wildtype', 'malE-rbsB-fliC-KO'])]
+
 # %%
 # ##############################################################################
 # DATA LABELING
 # ##############################################################################
+
+## SIZE INDEXING ###############################################################
 # Add indexing to the size data
 size_data['size_cond_idx'] = size_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc']).ngroup() + 1
 
+## BRADFORD INDEXING ###########################################################
 # Map size identifiers to the bradford conditions
 brad_data['brad_mapper'] = 0
 for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc', 'size_cond_idx']):
@@ -78,11 +87,10 @@ for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression', 'ind
                   (brad_data['inducer_conc_ng_mL'] == g[3]),
                   'brad_mapper'] = g[-1]
 brad_data = brad_data[brad_data['brad_mapper'] > 0]
+
 # Filter, label, and transform bradford data
 brad_data = brad_data[brad_data['strain'].isin(
     ['wildtype',  'malE-rbsB-fliC-KO'])]
-# brad_data = brad_data[~((brad_data['overexpression'] != 'none') & (
-# brad_data['inducer_conc_ng_mL'] == 0))]
 brad_data['cond_idx'] = brad_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']).ngroup() + 1
 brad_data['conv_factor'] = brad_data['dilution_factor'] * \
@@ -91,6 +99,7 @@ brad_data['conv_factor'] = brad_data['dilution_factor'] * \
 brad_data['od_per_biomass'] = brad_data['od_595nm']
 
 
+## FLOW INDEXING ###############################################################
 # Map size identifiers to the flow growth conditions.
 flow_data['flow_mapper'] = 0
 for g, d in size_data[(size_data['strain'] == 'wildtype') &
@@ -100,8 +109,26 @@ for g, d in size_data[(size_data['strain'] == 'wildtype') &
     flow_data.loc[flow_data['carbon_source'] == g[0], 'flow_mapper'] = g[1]
 
 
-# Define teh data dictionary
-data_dict = {'N_cal': len(cal_data),
+## GROWTH INDEXING #############################################################
+# Map growth info
+growth_data['cond_idx'] = growth_data.groupby(
+    ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_ml']).ngroup() + 1
+growth_data['rep_idx'] = growth_data.groupby(
+    ['cond_idx', 'run_idx']).ngroup() + 1
+
+# ##############################################################################
+# DATA PREPARATION
+# ##############################################################################
+# Define the data dictionary
+data_dict = {'N_growth': len(growth_data),
+             'J_growth_cond': growth_data['cond_idx'].max(),
+             'J_growth_curves': growth_data['rep_idx'].max(),
+             'growth_cond_idx': growth_data.groupby(['rep_idx'])['cond_idx'].min().astype(int),
+             'growth_curve_idx': growth_data['rep_idx'].values.astype(int),
+             'growth_time': growth_data['elapsed_time_hr'].values.astype(float),
+             'growth_od': growth_data['od_600nm'].values.astype(float),
+
+             'N_cal': len(cal_data),
              'concentration': cal_data['protein_conc_ug_ml'].values.astype(float),
              'cal_od': cal_data['od_595nm'].values.astype(float),
 
@@ -134,8 +161,7 @@ data_dict = {'N_cal': len(cal_data),
 
 # %%
 # Sample the posterior
-_samples = model.sample(data_dict, adapt_delta=0.95,
-                        iter_sampling=2000)
+_samples = model.sample(data_dict, adapt_delta=0.95, iter_sampling=2000)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
@@ -472,14 +498,16 @@ prot_data = prot_data[(prot_data['strain'] == 'wildtype') &
                       (prot_data['inducer_conc_ng_mL'] == 0)]
 
 # %%
-si_data = pd.read_csv('../../data/literature/Si2017/si2017_SAV.csv')
+# si_data = pd.read_csv('../../data/literature/Si2017/si2017_SAV.csv')
+sv_data = pd.read_csv(
+    '../../data/literature/collated_literature_size_data.csv')
 fig, ax = plt.subplots(1, 2, figsize=(6, 3))
 ax[0].set_xlabel('growth rate [hr$^{-1}$]')
 ax[1].set_xlabel('growth rate [hr$^{-1}$]')
 ax[0].set_ylabel('surface to volume [µm$^{-1}$]')
 ax[1].set_ylabel('periplasmic protein per biomass [µg / OD$_{600}$]')
-ax[0].plot(si_data['growth_rate_hr'], si_data['SAV_inv_um'], '.',
-           markeredgewidth=0, alpha=0.5, label='Si et al., 2017')
+ax[0].plot(sv_data['growth_rate_hr'], sv_data['surface_to_volume'], '.',
+           markeredgewidth=0, alpha=0.5, label='literature data')
 for g, d in wt_size.groupby(['carbon_source']):
     _growth = growth[growth['carbon_source'] == g]
     ax[0].plot(_growth['growth_rate_hr'], d['surface_to_volume'].mean(),
@@ -498,8 +526,41 @@ ax[1].plot([], [], 'o', ms=6, color=cor['primary_green'], label='our data')
 ax[0].legend()
 ax[1].legend()
 ax[1].set_ylim([0, 40])
-plt.savefig('/Users/gchure/Desktop/SAV_mass_spec_comparison.pdf')
+# plt.savefig('/Users/gchure/Desktop/SAV_mass_spec_comparison.pdf')
 
 # %%
 flow_ppc = samples.posterior.cells_per_biomass_rep.to_dataframe().reset_index()
 flow_ppc
+# %%
+_pal = sns.color_palette('muted', 11)
+fig, ax = plt.subplots(3, 2, figsize=(6, 6))
+ax = ax.ravel()
+ax[0].set_ylim([0, 5.5])
+ax[1].set_ylim([0, 1.5])
+ax[2].set_ylim([0, 7])
+ax[3].set_ylim([0, 22])
+ax[4].set_ylim([3, 9])
+
+for a in ax[:-1]:
+    a.set_xlabel('growth rate [hr$^{-1}$]')
+
+for i, (g, d) in enumerate(sv_data.groupby(['source'])):
+    ax[0].plot(d['growth_rate_hr'], d['length_um'],
+               '.', label=g, color=_pal[i])
+    ax[1].plot(d['growth_rate_hr'], d['width_um'], '.', label=g, color=_pal[i])
+    ax[2].plot(d['growth_rate_hr'], d['volume_um3'],
+               '.', label=g, color=_pal[i])
+    ax[3].plot(d['growth_rate_hr'], d['surface_area_um2'],
+               '.', label=g, color=_pal[i])
+    ax[4].plot(d['growth_rate_hr'], d['surface_to_volume'],
+               '.', label=g, color=_pal[i])
+    ax[5].plot([], [], '.', label=g, color=_pal[i])
+
+ax[0].set_ylabel('length [µm]')
+ax[1].set_ylabel('width [µm]')
+ax[2].set_ylabel('volume [µm$^3$]')
+ax[3].set_ylabel('surface area [µm$^2$]')
+ax[4].set_ylabel('surface to volume [µm$^{-1}$]')
+ax[5].axis('off')
+ax[5].legend(loc='center')
+plt.savefig('/Users/gchure/Desktop/literature_size_comparison.pdf')

@@ -240,7 +240,6 @@ model {
     cal_slope ~ std_normal();
     cal_intercept ~ std_normal();
 
-
     // Low-level priors
     cal_sigma ~ std_normal();
 
