@@ -120,7 +120,11 @@ growth_data['rep_idx'] = growth_data.groupby(
 # DATA PREPARATION
 # ##############################################################################
 # Define the data dictionary
-data_dict = {'N_growth': len(growth_data),
+data_dict = {'max_width_mu': 1,
+             'min_width_mu': 0.25,
+             'delta': 0.025,
+    
+             'N_growth': len(growth_data),
              'J_growth_cond': growth_data['cond_idx'].max(),
              'J_growth_curves': growth_data['rep_idx'].max(),
              'growth_cond_idx': growth_data.groupby(['rep_idx'])['cond_idx'].min().astype(int),
@@ -466,6 +470,7 @@ for i in range(len(phi_range)):
     percs[:, i] = np.percentile(uncertainty[:, i], (99.5, 0.5))
 ax.fill_between(phi_range, 1/percs[0, :], 1/percs[1, :],
                 color=cor['primary_black'], alpha=0.25, label='prediction')
+
 # plt.plot(phi_range, uncertainty[i, :], 'k-', lw=0.1, alpha=0.1, zorder=1)
 ax.plot([], [], '-', lw=1, color=cor['primary_green'], label='wildtype')
 ax.plot([], [], '-', lw=1, color=cor['primary_blue'], label='malE-rbsB-fliC KO')
@@ -481,7 +486,7 @@ ax.set_ylabel('1 / width [µm$^{-1}$]')
 
 # ax.plot(phi_range, 1/pred,  'k-', lw=2)
 ax.legend()
-plt.savefig('/Users/gchure/Desktop/wt_theory_fit_complete_analysis.pdf')
+# plt.savefig('/Users/gchure/Desktop/wt_theory_fit_complete_analysis.pdf')
 
 
 # %%
