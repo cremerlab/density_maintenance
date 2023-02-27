@@ -178,7 +178,7 @@ data_dict = {'max_width_mu': 1,
 # %%
 # Sample the posterior
 # , adapt_delta=0.95, iter_sampling=2000)
-_samples = model.sample(data_dict)  # , show_console=True)
+_samples = model.sample(data_dict, iter_sampling=200)  # , show_console=True)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
