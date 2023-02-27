@@ -158,13 +158,13 @@ transformed parameters {
     // -------------------------------------------------------------------------
     // Bradford Assay Protein Measurements
     // -------------------------------------------------------------------------
-    vector[J_growth_curves] growth_mu_1 = growth_mu[growth_cond_idx] + growth_tau * growth_mu_1_tilde;
+    vector<lower=0>[J_growth_curves] growth_mu_1 = growth_mu[growth_cond_idx] + growth_tau * growth_mu_1_tilde;
     vector[J_growth_curves] log_growth_od_init = log(growth_od_init);
 
     // -------------------------------------------------------------------------
     // Bradford Assay Protein Measurements
     // -------------------------------------------------------------------------
-    vector[J_brad_cond] prot_per_biomass_mu = exp(log_prot_per_biomass_mu);
+    vector<lower=0>[J_brad_cond] prot_per_biomass_mu = exp(log_prot_per_biomass_mu);
 
     // -------------------------------------------------------------------------
     // Literature Biomass Measurements
@@ -194,7 +194,7 @@ model {
     // Growth curves
     // -------------------------------------------------------------------------
     // Prior
-    growth_mu ~ gamma(2.85, 3.30);
+    growth_mu ~ std_normal();
     growth_tau ~ std_normal();
     growth_mu_1_tilde ~ std_normal();
     growth_sigma ~ normal(0, 0.1);
