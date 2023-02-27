@@ -17,7 +17,6 @@ transformed data {
 
 parameters {
     // Hyper parameters
-
     real<lower=0, upper=10> width_mu;
     real<lower=0> length_alpha;
     real<lower=0> length_beta;
@@ -40,7 +39,6 @@ parameters {
 
 transformed parameters {
     // Perform uncentering
-
     vector<lower=0, upper=10>[J] width_mu_1 = width_mu + tau * width_mu_1_tilde;
     vector<lower=0, upper=10>[J] vol_mu_1 = vol_mu + tau * vol_mu_1_tilde;
     vector<lower=0, upper=10>[J] sav_mu_1 = SAV_mu + tau * sav_mu_1_tilde;
