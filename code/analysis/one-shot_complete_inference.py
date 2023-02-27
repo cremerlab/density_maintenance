@@ -23,16 +23,12 @@ cal_data = pd.read_csv(
 brad_data = pd.read_csv(
     '../../data/protein_quantification/bradford_periplasmic_protein_v2.csv')
 size_data = pd.read_csv(
-    '../processing/microscopy/size_measurement/output/compiled_size_measurements.csv')
-# size_data = pd.read_csv(
-# '../../data/summaries/summarized_size_measurements.csv')
+    '../../data/summaries/summarized_size_measurements.csv')
 biomass_data = pd.read_csv(
     '../../data/literature/Basan2015/Basan2015_drymass_protein_cellcount.csv')
 flow_data = pd.read_csv('../../data/summaries/flow_cytometry_counts.csv')
 growth_data = pd.read_csv(
     '../../data/growth_curves/growth_measurements_processed.csv')
-
-# %%
 # ##############################################################################
 # DATASET FILTERING
 # ##############################################################################
@@ -54,17 +50,11 @@ brad_data = brad_data[brad_data['strain'].isin(
     ['wildtype',  'malE-rbsB-fliC-KO'])]
 
 # Restrict size data
-size_data = size_data[(size_data['width_median'] >= 0.25) & (size_data['width_median'] <= 1.25) &
-                      (size_data['width_var'] <= 0.05)]
-# size_data.drop(columns=['width_var', 'volume', 'surface_area',
-#  'surface_to_volume', 'periplasm_volume',
-#  'periplasm_fractional_volume'], inplace=True)
 size_data = size_data[size_data['temperature_C'] == 37]
 size_data = size_data[size_data['strain'].isin(
     ['wildtype', 'malE-rbsB-fliC-KO'])]
 size_data = pd.concat([d for _, d in size_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer_conc']
-) if ((len(d['date'].unique()) > 2) | (len(d['run_no'].unique() > 2)))], sort=False)
+    ['strain', 'carbon_source', 'overexpression', 'inducer_conc']) if len(d) > 2], sort=False)
 size_data = size_data[~((size_data['overexpression'] != 'none') & (
     size_data['inducer_conc'] == 0))]
 
@@ -86,9 +76,6 @@ growth_data = growth_data[growth_data['strain'].isin(
 # Add indexing to the size data
 size_data['size_cond_idx'] = size_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc']).ngroup() + 1
-size_data['size_rep_idx'] = size_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer_conc', 'date', 'run_no']).ngroup() + 1
-
 
 ## BRADFORD INDEXING ###########################################################
 # Map size identifiers to the bradford conditions
@@ -129,7 +116,6 @@ growth_data['cond_idx'] = growth_data.groupby(
 growth_data['rep_idx'] = growth_data.groupby(
     ['cond_idx', 'run_idx']).ngroup() + 1
 
-# %%
 # ##############################################################################
 # DATA PREPARATION
 # ##############################################################################
@@ -137,7 +123,7 @@ growth_data['rep_idx'] = growth_data.groupby(
 data_dict = {'max_width_mu': 1,
              'min_width_mu': 0.25,
              'delta': 0.025,
-
+    
              'N_growth': len(growth_data),
              'J_growth_cond': growth_data['cond_idx'].max(),
              'J_growth_curves': growth_data['rep_idx'].max(),
@@ -152,11 +138,13 @@ data_dict = {'max_width_mu': 1,
 
              'N_size': len(size_data),
              'J_size_cond': size_data['size_cond_idx'].max(),
-             'J_size_rep': size_data['size_rep_idx'].max(),
-             'size_cond_idx': size_data.groupby(['size_rep_idx'])['size_cond_idx'].min().astype(int),
-             'size_rep_idx': size_data['size_rep_idx'].values.astype(int),
+             'size_cond_idx': size_data['size_cond_idx'].values.astype(int),
              'width': size_data['width_median'].values.astype(float),
              'length': size_data['length'].values.astype(float),
+             'volume': size_data['volume'].values.astype(float),
+             'peri_volume': size_data['periplasm_volume'].values.astype(float),
+             'surface_area': size_data['surface_area'].values.astype(float),
+             'surface_area_volume': size_data['surface_to_volume'].values.astype(float),
 
              'N_brad': len(brad_data),
              'J_brad_cond': brad_data['cond_idx'].max(),
@@ -177,8 +165,7 @@ data_dict = {'max_width_mu': 1,
 
 # %%
 # Sample the posterior
-# , adapt_delta=0.95, iter_sampling=2000)
-_samples = model.sample(data_dict, iter_sampling=200)  # , show_console=True)
+_samples = model.sample(data_dict, adapt_delta=0.95, iter_sampling=2000)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
