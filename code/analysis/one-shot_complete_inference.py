@@ -27,8 +27,7 @@ size_data = pd.read_csv(
 biomass_data = pd.read_csv(
     '../../data/literature/Basan2015/Basan2015_drymass_protein_cellcount.csv')
 flow_data = pd.read_csv('../../data/summaries/flow_cytometry_counts.csv')
-growth_data = pd.read_csv(
-    '../../data/growth_curves/growth_measurements_processed.csv')
+
 # ##############################################################################
 # DATASET FILTERING
 # ##############################################################################
@@ -62,10 +61,6 @@ size_data = size_data[~((size_data['overexpression'] != 'none') & (
 flow_data = flow_data[flow_data['strain'] == 'wildtype']
 flow_data = flow_data.groupby(
     ['date', 'carbon_source', 'run_no']).mean().reset_index()
-
-# Restrict growth data to only wt and d3
-growth_data = growth_data[growth_data['strain'].isin(
-    ['wildtype', 'malE-rbsB-fliC-KO'])]
 
 # %%
 # ##############################################################################
@@ -108,27 +103,11 @@ for g, d in size_data[(size_data['strain'] == 'wildtype') &
                       ].groupby(['carbon_source', 'size_cond_idx']):
     flow_data.loc[flow_data['carbon_source'] == g[0], 'flow_mapper'] = g[1]
 
-
-## GROWTH INDEXING #############################################################
-# Map growth info
-growth_data['cond_idx'] = growth_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_ml']).ngroup() + 1
-growth_data['rep_idx'] = growth_data.groupby(
-    ['cond_idx', 'run_idx']).ngroup() + 1
-
 # ##############################################################################
 # DATA PREPARATION
 # ##############################################################################
 # Define the data dictionary
-data_dict = {'N_growth': len(growth_data),
-             'J_growth_cond': growth_data['cond_idx'].max(),
-             'J_growth_curves': growth_data['rep_idx'].max(),
-             'growth_cond_idx': growth_data.groupby(['rep_idx'])['cond_idx'].min().astype(int),
-             'growth_curve_idx': growth_data['rep_idx'].values.astype(int),
-             'growth_time': growth_data['elapsed_time_hr'].values.astype(float),
-             'growth_od': growth_data['od_600nm'].values.astype(float),
-
-             'N_cal': len(cal_data),
+data_dict = {'N_cal': len(cal_data),
              'concentration': cal_data['protein_conc_ug_ml'].values.astype(float),
              'cal_od': cal_data['od_595nm'].values.astype(float),
 
@@ -187,20 +166,6 @@ for i, p in enumerate(size_parameters):
                                                    'overexpression', 'inducer_conc']] = g[:-1]
     percs.drop(columns=f'{p}_dim_0', inplace=True)
     param_percs = pd.concat([param_percs, percs], sort=False)
-
-
-# Process the parameters for the growth rates
-g_df = samples.posterior['growth_mu'].to_dataframe().reset_index()
-g_percs = size.viz.compute_percentiles(g_df, 'growth_mu', 'growth_mu_dim_0',
-                                       lower_bounds=lower,
-                                       upper_bounds=upper,
-                                       interval_labels=labels)
-for g, d in growth_data.groupby(['strain', 'carbon_source', 'overexpression',
-                                 'inducer_conc_ng_ml', 'cond_idx']):
-    g_percs.loc[g_percs['growth_mu_dim_0'] == g[-1] - 1, ['strain', 'carbon_source',
-                                                          'overexpression', 'inducer_conc']] = g[:-1]
-g_percs.drop(columns='growth_mu_dim_0', inplace=True)
-param_percs = pd.concat([param_percs, g_percs], sort=False)
 
 # Process the parameters for the protein quantities
 params = ['periplasmic_density', 'cytoplasmic_density',

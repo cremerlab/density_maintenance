@@ -1,16 +1,5 @@
 data {
     //--------------------------------------------------------------------------
-    //  Growth Measurements
-    //--------------------------------------------------------------------------
-    int<lower=1> N_growth; // Number of growth measurements
-    int<lower=1> J_growth_cond; // Number of unique conditions
-    int<lower=1> J_growth_curves; // Number of biological replicates
-    array[J_growth_curves] int<lower=1, upper=J_growth_cond> growth_cond_idx;
-    array[N_growth] int<lower=1, upper=J_growth_curves> growth_curve_idx;
-    vector<lower=0>[N_growth] growth_time;
-    vector<lower=0>[N_growth] growth_od;
-
-    //--------------------------------------------------------------------------
     //  Bradford Assay Calibration Curve
     //--------------------------------------------------------------------------
     int<lower=1> N_cal; // Number of Bradford calibration curve measurements
@@ -57,11 +46,6 @@ data {
 
 transformed data {
     // -------------------------------------------------------------------------
-    // Growth measurements
-    // -------------------------------------------------------------------------
-    vector[N_growth] log_growth_od = log(growth_od);
-
-    // -------------------------------------------------------------------------
     // Literature Biomass Measurements
     // -------------------------------------------------------------------------
     vector[N_biomass] biomass_centered = (biomass - mean(biomass)) ./ sd(biomass);
@@ -69,20 +53,6 @@ transformed data {
 }
 
 parameters { 
-    // -------------------------------------------------------------------------
-    // Bradford Assay Calibration Curve
-    // -------------------------------------------------------------------------
-    // Hyperparameters 
-    vector<lower=0>[J_growth_cond] growth_mu;
-    real growth_tau;
-
-    // Level 1 hyper parameters
-    vector[J_growth_curves] growth_mu_1_tilde;
-
-    // Singular
-    real<lower=0> growth_sigma;
-    vector<lower=0>[J_growth_curves] growth_od_init;
-
     // -------------------------------------------------------------------------
     // Bradford Assay Calibration Curve
     // -------------------------------------------------------------------------
@@ -131,12 +101,6 @@ transformed parameters {
     // -------------------------------------------------------------------------
     // Bradford Assay Protein Measurements
     // -------------------------------------------------------------------------
-    vector[J_growth_curves] growth_mu_1 = growth_mu[growth_cond_idx] + growth_tau * growth_mu_1_tilde;
-    vector[J_growth_curves] log_growth_od_init = log(growth_od_init);
-
-    // -------------------------------------------------------------------------
-    // Bradford Assay Protein Measurements
-    // -------------------------------------------------------------------------
     vector[J_brad_cond] prot_per_biomass_mu = exp(log_prot_per_biomass_mu);
 
     // -------------------------------------------------------------------------
@@ -152,19 +116,6 @@ transformed parameters {
 }
 
 model { 
-    // -------------------------------------------------------------------------
-    // Growth curves
-    // -------------------------------------------------------------------------
-    // Prior
-    growth_mu ~ gamma(2.85, 3.30);
-    growth_tau ~ std_normal();
-    growth_mu_1_tilde ~ std_normal();
-    growth_sigma ~ normal(0, 0.1);
-    growth_od_init ~ normal(0, 0.01);
-
-    // Likelihood
-    log_growth_od ~ normal(log_growth_od_init[growth_curve_idx] + growth_mu_1[growth_curve_idx] .* growth_time, growth_sigma);
-
     // -------------------------------------------------------------------------
     // Bradford Assay Calibration Curve
     // -------------------------------------------------------------------------
@@ -230,15 +181,7 @@ model {
  
 }
 
-generated quantities {
-    // -------------------------------------------------------------------------
-    // Bradford Assay Calibration Curve
-    // -------------------------------------------------------------------------
-    vector[N_growth] growth_od_rep;
-    for (i in 1:N_growth) {
-        growth_od_rep[i] = exp(normal_rng(log_growth_od_init[growth_curve_idx[i]] + growth_mu_1[growth_curve_idx[i]] * growth_time[i], growth_sigma));
-    }
-    
+generated quantities { 
     // -------------------------------------------------------------------------
     // Bradford Assay Calibration Curve
     // -------------------------------------------------------------------------

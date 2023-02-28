@@ -1,4 +1,4 @@
-strain,carbon_source,overexpression,inducer_conc_ng_ml,run_idx,growth_rate_hr,od_init
+strain,carbon_source,overexpression,inducer_conc,run_idx,growth_rate_hr,od_init
 lpp14,LB,none,0,168,1.7069461805963475,0.05461950152160378
 lpp14,LB,none,0,188,2.0416946709564305,0.06462645736058555
 lpp14,acetate,none,0,137,0.39842040232570924,0.08515125895415239
