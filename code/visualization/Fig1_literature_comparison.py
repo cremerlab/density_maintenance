@@ -12,6 +12,10 @@ lit_size_data = pd.read_csv(
     '../../data/literature/collated_literature_size_data.csv')
 lit_mass_spec = pd.read_csv(
     '../../data/literature/compiled_mass_fractions.csv')
+lit_mass_spec = lit_mass_spec[lit_mass_spec['periplasm'] == True]
+lit_mass_spec = lit_mass_spec.groupby(['dataset_name', 'condition',
+                                      'growth_rate_hr']
+                                      )['mass_frac'].sum().reset_index()
 
 # Load our datasets
 growth_rates = pd.read_csv(
@@ -22,6 +26,7 @@ growth_rates = growth_rates.groupby(['strain', 'carbon_source',
 growth_rates = growth_rates[(growth_rates['strain'] == 'wildtype') &
                             (growth_rates['overexpression'] == 'none') &
                             (growth_rates['inducer_conc'] == 0)]
+
 sizes = pd.read_csv('../../data/summaries/summarized_size_measurements.csv')
 sizes = sizes[(sizes['strain'] == 'wildtype') &
               (sizes['overexpression'] == 'none') &
@@ -29,8 +34,16 @@ sizes = sizes[(sizes['strain'] == 'wildtype') &
 sizes = sizes.groupby(['carbon_source'])[['width_median', 'length',
                                           'volume', 'surface_to_volume']].agg(('mean', 'sem'))
 
+prot_data = pd.read_csv(
+    '../../data/summaries/summarized_protein_measurements.csv')
+prot_data = prot_data[(prot_data['strain'] == 'wildtype') &
+                      (prot_data['overexpression'] == 'none') &
+                      (prot_data['inducer_conc_ng_mL'] == 0)]
+prot_data = prot_data.groupby(['carbon_source'])[
+    'mass_frac'].agg(('mean', 'sem')).reset_index()
 # Define markers and colors
-markers = ['o', 'v', 'X', '<', 's', '>', '^', 'h', 'p', 'P', '*', 'o']
+markers = ['o', 'v', 'X', '<', 's', '>', '^', 'h',
+           'p', 'P', '*', 'o', '8', 'd', '>', 'v', '<', '^']
 cors = sns.color_palette('Greys_r', n_colors=len(markers)+4).as_hex()[:-4]
 np.random.shuffle(cors)
 
@@ -42,49 +55,62 @@ mapper = {n: {'m': m, 'c': c} for n, m, c in zip(names, markers, cors)}
 
 # %%
 # Make the plots of the widths lengths and volumes
-fig, ax = plt.subplots(1, 3, figsize=(5, 1.5))
+fig, ax = plt.subplots(3, 2, figsize=(4, 5))
+ax = ax.ravel()
 for a in ax:
     a.set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
 
 ax[0].set_ylabel('average length [µm]', fontsize=6)
 ax[1].set_ylabel('average width [µm]', fontsize=6)
 ax[2].set_ylabel('average volume [µm$^{3}$]', fontsize=6)
-ax[0].set_ylim([0, 6])
-ax[1].set_ylim([0, 1.5])
+ax[3].set_ylabel('surface area to volume [µm$^{-1}$]', fontsize=6)
+ax[4].set_ylabel('periplasmic protein\nmass fraction [%]', fontsize=6)
+ax[-1].axis('off')
+ax[0].set_ylim([1, 6])
+ax[1].set_ylim([0.4, 1.3])
 ax[2].set_ylim([0, 4.5])
+ax[4].set_ylim([0, 15])
 
 for g, d in lit_size_data.groupby(['source']):
-    for i, v in enumerate(['length_um', 'width_um', 'volume_um3']):
+    for i, v in enumerate(['length_um', 'width_um', 'volume_um3', 'surface_to_volume']):
         ax[i].plot(d['growth_rate_hr'], d[f'{v}'], linestyle='none', marker=mapper[g]['m'],
                    ms=4, markeredgecolor=cor['primary_black'],
                    markerfacecolor=mapper[g]['c'], alpha=0.5, label=g)
+    ax[-1].plot([], [], linestyle='none', marker=mapper[g]['m'],
+                ms=4, markeredgecolor=cor['primary_black'],
+                markerfacecolor=mapper[g]['c'], alpha=0.5, label=g)
+
+
+for g, d in lit_mass_spec.groupby(['dataset_name']):
+    ax[4].plot(d['growth_rate_hr'], d['mass_frac'] * 100, linestyle='none', marker=mapper[g]['m'],
+               ms=4, markeredgecolor=cor['primary_black'],
+               markerfacecolor=mapper[g]['c'], alpha=0.5, label=g)
+    ax[-1].plot([], [], linestyle='none', marker=mapper[g]['m'],
+                ms=4, markeredgecolor=cor['primary_black'],
+                markerfacecolor=mapper[g]['c'], alpha=0.5, label=g)
+
 
 # Plot our data
 for g, d in sizes.groupby(['carbon_source']):
     if g == 'ezMOPS':
         continue
     lam = growth_rates[(growth_rates['carbon_source'] == g)]
-    for i, v in enumerate(['length', 'width_median', 'volume']):
-        ax[i].errorbar(lam['mean'], d[v]['mean'], xerr=lam['sem'], yerr=d[v]['sem'], marker='D', markeredgecolor=cor['primary_green'],
-                       markerfacecolor='white', markeredgewidth=1, ms=4, lw=1, label='__nolegend__')
+    for i, v in enumerate(['length', 'width_median', 'volume', 'surface_to_volume']):
+        ax[i].errorbar(lam['mean'], d[v]['mean'], xerr=lam['sem'], yerr=d[v]['sem'],
+                       marker='o', markeredgecolor=cor['green'],
+                       markerfacecolor='white', markeredgewidth=1, ms=4, lw=1,
+                       label='__nolegend__', color=cor['green'])
 
-ax[0].plot([], [], 'D', markeredgecolor=cor['primary_green'],
-           markerfacecolor='white', markeredgewidth=1, ms=4, label='This study')
-ax[0].legend()
+for g, d in prot_data.groupby(['carbon_source']):
+    lam = growth_rates[(growth_rates['carbon_source'] == g)]
+    ax[4].errorbar(lam['mean'], d['mean'] * 100, xerr=lam['sem'], yerr=d['sem'], lw=1,
+                   marker='o', linestyle='none', markeredgewidth=1, ms=4,
+                   markerfacecolor='white', markeredgecolor=cor['green'],
+                   label='__nolegend__', color=cor['green'], capsize=0)
+
+ax[-1].plot([], [], 'o', markeredgecolor=cor['green'],
+            markerfacecolor='white', markeredgewidth=1, ms=4, label='This study')
+ax[-1].legend()
 plt.tight_layout()
 plt.savefig('../../figures/Fig1_literature_comparison.pdf',
             bbox_inches='tight')
-
-# %%
-fig, ax = plt.subplots(2, 2,)
-ax = ax.ravel()
-ax[1].set_ylim([1, 6])
-
-for g, d in lit_size_data.groupby(['source']):
-    # for i, v in enumerate(['length_um', 'width_um', 'volume_um3']):
-    ax[0].plot(d['growth_rate_hr'], d['surface_to_volume'], linestyle='none', marker=mapper[g]['m'],
-               ms=4, markeredgecolor=cor['primary_black'],
-               markerfacecolor=mapper[g]['c'], alpha=0.5, label=g)
-    ax[1].plot(d['growth_rate_hr'], d['length_um'] / d['width_um'], linestyle='none', marker=mapper[g]['m'],
-               ms=4, markeredgecolor=cor['primary_black'],
-               markerfacecolor=mapper[g]['c'], alpha=0.5, label=g)

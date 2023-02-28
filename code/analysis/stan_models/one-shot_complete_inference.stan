@@ -135,7 +135,9 @@ model {
     od595_per_biomass_sigma ~ std_normal();
 
     // Likelihood
-    log((brad_od595 - cal_intercept)./brad_od600)  ~ normal(log(cal_slope .* prot_per_biomass_mu[brad_cond_idx] ./ conv_factor[brad_cond_idx]), od595_per_biomass_sigma[brad_cond_idx]);
+    log((brad_od595 - cal_intercept)./brad_od600)  ~ normal(log(cal_slope .* 
+            prot_per_biomass_mu[brad_cond_idx] ./ conv_factor[brad_cond_idx]), 
+            od595_per_biomass_sigma[brad_cond_idx]);
 
     // -------------------------------------------------------------------------
     // Size Measurements

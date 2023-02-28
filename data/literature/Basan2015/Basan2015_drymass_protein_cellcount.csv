@@ -1,4 +1,4 @@
-medium,growth_rate_hr,dry_mass_fg,protein_mass_fg,cell_count,dataset_name
+medium,growth_rate_hr,dry_mass_ug,protein_mass_ug,cell_count,dataset_name
 RDM,1.84,507,329,343000000,Basan et al. 2015
 glucoseCAA,1.27,500,317,793000000,Basan et al. 2015
 glucose,0.98,494,333,1070000000,Basan et al. 2015
