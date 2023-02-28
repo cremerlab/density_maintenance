@@ -1,5 +1,6 @@
 # %%
 
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import skimage.io
@@ -151,3 +152,37 @@ for g, d in anat.groupby(['component']):
 plt.xticks([])
 plt.yticks([])
 plt.savefig('../../figures/supplement/seg_dem_12_anatomy.pdf')
+
+# %%
+left = anat[anat['component'] == 'left']
+right = anat[anat['component'] == 'right']
+
+
+def hypot(p1, p2):
+    return np.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
+
+
+widths = []
+plt.imshow(cell_grey[rot_pad], cmap='Greys_r')
+for i, (ell_x, ell_y) in enumerate(zip(left['x_coords'], right['y_coords'])):
+    locs = np.array([hypot([ell_x, ell_y], [rx, ry])
+                    for rx, ry in zip(right['x_coords'], right['y_coords'])])
+    loc = np.argmin(locs)
+    widths.append(np.min(locs) * 0.0375)
+    if (i % 50) == 0:
+        plt.plot([ell_x, right['x_coords'].values[loc]], [ell_y, right['y_coords'].values[loc]], '-o',
+                 lw=1, color=cor['primary_blue'])
+plt.xticks([])
+plt.yticks([])
+plt.savefig('../../figures/supplement/seg_dem_13_meas.pdf')
+
+# %%
+top = anat[anat['component'] == 'top']
+bot = anat[anat['component'] == 'bottom']
+plt.imshow(cell_grey[rot_pad], cmap='Greys_r')
+_x = np.mean([right['x_coords'].mean(),  left['x_coords'].mean()])
+plt.plot([_x, _x], [np.min(bot['y_coords']), np.max(top['y_coords'])], '-o', lw=1,
+         color=cor['primary_blue'])
+plt.xticks([])
+plt.yticks([])
+plt.savefig('../../figures/supplement/seg_dem_14_length.pdf')

@@ -1,12 +1,5 @@
 data {
     //--------------------------------------------------------------------------
-    //  Physical constants
-    //--------------------------------------------------------------------------
-    real<lower=0> max_width_mu; // Maximum cell width
-    real<lower=0> min_width_mu; // Minimum cell width
-    real<lower=0> delta; // Periplasmic space
-
-    //--------------------------------------------------------------------------
     //  Growth Measurements
     //--------------------------------------------------------------------------
     int<lower=1> N_growth; // Number of growth measurements
@@ -84,7 +77,7 @@ parameters {
     real growth_tau;
 
     // Level 1 hyper parameters
-    vector<lower=0>[J_growth_curves] growth_mu_1_tilde;
+    vector[J_growth_curves] growth_mu_1_tilde;
 
     // Singular
     real<lower=0> growth_sigma;
@@ -129,7 +122,7 @@ parameters {
     // -------------------------------------------------------------------------
     // Flow measurements
     // -------------------------------------------------------------------------
-    real flow_prefactor;
+    real<lower=0> flow_prefactor;
     real<lower=0> flow_sigma;
 
 } 
@@ -300,17 +293,9 @@ generated quantities {
     // -------------------------------------------------------------------------
     // Compute quantities
     // -------------------------------------------------------------------------
-    vector[J_brad_cond] N_cells = 1 ./ (flow_slope .* volume_mu[brad_cond_mapper]);
-    vector[J_brad_cond] periplasmic_density = prot_per_biomass_mu ./ (N_cells .* peri_volume_mu[brad_cond_mapper]);
-    vector[J_brad_cond] cytoplasmic_density = biomass_mu ./ (N_cells .* volume_mu[brad_cond_mapper] .* peri_volume_mu[brad_cond_mapper]);
+    vector<lower=0>[J_brad_cond] N_cells = 1E9 ./ (flow_slope .* volume_mu[brad_cond_mapper]);
+    vector<lower=0>[J_brad_cond] periplasmic_density = prot_per_biomass_mu ./ (N_cells .* peri_volume_mu[brad_cond_mapper]);
+    vector<lower=0>[J_brad_cond] cytoplasmic_density = (biomass_mu - prot_per_biomass_mu) ./ (N_cells .* volume_mu[brad_cond_mapper] .* peri_volume_mu[brad_cond_mapper]);
     vector<lower=0>[J_brad_cond] rho_ratio = periplasmic_density ./ cytoplasmic_density;
-    vector[J_brad_cond] phi_M = prot_per_biomass_mu / biomass_mu;
-    real<lower=0> max_width = normal_rng(max_width_mu, 0.1 * max_width_mu);
-    real<lower=0> min_width = normal_rng(min_width_mu, 0.1 * min_width_mu);
-    real<lower=0> k = mean(rho_ratio);
-    real<lower=1> alpha = mean(length_mu ./ width_mu);
-    real<lower=0> lambda = 12 * alpha * delta / (3 * alpha -1);
-    real<lower=0, upper=1> phi_min = lambda * k / (max_width + lambda * (k - 1));
-    real<lower=0, upper=1> phi_max = lambda * k/ (min_width + lambda * (k - 1)); 
-    vector<lower=0>[J_brad_cond] width_pred = max_width + (lambda * k  / phi_max) .* (1 - phi_M/phi_min);
+    vector<lower=0, upper=1>[J_brad_cond] phi_M = prot_per_biomass_mu / biomass_mu;
 }

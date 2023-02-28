@@ -120,11 +120,7 @@ growth_data['rep_idx'] = growth_data.groupby(
 # DATA PREPARATION
 # ##############################################################################
 # Define the data dictionary
-data_dict = {'max_width_mu': 1,
-             'min_width_mu': 0.25,
-             'delta': 0.025,
-    
-             'N_growth': len(growth_data),
+data_dict = {'N_growth': len(growth_data),
              'J_growth_cond': growth_data['cond_idx'].max(),
              'J_growth_curves': growth_data['rep_idx'].max(),
              'growth_cond_idx': growth_data.groupby(['rep_idx'])['cond_idx'].min().astype(int),
@@ -167,6 +163,61 @@ data_dict = {'max_width_mu': 1,
 # Sample the posterior
 _samples = model.sample(data_dict, adapt_delta=0.95, iter_sampling=2000)
 samples = az.from_cmdstanpy(_samples)
+
+
+# %%
+
+# Define the percentiles to keep
+lower = [5, 12.5, 37.5, 50]
+upper = [95, 87.5, 62.5, 50]
+labels = ['95%', '75%', '25%', 'median']
+# Process the parameters for the size inference
+size_parameters = ['width_mu', 'length_mu', 'volume_mu', 'peri_volume_mu',
+                   'surface_area_mu', 'surface_area_vol_mu']
+param_percs = pd.DataFrame([])
+for i, p in enumerate(size_parameters):
+    p_df = samples.posterior[f'{p}'].to_dataframe().reset_index()
+    percs = size.viz.compute_percentiles(p_df, p, f'{p}_dim_0',
+                                         lower_bounds=lower,
+                                         upper_bounds=upper,
+                                         interval_labels=labels)
+    for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression',
+                                   'inducer_conc', 'size_cond_idx']):
+        percs.loc[percs[f'{p}_dim_0'] == g[-1]-1, ['strain', 'carbon_source',
+                                                   'overexpression', 'inducer_conc']] = g[:-1]
+    percs.drop(columns=f'{p}_dim_0', inplace=True)
+    param_percs = pd.concat([param_percs, percs], sort=False)
+
+
+# Process the parameters for the growth rates
+g_df = samples.posterior['growth_mu'].to_dataframe().reset_index()
+g_percs = size.viz.compute_percentiles(g_df, 'growth_mu', 'growth_mu_dim_0',
+                                       lower_bounds=lower,
+                                       upper_bounds=upper,
+                                       interval_labels=labels)
+for g, d in growth_data.groupby(['strain', 'carbon_source', 'overexpression',
+                                 'inducer_conc_ng_ml', 'cond_idx']):
+    g_percs.loc[g_percs['growth_mu_dim_0'] == g[-1] - 1, ['strain', 'carbon_source',
+                                                          'overexpression', 'inducer_conc']] = g[:-1]
+g_percs.drop(columns='growth_mu_dim_0', inplace=True)
+param_percs = pd.concat([param_percs, g_percs], sort=False)
+
+# Process the parameters for the protein quantities
+params = ['periplasmic_density', 'cytoplasmic_density',
+          'rho_ratio', 'phi_M', 'prot_per_biomass_mu', 'N_cells']
+for i, p in enumerate(params):
+    p_df = samples.posterior[p].to_dataframe().reset_index()
+    percs = size.viz.compute_percentiles(p_df, p, f'{p}_dim_0',
+                                         lower_bounds=lower,
+                                         upper_bounds=upper,
+                                         interval_labels=labels)
+    for g, d in brad_data.groupby(['strain', 'carbon_source', 'overexpression',
+                                   'inducer_conc_ng_mL', 'cond_idx']):
+        percs.loc[percs[f'{p}_dim_0'] == g[-1]-1, ['strain', 'carbon_source', 'overexpression',
+                                                   'inducer_conc']] = g[:-1]
+    percs.drop(columns=f'{p}_dim_0', inplace=True)
+    param_percs = pd.concat([param_percs, percs])
+param_percs.to_csv('../../data/mcmc/parameter_percentiles.csv', index=False)
 
 # %%
 # Plot the ppc for the calibration data
