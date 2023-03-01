@@ -1,4 +1,7 @@
 data {
+
+    real<lower=0> delta;
+
     //--------------------------------------------------------------------------
     //  Bradford Assay Calibration Curve
     //--------------------------------------------------------------------------
@@ -76,7 +79,7 @@ parameters {
     vector<lower=0>[J_size_cond] length_sigma;
     vector<lower=0>[J_size_cond] volume_mu;
     vector<lower=0>[J_size_cond] volume_sigma;
-    vector<lower=0>[J_size_cond] peri_volume_mu;
+    vector<lower=0,upper=volume_mu>[J_size_cond] peri_volume_mu;
     vector<lower=0>[J_size_cond] peri_volume_sigma;
     vector<lower=0>[J_size_cond] surface_area_mu;
     vector<lower=0>[J_size_cond] surface_area_sigma;
@@ -149,7 +152,7 @@ model {
     length_sigma ~ std_normal();
     volume_mu ~ normal(0, 2);
     volume_sigma ~ std_normal();
-    peri_volume_mu ~ std_normal();
+    peri_volume_mu ~ normal(0, 0.1);
     peri_volume_sigma ~ std_normal();
     surface_area_mu ~ normal(0, 10);
     surface_area_sigma ~ std_normal();
@@ -239,8 +242,13 @@ generated quantities {
     // Compute quantities
     // -------------------------------------------------------------------------
     vector<lower=0>[J_brad_cond] N_cells = 1E9 ./ (flow_slope .* volume_mu[brad_cond_mapper]);
-    vector<lower=0>[J_brad_cond] periplasmic_density = prot_per_biomass_mu ./ (N_cells .* peri_volume_mu[brad_cond_mapper]);
-    vector<lower=0>[J_brad_cond] cytoplasmic_density = (biomass_mu - prot_per_biomass_mu) ./ (N_cells .* volume_mu[brad_cond_mapper] .* peri_volume_mu[brad_cond_mapper]);
-    vector<lower=0>[J_brad_cond] rho_ratio = periplasmic_density ./ cytoplasmic_density;
-    vector<lower=0, upper=1>[J_brad_cond] phi_M = prot_per_biomass_mu / biomass_mu;
+    vector<lower=0>[J_brad_cond] rho_peri = prot_per_biomass_mu ./ (N_cells .* peri_volume_mu[brad_cond_mapper]);
+    vector<lower=0>[J_brad_cond] rho_cyt = (biomass_mu - prot_per_biomass_mu) ./ (N_cells .* (volume_mu[brad_cond_mapper] - peri_volume_mu[brad_cond_mapper]));
+    vector<lower=0>[J_brad_cond] rho_ratio = rho_peri ./ rho_cyt; 
+    vector<lower=0, upper=1>[J_brad_cond] phi_M = prot_per_biomass_mu ./ biomass_mu;
+    vector<lower=0>[J_size_cond] alpha = length_mu ./ width_mu;
+    real<lower=0> avg_alpha = mean(alpha);
+    real<lower=0> avg_rho_ratio = mean(rho_ratio); 
+    real<lower=0> Lambdak = 12 * avg_alpha * delta * avg_rho_ratio / (3 * avg_alpha - 1);
+    real<lower=0> Lambda = 12 * avg_alpha * delta / (3 * avg_alpha - 1);
 }

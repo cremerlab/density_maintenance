@@ -110,6 +110,7 @@ for g, d in size_data[(size_data['strain'] == 'wildtype') &
 data_dict = {'N_cal': len(cal_data),
              'concentration': cal_data['protein_conc_ug_ml'].values.astype(float),
              'cal_od': cal_data['od_595nm'].values.astype(float),
+             'delta': 0.029,
 
              'N_size': len(size_data),
              'J_size_cond': size_data['size_cond_idx'].max(),
@@ -130,7 +131,7 @@ data_dict = {'N_cal': len(cal_data),
              'conv_factor': brad_data['conv_factor'].values.astype(float),
 
              'N_biomass': len(biomass_data),
-             'biomass': biomass_data['dry_mass_fg'],
+             'biomass': biomass_data['dry_mass_ug'],
 
              'N_flow': len(flow_data),
              'flow_mapper': flow_data['flow_mapper'].values.astype(int),
@@ -143,9 +144,7 @@ data_dict = {'N_cal': len(cal_data),
 _samples = model.sample(data_dict, adapt_delta=0.95, iter_sampling=2000)
 samples = az.from_cmdstanpy(_samples)
 
-
 # %%
-
 # Define the percentiles to keep
 lower = [5, 12.5, 37.5, 50]
 upper = [95, 87.5, 62.5, 50]
@@ -168,8 +167,8 @@ for i, p in enumerate(size_parameters):
     param_percs = pd.concat([param_percs, percs], sort=False)
 
 # Process the parameters for the protein quantities
-params = ['periplasmic_density', 'cytoplasmic_density',
-          'rho_ratio', 'phi_M', 'prot_per_biomass_mu', 'N_cells']
+params = ['rho_peri', 'rho_cyt',
+          'rho_ratio', 'phi_M', 'prot_per_biomass_mu', 'alpha', 'N_cells']
 for i, p in enumerate(params):
     p_df = samples.posterior[p].to_dataframe().reset_index()
     percs = size.viz.compute_percentiles(p_df, p, f'{p}_dim_0',
@@ -184,6 +183,17 @@ for i, p in enumerate(params):
     param_percs = pd.concat([param_percs, percs])
 param_percs.to_csv('../../data/mcmc/parameter_percentiles.csv', index=False)
 
+# %%
+singular_percs = samples.posterior[[
+    'avg_rho_ratio', 'Lambda', 'Lambdak', 'avg_alpha']].to_dataframe().reset_index()
+singular_percs['idx'] = 0
+singular_percs = size.viz.compute_percentiles(singular_percs, ['avg_rho_ratio', 'Lambda', 'Lambdak', 'avg_alpha'], 'idx',
+                                              lower_bounds=lower,
+                                              upper_bounds=upper,
+                                              interval_labels=labels)
+singular_percs.drop(columns='idx', inplace=True)
+singular_percs.to_csv(
+    '../../data/mcmc/singular_parameter_percentiles.csv', index=False)
 # %%
 # Plot the ppc for the calibration data
 cal_ppc = samples.posterior.od595_calib_rep.to_dataframe().reset_index()
@@ -244,10 +254,10 @@ for i, (g, d) in enumerate(biomass_percs.groupby(['interval'], sort=False)):
     ax.hlines(1, d['lower'], d['upper'], lw=15, zorder=i+1, color=ppc_cmap[g])
 
 
-ax.plot(biomass_data['dry_mass_fg'], np.ones(
+ax.plot(biomass_data['dry_mass_ug'], np.ones(
     len(biomass_data)), 'o', color=cor['primary_green'], zorder=i+1)
 ax.set_yticks([])
-ax.set_xlabel('dry mass [fg / OD$_{600nm}$ mL]')
+ax.set_xlabel('dry mass [µg / OD$_{600nm}$ mL]')
 
 # %%
 fig, ax = plt.subplots(2, 3, figsize=(6, 12), sharey=True)
@@ -296,6 +306,7 @@ _ = ax[1, 0].set_yticklabels(labels)
 
 
 # %%
+
 # Link the axes
 brad_idx = {g[1:]: g[0] for g, _ in brad_data.groupby(
     ['cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL'])}
@@ -303,14 +314,14 @@ size_loc = {g[0]: brad_idx[g[1:]] for g, _ in size_data.groupby(
     ['size_cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc']) if g[1:] in brad_idx.keys()}
 width_ppc = samples.posterior.width_mu.to_dataframe().reset_index()
 
-frac_ppc = samples.posterior.periplasmic_biomass_fraction.to_dataframe().reset_index()
+frac_ppc = samples.posterior.phi_M.to_dataframe().reset_index()
 
 for g, _ in brad_data.groupby(['cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']):
-    frac_ppc.loc[frac_ppc['periplasmic_biomass_fraction_dim_0'] == g[0]-1, [
+    frac_ppc.loc[frac_ppc['phi_M_dim_0'] == g[0]-1, [
         'strain', 'carbon_source', 'overexpression', 'inducer_conc']] = g[1:]
-    frac_ppc.loc[frac_ppc['periplasmic_biomass_fraction_dim_0']
+    frac_ppc.loc[frac_ppc['phi_M_dim_0']
                  == g[0]-1, 'link_idx'] = brad_idx[g[1:]]
-frac_perc = size.viz.compute_percentiles(frac_ppc, 'periplasmic_biomass_fraction', [
+frac_perc = size.viz.compute_percentiles(frac_ppc, 'phi_M', [
                                          'link_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc'])
 
 for g, _ in size_data.groupby(['size_cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc']):
@@ -418,14 +429,14 @@ for g, d in noind_frac.groupby(['strain', 'carbon_source']):
     width10 = _noind_width[_noind_width['interval']
                            == '10%'][['lower', 'upper']].values.mean()
     frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
-    ax.plot(frac10, 1/width10, 'o', markeredgecolor='white',
+    ax.plot(frac10, width10, 'o', markeredgecolor='white',
             ms=4, markeredgewidth=0.5, color=cmaps[g[0]]['10%'], zorder=1000)
     for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
-        ax.hlines(1/width10, _d['lower'], _d['upper'], color=cmaps[g[0]][_g],
+        ax.hlines(width10, _d['lower'], _d['upper'], color=cmaps[g[0]][_g],
                   zorder=i+1, label='__nolegend__', lw=0.1 + i * width_inc)
 
     for i, (_g, _d) in enumerate(_noind_width.groupby(['interval'], sort=False)):
-        ax.vlines(frac10, 1/_d['lower'], 1/_d['upper'], color=cmaps[g[0]][_g],
+        ax.vlines(frac10, _d['lower'], _d['upper'], color=cmaps[g[0]][_g],
                   zorder=i + 1, label='__nolegend__', lw=0.1 + i * width_inc)
 
 ind_width = width_perc[(width_perc['overexpression'] != 'none') & (width_perc['inducer_conc'] > 0) & (
@@ -465,26 +476,33 @@ for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'indu
 phi_range = np.linspace(0.004, 0.1)
 n_draws = 2000
 uncertainty = np.zeros((n_draws, len(phi_range)))
+
 for i in tqdm.tqdm(range(n_draws)):
-    delta = np.random.normal(0.020, 0.001)
+    delta = np.random.normal(0.025, 0.001)
     # alpha = 3
-    alpha = np.random.normal(3, 0.1)
-    k = 0.1
-    w_max = np.random.normal(1, 0.05)
-    w_min = np.random.normal(0.25, 0.005)
+    alpha = np.random.normal(4, 0.1)
+    # k = 0.1
+    k = 0.18
+
+    w_min = 0.5
     Lam = 12 * alpha * delta / (3 * alpha - 1)
     # phi_min = 0.01
     # phi_max = 0.08
+    # phi_max = 1 / (1 + (w_min / (Lam *k)))
+    phi_max = 0.1
 
-    phi_min = Lam * k / (w_max + Lam * (k - 1))
-    phi_max = Lam * k / (w_min + Lam * (k - 1))
+    # phi_min = Lam * k / (w_max + Lam * (k - 1))
+    # phi_max = Lam * k / (w_min + Lam * (k - 1))
     phi_range = np.linspace(0, phi_max)
-    slope = Lam * k / phi_max
-    uncertainty[i, :] = w_max + slope * (1 - phi_range/phi_min)
+    # slope = Lam * k / phi_max
+    expansion = w_min - Lam * k * \
+        (phi_range - phi_max)/phi_max**2 + Lam * \
+        k * (phi_range - phi_max)**2/(phi_max**3)
+    uncertainty[i, :] = expansion
 percs = np.zeros((2, len(phi_range)))
 for i in range(len(phi_range)):
     percs[:, i] = np.percentile(uncertainty[:, i], (99.5, 0.5))
-ax.fill_between(phi_range, 1/percs[0, :], 1/percs[1, :],
+ax.fill_between(phi_range, percs[0, :], percs[1, :],
                 color=cor['primary_black'], alpha=0.25, label='prediction')
 
 # plt.plot(phi_range, uncertainty[i, :], 'k-', lw=0.1, alpha=0.1, zorder=1)
@@ -494,7 +512,7 @@ ax.plot([], [], '-', lw=1, color=cor['primary_gold'], label='rbsB OE in d3')
 ax.plot([], [], '-', lw=1, color=cor['primary_purple'], label='malE OE in d3')
 ax.plot([], [], '-', lw=1, color=cor['primary_black'], label='lacZ OE in WT')
 
-ax.set_ylim([1, 2])
+ax.set_ylim([0, 1])
 ax.set_xlim([0, 0.06])
 
 ax.set_xlabel('$M_{peri} / M_{biomass}$')
