@@ -42,7 +42,7 @@ for g, d in medians[medians['quantity'].isin(list(axes.keys()))
         mult = 1E6
     else:
         mult = 1
-    ax[axes[g[1]]].plot(ycoords[g[0]], mult * d['lower'], 'o', markeredgewidth=1, ms=3,
+    ax[axes[g[1]]].plot(ycoords[g[0]], mult * d['lower'], 'o', markeredgewidth=0.5, ms=3,
                         markeredgecolor=cor['primary_blue'], markerfacecolor='white')
 
 # Add labels
@@ -135,5 +135,5 @@ for g, d in medians.groupby(['carbon_source']):
     lam = growth_rates[growth_rates['carbon_source']
                        == g]['growth_rate_hr'].values[0]
     ax.plot(lam, d[d['quantity'] == 'rho_ratio']['lower'], 'D', ms=4,
-            markeredgewidth=1, markeredgecolor=cor['primary_blue'],
+            markeredgewidth=0.5, markeredgecolor=cor['primary_blue'],
             markerfacecolor='white')

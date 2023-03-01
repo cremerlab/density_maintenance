@@ -7,6 +7,14 @@ import size.viz
 cor, pal = size.viz.matplotlib_style()
 np.random.seed(666)  # Ov reproducibility
 
+# %%
+# Generate a heat map of SAV versus width and length
+ell_range = np.linspace(0.5, 4, 300)
+w_range = np.linspace(0.5, 4, 300)
+L, W = np.meshgrid(ell_range, w_range)
+SAV = 12 * L / (W * (3 * L - W))
+plt.imshow(SAV)
+# %%
 # Load Literature datasets
 lit_size_data = pd.read_csv(
     '../../data/literature/collated_literature_size_data.csv')
@@ -97,19 +105,19 @@ for g, d in sizes.groupby(['carbon_source']):
     lam = growth_rates[(growth_rates['carbon_source'] == g)]
     for i, v in enumerate(['length', 'width_median', 'volume', 'surface_to_volume']):
         ax[i].errorbar(lam['mean'], d[v]['mean'], xerr=lam['sem'], yerr=d[v]['sem'],
-                       marker='o', markeredgecolor=cor['green'],
-                       markerfacecolor='white', markeredgewidth=1, ms=4, lw=1,
-                       label='__nolegend__', color=cor['green'])
+                       marker='o', markeredgecolor=cor['primary_blue'],
+                       markerfacecolor='white', markeredgewidth=0.5, ms=4, lw=1,
+                       label='__nolegend__', color=cor['primary_blue'])
 
 for g, d in prot_data.groupby(['carbon_source']):
     lam = growth_rates[(growth_rates['carbon_source'] == g)]
     ax[4].errorbar(lam['mean'], d['mean'] * 100, xerr=lam['sem'], yerr=d['sem'], lw=1,
-                   marker='o', linestyle='none', markeredgewidth=1, ms=4,
-                   markerfacecolor='white', markeredgecolor=cor['green'],
-                   label='__nolegend__', color=cor['green'], capsize=0)
+                   marker='o', linestyle='none', markeredgewidth=0.5, ms=4,
+                   markerfacecolor='white', markeredgecolor=cor['primary_blue'],
+                   label='__nolegend__', color=cor['primary_blue'], capsize=0)
 
-ax[-1].plot([], [], 'o', markeredgecolor=cor['green'],
-            markerfacecolor='white', markeredgewidth=1, ms=4, label='This study')
+ax[-1].plot([], [], 'o', markeredgecolor=cor['primary_blue'],
+            markerfacecolor='white', markeredgewidth=0.5, ms=4, label='This study')
 ax[-1].legend()
 plt.tight_layout()
 plt.savefig('../../figures/Fig1_literature_comparison.pdf',
