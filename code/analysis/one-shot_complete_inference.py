@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import cmdstanpy
 import arviz as az
-import sklearn.neighbors
 import matplotlib.pyplot as plt
 import size.viz
 import seaborn as sns
@@ -30,7 +29,8 @@ biomass_data = pd.read_csv(
 flow_data = pd.read_csv('../../data/summaries/flow_cytometry_counts.csv')
 growth_data = pd.read_csv(
     '../../data/summaries/summarized_growth_measurements.csv')
-
+lit_size_data = pd.read_csv(
+    '../../data/literature/collated_literature_size_data.csv')
 
 # ##############################################################################
 # DATASET FILTERING
@@ -124,41 +124,58 @@ for g, d in size_data[(size_data['strain'] == 'wildtype') &
 # DATA PREPARATION
 # ##############################################################################
 # Define the data dictionary
-data_dict = {'N_cal': len(cal_data),
-             'concentration': cal_data['protein_conc_ug_ml'].values.astype(float),
-             'cal_od': cal_data['od_595nm'].values.astype(float),
-             'delta': size_data['delta'].unique()[0],
+wt_brad = brad_data[(brad_data['strain'] == 'wildtype') &
+                    (brad_data['overexpression'] == 'none') &
+                    (brad_data['inducer_conc_ng_mL'] == 0)]
 
-             'N_growth': len(growth_data),
-             'growth_rates': growth_data['growth_rate_hr'].values.astype(float),
-             'growth_idx': growth_data['growth_idx'].values.astype(int),
+wt_size = size_data[(size_data['strain'] == 'wildtype') &
+                    (size_data['overexpression'] == 'none') &
+                    (size_data['inducer_conc'] == 0)]
 
-             'N_size': len(size_data),
-             'J_size_cond': size_data['size_cond_idx'].max(),
-             'size_cond_idx': size_data['size_cond_idx'].values.astype(int),
-             'width': size_data['width_median'].values.astype(float),
-             'length': size_data['length'].values.astype(float),
-             'volume': size_data['volume'].values.astype(float),
-             'peri_volume': size_data['periplasm_volume'].values.astype(float),
-             'surface_area': size_data['surface_area'].values.astype(float),
-             'surface_area_volume': size_data['surface_to_volume'].values.astype(float),
-             'aspect_ratio': size_data['aspect_ratio'].values.astype(float),
+data_dict = {
 
-             'N_brad': len(brad_data),
-             'J_brad_cond': brad_data['cond_idx'].max(),
-             'brad_cond_idx': brad_data['cond_idx'].values.astype(int),
-             'brad_cond_mapper': brad_data['brad_mapper'].unique(),
-             'brad_od595': brad_data['od_595nm'].values.astype(float),
-             'brad_od600': brad_data['od_600nm_true'].values.astype(float),
-             'conv_factor': brad_data['conv_factor'].values.astype(float),
+    'N_cal': len(cal_data),
+    'concentration': cal_data['protein_conc_ug_ml'].values.astype(float),
+    'cal_od': cal_data['od_595nm'].values.astype(float),
+    'delta': size_data['delta'].unique()[0],
 
-             'N_biomass': len(biomass_data),
-             'biomass': biomass_data['dry_mass_ug'],
+    'N_growth': len(growth_data),
+    'N_growth_lit': len(lit_size_data),
+    'growth_rates_lit': lit_size_data['growth_rate_hr'].values.astype(float),
+    'widths_lit': lit_size_data['width_um'].values.astype(float),
+    'growth_rates': growth_data['growth_rate_hr'].values.astype(float),
+    'growth_idx': growth_data['growth_idx'].values.astype(int),
 
-             'N_flow': len(flow_data),
-             'flow_mapper': flow_data['flow_mapper'].values.astype(int),
-             'cells_per_biomass': flow_data['cells_per_biomass'].values.astype(float)
-             }
+    'N_size': len(size_data),
+    'N_size_wt': len(wt_size),
+    'size_wt_idx': wt_size['size_cond_idx'].values.astype(int),
+    'J_size_cond': size_data['size_cond_idx'].max(),
+    'size_cond_idx': size_data['size_cond_idx'].values.astype(int),
+    'width': size_data['width_median'].values.astype(float),
+    'length': size_data['length'].values.astype(float),
+    'volume': size_data['volume'].values.astype(float),
+    'peri_volume': size_data['periplasm_volume'].values.astype(float),
+    'surface_area': size_data['surface_area'].values.astype(float),
+    'surface_area_volume': size_data['surface_to_volume'].values.astype(float),
+    'aspect_ratio': size_data['aspect_ratio'].values.astype(float),
+
+    'N_brad': len(brad_data),
+    'N_brad_wt': len(wt_brad),
+    'brad_wt_idx': wt_brad['cond_idx'].values.astype(int),
+    'J_brad_cond': brad_data['cond_idx'].max(),
+    'brad_cond_idx': brad_data['cond_idx'].values.astype(int),
+    'brad_cond_mapper': brad_data['brad_mapper'].unique(),
+    'brad_od595': brad_data['od_595nm'].values.astype(float),
+    'brad_od600': brad_data['od_600nm_true'].values.astype(float),
+    'conv_factor': brad_data['conv_factor'].values.astype(float),
+
+    'N_biomass': len(biomass_data),
+    'biomass': biomass_data['dry_mass_ug'],
+
+    'N_flow': len(flow_data),
+    'flow_mapper': flow_data['flow_mapper'].values.astype(int),
+    'cells_per_biomass': flow_data['cells_per_biomass'].values.astype(float)
+}
 
 
 # %%
@@ -286,28 +303,20 @@ pred_post = samples.posterior[['Lambdak', 'Lambda', 'avg_rho_ratio',
 phi_range = np.linspace(0.001, 0.1, 200)
 perc_df = pd.DataFrame([])
 for i, p in enumerate(tqdm.tqdm(phi_range)):
-    piecewise = pred_post['Lambda'] * \
-        (pred_post['avg_rho_ratio'] * (1 - p)/p + 1)
-    taylor = pred_post['width_min'] + pred_post['Lambdak'] * \
-        ((p - pred_post['phi_star'])/pred_post['phi_star']
-         ** 2) * (p/pred_post['phi_star'] - 2)
-
-    piece_loc = np.where(piecewise < pred_post['width_min'])[0]
-    taylor_loc = np.where(taylor < pred_post['width_min'])[0]
-    piecewise[piece_loc] = pred_post['width_min'][piece_loc]
-    taylor[taylor_loc] = pred_post['width_min'][taylor_loc]
-    _df = pd.DataFrame(np.array([piecewise, taylor]).T,
-                       columns=['piecewise', 'taylor'])
+    taylor = pred_post['width_min'] + pred_post['Lambdak'] * ((p - pred_post['phi_star'])/pred_post['phi_star'] ** 2) *\
+        ((p - pred_post['phi_star'])/pred_post['phi_star'] - 1)
+    _df = pd.DataFrame(np.array([taylor]).T,
+                       columns=['width_um'])
     _df['phi_M'] = p
-    percs = size.viz.compute_percentiles(_df, ['piecewise', 'taylor'], 'phi_M',
+    percs = size.viz.compute_percentiles(_df, ['width_um'], 'phi_M',
                                          lower_bounds=lower,
                                          upper_bounds=upper,
                                          interval_labels=labels)
     perc_df = pd.concat([perc_df, percs], sort=False)
 
-pred_df.to_csv('../../data/mcmc/predicted_scaling_lppwt.csv', index=False)
-    # %%
-    # Plot the ppc for the calibration data
+perc_df.to_csv('../../data/mcmc/predicted_scaling_lppwt.csv', index=False)
+# %%
+# Plot the ppc for the calibration data
 cal_ppc = samples.posterior.od595_calib_rep.to_dataframe().reset_index()
 for conc, n in zip(cal_data['protein_conc_ug_ml'], np.arange(len(cal_data))):
     cal_ppc.loc[cal_ppc['od595_calib_rep_dim_0'] == n, 'conc'] = conc

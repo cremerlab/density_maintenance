@@ -1,8 +1,5 @@
 data {
     real<lower=0> delta;
-
-  
-
     //--------------------------------------------------------------------------
     //  Bradford Assay Calibration Curve
     //--------------------------------------------------------------------------
@@ -14,6 +11,8 @@ data {
     //  Size Measurements
     //--------------------------------------------------------------------------
     int<lower=1> N_size; // Total number of size measurements
+    int<lower=1> N_size_wt;
+    array[N_size_wt] int size_wt_idx;
     int<lower=1> J_size_cond; // Total number of conditions
     array[N_size] int<lower=1, upper=J_size_cond> size_cond_idx;
     vector<lower=0>[N_size] width;
@@ -28,12 +27,18 @@ data {
     //  Aggregated growth rates to infer minimum width.
     //--------------------------------------------------------------------------
     int<lower=1> N_growth;
+    int<lower=1> N_growth_lit;
     vector<lower=0>[N_growth] growth_rates;
+    vector<lower=0>[N_growth_lit] growth_rates_lit;
+    vector<lower=0>[N_growth_lit] widths_lit;
     array[N_growth] int<lower=1, upper=J_size_cond> growth_idx;
+
     //--------------------------------------------------------------------------
     //  Bradford Assay Protein Measurements
     //--------------------------------------------------------------------------
     int<lower=1> N_brad;  // Total number of bradford measurements
+    int<lower=1> N_brad_wt;
+    array[N_brad_wt] int brad_wt_idx;
     int<lower=1> J_brad_cond; // Total number of unique conditions
     array[N_brad] int<lower=1, upper=J_brad_cond> brad_cond_idx; // ID vector
     array[J_brad_cond] int<lower=1, upper=J_size_cond> brad_cond_mapper; // Maps bradford conditions to size conditions
@@ -193,6 +198,7 @@ model {
 
     // Growth rates to determine minimum cell width
     growth_rates  ~ normal((width_mu[growth_idx] - width_min) / width_slope, lam_sigma);
+    growth_rates_lit ~ normal((widths_lit - width_min) / width_slope, lam_sigma);
 
     // -------------------------------------------------------------------------
     // Literature biomass Measurements
@@ -275,9 +281,9 @@ generated quantities {
     vector<lower=0>[J_brad_cond] rho_cyt = (biomass_mu - prot_per_biomass_mu) ./ (N_cells .* (volume_mu[brad_cond_mapper] - peri_volume_mu[brad_cond_mapper]));
     vector<lower=0>[J_brad_cond] rho_ratio = rho_peri ./ rho_cyt; 
     vector<lower=0, upper=1>[J_brad_cond] phi_M = prot_per_biomass_mu ./ biomass_mu;
-    real<lower=0> avg_rho_ratio = mean(rho_ratio); 
-    real<lower=0> alpha = mean(aspect_ratio_mu);
+    real<lower=0> avg_rho_ratio = mean(rho_ratio[brad_wt_idx]); 
+    real<lower=0> alpha = mean(aspect_ratio_mu[size_wt_idx]);
     real<lower=0> Lambda = 12 * alpha * delta / (3 * alpha - 1);
     real<lower=0> Lambdak = avg_rho_ratio * Lambda;
-    real<lower=0> phi_star = avg_rho_ratio / (avg_rho_ratio - 1 + (width_min/Lambdak));
+    real<lower=0> phi_star = avg_rho_ratio / (width_min/Lambda - 1 + avg_rho_ratio);
 }
