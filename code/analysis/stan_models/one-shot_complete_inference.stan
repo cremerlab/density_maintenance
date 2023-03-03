@@ -1,6 +1,7 @@
 data {
-
     real<lower=0> delta;
+
+  
 
     //--------------------------------------------------------------------------
     //  Bradford Assay Calibration Curve
@@ -21,7 +22,14 @@ data {
     vector<lower=0>[N_size] peri_volume;
     vector<lower=0>[N_size] surface_area;
     vector<lower=0>[N_size] surface_area_volume;
+    vector<lower=1>[N_size] aspect_ratio;
 
+    //--------------------------------------------------------------------------
+    //  Aggregated growth rates to infer minimum width.
+    //--------------------------------------------------------------------------
+    int<lower=1> N_growth;
+    vector<lower=0>[N_growth] growth_rates;
+    array[N_growth] int<lower=1, upper=J_size_cond> growth_idx;
     //--------------------------------------------------------------------------
     //  Bradford Assay Protein Measurements
     //--------------------------------------------------------------------------
@@ -48,6 +56,9 @@ data {
 }
 
 transformed data {
+
+    int N_pred = 100;
+
     // -------------------------------------------------------------------------
     // Literature Biomass Measurements
     // -------------------------------------------------------------------------
@@ -85,6 +96,11 @@ parameters {
     vector<lower=0>[J_size_cond] surface_area_sigma;
     vector<lower=0>[J_size_cond] surface_area_vol_mu;
     vector<lower=0>[J_size_cond] surface_area_vol_sigma;
+    vector<lower=0>[J_size_cond] aspect_ratio_mu_;
+    vector<lower=0>[J_size_cond] aspect_ratio_sigma;
+    real<lower=0> width_min;
+    real<lower=0> width_slope;
+    real<lower=0> lam_sigma;
 
     // -------------------------------------------------------------------------
     // Literature Biomass Measurements
@@ -116,6 +132,11 @@ transformed parameters {
     // ------------------------------------------------------------------------- 
     real<lower=0> flow_slope = flow_prefactor * biomass_mu;
     vector<lower=0>[N_flow] flow_mu = (flow_prefactor * biomass_mu * volume_mu[flow_mapper]);
+
+    // -------------------------------------------------------------------------
+    // Size measurements
+    // ------------------------------------------------------------------------- 
+    vector<lower=1>[J_size_cond] aspect_ratio_mu = aspect_ratio_mu_ + 1;
 }
 
 model { 
@@ -158,6 +179,8 @@ model {
     surface_area_sigma ~ std_normal();
     surface_area_vol_mu ~ normal(0, 10);
     surface_area_vol_sigma ~ std_normal();
+    aspect_ratio_mu_ ~ std_normal();
+    aspect_ratio_sigma ~ std_normal();
 
     // Likelihood
     width ~ normal(width_mu[size_cond_idx], width_sigma[size_cond_idx]);
@@ -166,7 +189,11 @@ model {
     peri_volume ~ normal(peri_volume_mu[size_cond_idx], peri_volume_sigma[size_cond_idx]);
     surface_area  ~ normal(surface_area_mu[size_cond_idx], surface_area_sigma[size_cond_idx]);
     surface_area_volume  ~ normal(surface_area_vol_mu[size_cond_idx], surface_area_vol_sigma[size_cond_idx]);
- 
+    aspect_ratio  ~ normal(aspect_ratio_mu[size_cond_idx], aspect_ratio_sigma[size_cond_idx]);
+
+    // Growth rates to determine minimum cell width
+    growth_rates  ~ normal((width_mu[growth_idx] - width_min) / width_slope, lam_sigma);
+
     // -------------------------------------------------------------------------
     // Literature biomass Measurements
     // -------------------------------------------------------------------------    
@@ -212,6 +239,7 @@ generated quantities {
     vector[N_size] peri_volume_rep;
     vector[N_size] surface_area_rep;
     vector[N_size] surface_area_vol_rep;
+    vector[N_size] aspect_ratio_rep;
 
     for (i in 1:N_size) {
         width_rep[i] = normal_rng(width_mu[size_cond_idx[i]], width_sigma[size_cond_idx[i]]);
@@ -220,6 +248,7 @@ generated quantities {
         peri_volume_rep[i] = normal_rng(peri_volume_mu[size_cond_idx[i]], peri_volume_sigma[size_cond_idx[i]]);
         surface_area_rep[i] = normal_rng(surface_area_mu[size_cond_idx[i]], surface_area_sigma[size_cond_idx[i]]);
         surface_area_vol_rep[i] = normal_rng(surface_area_vol_mu[size_cond_idx[i]], surface_area_vol_sigma[size_cond_idx[i]]); 
+        aspect_ratio_rep[i] = normal_rng(aspect_ratio_mu[size_cond_idx[i]], aspect_ratio_sigma[size_cond_idx[i]]); 
     }
 
     // -------------------------------------------------------------------------
@@ -246,9 +275,9 @@ generated quantities {
     vector<lower=0>[J_brad_cond] rho_cyt = (biomass_mu - prot_per_biomass_mu) ./ (N_cells .* (volume_mu[brad_cond_mapper] - peri_volume_mu[brad_cond_mapper]));
     vector<lower=0>[J_brad_cond] rho_ratio = rho_peri ./ rho_cyt; 
     vector<lower=0, upper=1>[J_brad_cond] phi_M = prot_per_biomass_mu ./ biomass_mu;
-    vector<lower=0>[J_size_cond] alpha = length_mu ./ width_mu;
-    real<lower=0> avg_alpha = mean(alpha);
     real<lower=0> avg_rho_ratio = mean(rho_ratio); 
-    real<lower=0> Lambdak = 12 * avg_alpha * delta * avg_rho_ratio / (3 * avg_alpha - 1);
-    real<lower=0> Lambda = 12 * avg_alpha * delta / (3 * avg_alpha - 1);
+    real<lower=0> alpha = mean(aspect_ratio_mu);
+    real<lower=0> Lambda = 12 * alpha * delta / (3 * alpha - 1);
+    real<lower=0> Lambdak = avg_rho_ratio * Lambda;
+    real<lower=0> phi_star = avg_rho_ratio / (avg_rho_ratio - 1 + (width_min/Lambdak));
 }

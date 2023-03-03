@@ -7,8 +7,9 @@ data = pd.read_csv(
     '../../processing/microscopy/size_measurement/output/compiled_size_measurements.csv')
 
 # %%
-data['delta'] = 0.029
-data.loc[data['strain'] == 'lpp21'] = 0.033
+data['delta'] = 0.024
+data.loc[data['strain'] == 'lpp14', 'delta'] = 0.028
+data.loc[data['strain'] == 'lpp21', 'delta'] = 0.028
 
 # Recompute dimensions
 data['surface_area'] = np.pi * data['length'] * data['width_median']
@@ -19,6 +20,7 @@ data['periplasm_volume'] = np.pi * data['length'] * \
     data['width_median'] * data['delta']
 data['periplasm_volume_fraction'] = data['periplasm_volume'].values / \
     data['volume'].values
+data['aspect_ratio'] = data['length'] / data['width_median']
 
 # %%
 # Impose bounds
@@ -36,7 +38,8 @@ data = data.groupby(['date', 'run_no', 'carbon_source', 'strain',
                      'overexpression', 'inducer', 'inducer_conc', 'temperature_C'])[
     ['width_median', 'length', 'volume',
      'surface_area', 'surface_to_volume',
-     'periplasm_volume', 'periplasm_volume_fraction']].mean().reset_index()
+     'aspect_ratio',
+     'periplasm_volume', 'periplasm_volume_fraction', 'delta']].mean().reset_index()
 data.to_csv(
     '../../../data/summaries/summarized_size_measurements.csv', index=False)
 
