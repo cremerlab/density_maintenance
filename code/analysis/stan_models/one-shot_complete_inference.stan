@@ -95,7 +95,7 @@ parameters {
     vector<lower=0>[J_size_cond] length_sigma;
     vector<lower=0>[J_size_cond] volume_mu;
     vector<lower=0>[J_size_cond] volume_sigma;
-    vector<lower=0,upper=volume_mu>[J_size_cond] peri_volume_mu;
+    vector<lower=0, upper=volume_mu>[J_size_cond] peri_volume_mu;
     vector<lower=0>[J_size_cond] peri_volume_sigma;
     vector<lower=0>[J_size_cond] surface_area_mu;
     vector<lower=0>[J_size_cond] surface_area_sigma;
@@ -161,7 +161,7 @@ model {
     // -------------------------------------------------------------------------    
     // Prior
     log_prot_per_biomass_mu ~ std_normal();
-    od595_per_biomass_sigma ~ std_normal();
+    od595_per_biomass_sigma ~ normal(0, 0.1);
 
     // Likelihood
     log((brad_od595 - cal_intercept)./brad_od600)  ~ normal(log(cal_slope .* 
@@ -178,13 +178,13 @@ model {
     length_sigma ~ std_normal();
     volume_mu ~ normal(0, 2);
     volume_sigma ~ std_normal();
-    peri_volume_mu ~ normal(0, 0.1);
+    peri_volume_mu ~ std_normal();
     peri_volume_sigma ~ std_normal();
     surface_area_mu ~ normal(0, 10);
     surface_area_sigma ~ std_normal();
     surface_area_vol_mu ~ normal(0, 10);
     surface_area_vol_sigma ~ std_normal();
-    aspect_ratio_mu_ ~ std_normal();
+    aspect_ratio_mu_ ~ normal(0, 4);
     aspect_ratio_sigma ~ std_normal();
 
     // Likelihood

@@ -39,25 +39,25 @@ lit_size_data = pd.read_csv(
 # Correct bradford data that is out of bounds.
 # TODO: (Maybe) Include into inference pipeline
 brad_data['od_600nm_true'] = brad_data['od_600nm']
-brad_data.loc[brad_data['od_600nm'] >= 0.45, 'od_600nm_true'] = np.exp(
-    1.26 * np.log(brad_data[brad_data['od_600nm'] >= 0.45]['od_600nm'].values) + 0.25)
-brad_data = brad_data[brad_data['od_600nm'] <= 0.45]
+# brad_data.loc[brad_data['od_600nm'] >= 0.45, 'od_600nm_true'] = np.exp(
+# 1.26 * np.log(brad_data[brad_data['od_600nm'] >= 0.45]['od_600nm'].values) + 0.25)
+brad_data = brad_data[brad_data['od_600nm'] <= 0.5]
 
 brad_data = brad_data[~((brad_data['overexpression'] != 'none') & (
     brad_data['inducer_conc_ng_mL'] == 0))]
 
 # Keep only the bradford data with more than two replicates
 brad_data = pd.concat([d for _, d in brad_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']) if len(d) > 2], sort=False)
+    ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']) if len(d) >= 3], sort=False)
 brad_data = brad_data[brad_data['strain'].isin(
-    ['wildtype',  'malE-rbsB-fliC-KO'])]
+    ['wildtype',  'malE-rbsB-fliC-KO', 'lpp14'])]
 
 # Restrict size data
 size_data = size_data[size_data['temperature_C'] == 37]
 size_data = size_data[size_data['strain'].isin(
-    ['wildtype', 'malE-rbsB-fliC-KO'])]
+    ['wildtype', 'malE-rbsB-fliC-KO', 'lpp14'])]
 size_data = pd.concat([d for _, d in size_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer_conc']) if len(d) > 2], sort=False)
+    ['strain', 'carbon_source', 'overexpression', 'inducer_conc']) if len(d) >= 3], sort=False)
 size_data = size_data[~((size_data['overexpression'] != 'none') & (
     size_data['inducer_conc'] == 0))]
 
@@ -95,8 +95,6 @@ for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression', 'ind
 brad_data = brad_data[brad_data['brad_mapper'] > 0]
 
 # Filter, label, and transform bradford data
-brad_data = brad_data[brad_data['strain'].isin(
-    ['wildtype',  'malE-rbsB-fliC-KO'])]
 brad_data['cond_idx'] = brad_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']).ngroup() + 1
 brad_data['conv_factor'] = brad_data['dilution_factor'] * \
@@ -166,7 +164,7 @@ data_dict = {
     'brad_cond_idx': brad_data['cond_idx'].values.astype(int),
     'brad_cond_mapper': brad_data['brad_mapper'].unique(),
     'brad_od595': brad_data['od_595nm'].values.astype(float),
-    'brad_od600': brad_data['od_600nm_true'].values.astype(float),
+    'brad_od600': brad_data['od_600nm'].values.astype(float),
     'conv_factor': brad_data['conv_factor'].values.astype(float),
 
     'N_biomass': len(biomass_data),
@@ -246,6 +244,35 @@ for s in tqdm.tqdm(model_params):
         model_post_kde = pd.concat([model_post_kde, _df], sort=False)
 model_post_kde.to_csv('../../data/mcmc/model_posterior_kde.csv', index=False)
 
+_params = ['rho_peri', 'rho_cyt',
+           'rho_ratio', 'phi_M', 'prot_per_biomass_mu']
+model_post_kde = pd.DataFrame([])
+for s in tqdm.tqdm(model_params):
+    post = samples.posterior[s].to_dataframe().reset_index()
+    for g, d in brad_data.groupby(brad_groupby):
+        for i, _g in enumerate(brad_groupby[:-1]):
+            post.loc[post[f'{s}_dim_0'] == g[-1]-1, _g] = g[i]
+    minval = 0.01 * post[s].median()
+    maxval = 3 * post[s].median()
+    score_range = np.linspace(minval, maxval, 300)
+    for g, d in post.groupby(brad_groupby[:-1]):
+
+        # Evaluate the kernel density
+        kernel = scipy.stats.gaussian_kde(
+            d[f'{s}'].values, bw_method='scott')
+        kde = kernel(score_range)
+        kde *= kde.sum()**-1
+
+        # Set up the dataframe and store
+        _df = pd.DataFrame(
+            np.array([score_range, kde]).T, columns=['value', 'kde'])
+        _df['parameter'] = s
+        for i, _g in enumerate(brad_groupby[:-1]):
+            _df[_g] = g[i]
+        model_post_kde = pd.concat([model_post_kde, _df], sort=False)
+model_post_kde.to_csv('../../data/mcmc/model_posterior_kde.csv', index=False)
+
+
 # %%
 # Define the percentiles to keep
 lower = [5, 12.5, 37.5, 50]
@@ -284,8 +311,22 @@ for i, p in enumerate(params):
 param_percs.to_csv('../../data/mcmc/parameter_percentiles.csv', index=False)
 
 # %%
-singular_percs = samples.posterior[[
-    'avg_rho_ratio', 'Lambda', 'Lambdak', 'alpha', 'phi_star', 'width_min']].to_dataframe().reset_index()
+singular_params = ['avg_rho_ratio', 'Lambda',
+                   'Lambdak', 'alpha', 'phi_star', 'width_min']
+singular_percs = samples.posterior[singular_params].to_dataframe(
+).reset_index()
+singular_kde = pd.DataFrame([])
+for p in singular_params:
+    kernel = scipy.stats.gaussian_kde(singular_percs[p], bw_method='scott')
+    score_range = np.linspace(
+        0.01 * singular_percs[p].median(), 3 * singular_percs[p].median(), 300)
+    kde = kernel(score_range)
+    kde *= kde.sum()**-1
+    _df = pd.DataFrame(
+        np.array([score_range, kde]).T, columns=['value', 'kde'])
+    _df['parameter'] = p
+    singular_kde = pd.concat([singular_kde, _df])
+singular_kde.to_csv('../../data/mcmc/singular_posterior_kde.csv', index=False)
 singular_percs['idx'] = 0
 singular_percs = size.viz.compute_percentiles(singular_percs, ['avg_rho_ratio', 'Lambda', 'Lambdak', 'alpha', 'phi_star', 'width_min'], 'idx',
                                               lower_bounds=lower,
@@ -430,301 +471,90 @@ _ = ax[0, 0].set_yticklabels(labels)
 _ = ax[1, 0].set_yticklabels(labels)
 
 
-# %%
+# # %%
 
-# Link the axes
-brad_idx = {g[1:]: g[0] for g, _ in brad_data.groupby(
-    ['cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL'])}
-size_loc = {g[0]: brad_idx[g[1:]] for g, _ in size_data.groupby(
-    ['size_cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc']) if g[1:] in brad_idx.keys()}
-width_ppc = samples.posterior.width_mu.to_dataframe().reset_index()
+# # Link the axes
+# brad_idx = {g[1:]: g[0] for g, _ in brad_data.groupby(
+#     ['cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL'])}
+# size_loc = {g[0]: brad_idx[g[1:]] for g, _ in size_data.groupby(
+#     ['size_cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc']) if g[1:] in brad_idx.keys()}
+# width_ppc = samples.posterior.width_mu.to_dataframe().reset_index()
 
-frac_ppc = samples.posterior.phi_M.to_dataframe().reset_index()
+# frac_ppc = samples.posterior.phi_M.to_dataframe().reset_index()
 
-for g, _ in brad_data.groupby(['cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']):
-    frac_ppc.loc[frac_ppc['phi_M_dim_0'] == g[0]-1, [
-        'strain', 'carbon_source', 'overexpression', 'inducer_conc']] = g[1:]
-    frac_ppc.loc[frac_ppc['phi_M_dim_0']
-                 == g[0]-1, 'link_idx'] = brad_idx[g[1:]]
-frac_perc = size.viz.compute_percentiles(frac_ppc, 'phi_M', [
-                                         'link_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc'])
+# for g, _ in brad_data.groupby(['cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']):
+#     frac_ppc.loc[frac_ppc['phi_M_dim_0'] == g[0]-1, [
+#         'strain', 'carbon_source', 'overexpression', 'inducer_conc']] = g[1:]
+#     frac_ppc.loc[frac_ppc['phi_M_dim_0']
+#                  == g[0]-1, 'link_idx'] = brad_idx[g[1:]]
+# frac_perc = size.viz.compute_percentiles(frac_ppc, 'phi_M', [
+#                                          'link_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc'])
 
-for g, _ in size_data.groupby(['size_cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc']):
-    if g[0] in size_loc:
-        width_ppc.loc[width_ppc['width_mu_dim_0'] == g[0]-1, [
-            'strain', 'carbon_source', 'overexpression', 'inducer_conc']] = g[1:]
-        width_ppc.loc[width_ppc['width_mu_dim_0']
-                      == g[0]-1, 'link_idx'] = size_loc[g[0]]
+# for g, _ in size_data.groupby(['size_cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc']):
+#     if g[0] in size_loc:
+#         width_ppc.loc[width_ppc['width_mu_dim_0'] == g[0]-1, [
+#             'strain', 'carbon_source', 'overexpression', 'inducer_conc']] = g[1:]
+#         width_ppc.loc[width_ppc['width_mu_dim_0']
+#                       == g[0]-1, 'link_idx'] = size_loc[g[0]]
 
-# width_ppc.dropna(inplace=True)
-width_perc = size.viz.compute_percentiles(width_ppc, 'width_mu', [
-                                          'link_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc'])
-
-
-# %%
-# Mass spec data
-mass_fracs = pd.read_csv('../../data/literature/compiled_mass_fractions.csv')
-mass_fracs = mass_fracs[mass_fracs['periplasm']]
-dry_frac = 0.3
-prot_frac = 0.55
-density = 1.1
-
-# %%
-# Do the proper classification
-# genes = pd.read_csv('../../data/literature/genes_classification_all.csv')
-# _genes = genes[genes['location'].isin(['IM', 'OM', 'PE', 'LPO'])]
-# mass_fracs = mass_fracs[mass_fracs['gene_name'].isin(_genes['gene'].unique())]
-growth = pd.read_csv('../../data/summaries/summarized_growth_measurements.csv')
-growth = growth[(growth['strain'] == 'wildtype') & (
-    growth['overexpression'] == 'none') & (growth['inducer_conc_ng_ml'] == 0)]
-growth = growth.groupby(['carbon_source']).mean().reset_index()
-wt_size = size_data[(size_data['strain'] == 'wildtype') & (
-    size_data['overexpression'] == 'none') & (size_data['inducer_conc'] == 0)]
-for g, d in growth.groupby(['carbon_source', 'growth_rate_hr']):
-    wt_size.loc[wt_size['carbon_source'] == g[0], 'growth_mu'] = g[1]
-
-# Determine the simple relations
-w_popt = scipy.stats.linregress(
-    wt_size['growth_mu'], wt_size['width_median'])
-ell_popt = scipy.stats.linregress(
-    wt_size['growth_mu'], np.log(wt_size['length']))
-peri_vol_popt = scipy.stats.linregress(
-    wt_size['growth_mu'], np.log(wt_size['periplasm_volume']))
-vol_popt = scipy.stats.linregress(
-    wt_size['growth_mu'], np.log(wt_size['volume']))
-sav_popt = scipy.stats.linregress(
-    wt_size['growth_mu'], np.log(wt_size['surface_to_volume']))
-
-# Compute the periplasmic protein density
-mass_fracs['width'] = w_popt[0] * \
-    mass_fracs['growth_rate_hr'] + w_popt[1]
-mass_fracs['length'] = np.exp(
-    ell_popt[0] * mass_fracs['growth_rate_hr'] + ell_popt[1])
-mass_fracs['peri_vol'] = np.exp(
-    peri_vol_popt[0] * mass_fracs['growth_rate_hr'] + peri_vol_popt[1])
-mass_fracs['volume'] = np.exp(
-    vol_popt[0] * mass_fracs['growth_rate_hr'] + vol_popt[1])
-mass_fracs['sav'] = np.exp(
-    sav_popt[0] * mass_fracs['growth_rate_hr'] + sav_popt[1])
-# mass_fracs['peri_volume'] = size.analytical.surface_area(mass_fracs['length'], mass_fracs['width']) * 0.025
-mass_fracs['tot_protein'] = density * \
-    dry_frac * prot_frac * mass_fracs['volume']
-mass_fracs['peri_protein'] = mass_fracs['mass_frac'] * \
-    mass_fracs['tot_protein']
-mass_fracs['rho_peri'] = (
-    mass_fracs['peri_protein'] * 1E3) / mass_fracs['peri_vol']
-mass_fracs['biomass_frac'] = mass_fracs['peri_protein'] / \
-    (density * dry_frac * mass_fracs['volume'])
-mass_fracs = mass_fracs.groupby(
-    ['dataset_name', 'condition', 'growth_rate_hr', 'width']).sum().reset_index()
+# # width_ppc.dropna(inplace=True)
+# width_perc = size.viz.compute_percentiles(width_ppc, 'width_mu', [
+#                                           'link_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc'])
 
 
-# %%
-# Look only at the no inducer cases
-noind_width = width_perc[(width_perc['inducer_conc'] == 0) & (width_perc['overexpression'] == 'none') & (
-    width_perc['strain'].isin(['wildtype', 'malE-rbsB-KO', 'malE-rbsB-fliC-KO']))]
-noind_frac = frac_perc[(frac_perc['inducer_conc'] == 0) & (frac_perc['overexpression'] == 'none') & (
-    frac_perc['strain'].isin(['wildtype', 'malE-rbsB-KO', 'malE-rbsB-fliC-KO']))]
+# # %%
+# # Mass spec data
+# mass_fracs = pd.read_csv('../../data/literature/compiled_mass_fractions.csv')
+# mass_fracs = mass_fracs[mass_fracs['periplasm']]
+# dry_frac = 0.3
+# prot_frac = 0.55
+# density = 1.1
 
-ko_ppc_cmap = {k: c for k, c in zip(frac_perc['interval'].unique(
-), sns.color_palette('Blues_r', n_colors=3 + len(frac_perc['interval'].unique())))}
-wt_ppc_cmap = {k: c for k, c in zip(frac_perc['interval'].unique(
-), sns.color_palette('Greens_r', n_colors=3 + len(frac_perc['interval'].unique())))}
-rbs_ppc_cmap = {k: c for k, c in zip(frac_perc['interval'].unique(
-), sns.color_palette('Oranges_r', n_colors=3 + len(frac_perc['interval'].unique())))}
+# # %%
+# # Do the proper classification
+# # genes = pd.read_csv('../../data/literature/genes_classification_all.csv')
+# # _genes = genes[genes['location'].isin(['IM', 'OM', 'PE', 'LPO'])]
+# # mass_fracs = mass_fracs[mass_fracs['gene_name'].isin(_genes['gene'].unique())]
+# growth = pd.read_csv('../../data/summaries/summarized_growth_measurements.csv')
+# growth = growth[(growth['strain'] == 'wildtype') & (
+#     growth['overexpression'] == 'none') & (growth['inducer_conc_ng_ml'] == 0)]
+# growth = growth.groupby(['carbon_source']).mean().reset_index()
+# wt_size = size_data[(size_data['strain'] == 'wildtype') & (
+#     size_data['overexpression'] == 'none') & (size_data['inducer_conc'] == 0)]
+# for g, d in growth.groupby(['carbon_source', 'growth_rate_hr']):
+#     wt_size.loc[wt_size['carbon_source'] == g[0], 'growth_mu'] = g[1]
 
-mal_ppc_cmap = {k: c for k, c in zip(frac_perc['interval'].unique(
-), sns.color_palette('Purples_r', n_colors=3 + len(frac_perc['interval'].unique())))}
-lac_ppc_cmap = {k: c for k, c in zip(frac_perc['interval'].unique(
-), sns.color_palette('Greys_r', n_colors=3 + len(frac_perc['interval'].unique())))}
+# # Determine the simple relations
+# w_popt = scipy.stats.linregress(
+#     wt_size['growth_mu'], wt_size['width_median'])
+# ell_popt = scipy.stats.linregress(
+#     wt_size['growth_mu'], np.log(wt_size['length']))
+# peri_vol_popt = scipy.stats.linregress(
+#     wt_size['growth_mu'], np.log(wt_size['periplasm_volume']))
+# vol_popt = scipy.stats.linregress(
+#     wt_size['growth_mu'], np.log(wt_size['volume']))
+# sav_popt = scipy.stats.linregress(
+#     wt_size['growth_mu'], np.log(wt_size['surface_to_volume']))
 
-cmaps = {'wildtype': wt_ppc_cmap, 'malE-rbsB-fliC-KO': ko_ppc_cmap,
-         'rbsB': rbs_ppc_cmap, 'malE': mal_ppc_cmap,
-         'lacZ': lac_ppc_cmap}
-
-width_inc = 0.3
-fig, ax = plt.subplots(1, 1, figsize=(4, 3))
-for g, d in noind_frac.groupby(['strain', 'carbon_source']):
-    if g[0] != 'wildtype':
-        continue
-    _noind_width = noind_width[(noind_width['strain'] == g[0]) & (
-        noind_width['carbon_source'] == g[1])]
-
-    # find the x,y positions
-    width10 = _noind_width[_noind_width['interval']
-                           == '10%'][['lower', 'upper']].values.mean()
-    frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
-    ax.plot(frac10, width10, 'o', markeredgecolor='white',
-            ms=4, markeredgewidth=0.5, color=cmaps[g[0]]['10%'], zorder=1000)
-    for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
-        ax.hlines(width10, _d['lower'], _d['upper'], color=cmaps[g[0]][_g],
-                  zorder=i+1, label='__nolegend__', lw=0.1 + i * width_inc)
-
-    for i, (_g, _d) in enumerate(_noind_width.groupby(['interval'], sort=False)):
-        ax.vlines(frac10, _d['lower'], _d['upper'], color=cmaps[g[0]][_g],
-                  zorder=i + 1, label='__nolegend__', lw=0.1 + i * width_inc)
-
-ind_width = width_perc[(width_perc['overexpression'] != 'none') & (width_perc['inducer_conc'] > 0) & (
-    width_perc['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO']))]
-ind_frac = frac_perc[(frac_perc['overexpression'] != 'none') & (frac_perc['inducer_conc'] > 0) & (
-    frac_perc['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO']))]
-
-
-for g, d in ind_frac.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc']):
-    continue
-    # if g[0] == 'wildtype':
-    # kcontinue
-    if (g[2] == 'rbsB'):
-        continue
-    _ind_width = ind_width[(ind_width['strain'] == g[0]) & (
-        ind_width['carbon_source'] == g[1]) & (ind_width['overexpression'] == g[2]) &
-        (ind_width['inducer_conc'] == g[3])]
-    if (len(_ind_width) == 0):
-        continue
-
-    # find the x,y positions
-    width10 = _ind_width[_ind_width['interval']
-                         == '10%'][['lower', 'upper']].values.mean()
-    frac10 = d[d['interval'] == '10%'][['lower', 'upper']].values.mean()
-    ax.plot(frac10, 1/width10, 'o', markeredgecolor='white',
-            ms=4, markeredgewidth=0.5, color=cmaps[g[2]]['10%'], zorder=1000)
-    for i, (_g, _d) in enumerate(d.groupby(['interval'], sort=False)):
-        ax.hlines(1/width10, _d['lower'], _d['upper'], color=cmaps[g[2]][_g],
-                  zorder=i + 1, label='__nolegend__', lw=0.1 + i * width_inc)
-
-    for i, (_g, _d) in enumerate(_ind_width.groupby(['interval'], sort=False)):
-        ax.vlines(frac10, 1/_d['lower'], 1/_d['upper'], color=cmaps[g[2]][_g],
-                  zorder=i + 1, label='__nolegend__', lw=0.1 + i * width_inc)
-
-
-# ax.plot(mass_fracs['biomass_frac'], mass_fracs['width'], 'o')
-phi_range = np.linspace(0.004, 0.1)
-n_draws = 2000
-uncertainty = np.zeros((n_draws, len(phi_range)))
-
-for i in tqdm.tqdm(range(n_draws)):
-    delta = np.random.normal(0.025, 0.001)
-    # alpha = 3
-    alpha = np.random.normal(4, 0.1)
-    # k = 0.1
-    k = 0.18
-
-    w_min = 0.5
-    Lam = 12 * alpha * delta / (3 * alpha - 1)
-    # phi_min = 0.01
-    # phi_max = 0.08
-    # phi_max = 1 / (1 + (w_min / (Lam *k)))
-    phi_max = 0.1
-
-    # phi_min = Lam * k / (w_max + Lam * (k - 1))
-    # phi_max = Lam * k / (w_min + Lam * (k - 1))
-    phi_range = np.linspace(0, phi_max)
-    # slope = Lam * k / phi_max
-    expansion = w_min - Lam * k * \
-        (phi_range - phi_max)/phi_max**2 + Lam * \
-        k * (phi_range - phi_max)**2/(phi_max**3)
-    uncertainty[i, :] = expansion
-percs = np.zeros((2, len(phi_range)))
-for i in range(len(phi_range)):
-    percs[:, i] = np.percentile(uncertainty[:, i], (99.5, 0.5))
-ax.fill_between(phi_range, percs[0, :], percs[1, :],
-                color=cor['primary_black'], alpha=0.25, label='prediction')
-
-# plt.plot(phi_range, uncertainty[i, :], 'k-', lw=0.1, alpha=0.1, zorder=1)
-ax.plot([], [], '-', lw=1, color=cor['primary_green'], label='wildtype')
-ax.plot([], [], '-', lw=1, color=cor['primary_blue'], label='malE-rbsB-fliC KO')
-ax.plot([], [], '-', lw=1, color=cor['primary_gold'], label='rbsB OE in d3')
-ax.plot([], [], '-', lw=1, color=cor['primary_purple'], label='malE OE in d3')
-ax.plot([], [], '-', lw=1, color=cor['primary_black'], label='lacZ OE in WT')
-
-ax.set_ylim([0, 1])
-ax.set_xlim([0, 0.06])
-
-ax.set_xlabel('$M_{peri} / M_{biomass}$')
-ax.set_ylabel('1 / width [µm$^{-1}$]')
-
-# ax.plot(phi_range, 1/pred,  'k-', lw=2)
-ax.legend()
-# plt.savefig('/Users/gchure/Desktop/wt_theory_fit_complete_analysis.pdf')
-
-
-# %%
-widths = samples.posterior.width_mu.to_dataframe().reset_index()
-for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc', 'size_cond_idx']):
-    widths.loc[widths['width_mu_dim_0'] == g[-1] - 1, ['strain',
-                                                       'carbon_source', 'overexpression', 'inducer_conc']] = g[:-1]
-
-# %%
-prot_data = pd.read_csv(
-    '../../data/summaries/summarized_protein_measurements.csv')
-prot_data = prot_data[(prot_data['strain'] == 'wildtype') &
-                      (prot_data['overexpression'] == 'none') &
-                      (prot_data['inducer_conc_ng_mL'] == 0)]
-
-# %%
-# si_data = pd.read_csv('../../data/literature/Si2017/si2017_SAV.csv')
-sv_data = pd.read_csv(
-    '../../data/literature/collated_literature_size_data.csv')
-fig, ax = plt.subplots(1, 2, figsize=(6, 3))
-ax[0].set_xlabel('growth rate [hr$^{-1}$]')
-ax[1].set_xlabel('growth rate [hr$^{-1}$]')
-ax[0].set_ylabel('surface to volume [µm$^{-1}$]')
-ax[1].set_ylabel('periplasmic protein per biomass [µg / OD$_{600}$]')
-ax[0].plot(sv_data['growth_rate_hr'], sv_data['surface_to_volume'], '.',
-           markeredgewidth=0, alpha=0.5, label='literature data')
-for g, d in wt_size.groupby(['carbon_source']):
-    _growth = growth[growth['carbon_source'] == g]
-    ax[0].plot(_growth['growth_rate_hr'], d['surface_to_volume'].mean(),
-               'o', color=cor['primary_green'], ms=6, label='__nolegend__')
-
-ax[0].plot([], [], 'o', ms=6, color=cor['primary_green'], label='our data')
-
-ax[1].plot(mass_fracs['growth_rate_hr'], mass_fracs['biomass_frac'] * 560, '.', color=cor['light_black'],
-           markeredgewidth=0, alpha=0.5, label='literature proteomics')
-for g, d in prot_data.groupby(['carbon_source']):
-    _growth = growth[growth['carbon_source'] == g]
-    ax[1].plot(_growth['growth_rate_hr'], d['prot_ug_per_biomass'].mean(), 'o',
-               color=cor['primary_green'],  ms=6, label='__nolegend__')
-ax[1].plot([], [], 'o', ms=6, color=cor['primary_green'], label='our data')
-
-ax[0].legend()
-ax[1].legend()
-ax[1].set_ylim([0, 40])
-# plt.savefig('/Users/gchure/Desktop/SAV_mass_spec_comparison.pdf')
-
-# %%
-flow_ppc = samples.posterior.cells_per_biomass_rep.to_dataframe().reset_index()
-flow_ppc
-# %%
-_pal = sns.color_palette('muted', 11)
-fig, ax = plt.subplots(3, 2, figsize=(6, 6))
-ax = ax.ravel()
-ax[0].set_ylim([0, 5.5])
-ax[1].set_ylim([0, 1.5])
-ax[2].set_ylim([0, 7])
-ax[3].set_ylim([0, 22])
-ax[4].set_ylim([3, 9])
-
-for a in ax[:-1]:
-    a.set_xlabel('growth rate [hr$^{-1}$]')
-
-for i, (g, d) in enumerate(sv_data.groupby(['source'])):
-    ax[0].plot(d['growth_rate_hr'], d['length_um'],
-               '.', label=g, color=_pal[i])
-    ax[1].plot(d['growth_rate_hr'], d['width_um'], '.', label=g, color=_pal[i])
-    ax[2].plot(d['growth_rate_hr'], d['volume_um3'],
-               '.', label=g, color=_pal[i])
-    ax[3].plot(d['growth_rate_hr'], d['surface_area_um2'],
-               '.', label=g, color=_pal[i])
-    ax[4].plot(d['growth_rate_hr'], d['surface_to_volume'],
-               '.', label=g, color=_pal[i])
-    ax[5].plot([], [], '.', label=g, color=_pal[i])
-
-ax[0].set_ylabel('length [µm]')
-ax[1].set_ylabel('width [µm]')
-ax[2].set_ylabel('volume [µm$^3$]')
-ax[3].set_ylabel('surface area [µm$^2$]')
-ax[4].set_ylabel('surface to volume [µm$^{-1}$]')
-ax[5].axis('off')
-ax[5].legend(loc='center')
-plt.savefig('/Users/gchure/Desktop/literature_size_comparison.pdf')
+# # Compute the periplasmic protein density
+# mass_fracs['width'] = w_popt[0] * \
+#     mass_fracs['growth_rate_hr'] + w_popt[1]
+# mass_fracs['length'] = np.exp(
+#     ell_popt[0] * mass_fracs['growth_rate_hr'] + ell_popt[1])
+# mass_fracs['peri_vol'] = np.exp(
+#     peri_vol_popt[0] * mass_fracs['growth_rate_hr'] + peri_vol_popt[1])
+# mass_fracs['volume'] = np.exp(
+#     vol_popt[0] * mass_fracs['growth_rate_hr'] + vol_popt[1])
+# mass_fracs['sav'] = np.exp(
+#     sav_popt[0] * mass_fracs['growth_rate_hr'] + sav_popt[1])
+# # mass_fracs['peri_volume'] = size.analytical.surface_area(mass_fracs['length'], mass_fracs['width']) * 0.025
+# mass_fracs['tot_protein'] = density * \
+#     dry_frac * prot_frac * mass_fracs['volume']
+# mass_fracs['peri_protein'] = mass_fracs['mass_frac'] * \
+#     mass_fracs['tot_protein']
+# mass_fracs['rho_peri'] = (
+#     mass_fracs['peri_protein'] * 1E3) / mass_fracs['peri_vol']
+# mass_fracs['biomass_frac'] = mass_fracs['peri_protein'] / \
+#     (density * dry_frac * mass_fracs['volume'])
+# mass_fracs = mass_fracs.groupby(
+#     ['dataset_name', 'condition', 'growth_rate_hr', 'width']).sum().reset_index()

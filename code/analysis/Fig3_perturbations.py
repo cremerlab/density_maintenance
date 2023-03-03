@@ -30,6 +30,7 @@ medians = params[params['interval'] == 'median']
 errs = params[params['interval'] != 'median']
 
 # %%
+
 # Separate the samples by hand so I know what I'm doing
 wt_acetate = posts[(posts['strain'] == 'wildtype') &
                    (posts['carbon_source'] == 'acetate') &
@@ -68,15 +69,15 @@ for i in reversed(range(4)):
     width = wt_acetate[wt_acetate['parameter'] == 'width_mu']
     aspect_ratio = wt_acetate[wt_acetate['parameter'] == 'aspect_ratio_mu']
     rho_ratio = wt_acetate[wt_acetate['parameter'] == 'rho_ratio']
-
     if i == 3:
         ls = '-'
     else:
         ls = '--'
-    for j, prop in enumerate([width, aspect_ratio, rho_ratio]):
-        if i == 3:
-            ax[j].fill_between(prop['value'], 3 * np.ones(len(prop)), 3 + prop['kde'] / prop['kde'].max(), ls=ls,
-                               lw=0.5, color=cor['pale_blue'], zorder=4 - i)
+    for j, prop in enumerate(['width_mu', 'aspect_ratio', 'rho_ratio']):
+        if j == 0:
+            if i == 3:
+                ax[j].fill_between(prop['value'], 3 * np.ones(len(prop)), 3 + prop['kde'] / prop['kde'].max(), ls=ls,
+                                   lw=0.5, color=cor['pale_blue'], zorder=4 - i)
         ax[j].plot(prop['value'], i + prop['kde'] / prop['kde'].max(), ls=ls,
                    lw=0.5, color=cor['primary_blue'], zorder=4 - i)
 
