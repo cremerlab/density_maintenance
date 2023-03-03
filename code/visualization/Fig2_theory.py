@@ -155,9 +155,7 @@ for i, _x in enumerate(x):
         ls = '-.'
     else:
         ls = ':'
-    # theo = (delta * (_x * (1/phi_range - 1) + 1))**-1
-    theo = phi_range / (delta * _x) + (_x - 1) * phi_range**2 / \
-        (delta * _x**2) * ((k-1) * phi_range / _x + 1)
+    theo = (delta * (_x * (1/phi_range - 1) + 1))**-1
     ax.plot(phi_range, theo, ls=ls, lw=1, color=cor['light_black'])
 
 for g, d in errs.groupby(['carbon_source', 'interval']):
