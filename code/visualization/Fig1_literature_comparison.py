@@ -20,17 +20,7 @@ lit_mass_spec = lit_mass_spec.groupby(['dataset_name', 'condition',
                                       'growth_rate_hr']
                                       )['mass_frac'].sum().reset_index()
 
-# %%
-basan = pd.read_csv(
-    '../../data/literature/Basan2015/Basan2015_drymass_protein_cellcount.csv')
-lam = [2.77, 1.91, 1.31, 0.96, 0.71, 0.47]
-prot = [247.94, 314.57, 263.98, 282.43, 290.05, 315.5]
-plt.plot(lam, prot, 'o-', label="Richa's data")
-plt.plot(basan['growth_rate_hr'],
-         basan['protein_mass_ug'], '-o', label='Basan')
-plt.xlabel('growth rate [hr$^{-1}$]')
-plt.ylabel('total protein [ug / OD]')
-plt.legend()
+
 # %%
 # Load our datasets
 growth_rates = pd.read_csv(
@@ -56,6 +46,11 @@ prot_data = prot_data[(prot_data['strain'] == 'wildtype') &
                       (prot_data['inducer_conc_ng_mL'] == 0)]
 prot_data = prot_data.groupby(['carbon_source'])[
     'mass_frac'].agg(('mean', 'sem')).reset_index()
+
+# Load parameters from mcmc
+singulars = pd.read_csv('../../data/mcmc/dimensions_v_growth_rate.csv')
+singulars = singulars[singulars['interval'] == 'median']
+
 # Define markers and colors
 markers = ['o', 'v', 'X', '<', 's', '>', '^', 'h',
            'p', 'P', '*', 'o', '8', 'd', '>', 'v', '<', '^']
@@ -88,7 +83,7 @@ ax[1].set_ylim([0.4, 1.3])
 ax[2].set_ylim([0, 4.5])
 ax[4].set_ylim([1, 8])
 ax[5].set_ylim([0, 15])
-alpha = 0.0
+alpha = 0.5
 for g, d in lit_size_data.groupby(['source']):
     for i, v in enumerate(['length_um', 'width_um', 'volume_um3', 'surface_to_volume', 'aspect_ratio']):
         ax[i].plot(d['growth_rate_hr'], d[f'{v}'], linestyle='none', marker=mapper[g]['m'],
@@ -125,11 +120,21 @@ for g, d in prot_data.groupby(['carbon_source']):
                    markerfacecolor='white', markeredgecolor=cor['primary_blue'],
                    label='__nolegend__', color=cor['blue'], capsize=0)
 
+ax[4].hlines(3.3, 0, 2.5, color=cor['primary_blue'])
+# Plot the parameter estimates
+width = singulars[singulars['quantity'] == 'width_um']
+ax[1].plot(width['growth_rate_hr'], width['lower'],
+           '-', lw=1, color=cor['primary_blue'])
+ax[0].plot(width['growth_rate_hr'], 3.3 * width['lower'],
+           '--', lw=1, color=cor['primary_blue'])
+ax[2].plot(width['growth_rate_hr'], (np.pi / 12) * width['lower'].values**2 * (3 * 3.3 *
+           width['lower'].values - width['lower'].values), '--', lw=1, color=cor['primary_blue'])
+
 ax[-1].plot([], [], 'o', markeredgecolor=cor['primary_blue'],
             markerfacecolor='white', markeredgewidth=0.5, ms=4, label='This study')
 ax[-1].legend()
 # plt.tight_layout()
 # plt.savefig('../../figures/Fig1_literature_comparison.pdf',
 # bbox_inches='tight')
-plt.savefig('../../figures/Fig1_literature_comparison_dataonly.pdf',
-            bbox_inches='tight')
+# plt.savefig('../../figures/Fig1_literature_comparison_dataonly.pdf',
+# bbox_inches='tight')

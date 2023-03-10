@@ -36,6 +36,9 @@ data {
     vector<lower=0>[N_growth_lit] growth_rates_lit;
     vector<lower=0>[N_growth_lit] widths_lit;
     vector<lower=0>[N_growth_lit] lengths_lit;
+    vector<lower=0>[N_growth_lit] aspect_ratios_lit;
+    vector<lower=0>[N_growth_lit] sav_lit;
+
     array[N_growth] int<lower=1, upper=J_size_cond> growth_size_idx;
 
     //--------------------------------------------------------------------------
@@ -63,7 +66,6 @@ data {
     //--------------------------------------------------------------------------
     int<lower=1> N_biomass; // Total number of biomass measurements
     vector<lower=0>[N_biomass] biomass; // Biomass in ug / OD ml
-    // vector<lower=0>[N_biomass] tot_prot; // Biomass in ug / OD ml
 
     //--------------------------------------------------------------------------
     //  Literature Mass Spec Measurements
@@ -97,7 +99,6 @@ parameters {
     // -------------------------------------------------------------------------
     // Bradford Assay Protein Measurements
     // -------------------------------------------------------------------------
-
     vector[J_brad_cond] log_prot_per_biomass_mu;
     vector<lower=0>[J_brad_cond] od595_per_biomass_sigma;
 
@@ -116,14 +117,25 @@ parameters {
     vector<lower=0>[J_size_cond] surface_area_sigma;
     vector<lower=0>[J_size_cond] surface_area_vol_mu;
     vector<lower=0>[J_size_cond] surface_area_vol_sigma;
-    vector<lower=0>[J_size_cond] aspect_ratio_mu_;
+    vector<lower=1>[J_size_cond] aspect_ratio_mu;
     vector<lower=0>[J_size_cond] aspect_ratio_sigma;
+
+    // Size parameters for growth rate dependences
     real<lower=0> width_min;
     real<lower=0> width_slope;
     real<lower=0> width_lam_sigma;
-    // real<lower=0> length_min;
-    // real<lower=0> length_slope;
-    // real<lower=0> length_lam_sigma;
+    real<lower=0> alpha_min;
+    real<lower=0> alpha_slope;
+    real<lower=0> alpha_sigma;
+    real<lower=0> sav_min;
+    real<lower=0> sav_slope;
+    real<lower=0> sav_sigma;
+    real<lower=0> length_min;
+    real<lower=0> length_slope;
+    real<lower=0> length_lam_sigma;
+    real<lower=0> mass_fraction_min;
+    real<lower=0> mass_fraction_slope;
+    real<lower=0> mass_fraction_sigma;
 
     // -------------------------------------------------------------------------
     // Growth rate measurements
@@ -167,7 +179,7 @@ transformed parameters {
     // -------------------------------------------------------------------------
     // Size measurements
     // ------------------------------------------------------------------------- 
-    vector<lower=1>[J_size_cond] aspect_ratio_mu = aspect_ratio_mu_ + 1;
+    // vector<lower=1>[J_size_cond] aspect_ratio_mu = aspect_ratio_mu_ + 1;
 }
 
 model { 
@@ -205,9 +217,10 @@ model {
     // Size Measurements
     // -------------------------------------------------------------------------    
     // Priors
-    width_mu ~ std_normal();
+    width_mu ~ normal(width_min + width_slope .* growth_rates_mu, width_sigma);
     width_sigma ~ std_normal();
-    length_mu ~ normal(0, 2);
+    // length_mu ~ normal(0, 2);
+    length_mu ~ normal(length_min + length_slope .* growth_rates_mu, length_sigma);
     length_sigma ~ std_normal();
     volume_mu ~ normal(0, 2);
     volume_sigma ~ std_normal();
@@ -215,9 +228,9 @@ model {
     peri_volume_sigma ~ std_normal();
     surface_area_mu ~ normal(0, 10);
     surface_area_sigma ~ std_normal();
-    surface_area_vol_mu ~ normal(0, 10);
+    surface_area_vol_mu ~ normal(sav_min + sav_slope .* growth_rates_mu, sav_sigma); //normal(0, 10);
     surface_area_vol_sigma ~ std_normal();
-    aspect_ratio_mu_ ~ normal(0, 4);
+    aspect_ratio_mu ~ normal(alpha_min + alpha_slope .* growth_rates_mu, alpha_sigma);//normal(0, 4);
     aspect_ratio_sigma ~ std_normal();
     width_min ~ normal(0, 0.5);
     width_slope ~ normal(0, 0.5);
@@ -233,12 +246,11 @@ model {
     aspect_ratio  ~ normal(aspect_ratio_mu[size_cond_idx], aspect_ratio_sigma[size_cond_idx]);
 
     // Growth rates to determine minimum cell width
-    // growth_rates  ~ normal((width_mu[growth_size_idx] - width_min) / width_slope, width_lam_sigma);
-    // growth_rates  ~ normal((length_mu[growth_size_idx] - length_min) / length_slope, length_lam_sigma);
     widths_lit ~ normal(width_min + width_slope .* growth_rates_lit, width_lam_sigma);
-    // lengths_lit ~ normal(length_min + length_slope .* growth_rates_lit, length_lam_sigma);
+    lengths_lit ~ normal(length_min + length_slope .* growth_rates_lit, length_lam_sigma);
+    aspect_ratios_lit ~ normal(alpha_min + alpha_slope .* growth_rates_lit, alpha_sigma);
+    sav_lit ~ normal(sav_min + sav_slope .* growth_rates_lit, sav_sigma);
    
-
     // -------------------------------------------------------------------------
     // Literature biomass Measurements
     // -------------------------------------------------------------------------    
@@ -294,6 +306,24 @@ generated quantities {
         surface_area_rep[i] = normal_rng(surface_area_mu[size_cond_idx[i]], surface_area_sigma[size_cond_idx[i]]);
         surface_area_vol_rep[i] = normal_rng(surface_area_vol_mu[size_cond_idx[i]], surface_area_vol_sigma[size_cond_idx[i]]); 
         aspect_ratio_rep[i] = normal_rng(aspect_ratio_mu[size_cond_idx[i]], aspect_ratio_sigma[size_cond_idx[i]]); 
+    }
+    // -------------------------------------------------------------------------
+    // Growth Rate Dependence PPC
+    // -------------------------------------------------------------------------
+    vector[N_growth_lit] widths_lit_rep;
+    vector[N_growth_lit] lengths_lit_rep;
+    vector[N_growth_lit] sav_lit_rep;
+    vector[N_growth_lit] alpha_lit_rep;
+    for (i in 1:N_growth_lit) {
+        widths_lit_rep[i] = normal_rng(width_min + width_slope * growth_rates_lit[i], width_lam_sigma);
+        lengths_lit_rep[i] = normal_rng(length_min + length_slope * growth_rates_lit[i], length_lam_sigma);
+        sav_lit_rep[i] = normal_rng(sav_min + sav_slope * growth_rates_lit[i], sav_sigma);
+        alpha_lit_rep[i] = normal_rng(alpha_min + alpha_slope * growth_rates_lit[i], alpha_sigma);
+    }
+
+    vector[N_mass_spec] mass_fraction_rep;
+    for (i in 1:N_mass_spec) {
+        mass_fraction_rep[i] = normal_rng(mass_fraction_min + mass_fraction_slope * mass_spec_growth_rate[i], mass_fraction_sigma);
     }
 
     // -------------------------------------------------------------------------
