@@ -2,10 +2,17 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from palettable.colorbrewer.sequential import Blues_7
 import size.viz
 import size.analytical
+import scipy.stats
+import seaborn as sns
+
 cor, pal = size.viz.matplotlib_style()
+lit_size_data = pd.read_csv(
+    '../../data/literature/collated_literature_size_data.csv')
+size_data = pd.read_csv(
+    '../../data/summaries/summarized_size_measurements.csv')
+mass_fracs = pd.read_csv('../../data/literature/compiled_mass_fractions.csv')
 
 # Load datasets
 params = pd.read_csv('../../data/mcmc/parameter_percentiles.csv')
@@ -13,7 +20,11 @@ singulars = pd.read_csv('../../data/mcmc/singular_parameter_percentiles.csv')
 shapes = pd.read_csv('../../data/mcmc/shape_posterior_kde.csv')
 posts = pd.read_csv('../../data/mcmc/model_posterior_kde.csv')
 pred = pd.read_csv('../../data/mcmc/predicted_scaling_lppwt.csv')
+pred_phi = pd.read_csv('../../data/mcmc/predicted_phi_scaling_lppwt.csv')
 singular_posts = pd.read_csv('../../data/mcmc/singular_posterior_kde.csv')
+mass_spec_medians = pd.read_csv(
+    '../../data/mcmc/converted_mass_spec_medians.csv')
+
 # Restrict to wildtype
 params = params[(params['strain'] == 'wildtype') &
                 (params['overexpression'] == 'none') &
@@ -96,7 +107,99 @@ for g, d in singular_medians[singular_medians['quantity'].isin(list(axes.keys())
 plt.tight_layout()
 plt.savefig('../../figures/Fig2_constant_parameters_kde.pdf')
 # %%
+# mass_fracs = pd.read_csv('../../data/literature/compiled_mass_fractions.csv')
+# mass_fracs = mass_fracs[mass_fracs['periplasm']]
+# dry_frac = 0.3
+# prot_frac = 0.65
+# density = 1.1
+
+# # %%
+# # Do the proper classification
+# # genes = pd.read_csv('../../data/literature/genes_classification_all.csv')
+# # _genes = genes[genes['location'].isin(['IM', 'OM', 'PE', 'LPO'])]
+# # mass_fracs = mass_fracs[mass_fracs['gene_name'].isin(_genes['gene'].unique())]
+lit_size = pd.read_csv(
+    '../../data/literature/collated_literature_size_data.csv')
+# growth = pd.read_csv('../../data/summaries/summarized_growth_measurements.csv')
+# growth = growth[(growth['strain'] == 'wildtype') & (
+#     growth['overexpression'] == 'none') & (growth['inducer_conc'] == 0)]
+# growth = growth.groupby(['carbon_source']).mean().reset_index()
+# wt_size = size_data[(size_data['strain'] == 'wildtype') & (
+#     size_data['overexpression'] == 'none') & (size_data['inducer_conc'] == 0)]
+# for g, d in growth.groupby(['carbon_source', 'growth_rate_hr']):
+#     wt_size.loc[wt_size['carbon_source'] == g[0], 'growth_mu'] = g[1]
+
+# wt_size
+# # %%
+# lit_size.dropna(inplace=True)
+# wt_size.dropna(inplace=True)
+# # growth = np.concatenate(
+# # [lit_size['growth_rate_hr'].values, wt_size['growth_mu'].values]).flatten()
+# growth = wt_size['growth_mu']
+# # ell = np.concatenate([lit_size['length_um'].values,
+# #  wt_size['length'].values]).flatten()
+# ell = wt_size['length']
+# # w = np.concatenate([lit_size['width_um'].values,
+# #    wt_size['width_median'].values]).flatten()
+# w = wt_size['width_median']
+# # v = np.concatenate(
+# # [lit_size['volume_um3'], wt_size['volume'].values]).flatten()
+# v = wt_size['volume']
+# # sav = np.concatenate([lit_size['surface_to_volume'].values,
+# #  wt_size['surface_to_volume'].values]).flatten()
+# sav = wt_size['surface_to_volume']
+# peri_vol = np.pi * ell * w * 0.025
+
+
+# %%
+# # Determine the simple relations
+# w_popt = scipy.stats.linregress(growth, w)
+# ell_popt = scipy.stats.linregress(growth, ell)
+# peri_vol_popt = scipy.stats.linregress(growth, peri_vol)
+# vol_popt = scipy.stats.linregress(growth, v)
+# sav_popt = scipy.stats.linregress(growth, sav)
+
+# # Compute the periplasmic protein density
+# mass_fracs['width'] = w_popt[0] * \
+#     mass_fracs['growth_rate_hr'] + w_popt[1]
+# mass_fracs['length'] = np.exp(
+#     ell_popt[0] * mass_fracs['growth_rate_hr'] + ell_popt[1])
+# mass_fracs['peri_vol'] = np.exp(
+#     peri_vol_popt[0] * mass_fracs['growth_rate_hr'] + peri_vol_popt[1])
+# mass_fracs['volume'] = np.exp(
+#     vol_popt[0] * mass_fracs['growth_rate_hr'] + vol_popt[1])
+# mass_fracs['sav'] = np.exp(
+#     sav_popt[0] * mass_fracs['growth_rate_hr'] + sav_popt[1])
+# # mass_fracs['peri_volume'] = size.analytical.surface_area(mass_fracs['length'], mass_fracs['width']) * 0.025
+# mass_fracs['tot_protein'] = density * \
+#     dry_frac * prot_frac * mass_fracs['volume']
+# mass_fracs['peri_protein'] = mass_fracs['mass_frac'] * \
+#     mass_fracs['tot_protein']
+# mass_fracs['rho_peri'] = (
+#     mass_fracs['peri_protein'] * 1E3) / mass_fracs['peri_vol']
+# mass_fracs['biomass_frac'] = mass_fracs['peri_protein'] / \
+#     (density * dry_frac * mass_fracs['volume'])
+# mass_fracs = mass_fracs.groupby(
+#     ['dataset_name', 'condition', 'growth_rate_hr', 'width']).sum().reset_index()
+
+markers = ['o', 'v', 'X', '<', 's', '>', '^', 'h',
+           'p', 'P', '*', 'o', '8', 'd', '>', 'v', '<', '^']
+cors = sns.color_palette('Greys_r', n_colors=len(markers)+4).as_hex()[:-4]
+np.random.shuffle(cors)
+
+# Get the different data sources and make a mapper
+names = list(lit_size['source'].unique())
+for n in mass_spec_medians['dataset_name'].unique():
+    names.append(n)
+mapper = {n: {'m': m, 'c': c} for n, m, c in zip(names, markers, cors)}
+# %%
 fig, ax = plt.subplots(1, 1, figsize=(2, 1.75), sharey=True)
+
+# for g, d in mass_fracs.groupby(['dataset_name', 'condition', 'growth_rate_hr']):
+#     ax.plot(d['biomass_frac'], d['width'], mapper[g[0]]['m'], color=mapper[g[0]]['c'],
+#             markeredgewidth=0.25, markeredgecolor=cor['primary_black'],
+#             alpha=0.75, ms=3)
+
 
 # Plot the percentiles and the medians
 for g, d in errs[(errs['quantity'].isin(['phi_M', 'width_mu']))
@@ -123,10 +226,11 @@ for g, d in medians[medians['quantity'].isin(['phi_M',
     ax.plot(phi, w, 'o', markeredgewidth=0.5, markeredgecolor=cor['primary_blue'],
             markerfacecolor='white', ms=3)
 
+
 band_cor = {'95%': '#EACFCE',
             '75%': '#E0B1B1',
             '25%': '#D38888'}
-for i, (g, d) in enumerate(pred_err.groupby(['interval'], sort=False)):
+for i, (g, d) in enumerate(pred_err[pred_err['quantity'] == 'width_simple'].groupby(['interval'], sort=False)):
     ax.fill_between(d['phi_M'], d['lower'], d['upper'],
                     color=band_cor[g])
 ax.set_ylim([0.45, 1])
@@ -145,9 +249,9 @@ plt.plot(phi_range, theo)
 # %%
 fig, ax = plt.subplots(1, 1, figsize=(2, 1.5))
 
-phi_range = np.linspace(0.001, 0.06, 100)
-x = [0.1, 0.15, 0.2]
-delta = 0.024
+sav_range = np.linspace(4, 10, 100)
+x = [0.1, 0.2, 0.35]
+delta = 0.025
 for i, _x in enumerate(x):
     if i == 0:
         ls = '--'
@@ -155,8 +259,14 @@ for i, _x in enumerate(x):
         ls = '-.'
     else:
         ls = ':'
-    theo = (delta * (_x * (1/phi_range - 1) + 1))**-1
-    ax.plot(phi_range, theo, ls=ls, lw=1, color=cor['light_black'])
+    theo = (_x**-1 * ((sav_range * delta)**-1 - 1) + 1)**-1
+    ax.plot(sav_range, theo, ls=ls, lw=1, color=cor['light_black'])
+
+
+for g, d in mass_spec_medians.groupby(['dataset_name']):
+    ax.plot(d[d['quantity'] == 'sav']['value'], d[d['quantity'] == 'sav']['phi_M'],
+            label=g, marker=mapper[g]['m'], color=mapper[g]['c'], linestyle='none',
+            ms=3, markeredgecolor=cor['primary_black'], markeredgewidth=0.25)
 
 for g, d in errs.groupby(['carbon_source', 'interval']):
     if g[0] == 'LB':
@@ -167,21 +277,187 @@ for g, d in errs.groupby(['carbon_source', 'interval']):
                      (medians['carbon_source'] == g[0])]['lower']
     phi = d[d['quantity'] == 'phi_M']
     sv = d[d['quantity'] == 'surface_area_vol_mu']
-    ax.hlines(sv_loc, phi['lower'], phi['upper'], color=cor['primary_blue'],
+    ax.vlines(sv_loc, phi['lower'], phi['upper'], color=cor['primary_blue'],
               lw=err_widths[g[1]])
-    ax.vlines(phi_loc, sv['lower'], sv['upper'], color=cor['primary_blue'],
+    ax.hlines(phi_loc, sv['lower'], sv['upper'], color=cor['primary_blue'],
               lw=err_widths[g[1]])
 
 for g, d in medians.groupby(['carbon_source']):
     if g == 'LB':
         continue
-    ax.plot(d[d['quantity'] == 'phi_M']['lower'],
-            d[d['quantity'] == 'surface_area_vol_mu']['lower'], 'o',
+    ax.plot(d[d['quantity'] == 'surface_area_vol_mu']['lower'],
+            d[d['quantity'] == 'phi_M']['lower'], 'o',
             ms=3, markeredgewidth=0.5, markeredgecolor=cor['primary_blue'],
             markerfacecolor='w')
 
+ax.set_ylim([0, 0.06])
+ax.set_ylabel('periplasmic biomass fraction\n$\phi_{M}$', fontsize=6)
+ax.set_xlabel('$S/V$\nsurface area to volume [µm$^{-1}$]', fontsize=6)
+# plt.savefig('../../figures/Fig2_SV_scaling.pdf', bbox_inches='tight')
 
-ax.set_ylim([4, 8])
-ax.set_xlabel('periplasmic biomass fraction\n$\phi_{M}$', fontsize=6)
-ax.set_ylabel('$S/V$\nsurface area to volume [µm$^{-1}$]', fontsize=6)
-plt.savefig('../../figures/Fig2_SV_scaling.pdf', bbox_inches='tight')
+# %%
+
+# Load datasets
+params = pd.read_csv('../../data/mcmc/parameter_percentiles.csv')
+singulars = pd.read_csv('../../data/mcmc/singular_parameter_percentiles.csv')
+shapes = pd.read_csv('../../data/mcmc/shape_posterior_kde.csv')
+posts = pd.read_csv('../../data/mcmc/model_posterior_kde.csv')
+pred = pd.read_csv('../../data/mcmc/predicted_scaling_lppwt.csv')
+singular_posts = pd.read_csv('../../data/mcmc/singular_posterior_kde.csv')
+params = params[~((params['overexpression'] != 'none') &
+                (params['inducer_conc'] == 0))]
+posts = posts[~((posts['overexpression'] != 'none') &
+              (posts['inducer_conc_ng_mL'] == 0))]
+posts.rename(columns={'inducer_conc_ng_mL': 'inducer_conc'})
+shapes = shapes[~((shapes['overexpression'] != 'none') &
+                (shapes['inducer_conc'] == 0))]
+pred_err = pred[pred['interval'] != 'median']
+posts = pd.concat([posts, shapes], sort=False)
+singular_medians = singulars[singulars['interval'] == 'median']
+singular_errs = singulars[singulars['interval'] != 'median']
+medians = params[params['interval'] == 'median']
+errs = params[params['interval'] != 'median']
+
+
+fig, ax = plt.subplots(1, 1, figsize=(2, 1.75), sharey=True)
+
+cond_colors = {('wildtype', 'none'): cor['primary_blue'],
+               ('malE-rbsB-fliC-KO', 'none'): cor['primary_purple'],
+               ('malE-rbsB-fliC-KO', 'malE'): cor['primary_green'],
+               ('wildtype', 'lacZ'): cor['primary_black']}
+
+# Plot the percentiles and the medians
+for g, d in errs[(errs['quantity'].isin(['phi_M', 'width_mu']))
+                 ].groupby(['carbon_source', 'interval', 'strain', 'overexpression', 'inducer_conc']):
+
+    if (g[0] == 'LB'):
+        continue
+    c = cond_colors[(g[2], g[3])]
+    phi = medians[(medians['carbon_source'] == g[0]) &
+                  (medians['strain'] == g[2]) &
+                  (medians['overexpression'] == g[3]) &
+                  (medians['inducer_conc'] == g[4]) &
+                  (medians['quantity'] == 'phi_M')]['lower']
+    w = medians[(medians['carbon_source'] == g[0]) &
+                (medians['quantity'] == 'width_mu') &
+                (medians['strain'] == g[2]) &
+                (medians['overexpression'] == g[3]) &
+                (medians['inducer_conc'] == g[4])]['lower']
+    if (len(phi) >= 1) & (len(w) >= 1):
+        phi_d = d[d['quantity'] == 'phi_M']
+        w_d = d[d['quantity'] == 'width_mu']
+        ax.hlines(w, phi_d['lower'], phi_d['upper'], lw=err_widths[g[1]],
+                  color=c)
+        ax.vlines(phi, w_d['lower'], w_d['upper'], lw=err_widths[g[1]],
+                  color=c)
+
+for g, d in medians[medians['quantity'].isin(['phi_M',
+                                              'width_mu'])].groupby(['carbon_source', 'strain', 'overexpression', 'inducer_conc']):
+    if (g[0] == 'LB') | (g[2] == 'rbsB'):
+        continue
+    c = cond_colors[(g[1], g[2])]
+    phi = d[d['quantity'] == 'phi_M']['lower']
+    w = d[d['quantity'] == 'width_mu']['lower']
+    if (len(phi) >= 1) & (len(w) >= 1):
+        ax.plot(phi, w, 'o', markeredgewidth=0.5, markeredgecolor=c,
+                markerfacecolor='white', ms=3)
+
+for g, d in mass_fracs.groupby(['dataset_name', 'condition', 'growth_rate_hr']):
+    ax.plot(d['biomass_frac'], d['width'], mapper[g[0]]['m'], color=mapper[g[0]]['c'],
+            markeredgewidth=0.25, markeredgecolor=cor['primary_black'],
+            alpha=0.5, ms=3)
+
+band_cor = {'95%': '#EACFCE',
+            '75%': '#E0B1B1',
+            '25%': '#D38888'}
+w_range = np.linspace(0.5, 1.2)
+k = 0.1
+alpha = 3
+delta = 0.025
+Lam = 12 * alpha * delta / (3 * alpha - 1)
+theo = ((w_range - k) / (Lam * k) + 1)**-1
+# for i, (g, d) in enumerate(pred_err[pred_err['quantity'] == 'width_simple'].groupby(['interval'], sort=False)):
+# ax.fill_between(d['phi_M'], d['lower'], d['upper'],
+# color=band_cor[g])
+plt.plot(w_range, theo, '-')
+ax.set_ylim([0.45, 1])
+ax.set_xlim([0, 0.06])
+ax.set_xlabel('periplasmic biomass fraction\n$\phi_M$', fontsize=6)
+ax.set_ylabel('w\naverage width [µm]', fontsize=6)
+plt.savefig('../../figures/Fig2_width_prediction_oe.pdf')
+
+# %%
+fig, ax = plt.subplots(1, 1, figsize=(2, 1.75), sharey=True)
+
+cond_colors = {('wildtype', 'none'): cor['primary_blue'],
+               ('malE-rbsB-fliC-KO', 'none'): cor['primary_purple'],
+               ('malE-rbsB-fliC-KO', 'malE'): cor['primary_green'],
+               ('malE-rbsB-fliC-KO', 'rbsB'): cor['primary_gold'],
+               ('wildtype', 'lacZ'): cor['primary_black']}
+
+# Plot the percentiles and the medians
+for g, d in errs[(errs['quantity'].isin(['phi_M', 'width_mu']))
+                 ].groupby(['carbon_source', 'interval', 'strain', 'overexpression', 'inducer_conc']):
+
+    if (g[0] == 'LB'):  # | (g[3] == 'rbsB'):
+        continue
+    c = cond_colors[(g[2], g[3])]
+    phi = medians[(medians['carbon_source'] == g[0]) &
+                  (medians['strain'] == g[2]) &
+                  (medians['overexpression'] == g[3]) &
+                  (medians['inducer_conc'] == g[4]) &
+                  (medians['quantity'] == 'phi_M')]['lower']
+    w = medians[(medians['carbon_source'] == g[0]) &
+                (medians['quantity'] == 'width_mu') &
+                (medians['strain'] == g[2]) &
+                (medians['overexpression'] == g[3]) &
+                (medians['inducer_conc'] == g[4])]['lower']
+    if (len(phi) >= 1) & (len(w) >= 1):
+        phi_d = d[d['quantity'] == 'phi_M']
+        w_d = d[d['quantity'] == 'width_mu']
+        ax.vlines(w, phi_d['lower'], phi_d['upper'], lw=err_widths[g[1]],
+                  color=c)
+        ax.hlines(phi, w_d['lower'], w_d['upper'], lw=err_widths[g[1]],
+                  color=c)
+
+for g, d in medians[medians['quantity'].isin(['phi_M',
+                                              'width_mu'])].groupby(['carbon_source', 'strain', 'overexpression', 'inducer_conc']):
+    if (g[0] == 'LB'):  # | (g[2] == 'rbsB'):
+        continue
+    c = cond_colors[(g[1], g[2])]
+    phi = d[d['quantity'] == 'phi_M']['lower']
+    w = d[d['quantity'] == 'width_mu']['lower']
+    if (len(phi) >= 1) & (len(w) >= 1):
+        ax.plot(w, phi, 'o', markeredgewidth=0.5, markeredgecolor=c,
+                markerfacecolor='white', ms=3)
+
+for g, d in mass_fracs.groupby(['dataset_name', 'condition', 'growth_rate_hr']):
+    ax.plot(d['width'], d['biomass_frac'], mapper[g[0]]['m'], color=mapper[g[0]]['c'],
+            markeredgewidth=0.25, markeredgecolor=cor['primary_black'],
+            alpha=0.5, ms=3, zorder=1)
+
+band_cor = {'95%': '#EACFCE',
+            '75%': '#E0B1B1',
+            '25%': '#D38888'}
+# w_range = np.linspace(0.5, 1.2)
+# wmin = 0.45
+# wmax = 1.2
+# k = 0.3
+# alpha = 3
+# delta = 0.025
+# phi_max = 0.09
+# Lam = 12 * alpha * delta / (3 * alpha - 1)
+# slope = -Lam * k / ((wmin + k * (Lam - 1)) * (wmax + k * (Lam - 1)))
+# beta_0 = phi_max - slope * wmin
+# theo = beta_0 + slope * w_range
+# ax.plot(w_range, theo, '--')
+for i, (g, d) in enumerate(pred_phi[pred_phi['interval'] != 'median'].groupby(['interval'], sort=False)):
+    ax.fill_between(d['width'], d['lower'], d['upper'],
+                    color=band_cor[g])
+# ax.set_ylim([0.45, 1])
+ax.set_xlim([0.5, 1.1])
+ax.set_ylim([0, 0.1])
+
+ax.set_ylabel('periplasmic biomass fraction\n$\phi_M$', fontsize=6)
+ax.set_xlabel('w\naverage width [µm]', fontsize=6)
+# plt.savefig('../../figures/Fig2_width_prediction_oe.pdf')
