@@ -65,7 +65,10 @@ data {
     //  Literature Biomass Measurements
     //--------------------------------------------------------------------------
     int<lower=1> N_biomass; // Total number of biomass measurements
+    int<lower=1> N_prot;
     vector<lower=0>[N_biomass] biomass; // Biomass in ug / OD ml
+    vector<lower=0>[N_prot] total_protein;
+    vector<lower=0>[N_prot] total_protein_growth_rates;
 
     //--------------------------------------------------------------------------
     //  Literature Mass Spec Measurements
@@ -76,13 +79,10 @@ data {
 }
 
 transformed data {
-    int N_pred = 100;
-
     // -------------------------------------------------------------------------
     // Literature Biomass Measurements
     // -------------------------------------------------------------------------
     vector[N_biomass] biomass_centered = (biomass - mean(biomass)) ./ sd(biomass);
-    vector[N_mass_spec] mass_spec_phi_M = mass_fraction .* prot_frac;
 
 }
 
@@ -111,13 +111,13 @@ parameters {
     vector<lower=0>[J_size_cond] length_sigma;
     vector<lower=0>[J_size_cond] volume_mu;
     vector<lower=0>[J_size_cond] volume_sigma;
-    vector<lower=0, upper=volume_mu>[J_size_cond] peri_volume_mu;
+    vector<lower=0>[J_size_cond] peri_volume_mu;
     vector<lower=0>[J_size_cond] peri_volume_sigma;
     vector<lower=0>[J_size_cond] surface_area_mu;
     vector<lower=0>[J_size_cond] surface_area_sigma;
     vector<lower=0>[J_size_cond] surface_area_vol_mu;
     vector<lower=0>[J_size_cond] surface_area_vol_sigma;
-    vector<lower=1>[J_size_cond] aspect_ratio_mu;
+    vector<lower=1>[J_size_cond] aspect_ratio_mu_;
     vector<lower=0>[J_size_cond] aspect_ratio_sigma;
 
     // Size parameters for growth rate dependences
@@ -134,7 +134,7 @@ parameters {
     real<lower=0> length_slope;
     real<lower=0> length_lam_sigma;
     real<lower=0> mass_fraction_min;
-    real<lower=0> mass_fraction_slope;
+    real mass_fraction_slope;
     real<lower=0> mass_fraction_sigma;
 
     // -------------------------------------------------------------------------
@@ -143,18 +143,26 @@ parameters {
     vector<lower=0>[J_growth] growth_rates_mu;
     vector<lower=0>[J_growth] growth_rates_sigma;
 
-
     // -------------------------------------------------------------------------
     // Literature Biomass Measurements
     // -------------------------------------------------------------------------
     real biomass_centered_mu; // Centered mean biomass
     real<lower=0> biomass_sigma; // scale parameter
+    real total_protein_min;
+    real total_protein_slope;
+    real<lower=0> total_protein_sigma;
         
     // -------------------------------------------------------------------------
     // Flow measurements
     // -------------------------------------------------------------------------
     real<lower=0> flow_prefactor;
     real<lower=0> flow_sigma;
+
+    // -------------------------------------------------------------------------
+    // Model parameters
+    // -------------------------------------------------------------------------
+    real<lower=0> k;
+    real<lower=0> mass_spec_lam_sigma;
 
 } 
 
@@ -168,7 +176,7 @@ transformed parameters {
     // -------------------------------------------------------------------------
     // Bradford Assay Protein Measurements
     // -------------------------------------------------------------------------
-    vector<lower=0, upper=biomass_mu>[J_brad_cond] prot_per_biomass_mu = exp(log_prot_per_biomass_mu);
+    vector<lower=0>[J_brad_cond] prot_per_biomass_mu = exp(log_prot_per_biomass_mu);
 
     // -------------------------------------------------------------------------
     // Flow measurements
@@ -179,7 +187,14 @@ transformed parameters {
     // -------------------------------------------------------------------------
     // Size measurements
     // ------------------------------------------------------------------------- 
-    // vector<lower=1>[J_size_cond] aspect_ratio_mu = aspect_ratio_mu_ + 1;
+    vector<lower=1>[J_size_cond] aspect_ratio_mu = aspect_ratio_mu_ + 1;
+    
+    // -------------------------------------------------------------------------
+    // Transformed mass spec parameters
+    // ------------------------------------------------------------------------- 
+    vector<lower=0>[N_mass_spec] mass_spec_widths = width_min + width_slope .* mass_spec_growth_rate;
+    vector<lower=0>[N_mass_spec] mass_spec_sav = sav_min + sav_slope * mass_spec_growth_rate;
+    vector<lower=0>[N_mass_spec] mass_spec_phi_M = (mass_fraction .* (total_protein_min + total_protein_slope .* mass_spec_growth_rate))/biomass_mu; 
 }
 
 model { 
@@ -217,10 +232,9 @@ model {
     // Size Measurements
     // -------------------------------------------------------------------------    
     // Priors
-    width_mu ~ normal(width_min + width_slope .* growth_rates_mu, width_sigma);
+    width_mu ~ std_normal();
     width_sigma ~ std_normal();
-    // length_mu ~ normal(0, 2);
-    length_mu ~ normal(length_min + length_slope .* growth_rates_mu, length_sigma);
+    length_mu ~ normal(0, 2);
     length_sigma ~ std_normal();
     volume_mu ~ normal(0, 2);
     volume_sigma ~ std_normal();
@@ -228,9 +242,9 @@ model {
     peri_volume_sigma ~ std_normal();
     surface_area_mu ~ normal(0, 10);
     surface_area_sigma ~ std_normal();
-    surface_area_vol_mu ~ normal(sav_min + sav_slope .* growth_rates_mu, sav_sigma); //normal(0, 10);
+    surface_area_vol_mu ~ normal(0, 10);
     surface_area_vol_sigma ~ std_normal();
-    aspect_ratio_mu ~ normal(alpha_min + alpha_slope .* growth_rates_mu, alpha_sigma);//normal(0, 4);
+    aspect_ratio_mu_ ~ normal(0, 4);
     aspect_ratio_sigma ~ std_normal();
     width_min ~ normal(0, 0.5);
     width_slope ~ normal(0, 0.5);
@@ -257,9 +271,16 @@ model {
     // Prior
     biomass_centered_mu ~ std_normal();
     biomass_sigma ~ std_normal();
+    total_protein_min ~ normal(300, 100);
+    total_protein_slope ~ normal(0, 100);
+    total_protein_sigma ~ normal(0, 10);
+    mass_fraction_min ~ std_normal();
+    mass_fraction_slope ~ std_normal();
+    mass_fraction_sigma ~ std_normal();
 
     // Likelihood
     biomass_centered ~ normal(biomass_centered_mu, biomass_sigma);
+    total_protein ~ normal(total_protein_min + total_protein_slope .* total_protein_growth_rates, total_protein_sigma);
 
     // -------------------------------------------------------------------------
     // Flow measurments
@@ -267,7 +288,14 @@ model {
     flow_sigma ~ normal(0, 0.1);
     flow_prefactor ~ std_normal();
     cells_per_biomass/1E9 ~ normal(1/flow_mu, flow_sigma);
- 
+    
+    // -------------------------------------------------------------------------
+    // Model details
+    // -------------------------------------------------------------------------    
+    mass_spec_lam_sigma ~ std_normal();
+    k ~ std_normal();
+    mass_spec_growth_rate ~ normal((sav_min + k * delta * mass_spec_phi_M) / sav_slope, mass_spec_lam_sigma);
+
 }
 
 generated quantities { 
@@ -342,25 +370,17 @@ generated quantities {
         biomass_rep[i] = normal_rng(biomass_centered_mu, biomass_sigma) * sd(biomass) + mean(biomass);
     }
 
+    vector[N_prot] total_protein_rep;
+    for (i in 1:N_prot) {
+        total_protein_rep[i] = normal_rng(total_protein_min + total_protein_slope * total_protein_growth_rates[i], total_protein_sigma);
+    }
+
     // -------------------------------------------------------------------------
     // Compute quantities
     // -------------------------------------------------------------------------
     vector<lower=0>[J_brad_cond] N_cells = 1E9 ./ (flow_slope .* volume_mu[brad_cond_mapper]);
-    vector<lower=0>[J_brad_cond] prot_per_cell = prot_per_biomass_mu ./ N_cells;
-    vector<lower=0, upper=1>[J_brad_cond] phi_M = prot_per_biomass_mu ./ biomass_mu;
-    real<lower=0> avg_rho_ratio = mean((phi_M[brad_wt_idx] ./ (1 - phi_M[brad_wt_idx])) .* ((1 - surface_area_vol_mu[brad_wt_idx] .* delta) ./ (surface_area_mu[brad_wt_idx] .* delta))); 
+    vector<lower=0>[J_brad_cond] phi_M = prot_per_biomass_mu ./ biomass_mu;
     real<lower=0> alpha = mean(aspect_ratio_mu);
 
-    // -------------------------------------------------------------------------
-    // Compute density ratios given mass spec data
-    // -------------------------------------------------------------------------
-    vector<lower=0>[N_mass_spec] mass_spec_widths = width_min + width_slope .* mass_spec_growth_rate;
-    vector<lower=0>[N_mass_spec] mass_spec_sav = 12 * alpha  ./ (mass_spec_widths .* (3 * alpha - 1));
-    vector<lower=0>[N_mass_spec] mass_spec_k = (mass_spec_phi_M ./ (1 - mass_spec_phi_M)) .* ((1 - delta .* mass_spec_sav) ./ (delta .* mass_spec_sav));
-    real<lower=0> avg_mass_spec_k = mean(mass_spec_k);
-    real<lower=0> Lambda = 12 * alpha * delta / (3 * alpha - 1) ;
-    real<lower=0> phi_max = ((1 / avg_rho_ratio) * ((width_min * (3 * alpha - 1)/(12 * alpha * delta)) - 1) + 1)^-1;
-    real slope = - Lambda * 0.3/ ((width_min + 0.3 * (Lambda - 1)) * ( 2 * width_min + 0.3 * (Lambda - 1)));
-    real<lower=0> intercept = phi_max - slope * width_min;
 
 }

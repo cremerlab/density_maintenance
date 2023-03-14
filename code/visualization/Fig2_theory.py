@@ -23,8 +23,8 @@ pred = pd.read_csv('../../data/mcmc/predicted_scaling_lppwt.csv')
 pred_phi = pd.read_csv('../../data/mcmc/predicted_phi_scaling_lppwt.csv')
 singular_posts = pd.read_csv('../../data/mcmc/singular_posterior_kde.csv')
 mass_spec_medians = pd.read_csv(
-    '../../data/mcmc/converted_mass_spec_medians.csv')
-
+    '../../data/mcmc/mass_spec_percentiles.csv')
+mass_spec_medians = mass_spec_medians[mass_spec_medians['interval'] == 'median']
 # Restrict to wildtype
 params = params[(params['strain'] == 'wildtype') &
                 (params['overexpression'] == 'none') &
@@ -250,7 +250,7 @@ plt.plot(phi_range, theo)
 fig, ax = plt.subplots(1, 1, figsize=(2, 1.5))
 
 sav_range = np.linspace(4, 10, 100)
-x = [0.1, 0.2, 0.35]
+x = [0.1, 0.2, 0.45]
 delta = 0.025
 for i, _x in enumerate(x):
     if i == 0:
@@ -264,7 +264,7 @@ for i, _x in enumerate(x):
 
 
 for g, d in mass_spec_medians.groupby(['dataset_name']):
-    ax.plot(d[d['quantity'] == 'sav']['value'], d[d['quantity'] == 'sav']['phi_M'],
+    ax.plot(d[d['quantity'] == 'mass_spec_sav']['lower'], d[d['quantity'] == 'mass_spec_phi_M']['lower'],
             label=g, marker=mapper[g]['m'], color=mapper[g]['c'], linestyle='none',
             ms=3, markeredgecolor=cor['primary_black'], markeredgewidth=0.25)
 

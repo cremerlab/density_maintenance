@@ -33,7 +33,9 @@ lit_size_data = pd.read_csv(
     '../../data/literature/collated_literature_size_data.csv')
 mass_spec_data = pd.read_csv(
     '../../data/literature/compiled_mass_fractions.csv')
+tot_prot = pd.read_csv('../../data/literature/collated_total_protein.csv')
 
+# %%
 # ##############################################################################
 # DATASET FILTERING
 # ##############################################################################
@@ -77,9 +79,9 @@ flow_data = flow_data.groupby(
     ['date', 'carbon_source', 'run_no']).mean().reset_index()
 
 # Restrict growth data
-growth_data = growth_data[(growth_data['strain'] == 'wildtype') &
-                          (growth_data['overexpression'] == 'none') &
-                          (growth_data['inducer_conc'] == 0)]
+# growth_data = growth_data[(growth_data['strain'] == 'wildtype') &
+#   (growth_data['overexpression'] == 'none') &
+#   (growth_data['inducer_conc'] == 0)]
 
 # %%
 # ##############################################################################
@@ -155,6 +157,8 @@ data_dict = {
     'growth_rates_lit': lit_size_data['growth_rate_hr'].values.astype(float),
     'widths_lit': lit_size_data['width_um'].values.astype(float),
     'lengths_lit': lit_size_data['length_um'].values.astype(float),
+    'aspect_ratios_lit': lit_size_data['length_um'].values.astype(float) / lit_size_data['width_um'].values.astype(float),
+    'sav_lit': lit_size_data['surface_to_volume'].values.astype(float),
     'growth_rates': growth_data['growth_rate_hr'].values.astype(float),
     'growth_cond_idx': growth_data['cond_idx'].values.astype(int),
     'growth_size_idx': growth_data['size_idx'].values.astype(int),
@@ -184,6 +188,9 @@ data_dict = {
 
     'N_biomass': len(biomass_data),
     'biomass': biomass_data['dry_mass_ug'],
+    'N_prot': len(tot_prot),
+    'total_protein': tot_prot['total_protein_ug_od600'],
+    'total_protein_growth_rates': tot_prot['growth_rate_hr'],
 
     'N_mass_spec': len(mass_spec_data),
     'mass_fraction': mass_spec_data['mass_frac'],
@@ -197,8 +204,7 @@ data_dict = {
 
 # %%
 # Sample the posterior
-_samples = model.sample(data_dict,
-                        adapt_delta=0.99, iter_sampling=2000)
+_samples = model.sample(data_dict, adapt_delta=0.99, iter_sampling=2000)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
@@ -206,7 +212,7 @@ size_groupby = ['strain', 'carbon_source',
                 'overexpression', 'inducer_conc', 'size_cond_idx']
 # Perform a KDE over the posteriors
 shape_parameters = ['width_mu', 'length_mu', 'volume_mu', 'peri_volume_mu',
-                    'surface_area_mu', 'surface_area_vol_mu', 'aspect_ratio_mu', ]
+                    'surface_area_mu', 'surface_area_vol_mu', 'aspect_ratio_mu']
 shape_post_kde = pd.DataFrame([])
 for s in tqdm.tqdm(shape_parameters):
     post = samples.posterior[s].to_dataframe().reset_index()
@@ -233,36 +239,37 @@ for s in tqdm.tqdm(shape_parameters):
         shape_post_kde = pd.concat([shape_post_kde, _df], sort=False)
 shape_post_kde.to_csv('../../data/mcmc/shape_posterior_kde.csv', index=False)
 
+# %%
+# Perform a KDE over the posteriors
+lit_parameters = ['width_min', 'width_slope', 'length_min',
+                  'length_slope', 'sav_min', 'sav_slope',
+                  'mass_fraction_min', 'mass_fraction_slope',
+                  'total_protein_min', 'total_protein_slope',
+                  'alpha_min', 'alpha_slope', 'k']
+
+lit_post_kde = pd.DataFrame([])
+for s in tqdm.tqdm(lit_parameters):
+    post = samples.posterior[s].to_dataframe().reset_index()
+    minval = 0.01 * post[s].median()
+    maxval = 3 * post[s].median()
+    score_range = np.linspace(minval, maxval, 500)
+    # Evaluate the kernel density
+    kernel = scipy.stats.gaussian_kde(post[f'{s}'].values, bw_method='scott')
+    kde = kernel(score_range)
+    kde *= kde.sum()**-1
+
+    # Set up the dataframe and store
+    _df = pd.DataFrame(
+        np.array([score_range, kde]).T, columns=['value', 'kde'])
+    _df['parameter'] = s
+    lit_post_kde = pd.concat([lit_post_kde, _df], sort=False)
+lit_post_kde.to_csv('../../data/mcmc/literature_model_posterior_kdes.csv')
+
+# %%
 # Perform KDE over posterior of model params
 brad_groupby = ['strain', 'carbon_source',
                 'overexpression', 'inducer_conc_ng_mL', 'cond_idx']
-model_params = ['phi_M', 'prot_per_biomass_mu', 'prot_per_cell']
-model_post_kde = pd.DataFrame([])
-for s in tqdm.tqdm(model_params):
-    post = samples.posterior[s].to_dataframe().reset_index()
-    for g, d in brad_data.groupby(brad_groupby):
-        for i, _g in enumerate(brad_groupby[:-1]):
-            post.loc[post[f'{s}_dim_0'] == g[-1]-1, _g] = g[i]
-    minval = 0.01 * post[s].median()
-    maxval = 3 * post[s].median()
-    score_range = np.linspace(minval, maxval, 300)
-    for g, d in post.groupby(brad_groupby[:-1]):
-
-        # Evaluate the kernel density
-        kernel = scipy.stats.gaussian_kde(
-            d[f'{s}'].values, bw_method='scott')
-        kde = kernel(score_range)
-        kde *= kde.sum()**-1
-
-        # Set up the dataframe and store
-        _df = pd.DataFrame(
-            np.array([score_range, kde]).T, columns=['value', 'kde'])
-        _df['parameter'] = s
-        for i, _g in enumerate(brad_groupby[:-1]):
-            _df[_g] = g[i]
-        model_post_kde = pd.concat([model_post_kde, _df], sort=False)
-model_post_kde.to_csv('../../data/mcmc/model_posterior_kde.csv', index=False)
-
+model_params = ['phi_M', 'prot_per_biomass_mu']
 model_post_kde = pd.DataFrame([])
 for s in tqdm.tqdm(model_params):
     post = samples.posterior[s].to_dataframe().reset_index()
@@ -311,7 +318,7 @@ for i, p in enumerate(shape_parameters):
     param_percs = pd.concat([param_percs, percs], sort=False)
 
 # Process the parameters for the protein quantities
-params = ['phi_M', 'prot_per_biomass_mu', 'N_cells', 'prot_per_cell']
+params = ['phi_M', 'prot_per_biomass_mu']
 for i, p in enumerate(params):
     p_df = samples.posterior[p].to_dataframe().reset_index()
     percs = size.viz.compute_percentiles(p_df, p, f'{p}_dim_0',
@@ -327,8 +334,9 @@ for i, p in enumerate(params):
 param_percs.to_csv('../../data/mcmc/parameter_percentiles.csv', index=False)
 
 # %%
-singular_params = ['Lambda', 'alpha', 'phi_max', 'width_min',
-                   'avg_mass_spec_k', 'slope', 'intercept']
+singular_params = ['k', 'alpha_min', 'alpha_slope', 'width_min', 'width_slope',
+                   'length_min', 'length_slope', 'sav_min', 'sav_slope',
+                   'total_protein_min', 'total_protein_slope']
 singular_percs = samples.posterior[singular_params].to_dataframe(
 ).reset_index()
 singular_kde = pd.DataFrame([])
@@ -351,84 +359,71 @@ singular_percs = size.viz.compute_percentiles(singular_percs, singular_params, '
 singular_percs.drop(columns='idx', inplace=True)
 singular_percs.to_csv(
     '../../data/mcmc/singular_parameter_percentiles.csv', index=False)
+# %%
+# Percentiles for mass spec data
+params = ['mass_spec_phi_M', 'mass_spec_sav', 'mass_spec_widths']
+mass_spec_data['idx'] = np.arange(len(mass_spec_data))
+mass_spec_df = pd.DataFrame([])
+for i, p in enumerate(params):
+    post = samples.posterior[p].to_dataframe().reset_index()
+    percs = size.viz.compute_percentiles(post, p, f'{p}_dim_0',
+                                         lower_bounds=lower,
+                                         upper_bounds=upper,
+                                         interval_labels=labels)
+    for j, (g, d) in enumerate(percs.groupby(f'{p}_dim_0')):
+        d['dataset_name'] = mass_spec_data['dataset_name'].values[j]
+        d['growth_rate_hr'] = mass_spec_data['growth_rate_hr'].values[j]
+        d.drop(columns=f'{p}_dim_0', inplace=True)
+        mass_spec_df = pd.concat([mass_spec_df, d], sort=False)
+mass_spec_df.to_csv('../../data/mcmc/mass_spec_percentiles.csv', index=False)
 
 # %%
-pred_post = samples.posterior[['Lambda', 'phi_max', 'width_min', 'intercept', 'slope',
-                               'width_slope', 'alpha']].to_dataframe().reset_index()
-
+# Growth rate dependence stuff
+pairs = [['width_min', 'width_slope'],
+         ['length_min', 'length_slope'],
+         ['alpha_min', 'alpha_slope'],
+         ['sav_min', 'sav_slope'],
+         ['mass_fraction_min', 'mass_fraction_slope']]
 
 lam_range = np.linspace(0.1, 2.5, 300)
 perc_df = pd.DataFrame([])
 for i, ell in enumerate(lam_range):
-    pred_width = pred_post['width_min'] + pred_post['width_slope'] * ell
-    pred_sav = 12 * pred_post['alpha'] / \
-        (pred_width * (3 * pred_post['alpha'] - 1))
-    _df = pd.DataFrame(np.array([pred_width, pred_sav]).T,
-                       columns=['width_um', 'sav_inv_um'])
-    _df['growth_rate_hr'] = ell
-    percs = size.viz.compute_percentiles(_df, ['width_um', 'sav_inv_um'],
-                                         'growth_rate_hr',
-                                         lower_bounds=lower,
-                                         upper_bounds=upper,
-                                         interval_labels=labels)
-    perc_df = pd.concat([perc_df, percs])
-perc_df.to_csv('../../data/mcmc/dimensions_v_growth_rate.csv', index=False)
+    for j, p in enumerate(pairs):
+        pred_post = samples.posterior[p].to_dataframe().reset_index()
+        pred_width = pred_post[p[0]] + pred_post[p[1]] * ell
+        _df = pd.DataFrame(np.array([pred_width]).T,
+                           columns=['value'])
+        _df['growth_rate_hr'] = ell
+        _df['quantity'] = '_'.join(p[0].split('_')[:-1])
+        percs = size.viz.compute_percentiles(_df, 'value',
+                                             ['growth_rate_hr', 'quantity'],
+                                             lower_bounds=lower,
+                                             upper_bounds=upper,
+                                             interval_labels=labels)
+        perc_df = pd.concat([perc_df, percs])
+perc_df.to_csv('../../data/mcmc/growth_rate_linear_relations.csv', index=False)
 
-# %%
-mass_spec_conv = pd.DataFrame([])
-for val in ['mass_spec_widths', 'mass_spec_sav']:
-    _post = samples.posterior[val].to_dataframe().reset_index()
-    _post = _post.groupby([f'{val}_dim_0']).median().reset_index()
-    _post['dataset_name'] = mass_spec_data['dataset_name']
-    _post['growth_rate_hr'] = mass_spec_data['growth_rate_hr']
-    _post['phi_M'] = data_dict['mass_fraction'] * data_dict['prot_frac']
-    _post = _post[['dataset_name', 'growth_rate_hr', 'phi_M', f'{val}']]
-    _post.rename(columns={f'{val}': 'value'}, inplace=True)
-    if 'widths' in val:
-        val = val[:-1]
-    _post['quantity'] = val.split('_')[-1]
-
-    mass_spec_conv = pd.concat([mass_spec_conv, _post])
-mass_spec_conv.to_csv(
-    '../../data/mcmc/converted_mass_spec_medians.csv', index=False)
-# %%
-# Compute the two predictions and the percentiles
-# phi_range = np.linspace(0.001, 0.1, 200)
+# %
+# # Compute the two predictions and the percentiles
+# w_range = np.linspace(0.45, 1, 200)
 # perc_df = pd.DataFrame([])
-# for i, p in enumerate(tqdm.tqdm(phi_range)):
-#     taylor = pred_post['width_min'] + pred_post['Lambdak'] * ((p - pred_post['phi_star'])/pred_post['phi_star'] ** 2) *\
-#         ((p - pred_post['phi_star'])/pred_post['phi_star'] - 1)
-#     simple = pred_post['Lambda'] * \
-#         (pred_post['avg_rho_ratio'] * (1 / p - 1) + 1)
+# for i, w in enumerate(tqdm.tqdm(w_range)):
+#     pred = pred_post['intercept'] + pred_post['slope'] * w
 
-#     _df = pd.DataFrame(np.array([taylor, simple]).T,
-#                        columns=['width_taylor', 'width_simple'])
-#     _df['phi_M'] = p
-#     percs = size.viz.compute_percentiles(_df, ['width_taylor', 'width_simple'], 'phi_M',
+#     _df = pd.DataFrame(np.array([pred]).T,
+#                        columns=['phi_pred'])
+#     _df['width'] = w
+#     percs = size.viz.compute_percentiles(_df, 'phi_pred', 'width',
 #                                          lower_bounds=lower,
 #                                          upper_bounds=upper,
 #                                          interval_labels=labels)
 #     perc_df = pd.concat([perc_df, percs], sort=False)
-# perc_df.to_csv('../../data/mcmc/predicted_scaling_lppwt.csv', index=False)
-
-# %
-# Compute the two predictions and the percentiles
-w_range = np.linspace(0.45, 1, 200)
-perc_df = pd.DataFrame([])
-for i, w in enumerate(tqdm.tqdm(w_range)):
-    pred = pred_post['intercept'] + pred_post['slope'] * w
-
-    _df = pd.DataFrame(np.array([pred]).T,
-                       columns=['phi_pred'])
-    _df['width'] = w
-    percs = size.viz.compute_percentiles(_df, 'phi_pred', 'width',
-                                         lower_bounds=lower,
-                                         upper_bounds=upper,
-                                         interval_labels=labels)
-    perc_df = pd.concat([perc_df, percs], sort=False)
-perc_df.to_csv('../../data/mcmc/predicted_phi_scaling_lppwt.csv', index=False)
+# perc_df.to_csv('../../data/mcmc/predicted_phi_scaling_lppwt.csv', index=False)
 
 # %%
+# ############################################################################## 
+# POSTERIOR PREDICTIVE CHECKS
+# ############################################################################## 
 # Plot the ppc for the calibration data
 cal_ppc = samples.posterior.od595_calib_rep.to_dataframe().reset_index()
 for conc, n in zip(cal_data['protein_conc_ug_ml'], np.arange(len(cal_data))):
