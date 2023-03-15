@@ -125,7 +125,7 @@ parameters {
     real<lower=0> width_slope;
     real<lower=0> width_lam_sigma;
     real<lower=0> alpha_min;
-    real<lower=0> alpha_slope;
+    real alpha_slope;
     real<lower=0> alpha_sigma;
     real<lower=0> sav_min;
     real<lower=0> sav_slope;
@@ -161,8 +161,8 @@ parameters {
     // -------------------------------------------------------------------------
     // Model parameters
     // -------------------------------------------------------------------------
-    real<lower=0> k;
-    real<lower=0> mass_spec_lam_sigma;
+    // real<lower=0> k;
+    // real<lower=0> mass_spec_lam_sigma;
 
 } 
 
@@ -193,7 +193,7 @@ transformed parameters {
     // Transformed mass spec parameters
     // ------------------------------------------------------------------------- 
     vector<lower=0>[N_mass_spec] mass_spec_widths = width_min + width_slope .* mass_spec_growth_rate;
-    vector<lower=0>[N_mass_spec] mass_spec_sav = sav_min + sav_slope * mass_spec_growth_rate;
+    vector<lower=0>[N_mass_spec] mass_spec_sav = sav_min - sav_slope * mass_spec_growth_rate;
     vector<lower=0>[N_mass_spec] mass_spec_phi_M = (mass_fraction .* (total_protein_min + total_protein_slope .* mass_spec_growth_rate))/biomass_mu; 
 }
 
@@ -263,7 +263,7 @@ model {
     widths_lit ~ normal(width_min + width_slope .* growth_rates_lit, width_lam_sigma);
     lengths_lit ~ normal(length_min + length_slope .* growth_rates_lit, length_lam_sigma);
     aspect_ratios_lit ~ normal(alpha_min + alpha_slope .* growth_rates_lit, alpha_sigma);
-    sav_lit ~ normal(sav_min + sav_slope .* growth_rates_lit, sav_sigma);
+    sav_lit ~ normal(sav_min - sav_slope .* growth_rates_lit, sav_sigma);
    
     // -------------------------------------------------------------------------
     // Literature biomass Measurements
@@ -292,9 +292,9 @@ model {
     // -------------------------------------------------------------------------
     // Model details
     // -------------------------------------------------------------------------    
-    mass_spec_lam_sigma ~ std_normal();
-    k ~ std_normal();
-    mass_spec_growth_rate ~ normal((sav_min + k * delta * mass_spec_phi_M) / sav_slope, mass_spec_lam_sigma);
+    // mass_spec_lam_sigma ~ std_normal();
+    // k ~ std_normal();
+    // mass_spec_growth_rate ~ normal((sav_min + k * delta * mass_spec_phi_M) / sav_slope, mass_spec_lam_sigma);
 
 }
 
@@ -345,7 +345,7 @@ generated quantities {
     for (i in 1:N_growth_lit) {
         widths_lit_rep[i] = normal_rng(width_min + width_slope * growth_rates_lit[i], width_lam_sigma);
         lengths_lit_rep[i] = normal_rng(length_min + length_slope * growth_rates_lit[i], length_lam_sigma);
-        sav_lit_rep[i] = normal_rng(sav_min + sav_slope * growth_rates_lit[i], sav_sigma);
+        sav_lit_rep[i] = normal_rng(sav_min - sav_slope * growth_rates_lit[i], sav_sigma);
         alpha_lit_rep[i] = normal_rng(alpha_min + alpha_slope * growth_rates_lit[i], alpha_sigma);
     }
 
