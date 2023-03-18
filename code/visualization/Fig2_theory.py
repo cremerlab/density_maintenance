@@ -4,15 +4,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import size.viz
 import size.analytical
-import scipy.stats
 import seaborn as sns
-
+mapper = size.viz.lit_mapper()
+err_widths = {'95%': 0.25, '75%': 1, '25%': 2.5}
 cor, pal = size.viz.matplotlib_style()
 lit_size_data = pd.read_csv(
     '../../data/literature/collated_literature_size_data.csv')
 size_data = pd.read_csv(
     '../../data/summaries/summarized_size_measurements.csv')
-mass_fracs = pd.read_csv('../../data/literature/compiled_mass_fractions.csv')
+# mass_fracs = pd.read_csv('../../data/mcmc/mass_spec_percentiles.csv')
 
 # Load datasets
 params = pd.read_csv('../../data/mcmc/parameter_percentiles.csv')
@@ -22,9 +22,11 @@ posts = pd.read_csv('../../data/mcmc/model_posterior_kde.csv')
 pred = pd.read_csv('../../data/mcmc/predicted_scaling_lppwt.csv')
 pred_phi = pd.read_csv('../../data/mcmc/predicted_phi_scaling_lppwt.csv')
 singular_posts = pd.read_csv('../../data/mcmc/singular_posterior_kde.csv')
-mass_spec_medians = pd.read_csv(
-    '../../data/mcmc/mass_spec_percentiles.csv')
+singular_percs = pd.read_csv(
+    '../../data/mcmc/singular_parameter_percentiles.csv')
+mass_spec_medians = pd.read_csv('../../data/mcmc/mass_spec_percentiles.csv')
 mass_spec_medians = mass_spec_medians[mass_spec_medians['interval'] == 'median']
+
 # Restrict to wildtype
 params = params[(params['strain'] == 'wildtype') &
                 (params['overexpression'] == 'none') &
@@ -43,23 +45,80 @@ singular_errs = singulars[singulars['interval'] != 'median']
 medians = params[params['interval'] == 'median']
 errs = params[params['interval'] != 'median']
 
+
+# %%
+# Define the parameters
+k = np.array([1, 2, 3])
+delta = 0.025
+slope = k * delta
+phi_range = np.linspace(0.01, 0.10, 100)
+sav_range = np.linspace(5.8001, 7, 100)
+
+# %%
+
+fig, ax = plt.subplots(1, 1, figsize=(2, 1.75))
+
+ls = ['-', '--', ':', '-.']
+for i, s in enumerate(slope):
+    theo = s * (sav_range - 5.8)
+    ax.plot(sav_range, theo,  ls=ls[i],
+            lw=1, color=cor['primary_purple'], zorder=1000)
+
+# Plot the mass spec data
+for g, d in mass_spec_medians.groupby(['dataset_name']):
+    ax.plot(d[d['quantity'] == 'mass_spec_sav']['lower'],
+            d[d['quantity'] == 'mass_spec_phi_M']['lower'] - 0.02,
+            linestyle='none', marker=mapper[g]['m'], markeredgecolor='k',
+            alpha=0.25, markeredgewidth=0.5, color=mapper[g]['c'], ms=4, zorder=10)
+
+
+med_params = params[(params['quantity'].isin(['surface_area_vol_mu', 'phi_M'])) &
+                    (params['interval'] == 'median')]
+for g, d in params[params['quantity'].isin(['surface_area_vol_mu', 'phi_M'])].groupby(['carbon_source',
+                                                                                       'interval'], sort=False):
+    if g[0] == 'LB':
+        continue
+
+    if g[1] == 'median':
+        ax.plot(d[d['quantity'] == 'surface_area_vol_mu']['lower'], d[d['quantity'] == 'phi_M']['upper'] - 0.02,
+                marker='o', markeredgewidth=0.75, markeredgecolor=cor['primary_blue'],
+                markerfacecolor='white', ms=3, zorder=1000)
+    else:
+        sav = d[d['quantity'] == 'surface_area_vol_mu']
+        phiM = d[d['quantity'] == 'phi_M']
+        med_sav = med_params[(med_params['quantity'] == 'surface_area_vol_mu') &
+                             (med_params['carbon_source'] == g[0])]
+        med_phi_M = med_params[(med_params['quantity'] == 'phi_M') &
+                               (med_params['carbon_source'] == g[0])]
+        ax.vlines(med_sav['lower'], phiM['lower']-0.02, phiM['upper']-0.02, lw=err_widths[g[1]],
+                  color=cor['primary_blue'], zorder=99)
+        ax.hlines(med_phi_M['lower']-0.02, sav['lower'], sav['upper'], lw=err_widths[g[1]],
+                  color=cor['primary_blue'], zorder=99)
+
+ax.set_xlim([5, 7])
+ax.set_xticks([5, 5.5, 6, 6.5, 7])
+ax.set_ylim([-0.01, 0.08])
+ax.set_xlabel('surface area to volume [µm$^{-1}$]', fontsize=6)
+ax.set_ylabel(
+    'adjusted periplasmic biomass fraction', fontsize=6)
+plt.savefig('../../figures/Fig2_sav_scaling.pdf', bbox_inches='tight')
+
+
+# %%
 # %%
 # Set up the canvas and label
-fig, ax = plt.subplots(1, 2, figsize=(2, 1.5))
+fig, ax = plt.subplots(1, 3, figsize=(2, 1.5))
 for a in ax:
     a.set_yticks([])
-ax[0].set_xlim([1, 5])
-# ax[0].set_xticks([2.5, 3, 3.5])
-# ax[0].set_xticklabels(['', '', ''])
-ax[1].set_xlim([0, 0.6])
-ax[1].set_xticks([0.1, 0.3, 0.5])
-# ax[1].set_xticklabels(['', '', '', '', ''])
+ax[0].set_xlim([0.5, 0.9])
+ax[1].set_xlim([1.8, 3.2])
+ax[2].set_xlim([2.5, 4])
 nudge = 1
 
-axes = {'aspect_ratio_mu': 0, 'rho_ratio': 1, 'avg_rho_ratio': 1, 'alpha': 0}
+axes = {'width_mu': 0, 'length_mu': 1, 'aspect_ratio_mu': 2}
 locs = {'glucoseCAA': 5, 'glucose': 4,
         'glycerol': 3, 'sorbitol': 2, 'acetate': 1}
-for i, (g, d) in enumerate(posts[posts['parameter'].isin(['aspect_ratio_mu', 'rho_ratio'])].groupby(['carbon_source'])):
+for i, (g, d) in enumerate(posts[posts['parameter'].isin(['width_mu', 'length_mu', 'aspect_ratio_mu'])].groupby(['carbon_source'])):
     if g == 'LB':
         continue
     for _g, _d in d.groupby(['parameter']):
@@ -70,7 +129,7 @@ for i, (g, d) in enumerate(posts[posts['parameter'].isin(['aspect_ratio_mu', 'rh
         ax[axes[_g]].plot(_d['value'], locs[g] * nudge + _d['kde'] / _d['kde'].max(), '-',
                           color=cor['primary_blue'], lw=0.75, zorder=i+1)
 
-for g, d in singular_posts[singular_posts['parameter'].isin(['alpha', 'avg_rho_ratio'])].groupby(['parameter']):
+for g, d in singular_posts[singular_posts['parameter'].isin(['alpha'])].groupby(['parameter']):
     ax[axes[g]].fill_between(d['value'], 0, d['kde'] /
                              d['kde'].max(), color=cor['pale_black'])
     ax[axes[g]].plot(d['value'], d['kde'] / d['kde'].max(),
@@ -90,7 +149,7 @@ for g, d in medians[medians['quantity'].isin(list(axes.keys()))
                     ].groupby(['carbon_source', 'quantity']):
     if g[0] == 'LB':
         continue
-    ax[axes[g[1]]].plot(d['lower'], locs[g[0]] * nudge + 0.5, 'o', markeredgewidth=0.5, ms=3,
+    ax[axes[g[1]]].plot(d['lower'], locs[g[0]] * nudge + 0.5, 'o', markeredgewidth=0.5, ms=2,
                         markeredgecolor=cor['primary_blue'], markerfacecolor='white',
                         zorder=1000)
 
@@ -293,7 +352,66 @@ for g, d in medians.groupby(['carbon_source']):
 ax.set_ylim([0, 0.06])
 ax.set_ylabel('periplasmic biomass fraction\n$\phi_{M}$', fontsize=6)
 ax.set_xlabel('$S/V$\nsurface area to volume [µm$^{-1}$]', fontsize=6)
-# plt.savefig('../../figures/Fig2_SV_scaling.pdf', bbox_inches='tight')
+plt.savefig('../../figures/Fig2_SV_scaling.pdf', bbox_inches='tight')
+
+
+# %%
+fig, ax = plt.subplots(1, 1, figsize=(2, 2))
+width_range = np.linspace(0.45, 1, 100)
+pref = (12 * 3 * 3 * 0.025) / (3 * 3 - 1)
+w_min = 0.6
+phi_max = 0.08
+beta_0 = phi_max + pref / w_min
+theo = phi_max - pref * (width_range - w_min)
+
+
+for i, _k in enumerate([1, 2, 3]):
+    pref = (12 * 3 * _k * 0.025) / (3 * 3 - 1)
+    w_min = 0.61
+    phi_max = 0.08
+    theo = phi_max - pref * (width_range - w_min)
+
+    ax.plot(width_range, theo, ls=ls[i],
+            lw=1, color=cor['primary_blue'], zorder=100)
+
+# Plot the mass spec data
+for g, d in mass_spec_medians.groupby(['dataset_name']):
+    ax.plot(d[d['quantity'] == 'mass_spec_widths']['lower'],
+            d[d['quantity'] == 'mass_spec_phi_M']['lower'],
+            linestyle='none', marker=mapper[g]['m'], markeredgecolor='k',
+            alpha=0.35, markeredgewidth=0.5, color=mapper[g]['c'], ms=4, zorder=10)
+
+
+med_params = params[(params['quantity'].isin(['width_mu', 'phi_M'])) &
+                    (params['interval'] == 'median')]
+for g, d in params[params['quantity'].isin(['width_mu', 'phi_M'])].groupby(['carbon_source',
+                                                                            'interval'], sort=False):
+    if g[0] == 'LB':
+        continue
+
+    if g[1] == 'median':
+        ax.plot(d[d['quantity'] == 'width_mu']['lower'], d[d['quantity'] == 'phi_M']['upper'],
+                marker='o', markeredgewidth=0.75, markeredgecolor=cor['primary_blue'],
+                markerfacecolor='white', ms=3, zorder=1000)
+    else:
+        sav = d[d['quantity'] == 'width_mu']
+        phiM = d[d['quantity'] == 'phi_M']
+        med_sav = med_params[(med_params['quantity'] == 'surface_area_vol_mu') &
+                             (med_params['carbon_source'] == g[0])]
+        med_phi_M = med_params[(med_params['quantity'] == 'phi_M') &
+                               (med_params['carbon_source'] == g[0])]
+        ax.vlines(med_sav['lower'], phiM['lower'], phiM['upper'], lw=err_widths[g[1]],
+                  color=cor['primary_blue'], zorder=99)
+        ax.hlines(med_phi_M['lower'], sav['lower'], sav['upper'], lw=err_widths[g[1]],
+                  color=cor['primary_blue'], zorder=99)
+
+ax.set_xlim([0.6, 1])
+# ax.set_xticks([5, 5.5, 6, 6.5, 7])
+ax.set_ylim([0, 0.1])
+ax.set_xlabel('average cell width [µm]', fontsize=6)
+ax.set_ylabel('periplasmic protein biomass fraction', fontsize=6)
+plt.savefig('../../figures/Fig2_width_scaling.pdf', bbox_inches='tight')
+
 
 # %%
 

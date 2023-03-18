@@ -41,8 +41,7 @@ tot_prot = pd.read_csv('../../data/literature/collated_total_protein.csv')
 # ##############################################################################
 
 # Filter and aggregate mass spec
-mass_spec_data = mass_spec_data[(mass_spec_data['periplasm'] == True) &
-                                (mass_spec_data['growth_rate_hr'] <= 0.8)
+mass_spec_data = mass_spec_data[(mass_spec_data['periplasm'] == True)
                                 ].groupby(['dataset_name',
                                            'growth_rate_hr',
                                            'condition']).sum().reset_index()
@@ -78,10 +77,10 @@ flow_data = flow_data[flow_data['strain'] == 'wildtype']
 flow_data = flow_data.groupby(
     ['date', 'carbon_source', 'run_no']).mean().reset_index()
 
-# Restrict growth data
-growth_data = growth_data[(growth_data['strain'] == 'wildtype') &
-                          (growth_data['overexpression'] == 'none') &
-                          (growth_data['inducer_conc'] == 0)]
+# # Restrict growth data
+# growth_data = growth_data[(growth_data['strain'] == 'wildtype') &
+#                           (growth_data['overexpression'] == 'none') &
+#                           (growth_data['inducer_conc'] == 0)]
 
 # %%
 # ##############################################################################
@@ -131,6 +130,7 @@ for g, d in size_data[(size_data['strain'] == 'wildtype') &
                       ].groupby(['carbon_source', 'size_cond_idx']):
     flow_data.loc[flow_data['carbon_source'] == g[0], 'flow_mapper'] = g[1]
 
+
 # ##############################################################################
 # DATA PREPARATION
 # ##############################################################################
@@ -142,7 +142,19 @@ wt_brad = brad_data[(brad_data['strain'] == 'wildtype') &
 wt_size = size_data[(size_data['strain'] == 'wildtype') &
                     (size_data['overexpression'] == 'none') &
                     (size_data['inducer_conc'] == 0)]
+J_growth_wt_idx = []
+J_growth_size_idx = []
+for g, d in size_data[(size_data['strain'] == 'wildtype') &
+                      (size_data['overexpression'] == 'none') &
+                      (size_data['inducer_conc'] == 0)].groupby(['carbon_source', 'size_cond_idx']):
+    _growth = growth_data[(growth_data['strain'] == 'wildtype') &
+                          (growth_data['carbon_source'] == g[0]) &
+                          (growth_data['overexpression'] == 'none') &
+                          (growth_data['inducer_conc'] == 0)]['cond_idx'].values[0]
+    J_growth_wt_idx.append(_growth)
+    J_growth_size_idx.append(g[-1])
 
+# %%
 data_dict = {
 
     'N_cal': len(cal_data),
@@ -154,6 +166,7 @@ data_dict = {
     'J_growth': growth_data['cond_idx'].max(),
     'N_growth': len(growth_data),
     'N_growth_lit': len(lit_size_data),
+
     'growth_rates_lit': lit_size_data['growth_rate_hr'].values.astype(float),
     'widths_lit': lit_size_data['width_um'].values.astype(float),
     'lengths_lit': lit_size_data['length_um'].values.astype(float),
@@ -161,8 +174,13 @@ data_dict = {
     'sav_lit': lit_size_data['surface_to_volume'].values.astype(float),
     'growth_rates': growth_data['growth_rate_hr'].values.astype(float),
     'growth_cond_idx': growth_data['cond_idx'].values.astype(int),
+    'J_growth_wt_idx': np.array(J_growth_wt_idx).astype(int),
+
+    'size_growth_idx': growth_data['size_idx'].values.astype(int),
     'growth_size_idx': growth_data['size_idx'].values.astype(int),
 
+    'J_size_wt': len(J_growth_size_idx),
+    'J_size_wt_idx': np.array(J_growth_size_idx).astype(int),
     'N_size': len(size_data),
     'N_size_wt': len(wt_size),
     'size_wt_idx': wt_size['size_cond_idx'].values.astype(int),
@@ -204,7 +222,8 @@ data_dict = {
 
 # %%
 # Sample the posterior
-_samples = model.sample(data_dict, adapt_delta=0.99, iter_sampling=2000)
+_samples = model.sample(data_dict, show_console=True,
+                        adapt_delta=0.999, iter_sampling=2000)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
@@ -243,9 +262,7 @@ shape_post_kde.to_csv('../../data/mcmc/shape_posterior_kde.csv', index=False)
 # Perform a KDE over the posteriors
 lit_parameters = ['width_min', 'width_slope', 'length_min',
                   'length_slope', 'sav_min', 'sav_slope',
-                  'mass_fraction_min', 'mass_fraction_slope',
-                  'total_protein_min', 'total_protein_slope',
-                  'alpha_min', 'alpha_slope']
+                  'total_protein_min', 'total_protein_slope']
 
 lit_post_kde = pd.DataFrame([])
 for s in tqdm.tqdm(lit_parameters):
@@ -302,6 +319,7 @@ model_post_kde.to_csv('../../data/mcmc/model_posterior_kde.csv', index=False)
 lower = [5, 12.5, 37.5, 50]
 upper = [95, 87.5, 62.5, 50]
 int_labels = ['95%', '75%', '25%', 'median']
+
 # Process the parameters for the size inference
 param_percs = pd.DataFrame([])
 for i, p in enumerate(shape_parameters):
@@ -332,6 +350,21 @@ for i, p in enumerate(params):
     percs.drop(columns=f'{p}_dim_0', inplace=True)
     param_percs = pd.concat([param_percs, percs])
 param_percs.to_csv('../../data/mcmc/parameter_percentiles.csv', index=False)
+
+
+# Process the parameters for the protein quantities
+lam_df = samples.posterior['growth_rates_mu'].to_dataframe().reset_index()
+percs = size.viz.compute_percentiles(lam_df, 'growth_rates_mu', 'growth_rates_mu_dim_0',
+                                     lower_bounds=lower,
+                                     upper_bounds=upper,
+                                     interval_labels=int_labels)
+for g, d in growth_data.groupby(['strain', 'carbon_source', 'overexpression',
+                                 'inducer_conc', 'cond_idx']):
+    percs.loc[percs[f'growth_rates_mu_dim_0'] == g[-1]-1, ['strain', 'carbon_source', 'overexpression',
+                                                           'inducer_conc']] = g[:-1]
+percs.drop(columns=f'growth_rates_mu_dim_0', inplace=True)
+percs.to_csv('../../data/mcmc/growth_parameter_percentiles.csv', index=False)
+
 
 # %%
 singular_params = ['alpha_min', 'alpha_slope', 'width_min', 'width_slope',
@@ -381,16 +414,21 @@ mass_spec_df.to_csv('../../data/mcmc/mass_spec_percentiles.csv', index=False)
 # Growth rate dependence stuff
 pairs = [['width_min', 'width_slope'],
          ['length_min', 'length_slope'],
-         ['alpha_min', 'alpha_slope'],
-         ['sav_min', 'sav_slope'],
-         ['mass_fraction_min', 'mass_fraction_slope']]
+         ['sav_min', 'sav_slope']]
+
 
 lam_range = np.linspace(0.1, 2.5, 300)
 perc_df = pd.DataFrame([])
 for i, ell in enumerate(lam_range):
     for j, p in enumerate(pairs):
+        if 'sav_min' == p[0]:
+            pref = -1
+        else:
+            pref = 1
+        # if 'alpha_min' == p[0]:
+            # pref = 0
         pred_post = samples.posterior[p].to_dataframe().reset_index()
-        pred_width = pred_post[p[0]] + pred_post[p[1]] * ell
+        pred_width = pred_post[p[0]] + pref * pred_post[p[1]] * ell
         _df = pd.DataFrame(np.array([pred_width]).T,
                            columns=['value'])
         _df['growth_rate_hr'] = ell
