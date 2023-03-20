@@ -52,7 +52,7 @@ k = np.array([1, 2, 3])
 delta = 0.025
 slope = k * delta
 phi_range = np.linspace(0.01, 0.10, 100)
-sav_range = np.linspace(5.8001, 7, 100)
+sav_range = np.linspace(5.8001, 7.2, 100)
 
 # %%
 
@@ -61,15 +61,15 @@ fig, ax = plt.subplots(1, 1, figsize=(2, 1.75))
 ls = ['-', '--', ':', '-.']
 for i, s in enumerate(slope):
     theo = s * (sav_range - 5.8)
-    ax.plot(sav_range, theo,  ls=ls[i],
-            lw=1, color=cor['primary_purple'], zorder=1000)
+    ax.plot(sav_range, theo + 0.02,  ls=ls[i],
+            lw=1, color=cor['primary_blue'], zorder=1000)
 
 # Plot the mass spec data
 for g, d in mass_spec_medians.groupby(['dataset_name']):
     ax.plot(d[d['quantity'] == 'mass_spec_sav']['lower'],
-            d[d['quantity'] == 'mass_spec_phi_M']['lower'] - 0.02,
+            d[d['quantity'] == 'mass_spec_phi_M']['lower'],
             linestyle='none', marker=mapper[g]['m'], markeredgecolor='k',
-            alpha=0.25, markeredgewidth=0.5, color=mapper[g]['c'], ms=4, zorder=10)
+            alpha=0.15, markeredgewidth=0.5, color=mapper[g]['c'], ms=4, zorder=10)
 
 
 med_params = params[(params['quantity'].isin(['surface_area_vol_mu', 'phi_M'])) &
@@ -80,7 +80,7 @@ for g, d in params[params['quantity'].isin(['surface_area_vol_mu', 'phi_M'])].gr
         continue
 
     if g[1] == 'median':
-        ax.plot(d[d['quantity'] == 'surface_area_vol_mu']['lower'], d[d['quantity'] == 'phi_M']['upper'] - 0.02,
+        ax.plot(d[d['quantity'] == 'surface_area_vol_mu']['lower'], d[d['quantity'] == 'phi_M']['upper'],
                 marker='o', markeredgewidth=0.75, markeredgecolor=cor['primary_blue'],
                 markerfacecolor='white', ms=3, zorder=1000)
     else:
@@ -90,17 +90,17 @@ for g, d in params[params['quantity'].isin(['surface_area_vol_mu', 'phi_M'])].gr
                              (med_params['carbon_source'] == g[0])]
         med_phi_M = med_params[(med_params['quantity'] == 'phi_M') &
                                (med_params['carbon_source'] == g[0])]
-        ax.vlines(med_sav['lower'], phiM['lower']-0.02, phiM['upper']-0.02, lw=err_widths[g[1]],
+        ax.vlines(med_sav['lower'], phiM['lower'], phiM['upper'], lw=err_widths[g[1]],
                   color=cor['primary_blue'], zorder=99)
-        ax.hlines(med_phi_M['lower']-0.02, sav['lower'], sav['upper'], lw=err_widths[g[1]],
+        ax.hlines(med_phi_M['lower'], sav['lower'], sav['upper'], lw=err_widths[g[1]],
                   color=cor['primary_blue'], zorder=99)
 
-ax.set_xlim([5, 7])
-ax.set_xticks([5, 5.5, 6, 6.5, 7])
-ax.set_ylim([-0.01, 0.08])
+ax.set_xlim([5.5, 7.2])
+# ax.set_xticks([5, 5.5, 6, 6.5, 7])
+ax.set_ylim([0.01, 0.12])
 ax.set_xlabel('surface area to volume [µm$^{-1}$]', fontsize=6)
 ax.set_ylabel(
-    'adjusted periplasmic biomass fraction', fontsize=6)
+    'periplasmic biomass fraction', fontsize=6)
 plt.savefig('../../figures/Fig2_sav_scaling.pdf', bbox_inches='tight')
 
 

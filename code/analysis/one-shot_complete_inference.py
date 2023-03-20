@@ -39,7 +39,6 @@ tot_prot = pd.read_csv('../../data/literature/collated_total_protein.csv')
 # ##############################################################################
 # DATASET FILTERING
 # ##############################################################################
-
 # Filter and aggregate mass spec
 mass_spec_data = mass_spec_data[(mass_spec_data['periplasm'] == True)
                                 ].groupby(['dataset_name',
@@ -52,7 +51,6 @@ mass_spec_data = mass_spec_data[(mass_spec_data['periplasm'] == True)
 brad_data['od_600nm_true'] = brad_data['od_600nm']
 brad_data.loc[brad_data['od_600nm'] >= 0.45, 'od_600nm_true'] = np.exp(
     1.26 * np.log(brad_data[brad_data['od_600nm'] >= 0.45]['od_600nm'].values) + 0.25)
-brad_data = brad_data[brad_data['od_600nm'] <= 0.5]
 
 brad_data = brad_data[~((brad_data['overexpression'] != 'none') & (
     brad_data['inducer_conc_ng_mL'] == 0))]
@@ -61,12 +59,12 @@ brad_data = brad_data[~((brad_data['overexpression'] != 'none') & (
 brad_data = pd.concat([d for _, d in brad_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']) if len(d) > 2], sort=False)
 brad_data = brad_data[brad_data['strain'].isin(
-    ['wildtype',  'malE-rbsB-fliC-KO'])]
+    ['wildtype',  'malE-rbsB-fliC-KO', 'lpp14'])]
 
 # Restrict size data
 size_data = size_data[size_data['temperature_C'] == 37]
 size_data = size_data[size_data['strain'].isin(
-    ['wildtype', 'malE-rbsB-fliC-KO'])]
+    ['wildtype', 'malE-rbsB-fliC-KO', 'lpp14'], )]
 size_data = pd.concat([d for _, d in size_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc']) if len(d) > 2], sort=False)
 size_data = size_data[~((size_data['overexpression'] != 'none') & (
@@ -77,10 +75,10 @@ flow_data = flow_data[flow_data['strain'] == 'wildtype']
 flow_data = flow_data.groupby(
     ['date', 'carbon_source', 'run_no']).mean().reset_index()
 
-# # Restrict growth data
-# growth_data = growth_data[(growth_data['strain'] == 'wildtype') &
-#                           (growth_data['overexpression'] == 'none') &
-#                           (growth_data['inducer_conc'] == 0)]
+# Restrict growth data
+growth_data = growth_data[(growth_data['strain'] == 'wildtype') &
+                          (growth_data['overexpression'] == 'none') &
+                          (growth_data['inducer_conc'] == 0)]
 
 # %%
 # ##############################################################################
@@ -156,13 +154,9 @@ for g, d in size_data[(size_data['strain'] == 'wildtype') &
 
 # %%
 data_dict = {
-
     'N_cal': len(cal_data),
     'concentration': cal_data['protein_conc_ug_ml'].values.astype(float),
     'cal_od': cal_data['od_595nm'].values.astype(float),
-    'delta': size_data['delta'].unique()[0],
-    'prot_frac': 0.55,
-
     'J_growth': growth_data['cond_idx'].max(),
     'N_growth': len(growth_data),
     'N_growth_lit': len(lit_size_data),
@@ -222,8 +216,7 @@ data_dict = {
 
 # %%
 # Sample the posterior
-_samples = model.sample(data_dict, show_console=True,
-                        adapt_delta=0.999, iter_sampling=2000)
+_samples = model.sample(data_dict, adapt_delta=0.99, iter_sampling=2000)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
@@ -367,9 +360,10 @@ percs.to_csv('../../data/mcmc/growth_parameter_percentiles.csv', index=False)
 
 
 # %%
-singular_params = ['alpha_min', 'alpha_slope', 'width_min', 'width_slope',
+singular_params = ['width_min', 'width_slope',
                    'length_min', 'length_slope', 'sav_min', 'sav_slope',
-                   'total_protein_min', 'total_protein_slope']
+                   'total_protein_min', 'total_protein_slope',
+                   'aspect_ratio_mean']
 singular_percs = samples.posterior[singular_params].to_dataframe(
 ).reset_index()
 singular_kde = pd.DataFrame([])
@@ -425,8 +419,6 @@ for i, ell in enumerate(lam_range):
             pref = -1
         else:
             pref = 1
-        # if 'alpha_min' == p[0]:
-            # pref = 0
         pred_post = samples.posterior[p].to_dataframe().reset_index()
         pred_width = pred_post[p[0]] + pref * pred_post[p[1]] * ell
         _df = pd.DataFrame(np.array([pred_width]).T,
@@ -538,7 +530,7 @@ plt.savefig(
 
 # %%
 size_lam_percs = pd.DataFrame([])
-params = ['widths_lit_rep', 'lengths_lit_rep', 'sav_lit_rep', 'alpha_lit_rep']
+params = ['widths_lit_rep', 'lengths_lit_rep', 'sav_lit_rep']
 for i, p in enumerate(params):
     ppc = samples.posterior[p].to_dataframe().reset_index()
     for j in range(len(lit_size_data)):
