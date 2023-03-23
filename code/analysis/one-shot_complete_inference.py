@@ -61,12 +61,12 @@ brad_data = brad_data[~((brad_data['overexpression'] != 'none') & (
 brad_data = pd.concat([d for _, d in brad_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']) if len(d) > 2], sort=False)
 brad_data = brad_data[brad_data['strain'].isin(
-    ['wildtype',  'malE-rbsB-fliC-KO', 'lpp14'])]
+    ['wildtype',  'malE-rbsB-fliC-KO'])]
 
 # Restrict size data
 size_data = size_data[size_data['temperature_C'] == 37]
 size_data = size_data[size_data['strain'].isin(
-    ['wildtype', 'malE-rbsB-fliC-KO', 'lpp14'])]
+    ['wildtype', 'malE-rbsB-fliC-KO'])]
 size_data = pd.concat([d for _, d in size_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc']) if len(d) > 2], sort=False)
 size_data = size_data[~((size_data['overexpression'] != 'none') & (
@@ -78,9 +78,9 @@ flow_data = flow_data.groupby(
     ['date', 'carbon_source', 'run_no']).mean().reset_index()
 
 # # Restrict growth data
-growth_data = growth_data[(growth_data['strain'] == 'wildtype') &
-                          (growth_data['overexpression'] == 'none') &
-                          (growth_data['inducer_conc'] == 0)]
+# growth_data = growth_data[(growth_data['strain'] == 'wildtype') &
+#                           (growth_data['overexpression'] == 'none') &
+#                           (growth_data['inducer_conc'] == 0)]
 
 # %%
 # ##############################################################################
@@ -627,3 +627,5 @@ _ = ax[1, 0].set_yticks(size_data['size_cond_idx'].unique())
 _ = ax[0, 0].set_yticklabels(labels)
 _ = ax[1, 0].set_yticklabels(labels)
 plt.savefig('../../figures/mcmc/size_diagnostics/one-shot_size_ppc.pdf')
+
+# %%
