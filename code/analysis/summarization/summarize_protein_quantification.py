@@ -31,14 +31,6 @@ growth_rates['protein_mass_ug'] = np.exp(
     popt[1] + popt[0] * growth_rates['growth_rate_hr'])
 
 # %%
-plt.plot(lit_data['growth_rate_hr'], lit_data['protein_mass_ug'], 'o')
-lam = np.linspace(0.2, 1.5, 100)
-fit = np.exp(popt[1] + popt[0] * lam)
-plt.semilogy(lam, fit, 'k-')
-
-#
-
-# %%
 # Perform a curve fit on the calibration data
 cal_data
 popt = scipy.stats.linregress(
