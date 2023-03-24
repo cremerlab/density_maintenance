@@ -41,7 +41,7 @@ medians = params[params['interval'] == 'median']
 errs = params[params['interval'] != 'median']
 
 # %%
-fig, ax = plt.subplots(1, 3, figsize=(3, 2))
+fig, ax = plt.subplots(1, 4, figsize=(4, 2))
 for a in ax.ravel():
     a.set_yticks([])
 ax[0].set_xlim([0.01, 0.06])
@@ -52,9 +52,10 @@ ax[1].set_xticks([0.6, 0.7, 0.8])
 ax[0].set_xlabel('periplasmic\nbiomass fraction', fontsize=6)
 ax[1].set_xlabel('average width\n[µm]', fontsize=6)
 ax[2].set_xlabel('aspect ratio', fontsize=6)
+ax[3].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
 n_rows = 5
 for i, carb in enumerate(['acetate']):
-    for j, param in enumerate(['phi_M', 'width_mu', 'aspect_ratio_mu']):
+    for j, param in enumerate(['phi_M', 'width_mu', 'aspect_ratio_mu', 'growth_rates_mu']):
         for k, strain in enumerate(['wildtype', 'malE-rbsB-fliC-KO']):
             samp = posts[(posts['strain'] == strain) &
                          (posts['carbon_source'] == carb) &
@@ -136,7 +137,7 @@ for i, carb in enumerate(['acetate']):
                                     ax[j].plot(_d['lower'], (n_rows - 2 - ell) + 0.3, 'o',
                                                ms=3, markeredgecolor=cor[f'primary_{colors[oe]}'],
                                                markerfacecolor='white', markeredgewidth=0.5, zorder=1000)
-plt.savefig('../../figures/Fig3_example_posterior_migration.pdf')
+# plt.savefig('../../figures/Fig3_example_posterior_migration.pdf')
 # %%
 
 fig, ax = plt.subplots(1, 4, figsize=(2.25, 2))

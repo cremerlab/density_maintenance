@@ -52,7 +52,7 @@ mass_spec_data = mass_spec_data[(mass_spec_data['periplasm'] == True)
 brad_data['od_600nm_true'] = brad_data['od_600nm']
 brad_data.loc[brad_data['od_600nm'] >= 0.45, 'od_600nm_true'] = np.exp(
     1.26 * np.log(brad_data[brad_data['od_600nm'] >= 0.45]['od_600nm'].values) + 0.25)
-# brad_data = brad_data[brad_data['od_600nm'] <= 0.5]
+brad_data = brad_data[brad_data['od_600nm'] <= 0.5]
 
 brad_data = brad_data[~((brad_data['overexpression'] != 'none') & (
     brad_data['inducer_conc_ng_mL'] == 0))]
@@ -62,6 +62,7 @@ brad_data = pd.concat([d for _, d in brad_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']) if len(d) > 2], sort=False)
 brad_data = brad_data[brad_data['strain'].isin(
     ['wildtype',  'malE-rbsB-fliC-KO'])]
+brad_data = brad_data[brad_data['overexpression'].isin(['none', 'malE'])]
 
 # Restrict size data
 size_data = size_data[size_data['temperature_C'] == 37]
@@ -71,16 +72,16 @@ size_data = pd.concat([d for _, d in size_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc']) if len(d) > 2], sort=False)
 size_data = size_data[~((size_data['overexpression'] != 'none') & (
     size_data['inducer_conc'] == 0))]
-
+size_data = size_data[size_data['overexpression'].isin(['none', 'malE'])]
 # Restrict flow data to only wildtype
 flow_data = flow_data[flow_data['strain'] == 'wildtype']
 flow_data = flow_data.groupby(
     ['date', 'carbon_source', 'run_no']).mean().reset_index()
 
 # # Restrict growth data
-# growth_data = growth_data[(growth_data['strain'] == 'wildtype') &
-#                           (growth_data['overexpression'] == 'none') &
-#                           (growth_data['inducer_conc'] == 0)]
+growth_data = growth_data[growth_data['overexpression'].isin(['none', 'malE']) &
+                          growth_data['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO'])]
+
 
 # %%
 # ##############################################################################
