@@ -36,7 +36,7 @@ data {
     vector<lower=0>[N_growth_meas] growth_od;
 
     array[J_size_wt] int<lower=1, upper=J_growth> J_growth_wt_idx;
-    array[N_growth] int<lower=1, upper=J_size_cond> growth_size_idx;
+    array[J_growth] int<lower=1, upper=J_size_cond> growth_size_idx;
 
 
 
@@ -81,7 +81,6 @@ data {
     //--------------------------------------------------------------------------
     int<lower=1> N_growth_lit;
     vector<lower=0>[N_growth_lit] growth_rates_lit;
-    vector<lower=0>[N_growth] growth_rates;
 
 }
 
@@ -95,7 +94,7 @@ transformed data {
     // -------------------------------------------------------------------------
     // Growth curves
     // -------------------------------------------------------------------------
-    vector<lower=0>[N_growth_meas] log_growth_od = log(growth_od);
+    vector[N_growth_meas] log_growth_od = log(growth_od);
 
 }
 
@@ -203,7 +202,7 @@ transformed parameters {
     // -------------------------------------------------------------------------
     // Growth Measurements
     // ------------------------------------------------------------------------- 
-    vector[J_gorwth_curves] log_growth_od_init = log(growth_od_init);
+    vector[J_growth_curves] log_growth_od_init = log(growth_od_init);
     vector[J_growth_curves] growth_mu_1 = growth_mu[growth_cond_idx] + growth_tau * growth_mu_1_tilde;
 
     // -------------------------------------------------------------------------
@@ -402,7 +401,7 @@ generated quantities {
     vector<lower=0>[J_brad_cond] N_cells = 1E9 ./ (flow_slope .* volume_mu[brad_cond_mapper]);
     vector<lower=0>[J_brad_cond] phi_M = prot_per_biomass_mu ./ biomass_mu;
     vector<lower=0>[J_brad_cond] rho_peri = prot_per_biomass_mu ./ (N_cells .* peri_volume_mu[brad_cond_mapper]); 
-    vector<lower=0>[J_brad_cond] rho_cyt = ((total_protein_min + total_protein_slope .* growth_mu[brad_cond_mapper]) - prot_per_biomass_mu) ./ (N_cells .* (volume_mu[brad_cond_mapper] - peri_volume_mu[brad_cond_mapper]));
-    vector<lower=0>[J_brad_cond] rho_ratio = rho_peri ./ rho_cyt;
+    // vector<lower=0>[J_brad_cond] rho_cyt = ((total_protein_min + total_protein_slope .* growth_mu[brad_cond_mapper]) - prot_per_biomass_mu) ./ (N_cells .* (volume_mu[brad_cond_mapper] - peri_volume_mu[brad_cond_mapper]));
+    // vector<lower=0>[J_brad_cond] rho_ratio = rho_peri ./ rho_cyt;
 
 }

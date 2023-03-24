@@ -1,4 +1,4 @@
-clock_time,od_600nm,strain,overexpression,carbon_source,inducer_conc_ng_ml,run_idx,elapsed_time_hr
+clock_time,od_600nm,strain,overexpression,carbon_source,inducer_conc,run_idx,elapsed_time_hr
 2023-02-04 16:15:00,0.044,wildtype,rbsB,glucose,0,1,0.0
 2023-02-04 17:11:00,0.098,wildtype,rbsB,glucose,0,1,0.9333333333333333
 2023-02-04 17:31:00,0.134,wildtype,rbsB,glucose,0,1,1.2666666666666666
