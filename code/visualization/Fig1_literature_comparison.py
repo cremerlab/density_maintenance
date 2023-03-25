@@ -6,7 +6,7 @@ import seaborn as sns
 import size.viz
 cor, pal = size.viz.matplotlib_style()
 np.random.seed(666)
-err_widths = {'95%': 0.25, '75%': 1, '25%': 2.5}
+err_widths = {'95%': 0.25, '75%': 1, '25%': 2}
 # %%
 # Load Literature datasets
 lit_size_data = pd.read_csv(
@@ -141,12 +141,12 @@ for g, d in sizes.groupby(['carbon_source']):
         # Add credible region
         for j, (__g, __d) in enumerate(lam[lam['interval'] != 'median'].groupby(['interval'], sort=False)):
             ax[i].hlines(_d_median['lower'], __d['lower'], __d['upper'],
-                         color=cor['primary_blue'], lw=err_widths[__g])
+                         color=cor['blue'], lw=err_widths[__g])
             ax[i].vlines(lam_median['lower'], _d_cred[_d_cred['interval'] == __g]['lower'], _d_cred[_d_cred['interval']
-                         == __g]['upper'], color=cor['primary_blue'], lw=err_widths[__g])
+                         == __g]['upper'], color=cor['blue'], lw=err_widths[__g])
 
         ax[i].plot(lam_median['lower'], _d_median['lower'],
-                   marker='o', markeredgecolor=cor['primary_blue'],
+                   marker='o', markeredgecolor=cor['blue'],
                    markerfacecolor='white', markeredgewidth=0.75, ms=3, lw=1,
                    label='__nolegend__', color=cor['blue'])
 
@@ -160,12 +160,12 @@ for g, d in sizes.groupby(['carbon_source']):
     for _g, _d in d[d['interval'] != 'median'].groupby(['interval'], sort=False):
         phi_M = _d[_d['quantity'] == 'phi_M']
         sav = _d[_d['quantity'] == 'surface_area_vol_mu']
-        ax[5].vlines(sav_med, phi_M['lower'], phi_M['upper'], color=cor['primary_blue'],
+        ax[5].vlines(sav_med, phi_M['lower'], phi_M['upper'], color=cor['blue'],
                      lw=err_widths[_g])
-        ax[5].hlines(phiM_med, sav['lower'], sav['upper'], color=cor['primary_blue'],
+        ax[5].hlines(phiM_med, sav['lower'], sav['upper'], color=cor['blue'],
                      lw=err_widths[_g])
     ax[5].plot(sav_med, phiM_med, 'o', ms=3, markeredgewidth=0.75, markerfacecolor='white',
-               markeredgecolor=cor['primary_blue'], label='__nolegend__')
+               markeredgecolor=cor['blue'], label='__nolegend__')
 
     # ax[5].plot(lam['lower'], [''], xerr=lam['sem'], yerr=d['sem'], lw=1,
     #    marker='o', linestyle='none', markeredgewidth=0.75, ms=4,

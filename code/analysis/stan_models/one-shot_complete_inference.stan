@@ -132,7 +132,7 @@ parameters {
     // -------------------------------------------------------------------------
     // Growth rate measurements
     // -------------------------------------------------------------------------
-    vector<lower=0>[J_growth] growth_rates_mu;
+    vector<lower=0>[J_growth] growth_mu;
     vector<lower=0>[J_growth] growth_rates_sigma;
 
     // -------------------------------------------------------------------------
@@ -178,10 +178,19 @@ transformed parameters {
     // Transformed mass spec parameters
     // ------------------------------------------------------------------------- 
     vector<lower=0>[N_mass_spec] mass_spec_widths = width_min + width_slope .* mass_spec_growth_rate;
+    vector<lower=0>[N_mass_spec] mass_spec_lengths = width_min + width_slope .* mass_spec_growth_rate;
+    vector<lower=0>[N_mass_spec] mass_spec_vol= (pi() / 12) .* mass_spec_widths^2 .* (3 .* mass_spec_lengths  - mass_spec_widths); 
+    vector<lower=0>[N_mass_spec] mass_spec_N_cells = 1E9 ./ (flow_slope .* mass_spec_vol);
+    vector<lower=0>[N_mass_spec] mass_spec_peri_vol = pi() .* mass_spec_widths .* mass_spec_lengths .* 0.024;
     vector<lower=0>[N_mass_spec] mass_spec_sav = sav_min - sav_slope * mass_spec_growth_rate;
     vector<lower=0>[N_mass_spec] mass_spec_tot_peri_prot = mass_fraction .* (total_protein_min + total_protein_slope .* mass_spec_growth_rate); 
     vector<lower=0>[N_mass_spec] mass_spec_phi_M = mass_spec_tot_peri_prot ./ biomass_mu;
+    vector<lower=0>[N_mass_spec] mass_spec_rho_peri = mass_spec_tot_peri_prot ./  (mass_spec_N_cells .* mass_spec_peri_vol);
+    vector<lower=0>[N_mass_spec] mass_spec_rho_cyt = ((total_protein_min + total_protein_slope .* mass_spec_growth_rate) - mass_spec_tot_peri_prot) ./  (mass_spec_N_cells .* (mass_spec_vol - mass_spec_peri_vol));
+    vector<lower=0>[N_mass_spec] mass_spec_rho_ratio = mass_spec_rho_peri ./ mass_spec_rho_cyt;
 }
+
+
 
 model { 
     // -------------------------------------------------------------------------
@@ -210,19 +219,19 @@ model {
     // -------------------------------------------------------------------------
     // Growth rate measurements
     // -------------------------------------------------------------------------    
-    growth_rates_mu ~ std_normal();
+    growth_mu ~ std_normal();
     growth_rates_sigma ~ std_normal();
-    growth_rates ~ normal(growth_rates_mu[growth_cond_idx], growth_rates_sigma[growth_cond_idx]);
+    growth_rates ~ normal(growth_mu[growth_cond_idx], growth_rates_sigma[growth_cond_idx]);
 
     // -------------------------------------------------------------------------
     // Size Measurements
     // -------------------------------------------------------------------------    
     // Priors
     width_mu ~ std_normal();
-    width_mu[J_size_wt_idx] ~ normal(width_min + width_slope .* growth_rates_mu[J_growth_wt_idx], width_lam_sigma);
+    width_mu[J_size_wt_idx] ~ normal(width_min + width_slope .* growth_mu[J_growth_wt_idx], width_lam_sigma);
     width_sigma ~ std_normal();
     length_mu ~ normal(0, 2);
-    length_mu[J_size_wt_idx] ~ normal(length_min + length_slope .* growth_rates_mu[J_growth_wt_idx], length_lam_sigma);
+    length_mu[J_size_wt_idx] ~ normal(length_min + length_slope .* growth_mu[J_growth_wt_idx], length_lam_sigma);
     length_sigma ~ std_normal();
     volume_mu ~ normal(0, 2);
     volume_sigma ~ std_normal();
@@ -231,10 +240,10 @@ model {
     surface_area_mu ~ normal(0, 10);
     surface_area_sigma ~ std_normal();
     surface_area_vol_mu ~ normal(0, 10);
-    surface_area_vol_mu[J_size_wt_idx] ~ normal(sav_min - sav_slope .* growth_rates_mu[J_growth_wt_idx], sav_sigma);
+    surface_area_vol_mu[J_size_wt_idx] ~ normal(sav_min - sav_slope .* growth_mu[J_growth_wt_idx], sav_sigma);
     surface_area_vol_sigma ~ std_normal();
     aspect_ratio_mu ~ normal(1, 4);
-    aspect_ratio_mu[J_size_wt_idx] ~ normal(alpha_min + alpha_slope .* growth_rates_mu[J_growth_wt_idx], alpha_sigma);
+    aspect_ratio_mu[J_size_wt_idx] ~ normal(alpha_min + alpha_slope .* growth_mu[J_growth_wt_idx], alpha_sigma);
     aspect_ratio_sigma ~ std_normal();
     width_min ~ normal(0, 0.5);
     width_slope ~ normal(0, 0.5);
@@ -355,5 +364,8 @@ generated quantities {
     // -------------------------------------------------------------------------
     vector<lower=0>[J_brad_cond] N_cells = 1E9 ./ (flow_slope .* volume_mu[brad_cond_mapper]);
     vector<lower=0>[J_brad_cond] phi_M = prot_per_biomass_mu ./ biomass_mu;
+    vector<lower=0>[J_brad_cond] rho_peri = prot_per_biomass_mu ./ (N_cells .* peri_volume_mu[brad_cond_mapper]); 
+    vector[J_brad_cond] rho_cyt = ((total_protein_min + total_protein_slope .* growth_mu[brad_cond_mapper]) - prot_per_biomass_mu) ./ (N_cells .* (volume_mu[brad_cond_mapper] - peri_volume_mu[brad_cond_mapper]));
+    vector[J_brad_cond] rho_ratio = rho_peri ./ rho_cyt;
 
 }

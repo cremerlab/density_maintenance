@@ -54,13 +54,15 @@ mass_spec_data = mass_spec_data[(mass_spec_data['periplasm'] == True)
 # Correct bradford data that is out of bounds.
 brad_data['od_600nm_true'] = brad_data['od_600nm']
 brad_data = brad_data[brad_data['od_600nm'] <= 0.45]
+brad_data = brad_data[~((brad_data['overexpression'] != 'none') & (
+    brad_data['inducer_conc_ng_mL'] == 0))]
 
 # Keep only the bradford data with more than two replicates
 brad_data = pd.concat([d for _, d in brad_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']) if len(d) > 2], sort=False)
-brad_data = brad_data[brad_data['strain'].isin(
-    ['wildtype',  'malE-rbsB-fliC-KO'])]
-brad_data = brad_data[brad_data['overexpression'].isin(['none', 'malE'])]
+    ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']) if len(d) > 1], sort=False)
+brad_data = brad_data[brad_data['strain'].isin(strains)]
+
+brad_data = brad_data[brad_data['overexpression'].isin(overexpression)]
 
 # Restrict size data
 size_data = size_data[size_data['temperature_C'] == 37]
@@ -70,8 +72,9 @@ size_data = size_data[size_data['strain'].isin(strains) &
 size_data = pd.concat([d for _, d in size_data.groupby(
                       ['strain', 'carbon_source',
                        'overexpression', 'inducer_conc']
-                      ) if len(d) > 2], sort=False)
-
+                      ) if len(d) > 1], sort=False)
+size_data = size_data[~((size_data['overexpression'] != 'none') & (
+    size_data['inducer_conc'] == 0))]
 # Restrict flow data to only wildtype
 flow_data = flow_data[flow_data['strain'] == 'wildtype']
 flow_data = flow_data.groupby(
@@ -82,7 +85,7 @@ growth_data = growth_data[growth_data['strain'].isin(strains) &
                           growth_data['overexpression'].isin(overexpression) &
                           growth_data['inducer_conc'].isin(inducer_conc)]
 growth_data = pd.concat([d for _, d in growth_data.groupby(
-    ['strain', 'carbon_source', 'inducer_conc', 'overexpression']) if len(d['run_idx'].unique()) > 2])
+    ['strain', 'carbon_source', 'inducer_conc', 'overexpression']) if len(d['run_idx'].unique()) > 1])
 
 
 # %%
@@ -227,7 +230,8 @@ data_dict = {
 
 # %%
 # Sample the posterior
-_samples = model.sample(data_dict, adapt_delta=0.999, iter_sampling=2000)
+_samples = model.sample(data_dict, adapt_delta=0.999, iter_sampling=2000,
+                        max_treedepth=12)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
@@ -291,7 +295,8 @@ lit_post_kde.to_csv('../../data/mcmc/literature_model_posterior_kdes.csv')
 # Perform KDE over posterior of model params
 brad_groupby = ['strain', 'carbon_source',
                 'overexpression', 'inducer_conc_ng_mL', 'cond_idx']
-model_params = ['phi_M', 'prot_per_biomass_mu']
+model_params = ['phi_M', 'prot_per_biomass_mu',
+                'rho_peri', 'rho_cyt', 'rho_ratio']
 model_post_kde = pd.DataFrame([])
 for s in tqdm.tqdm(model_params):
     post = samples.posterior[s].to_dataframe().reset_index()
@@ -341,7 +346,7 @@ for i, p in enumerate(shape_parameters):
     param_percs = pd.concat([param_percs, percs], sort=False)
 
 # Process the parameters for the protein quantities
-params = ['phi_M', 'prot_per_biomass_mu']
+params = ['phi_M', 'prot_per_biomass_mu', 'rho_peri', 'rho_cyt', 'rho_ratio']
 for i, p in enumerate(params):
     p_df = samples.posterior[p].to_dataframe().reset_index()
     percs = size.viz.compute_percentiles(p_df, p, f'{p}_dim_0',
@@ -358,16 +363,16 @@ param_percs.to_csv('../../data/mcmc/parameter_percentiles.csv', index=False)
 
 
 # Process the parameters for the protein quantities
-lam_df = samples.posterior['growth_rates_mu'].to_dataframe().reset_index()
-percs = size.viz.compute_percentiles(lam_df, 'growth_rates_mu', 'growth_rates_mu_dim_0',
+lam_df = samples.posterior['growth_mu'].to_dataframe().reset_index()
+percs = size.viz.compute_percentiles(lam_df, 'growth_mu', 'growth_mu_dim_0',
                                      lower_bounds=lower,
                                      upper_bounds=upper,
                                      interval_labels=int_labels)
 for g, d in growth_data.groupby(['strain', 'carbon_source', 'overexpression',
                                  'inducer_conc', 'cond_idx']):
-    percs.loc[percs[f'growth_rates_mu_dim_0'] == g[-1]-1, ['strain', 'carbon_source', 'overexpression',
-                                                           'inducer_conc']] = g[:-1]
-percs.drop(columns=f'growth_rates_mu_dim_0', inplace=True)
+    percs.loc[percs[f'growth_mu_dim_0'] == g[-1]-1, ['strain', 'carbon_source', 'overexpression',
+                                                     'inducer_conc']] = g[:-1]
+percs.drop(columns=f'growth_mu_dim_0', inplace=True)
 percs.to_csv('../../data/mcmc/growth_parameter_percentiles.csv', index=False)
 
 
@@ -399,7 +404,8 @@ singular_percs.to_csv(
     '../../data/mcmc/singular_parameter_percentiles.csv', index=False)
 # %%
 # Percentiles for mass spec data
-params = ['mass_spec_phi_M', 'mass_spec_sav', 'mass_spec_widths']
+params = ['mass_spec_phi_M', 'mass_spec_sav', 'mass_spec_widths', 'mass_spec_rho_peri',
+          'mass_spec_rho_cyt', 'mass_spec_rho_ratio']
 
 
 mass_spec_data['idx'] = np.arange(len(mass_spec_data))

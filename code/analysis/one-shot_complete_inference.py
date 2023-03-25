@@ -21,7 +21,7 @@ model = cmdstanpy.CmdStanModel(
 cal_data = pd.read_csv(
     '../../data/protein_quantification/bradford_calibration_curve.csv')
 brad_data = pd.read_csv(
-    '../../data/protein_quantification/bradford_periplasmic_protein_v2.csv')
+    '../../data/protein_quantification/bradford_periplasmic_protein.csv')
 size_data = pd.read_csv(
     '../../data/summaries/summarized_size_measurements.csv')
 biomass_data = pd.read_csv(
@@ -288,7 +288,8 @@ lit_post_kde.to_csv('../../data/mcmc/literature_model_posterior_kdes.csv')
 # Perform KDE over posterior of model params
 brad_groupby = ['strain', 'carbon_source',
                 'overexpression', 'inducer_conc_ng_mL', 'cond_idx']
-model_params = ['phi_M', 'prot_per_biomass_mu']
+model_params = ['phi_M', 'prot_per_biomass_mu',
+                'rho_peri', 'rho_cyt', 'rho_ratio']
 model_post_kde = pd.DataFrame([])
 for s in tqdm.tqdm(model_params):
     post = samples.posterior[s].to_dataframe().reset_index()
@@ -338,7 +339,8 @@ for i, p in enumerate(shape_parameters):
     param_percs = pd.concat([param_percs, percs], sort=False)
 
 # Process the parameters for the protein quantities
-params = ['phi_M', 'prot_per_biomass_mu']
+params = ['phi_M', 'prot_per_biomass_mu', 'rho_peri', 'rho_cyt', 'rho_ratio']
+
 for i, p in enumerate(params):
     p_df = samples.posterior[p].to_dataframe().reset_index()
     percs = size.viz.compute_percentiles(p_df, p, f'{p}_dim_0',
@@ -355,16 +357,16 @@ param_percs.to_csv('../../data/mcmc/parameter_percentiles.csv', index=False)
 
 
 # Process the parameters for the protein quantities
-lam_df = samples.posterior['growth_rates_mu'].to_dataframe().reset_index()
-percs = size.viz.compute_percentiles(lam_df, 'growth_rates_mu', 'growth_rates_mu_dim_0',
+lam_df = samples.posterior['growth_mu'].to_dataframe().reset_index()
+percs = size.viz.compute_percentiles(lam_df, 'growth_mu', 'growth_mu_dim_0',
                                      lower_bounds=lower,
                                      upper_bounds=upper,
                                      interval_labels=int_labels)
 for g, d in growth_data.groupby(['strain', 'carbon_source', 'overexpression',
                                  'inducer_conc', 'cond_idx']):
-    percs.loc[percs[f'growth_rates_mu_dim_0'] == g[-1]-1, ['strain', 'carbon_source', 'overexpression',
-                                                           'inducer_conc']] = g[:-1]
-percs.drop(columns=f'growth_rates_mu_dim_0', inplace=True)
+    percs.loc[percs[f'growth_mu_dim_0'] == g[-1]-1, ['strain', 'carbon_source', 'overexpression',
+                                                     'inducer_conc']] = g[:-1]
+percs.drop(columns=f'growth_mu_dim_0', inplace=True)
 percs.to_csv('../../data/mcmc/growth_parameter_percentiles.csv', index=False)
 
 
@@ -396,8 +398,8 @@ singular_percs.to_csv(
     '../../data/mcmc/singular_parameter_percentiles.csv', index=False)
 # %%
 # Percentiles for mass spec data
-params = ['mass_spec_phi_M', 'mass_spec_sav', 'mass_spec_widths']
-
+params = ['mass_spec_phi_M', 'mass_spec_sav', 'mass_spec_widths', 'mass_spec_rho_peri',
+          'mass_spec_rho_cyt', 'mass_spec_rho_ratio']
 
 mass_spec_data['idx'] = np.arange(len(mass_spec_data))
 mass_spec_df = pd.DataFrame([])

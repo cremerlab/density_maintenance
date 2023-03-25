@@ -6,7 +6,7 @@ import size.viz
 import size.analytical
 import seaborn as sns
 mapper = size.viz.lit_mapper()
-err_widths = {'95%': 0.25, '75%': 1, '25%': 2.5}
+err_widths = {'95%': 0.25, '75%': 1, '25%': 2}
 cor, pal = size.viz.matplotlib_style()
 lit_size_data = pd.read_csv(
     '../../data/literature/collated_literature_size_data.csv')
@@ -53,14 +53,14 @@ k = np.array([1, 2, 3])
 delta = 0.025
 slope = k * delta
 phi_range = np.linspace(0.01, 0.10, 100)
-sav_range = np.linspace(5.8001, 7.2, 100)
+sav_range = np.linspace(5.7001, 7.2, 100)
 
 # %%
 fig, ax = plt.subplots(1, 1, figsize=(2, 1.75))
 
 ls = ['-', '--', ':', '-.']
 for i, s in enumerate(slope):
-    theo = s * (sav_range - 5.8)
+    theo = s * (sav_range - 5.7)
     ax.plot(sav_range, theo + 0.02,  ls=ls[i],
             lw=1, color=cor['primary_blue'], zorder=1000)
 
@@ -116,16 +116,16 @@ for g, d in lit_size_data.groupby(['source']):
                marker=mapper[g]['m'], ms=3, color=mapper[g]['c'],
                markeredgecolor=cor['primary_black'], alpha=0.3, linestyle='none')
 
-for g, d in params[(params['quantity'].isin(['growth_rates_mu', 'aspect_ratio_mu'])) &
+for g, d in params[(params['quantity'].isin(['growth_mu', 'aspect_ratio_mu'])) &
                    (params['strain'] == 'wildtype')].groupby(['carbon_source']):
-    med_lam = d[(d['quantity'] == 'growth_rates_mu')
+    med_lam = d[(d['quantity'] == 'growth_mu')
                 & (d['interval'] == 'median')]['lower']
     med_alpha = d[(d['quantity'] == 'aspect_ratio_mu')
                   & (d['interval'] == 'median')]['lower']
     ax[0].plot(med_lam, med_alpha, 'o', ms=3, markerfacecolor='white', markeredgecolor=cor['blue'],
                markeredgewidth=0.5, zorder=1000)
     for _g, _d in d[d['interval'] != 'median'].groupby(['interval'], sort=False):
-        lam = _d[_d['quantity'] == 'growth_rates_mu']
+        lam = _d[_d['quantity'] == 'growth_mu']
         alpha = _d[_d['quantity'] == 'aspect_ratio_mu']
         ax[0].hlines(med_alpha, lam['lower'], lam['upper'], lw=err_widths[_g],
                      color=cor['blue'])
@@ -188,9 +188,9 @@ vol_trend = (np.pi / 12) * width_trend**2 * (3 * length_trend - width_trend)
 ax[0].plot(lam_range, length_trend, '--', color=cor['primary_blue'], lw=1)
 ax[1].plot(lam_range, vol_trend, '--', color=cor['primary_blue'], lw=1)
 
-for g, d in params[(params['quantity'].isin(['growth_rates_mu', 'length_mu', 'volume_mu'])) &
+for g, d in params[(params['quantity'].isin(['growth_mu', 'length_mu', 'volume_mu'])) &
                    (params['strain'] == 'wildtype')].groupby(['carbon_source']):
-    med_lam = d[(d['quantity'] == 'growth_rates_mu')
+    med_lam = d[(d['quantity'] == 'growth_mu')
                 & (d['interval'] == 'median')]['lower']
     med_ell = d[(d['quantity'] == 'length_mu')
                 & (d['interval'] == 'median')]['lower']
@@ -201,7 +201,7 @@ for g, d in params[(params['quantity'].isin(['growth_rates_mu', 'length_mu', 'vo
     ax[1].plot(med_lam, med_vol, 'o', ms=3, markerfacecolor='white', markeredgecolor=cor['blue'],
                markeredgewidth=0.5, zorder=1000)
     for _g, _d in d[d['interval'] != 'median'].groupby(['interval'], sort=False):
-        lam = _d[_d['quantity'] == 'growth_rates_mu']
+        lam = _d[_d['quantity'] == 'growth_mu']
         ell = _d[_d['quantity'] == 'length_mu']
         vol = _d[_d['quantity'] == 'volume_mu']
         ax[0].hlines(med_ell, lam['lower'], lam['upper'], lw=err_widths[_g],
@@ -277,3 +277,63 @@ ax.set_ylim([0.005, 0.10])
 ax.set_xlabel('average width [µm$^{-1}$]', fontsize=6)
 ax.set_ylabel('periplasmic biomass fraction', fontsize=6)
 plt.savefig('../../figures/Fig2_width_scaling.pdf', bbox_inches='tight')
+
+
+# %%
+fig, ax = plt.subplots(1, 3, figsize=(6, 2))
+ax[2].set_ylim([0, 0.7])
+ax[0].set_ylim([0, 250])
+ax[1].set_ylim([300, 500])
+meds = params[params['interval'] == 'median']
+
+
+for g, d in mass_spec_medians.groupby(['dataset_name']):
+    rho_peri = d[d['quantity'] == 'mass_spec_rho_peri']
+    rho_cyt = d[d['quantity'] == 'mass_spec_rho_cyt']
+    rho_ratio = d[d['quantity'] == 'mass_spec_rho_ratio']
+    ax[0].plot(rho_peri['growth_rate_hr'], rho_peri['lower'] * 1E9, mapper[g]['m'],
+               ms=3, markerfacecolor=mapper[g]['c'], markeredgecolor='k',
+               markeredgewidth=0.5, alpha=0.3)
+    ax[1].plot(rho_cyt['growth_rate_hr'], rho_cyt['lower'] * 1E9, mapper[g]['m'],
+               ms=3, markerfacecolor=mapper[g]['c'], markeredgecolor='k',
+               markeredgewidth=0.5, alpha=0.3)
+
+    ax[2].plot(rho_ratio['growth_rate_hr'], rho_ratio['lower'], mapper[g]['m'],
+               ms=3, markerfacecolor=mapper[g]['c'], markeredgecolor='k',
+               markeredgewidth=0.5, alpha=0.3)
+
+
+for g, d in params[params['interval'] != 'median'].groupby(['carbon_source', 'interval']):
+    if g[0] == 'LB':
+        continue
+    _lam = meds[(meds['carbon_source'] == g[0]) &
+                (meds['quantity'] == 'growth_mu')]
+    _rho_peri = meds[(meds['carbon_source'] == g[0]) &
+                     (meds['quantity'] == 'rho_peri')]
+    _rho_cyt = meds[(meds['carbon_source'] == g[0]) &
+                    (meds['quantity'] == 'rho_cyt')]
+    _rho_ratio = meds[(meds['carbon_source'] == g[0]) &
+                      (meds['quantity'] == 'rho_ratio')]
+    ax[0].plot(_lam['lower'], _rho_peri['lower'] * 1E9, 'o',
+               markeredgecolor=cor['primary_blue'], markerfacecolor='white',
+               ms=3, markeredgewidth=1, zorder=1000)
+    ax[1].plot(_lam['lower'], _rho_cyt['lower'] * 1E9, 'o',
+               markeredgecolor=cor['primary_blue'], markerfacecolor='white',
+               ms=3, markeredgewidth=1, zorder=1000)
+    ax[2].plot(_lam['lower'], _rho_ratio['lower'], 'o',
+               markeredgecolor=cor['primary_blue'], markerfacecolor='white',
+               ms=3, markeredgewidth=1, zorder=1000)
+
+    ax[0].hlines(_rho_peri['lower'] * 1E9, d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'growth_mu']['upper'],
+                 color=cor['primary_blue'], lw=err_widths[g[1]])
+    ax[1].hlines(_rho_cyt['lower'] * 1E9, d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'growth_mu']['upper'],
+                 color=cor['primary_blue'], lw=err_widths[g[1]])
+    ax[2].hlines(_rho_ratio['lower'], d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'growth_mu']['upper'],
+                 color=cor['primary_blue'], lw=err_widths[g[1]])
+
+    ax[0].vlines(_lam['lower'], d[d['quantity'] == 'rho_peri']['lower'] * 1E9, d[d['quantity'] == 'rho_peri']['upper'] * 1E9,
+                 color=cor['primary_blue'], lw=err_widths[g[1]])
+    ax[1].vlines(_lam['lower'], d[d['quantity'] == 'rho_cyt']['lower'] * 1E9, d[d['quantity'] == 'rho_cyt']['upper'] * 1E9,
+                 color=cor['primary_blue'], lw=err_widths[g[1]])
+    ax[2].vlines(_lam['lower'], d[d['quantity'] == 'rho_ratio']['lower'] * 1E9, d[d['quantity'] == 'rho_ratio']['upper'] * 1E9,
+                 color=cor['primary_blue'], lw=err_widths[g[1]])

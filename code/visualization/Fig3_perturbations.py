@@ -41,7 +41,7 @@ medians = params[params['interval'] == 'median']
 errs = params[params['interval'] != 'median']
 
 # %%
-fig, ax = plt.subplots(1, 4, figsize=(4, 2))
+fig, ax = plt.subplots(1, 3, figsize=(3, 2))
 for a in ax.ravel():
     a.set_yticks([])
 ax[0].set_xlim([0.01, 0.06])
@@ -52,10 +52,9 @@ ax[1].set_xticks([0.6, 0.7, 0.8])
 ax[0].set_xlabel('periplasmic\nbiomass fraction', fontsize=6)
 ax[1].set_xlabel('average width\n[µm]', fontsize=6)
 ax[2].set_xlabel('aspect ratio', fontsize=6)
-ax[3].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
 n_rows = 5
 for i, carb in enumerate(['acetate']):
-    for j, param in enumerate(['phi_M', 'width_mu', 'aspect_ratio_mu', 'growth_rates_mu']):
+    for j, param in enumerate(['phi_M', 'width_mu', 'aspect_ratio_mu']):
         for k, strain in enumerate(['wildtype', 'malE-rbsB-fliC-KO']):
             samp = posts[(posts['strain'] == strain) &
                          (posts['carbon_source'] == carb) &
@@ -122,6 +121,7 @@ for i, carb in enumerate(['acetate']):
                                        (params['overexpression'] == oe) &
                                        (params['quantity'] == param)]
                         for ell, (g, d) in enumerate(samp.groupby(['inducer_conc'])):
+                            print(g)
                             ax[j].fill_between(d['value'], (n_rows - 2 - ell) * np.ones(len(d)), (n_rows - 2 - ell) +
                                                d['kde'] /
                                                d['kde'].max(),
@@ -140,7 +140,7 @@ for i, carb in enumerate(['acetate']):
 # plt.savefig('../../figures/Fig3_example_posterior_migration.pdf')
 # %%
 
-fig, ax = plt.subplots(1, 4, figsize=(2.25, 2))
+fig, ax = plt.subplots(1, 1, figsize=(2.25, 2))
 k = np.array([1, 2, 3])
 delta = 0.025
 alpha = 3.3
@@ -164,8 +164,8 @@ for g, d in mass_spec_medians.groupby(['dataset_name']):
 med_params = params[(params['quantity'].isin(['width_mu', 'phi_M'])) &
                     (params['interval'] == 'median')]
 for g, d in params[(params['quantity'].isin(['width_mu', 'phi_M'])) &
-                   (params['overexpression'].isin(['none', 'malE', 'rbsB']))].groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source',
-                                                                                       'interval'], sort=False):
+                   (params['overexpression'].isin(['none', 'malE']))].groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source',
+                                                                               'interval'], sort=False):
     if g[0] == 'wildtype':
         c = cor['primary_blue']
     else:
@@ -225,9 +225,9 @@ for g, d in lit_size_data.groupby(['source']):
                markerfacecolor=mapper[g]['c'], markeredgecolor=cor['primary_black'],
                alpha=0.35, ms=3)
 
-for g, d in params[(params['quantity'].isin(['surface_area_vol_mu', 'growth_rates_mu', 'width_mu', 'length_mu', 'aspect_ratio_mu'])) &
-                   (params['overexpression'].isin(['none', 'malE', 'rbsB']))].groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source',
-                                                                                       'interval'], sort=False):
+for g, d in params[(params['quantity'].isin(['surface_area_vol_mu', 'growth_mu', 'width_mu', 'length_mu', 'aspect_ratio_mu'])) &
+                   (params['overexpression'].isin(['none', 'malE']))].groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source',
+                                                                               'interval'], sort=False):
     if g[0] == 'wildtype':
         c = cor['primary_blue']
     else:
@@ -237,80 +237,17 @@ for g, d in params[(params['quantity'].isin(['surface_area_vol_mu', 'growth_rate
 
     if g[4] == 'median':
 
-        ax[0].plot(d[d['quantity'] == 'growth_rates_mu']['lower'], d[d['quantity'] == 'width_mu']['upper'],
+        ax[0].plot(d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'width_mu']['upper'],
                    marker='o', markeredgewidth=0.75, markeredgecolor=c,
                    markerfacecolor='white', ms=3, zorder=1000)
-        ax[1].plot(d[d['quantity'] == 'growth_rates_mu']['lower'], d[d['quantity'] == 'length_mu']['upper'],
+        ax[1].plot(d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'length_mu']['upper'],
                    marker='o', markeredgewidth=0.75, markeredgecolor=c,
                    markerfacecolor='white', ms=3, zorder=1000)
-        ax[2].plot(d[d['quantity'] == 'growth_rates_mu']['lower'], d[d['quantity'] == 'aspect_ratio_mu']['upper'],
+        ax[2].plot(d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'aspect_ratio_mu']['upper'],
                    marker='o', markeredgewidth=0.75, markeredgecolor=c,
                    markerfacecolor='white', ms=3, zorder=1000)
-        ax[3].plot(d[d['quantity'] == 'growth_rates_mu']['lower'], d[d['quantity'] == 'surface_area_vol_mu']['upper'],
+        ax[3].plot(d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'surface_area_vol_mu']['upper'],
                    marker='o', markeredgewidth=0.75, markeredgecolor=c,
                    markerfacecolor='white', ms=3, zorder=1000)
-
-    # else:
-    #     width = d[d['quantity']=='width_mu']
-    #     alpha = d[d['quantity']=='aspect_ratio_mu']
-    #     lam = d[d['quantity'] == 'growth_rates_mu']
-    #     vol = d[d['quantity'] == 'volume_mu']
-    #     med_lam = med_params[(med_params['quantity'] == 'growth_rates_mu') &
-    #                          (med_params['strain'] == g[0]) &
-    #                          (med_params['overexpression'] == g[1]) &
-    #                          (med_params['inducer_conc'] == g[2]) &
-    #                          (med_params['carbon_source'] == g[3])]
-    #     med_vol = med_params[(med_params['quantity'] == 'volume_mu') &
-    #                          (med_params['strain'] == g[0]) &
-    #                          (med_params['overexpression'] == g[1]) &
-    #                          (med_params['inducer_conc'] == g[2]) &
-    #                          (med_params['carbon_source'] == g[3])]
-    #     ax.vlines(med_lam['lower'], vol['lower'], vol['upper'], lw=err_widths[g[-1]],
-    #               color=c, zorder=99)
-    #     ax.hlines(med_vol['lower'], lam['lower'], lam['upper'], lw=err_widths[g[-1]],
-    #               color=c, zorder=99)
 
 # %%
-# for g, d in mass_spec_medians.groupby(['dataset_name']):
-#     ax.plot(d[d['quantity'] == 'mass_spec_vol']['growth_rate_hr'],
-#             d[d['quantity'] == 'mass_spec_vol']['lower'],
-#             linestyle='none', marker=mapper[g]['m'], markeredgecolor='k',
-#             alpha=0.15, markeredgewidth=0.5, color=mapper[g]['c'], ms=4, zorder=10)
-# med_params = params[(params['quantity'].isin(['width_mu', 'phi_M'])) &
-#                     (params['interval'] == 'median')]
-for g, d in params[(params['quantity'].isin(['volume_mu', 'growth_rates_mu'])) &
-                   (params['overexpression'].isin(['none', 'malE', 'rbsB']))].groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source',
-                                                                                       'interval'], sort=False):
-    if g[0] == 'wildtype':
-        c = cor['primary_blue']
-    else:
-        c = cor[f'primary_{colors[g[1]]}']
-    # if g[3] == 'LB':
-        # continue
-
-    if g[4] == 'median':
-        ax.plot(d[d['quantity'] == 'growth_rates_mu']['lower'], d[d['quantity'] == 'volume_mu']['upper'],
-                marker='o', markeredgewidth=0.75, markeredgecolor=c,
-                markerfacecolor='white', ms=3, zorder=1000)
-    else:
-        lam = d[d['quantity'] == 'growth_rates_mu']
-        vol = d[d['quantity'] == 'volume_mu']
-        med_lam = med_params[(med_params['quantity'] == 'growth_rates_mu') &
-                             (med_params['strain'] == g[0]) &
-                             (med_params['overexpression'] == g[1]) &
-                             (med_params['inducer_conc'] == g[2]) &
-                             (med_params['carbon_source'] == g[3])]
-        med_vol = med_params[(med_params['quantity'] == 'volume_mu') &
-                             (med_params['strain'] == g[0]) &
-                             (med_params['overexpression'] == g[1]) &
-                             (med_params['inducer_conc'] == g[2]) &
-                             (med_params['carbon_source'] == g[3])]
-        ax.vlines(med_lam['lower'], vol['lower'], vol['upper'], lw=err_widths[g[-1]],
-                  color=c, zorder=99)
-        ax.hlines(med_vol['lower'], lam['lower'], lam['upper'], lw=err_widths[g[-1]],
-                  color=c, zorder=99)
-
-# ax.set_xlim([0.6, 1])
-# ax.set_ylim([0.005, 0.10])
-# ax.set_xlabel('average width [µm$^{-1}$]', fontsize=6)
-# ax.set_ylabel('periplasmic biomass fraction', fontsize=6)
