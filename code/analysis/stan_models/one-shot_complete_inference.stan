@@ -1,4 +1,5 @@
 data {
+    vector[2] delta;
     //--------------------------------------------------------------------------
     //  Bradford Assay Calibration Curve
     //--------------------------------------------------------------------------
@@ -23,6 +24,7 @@ data {
     vector<lower=0>[N_size] surface_area;
     vector<lower=0>[N_size] surface_area_volume;
     vector<lower=1>[N_size] aspect_ratio;
+    vector<lower=0>[N_size] size_delta_idx;
 
     //--------------------------------------------------------------------------
     //  Aggregated growth rates to infer minimum width and minimum length.
@@ -178,7 +180,7 @@ transformed parameters {
     // Transformed mass spec parameters
     // ------------------------------------------------------------------------- 
     vector<lower=0>[N_mass_spec] mass_spec_widths = width_min + width_slope .* mass_spec_growth_rate;
-    vector<lower=0>[N_mass_spec] mass_spec_lengths = width_min + width_slope .* mass_spec_growth_rate;
+    vector<lower=0>[N_mass_spec] mass_spec_lengths = length_min + length_slope .* mass_spec_growth_rate;
     vector<lower=0>[N_mass_spec] mass_spec_vol= (pi() / 12) .* mass_spec_widths^2 .* (3 .* mass_spec_lengths  - mass_spec_widths); 
     vector<lower=0>[N_mass_spec] mass_spec_N_cells = 1E9 ./ (flow_slope .* mass_spec_vol);
     vector<lower=0>[N_mass_spec] mass_spec_peri_vol = pi() .* mass_spec_widths .* mass_spec_lengths .* 0.024;
@@ -186,8 +188,9 @@ transformed parameters {
     vector<lower=0>[N_mass_spec] mass_spec_tot_peri_prot = mass_fraction .* (total_protein_min + total_protein_slope .* mass_spec_growth_rate); 
     vector<lower=0>[N_mass_spec] mass_spec_phi_M = mass_spec_tot_peri_prot ./ biomass_mu;
     vector<lower=0>[N_mass_spec] mass_spec_rho_peri = mass_spec_tot_peri_prot ./  (mass_spec_N_cells .* mass_spec_peri_vol);
-    vector<lower=0>[N_mass_spec] mass_spec_rho_cyt = ((total_protein_min + total_protein_slope .* mass_spec_growth_rate) - mass_spec_tot_peri_prot) ./  (mass_spec_N_cells .* (mass_spec_vol - mass_spec_peri_vol));
-    vector<lower=0>[N_mass_spec] mass_spec_rho_ratio = mass_spec_rho_peri ./ mass_spec_rho_cyt;
+    vector<lower=0>[N_mass_spec] mass_spec_peri_prot_per_cell = mass_spec_tot_peri_prot ./ mass_spec_N_cells;
+
+
 }
 
 
@@ -365,7 +368,5 @@ generated quantities {
     vector<lower=0>[J_brad_cond] N_cells = 1E9 ./ (flow_slope .* volume_mu[brad_cond_mapper]);
     vector<lower=0>[J_brad_cond] phi_M = prot_per_biomass_mu ./ biomass_mu;
     vector<lower=0>[J_brad_cond] rho_peri = prot_per_biomass_mu ./ (N_cells .* peri_volume_mu[brad_cond_mapper]); 
-    vector[J_brad_cond] rho_cyt = ((total_protein_min + total_protein_slope .* growth_mu[brad_cond_mapper]) - prot_per_biomass_mu) ./ (N_cells .* (volume_mu[brad_cond_mapper] - peri_volume_mu[brad_cond_mapper]));
-    vector[J_brad_cond] rho_ratio = rho_peri ./ rho_cyt;
-
+    vector<lower=0>[J_brad_cond] peri_prot_per_cell = prot_per_biomass_mu ./ N_cells;
 }

@@ -39,55 +39,52 @@ tot_prot = pd.read_csv('../../data/literature/collated_total_protein.csv')
 # ##############################################################################
 # DATASET FILTERING
 # ##############################################################################
-
 # Filter and aggregate mass spec
 mass_spec_data = mass_spec_data[(mass_spec_data['periplasm'] == True)
                                 ].groupby(['dataset_name',
                                            'growth_rate_hr',
                                            'condition']).sum().reset_index()
 
-
 # Correct bradford data that is out of bounds.
-# TODO: (Maybe) Include into inference pipeline
 brad_data['od_600nm_true'] = brad_data['od_600nm']
 brad_data.loc[brad_data['od_600nm'] >= 0.45, 'od_600nm_true'] = np.exp(
     1.26 * np.log(brad_data[brad_data['od_600nm'] >= 0.45]['od_600nm'].values) + 0.25)
-brad_data = brad_data[brad_data['od_600nm'] <= 0.5]
-
 brad_data = brad_data[~((brad_data['overexpression'] != 'none') & (
     brad_data['inducer_conc_ng_mL'] == 0))]
+# brad_data = brad_data[brad_data['od_600nm'] < 0.5]
 
 # Keep only the bradford data with more than two replicates
 brad_data = pd.concat([d for _, d in brad_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']) if len(d) > 2], sort=False)
 brad_data = brad_data[brad_data['strain'].isin(
-    ['wildtype',  'malE-rbsB-fliC-KO'])]
-brad_data = brad_data[brad_data['overexpression'].isin(['none', 'malE'])]
+    ['wildtype',  'malE-rbsB-fliC-KO', 'lpp14'])]
+brad_data = brad_data[brad_data['overexpression'].isin(
+    ['none', 'malE', 'rbsB', 'lacZ'])]
 
 # Restrict size data
 size_data = size_data[size_data['temperature_C'] == 37]
 size_data = size_data[size_data['strain'].isin(
-    ['wildtype', 'malE-rbsB-fliC-KO'])]
+    ['wildtype', 'malE-rbsB-fliC-KO', 'lpp14'])]
 size_data = pd.concat([d for _, d in size_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc']) if len(d) > 2], sort=False)
 size_data = size_data[~((size_data['overexpression'] != 'none') & (
     size_data['inducer_conc'] == 0))]
-size_data = size_data[size_data['overexpression'].isin(['none', 'malE'])]
+size_data = size_data[size_data['overexpression'].isin(
+    ['none', 'malE', 'rbsB', 'lacZ'])]
 # Restrict flow data to only wildtype
 flow_data = flow_data[flow_data['strain'] == 'wildtype']
 flow_data = flow_data.groupby(
     ['date', 'carbon_source', 'run_no']).mean().reset_index()
 
 # # Restrict growth data
-growth_data = growth_data[growth_data['overexpression'].isin(['none', 'malE']) &
-                          growth_data['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO'])]
+growth_data = growth_data[growth_data['overexpression'].isin(['none', 'malE', 'rbsB', 'lacZ']) &
+                          growth_data['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO', 'lpp14'])]
 
 
 # %%
 # ##############################################################################
 # DATA LABELING
 # ##############################################################################
-
 ## SIZE INDEXING ###############################################################
 # Add indexing to the size data
 size_data['size_cond_idx'] = size_data.groupby(
@@ -167,12 +164,7 @@ data_dict = {
     'J_growth': growth_data['cond_idx'].max(),
     'N_growth': len(growth_data),
     'N_growth_lit': len(lit_size_data),
-
     'growth_rates_lit': lit_size_data['growth_rate_hr'].values.astype(float),
-    'widths_lit': lit_size_data['width_um'].values.astype(float),
-    'lengths_lit': lit_size_data['length_um'].values.astype(float),
-    'aspect_ratios_lit': lit_size_data['length_um'].values.astype(float) / lit_size_data['width_um'].values.astype(float),
-    'sav_lit': lit_size_data['surface_to_volume'].values.astype(float),
     'growth_rates': growth_data['growth_rate_hr'].values.astype(float),
     'growth_cond_idx': growth_data['cond_idx'].values.astype(int),
     'J_growth_wt_idx': np.array(J_growth_wt_idx).astype(int),
@@ -223,8 +215,8 @@ data_dict = {
 
 # %%
 # Sample the posterior
-_samples = model.sample(data_dict,
-                        adapt_delta=0.999, iter_sampling=2000)
+_samples = model.sample(data_dict, adapt_delta=0.99)  # ,
+# adapt_delta=0.999, iter_sampling=2000)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
@@ -289,7 +281,7 @@ lit_post_kde.to_csv('../../data/mcmc/literature_model_posterior_kdes.csv')
 brad_groupby = ['strain', 'carbon_source',
                 'overexpression', 'inducer_conc_ng_mL', 'cond_idx']
 model_params = ['phi_M', 'prot_per_biomass_mu',
-                'rho_peri', 'rho_cyt', 'rho_ratio']
+                'rho_peri', 'peri_prot_per_cell']
 model_post_kde = pd.DataFrame([])
 for s in tqdm.tqdm(model_params):
     post = samples.posterior[s].to_dataframe().reset_index()
@@ -339,7 +331,7 @@ for i, p in enumerate(shape_parameters):
     param_percs = pd.concat([param_percs, percs], sort=False)
 
 # Process the parameters for the protein quantities
-params = ['phi_M', 'prot_per_biomass_mu', 'rho_peri', 'rho_cyt', 'rho_ratio']
+params = ['phi_M', 'prot_per_biomass_mu', 'rho_peri', 'peri_prot_per_cell']
 
 for i, p in enumerate(params):
     p_df = samples.posterior[p].to_dataframe().reset_index()
@@ -399,7 +391,7 @@ singular_percs.to_csv(
 # %%
 # Percentiles for mass spec data
 params = ['mass_spec_phi_M', 'mass_spec_sav', 'mass_spec_widths', 'mass_spec_rho_peri',
-          'mass_spec_rho_cyt', 'mass_spec_rho_ratio']
+          'mass_spec_peri_prot_per_cell']
 
 mass_spec_data['idx'] = np.arange(len(mass_spec_data))
 mass_spec_df = pd.DataFrame([])

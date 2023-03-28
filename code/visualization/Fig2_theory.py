@@ -280,28 +280,19 @@ plt.savefig('../../figures/Fig2_width_scaling.pdf', bbox_inches='tight')
 
 
 # %%
-fig, ax = plt.subplots(1, 3, figsize=(6, 2))
-ax[2].set_ylim([0, 0.7])
+fig, ax = plt.subplots(1, 2, figsize=(6, 2))
 ax[0].set_ylim([0, 250])
-ax[1].set_ylim([300, 500])
+ax[1].set_ylim([0, 50])
 meds = params[params['interval'] == 'median']
-
-
 for g, d in mass_spec_medians.groupby(['dataset_name']):
     rho_peri = d[d['quantity'] == 'mass_spec_rho_peri']
-    rho_cyt = d[d['quantity'] == 'mass_spec_rho_cyt']
-    rho_ratio = d[d['quantity'] == 'mass_spec_rho_ratio']
+    peri_prot = d[d['quantity'] == 'mass_spec_peri_prot_per_cell']
     ax[0].plot(rho_peri['growth_rate_hr'], rho_peri['lower'] * 1E9, mapper[g]['m'],
-               ms=3, markerfacecolor=mapper[g]['c'], markeredgecolor='k',
+               ms=4, markerfacecolor=mapper[g]['c'], markeredgecolor='k',
                markeredgewidth=0.5, alpha=0.3)
-    ax[1].plot(rho_cyt['growth_rate_hr'], rho_cyt['lower'] * 1E9, mapper[g]['m'],
-               ms=3, markerfacecolor=mapper[g]['c'], markeredgecolor='k',
+    ax[1].plot(peri_prot['growth_rate_hr'], peri_prot['lower'] * 1E9, mapper[g]['m'],
+               ms=4, markerfacecolor=mapper[g]['c'], markeredgecolor=cor['primary_black'],
                markeredgewidth=0.5, alpha=0.3)
-
-    ax[2].plot(rho_ratio['growth_rate_hr'], rho_ratio['lower'], mapper[g]['m'],
-               ms=3, markerfacecolor=mapper[g]['c'], markeredgecolor='k',
-               markeredgewidth=0.5, alpha=0.3)
-
 
 for g, d in params[params['interval'] != 'median'].groupby(['carbon_source', 'interval']):
     if g[0] == 'LB':
@@ -310,30 +301,133 @@ for g, d in params[params['interval'] != 'median'].groupby(['carbon_source', 'in
                 (meds['quantity'] == 'growth_mu')]
     _rho_peri = meds[(meds['carbon_source'] == g[0]) &
                      (meds['quantity'] == 'rho_peri')]
-    _rho_cyt = meds[(meds['carbon_source'] == g[0]) &
-                    (meds['quantity'] == 'rho_cyt')]
-    _rho_ratio = meds[(meds['carbon_source'] == g[0]) &
-                      (meds['quantity'] == 'rho_ratio')]
+    _peri_prot = meds[(meds['carbon_source'] == g[0]) &
+                      (meds['quantity'] == 'peri_prot_per_cell')]
+
     ax[0].plot(_lam['lower'], _rho_peri['lower'] * 1E9, 'o',
                markeredgecolor=cor['primary_blue'], markerfacecolor='white',
                ms=3, markeredgewidth=1, zorder=1000)
-    ax[1].plot(_lam['lower'], _rho_cyt['lower'] * 1E9, 'o',
-               markeredgecolor=cor['primary_blue'], markerfacecolor='white',
-               ms=3, markeredgewidth=1, zorder=1000)
-    ax[2].plot(_lam['lower'], _rho_ratio['lower'], 'o',
-               markeredgecolor=cor['primary_blue'], markerfacecolor='white',
-               ms=3, markeredgewidth=1, zorder=1000)
-
     ax[0].hlines(_rho_peri['lower'] * 1E9, d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'growth_mu']['upper'],
                  color=cor['primary_blue'], lw=err_widths[g[1]])
-    ax[1].hlines(_rho_cyt['lower'] * 1E9, d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'growth_mu']['upper'],
-                 color=cor['primary_blue'], lw=err_widths[g[1]])
-    ax[2].hlines(_rho_ratio['lower'], d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'growth_mu']['upper'],
-                 color=cor['primary_blue'], lw=err_widths[g[1]])
-
     ax[0].vlines(_lam['lower'], d[d['quantity'] == 'rho_peri']['lower'] * 1E9, d[d['quantity'] == 'rho_peri']['upper'] * 1E9,
                  color=cor['primary_blue'], lw=err_widths[g[1]])
-    ax[1].vlines(_lam['lower'], d[d['quantity'] == 'rho_cyt']['lower'] * 1E9, d[d['quantity'] == 'rho_cyt']['upper'] * 1E9,
+
+    ax[1].plot(_lam['lower'], _peri_prot['lower'] * 1E9, 'o',
+               markeredgecolor=cor['primary_blue'], markerfacecolor='white',
+               ms=3, markeredgewidth=1, zorder=1000)
+    ax[1].hlines(_peri_prot['lower'] * 1E9, d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'growth_mu']['upper'],
                  color=cor['primary_blue'], lw=err_widths[g[1]])
-    ax[2].vlines(_lam['lower'], d[d['quantity'] == 'rho_ratio']['lower'] * 1E9, d[d['quantity'] == 'rho_ratio']['upper'] * 1E9,
+    ax[1].vlines(_lam['lower'], d[d['quantity'] == 'peri_prot_per_cell']['lower'] * 1E9, d[d['quantity'] == 'peri_prot_per_cell']['upper'] * 1E9,
                  color=cor['primary_blue'], lw=err_widths[g[1]])
+
+
+ax[1].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+ax[0].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+ax[0].set_ylabel('periplasmic protein density [fg / µm$^3$]', fontsize=6)
+ax[1].set_ylabel('periplasmic protein mass [fg]', fontsize=6)
+plt.savefig('/Users/gchure/Desktop/plots.pdf')
+# %%
+fig, ax = plt.subplots(1, 2, figsize=(6, 2))
+meds = params[params['interval'] == 'median']
+ax[0].set_ylim([0, 300])
+ax[1].set_ylim([0, 300])
+# ax[1].set_xlim([0, 1])
+for g, d in mass_spec_medians.groupby(['dataset_name']):
+    rho_peri = d[d['quantity'] == 'mass_spec_rho_peri']
+    widths = d[d['quantity'] == 'mass_spec_widths']
+    ax[0].plot(rho_peri['growth_rate_hr'], rho_peri['lower'] * 1E9, mapper[g]['m'],
+               ms=4, markerfacecolor=mapper[g]['c'], markeredgecolor='k',
+               markeredgewidth=0.5, alpha=0.3)
+    ax[1].plot(widths['lower'], rho_peri['lower'] * 1E9, mapper[g]['m'],
+               ms=4, markerfacecolor=mapper[g]['c'], markeredgecolor=cor['primary_black'],
+               markeredgewidth=0.5, alpha=0.3)
+width_range = np.linspace(0.6, 1)
+slope1 = 30 / (np.pi * 3.3 * 0.024)
+slope2 = 20 / (np.pi * 3.3 * 0.024)
+slope3 = 10 / (np.pi * 3.3 * 0.024)
+theo1 = slope1 / width_range**2
+theo2 = slope2 / width_range**2
+theo3 = slope3 / width_range**2
+ax[1].plot(width_range, theo1, 'k-')
+ax[1].plot(width_range, theo2, 'k--')
+ax[1].plot(width_range, theo3, 'k:')
+ax[0].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+ax[0].set_ylabel('periplasmic protein density [fg / µm$^3$]', fontsize=6)
+ax[1].set_xlabel('cell width [µm]', fontsize=6)
+ax[1].set_ylabel('periplasmic protein density [fg / µm$^3$]', fontsize=6)
+plt.savefig('/Users/gchure/Desktop/scaling_argument.pdf', bbox_inches='tight')
+# %%
+for g, d in params[params['interval'] != 'median'].groupby(['carbon_source', 'interval']):
+    if g[0] == 'LB':
+        continue
+    _lam = meds[(meds['carbon_source'] == g[0]) &
+                (meds['quantity'] == 'growth_mu')]
+    _rho_peri = meds[(meds['carbon_source'] == g[0]) &
+                     (meds['quantity'] == 'rho_peri')]
+    _peri_prot = meds[(meds['carbon_source'] == g[0]) &
+                      (meds['quantity'] == 'peri_prot_per_cell')]
+
+    ax[0].plot(_lam['lower'], _rho_peri['lower'] * 1E9, 'o',
+               markeredgecolor=cor['primary_blue'], markerfacecolor='white',
+               ms=3, markeredgewidth=1, zorder=1000)
+    ax[0].hlines(_rho_peri['lower'] * 1E9, d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'growth_mu']['upper'],
+                 color=cor['primary_blue'], lw=err_widths[g[1]])
+    ax[0].vlines(_lam['lower'], d[d['quantity'] == 'rho_peri']['lower'] * 1E9, d[d['quantity'] == 'rho_peri']['upper'] * 1E9,
+                 color=cor['primary_blue'], lw=err_widths[g[1]])
+
+    ax[1].plot(_lam['lower'], _peri_prot['lower'] * 1E9, 'o',
+               markeredgecolor=cor['primary_blue'], markerfacecolor='white',
+               ms=3, markeredgewidth=1, zorder=1000)
+    ax[1].hlines(_peri_prot['lower'] * 1E9, d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'growth_mu']['upper'],
+                 color=cor['primary_blue'], lw=err_widths[g[1]])
+    ax[1].vlines(_lam['lower'], d[d['quantity'] == 'peri_prot_per_cell']['lower'] * 1E9, d[d['quantity'] == 'peri_prot_per_cell']['upper'] * 1E9,
+                 color=cor['primary_blue'], lw=err_widths[g[1]])
+
+
+# %%
+fig, ax = plt.subplots(1, 2, figsize=(6, 2))
+ax[0].set_ylim([0, 250])
+ax[1].set_ylim([0, 50])
+meds = params[params['interval'] == 'median']
+for g, d in mass_spec_medians.groupby(['dataset_name']):
+    rho_peri = d[d['quantity'] == 'mass_spec_rho_peri']
+    peri_prot = d[d['quantity'] == 'mass_spec_peri_prot_per_cell']
+    ax[0].plot(rho_peri['growth_rate_hr'], rho_peri['lower'] * 1E9, mapper[g]['m'],
+               ms=4, markerfacecolor=mapper[g]['c'], markeredgecolor='k',
+               markeredgewidth=0.5, alpha=0.3)
+    ax[1].plot(peri_prot['growth_rate_hr'], peri_prot['lower'] * 1E9, mapper[g]['m'],
+               ms=4, markerfacecolor=mapper[g]['c'], markeredgecolor=cor['primary_black'],
+               markeredgewidth=0.5, alpha=0.3)
+
+for g, d in params[params['interval'] != 'median'].groupby(['carbon_source', 'interval']):
+    if g[0] == 'LB':
+        continue
+    _lam = meds[(meds['carbon_source'] == g[0]) &
+                (meds['quantity'] == 'growth_mu')]
+    _rho_peri = meds[(meds['carbon_source'] == g[0]) &
+                     (meds['quantity'] == 'rho_peri')]
+    _peri_prot = meds[(meds['carbon_source'] == g[0]) &
+                      (meds['quantity'] == 'peri_prot_per_cell')]
+
+    ax[0].plot(_lam['lower'], _rho_peri['lower'] * 1E9, 'o',
+               markeredgecolor=cor['primary_blue'], markerfacecolor='white',
+               ms=3, markeredgewidth=1, zorder=1000)
+    ax[0].hlines(_rho_peri['lower'] * 1E9, d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'growth_mu']['upper'],
+                 color=cor['primary_blue'], lw=err_widths[g[1]])
+    ax[0].vlines(_lam['lower'], d[d['quantity'] == 'rho_peri']['lower'] * 1E9, d[d['quantity'] == 'rho_peri']['upper'] * 1E9,
+                 color=cor['primary_blue'], lw=err_widths[g[1]])
+
+    ax[1].plot(_lam['lower'], _peri_prot['lower'] * 1E9, 'o',
+               markeredgecolor=cor['primary_blue'], markerfacecolor='white',
+               ms=3, markeredgewidth=1, zorder=1000)
+    ax[1].hlines(_peri_prot['lower'] * 1E9, d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'growth_mu']['upper'],
+                 color=cor['primary_blue'], lw=err_widths[g[1]])
+    ax[1].vlines(_lam['lower'], d[d['quantity'] == 'peri_prot_per_cell']['lower'] * 1E9, d[d['quantity'] == 'peri_prot_per_cell']['upper'] * 1E9,
+                 color=cor['primary_blue'], lw=err_widths[g[1]])
+
+
+ax[1].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+ax[0].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+ax[0].set_ylabel('periplasmic protein density [fg / µm$^3$]', fontsize=6)
+ax[1].set_ylabel('periplasmic protein mass [fg]', fontsize=6)
+plt.savefig('/Users/gchure/Desktop/plots.pdf')

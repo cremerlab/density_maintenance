@@ -8,6 +8,7 @@ import size.analytical
 mapper = size.viz.lit_mapper()
 cor, pal = size.viz.matplotlib_style()
 err_widths = {'95%': 0.25, '75%': 1, '25%': 2.5}
+
 # Load datasets
 growth_params = pd.read_csv('../../data/mcmc/growth_parameter_percentiles.csv')
 params = pd.read_csv('../../data/mcmc/parameter_percentiles.csv')
@@ -55,7 +56,7 @@ ax[2].set_xlabel('aspect ratio', fontsize=6)
 n_rows = 5
 for i, carb in enumerate(['acetate']):
     for j, param in enumerate(['phi_M', 'width_mu', 'aspect_ratio_mu']):
-        for k, strain in enumerate(['wildtype', 'malE-rbsB-fliC-KO']):
+        for k, strain in enumerate(['wildtype', 'malE-rbsB-fliC-KO', 'lpp14']):
             samp = posts[(posts['strain'] == strain) &
                          (posts['carbon_source'] == carb) &
                          (posts['overexpression'] == 'none') &
@@ -92,8 +93,9 @@ for i, carb in enumerate(['acetate']):
                                        markerfacecolor='white', markeredgewidth=0.5, zorder=1000)
 
             else:
-                colors = {'none': 'purple', 'malE': 'green'}
-                for oe in ['none', 'malE']:
+                colors = {'none': 'purple', 'malE': 'green',
+                          'rbsB': 'gold', 'lacZ': 'black'}
+                for oe in ['none', 'malE', 'rbsB', 'lacZ']:
                     if oe == 'none':
                         ax[j].fill_between(samp['value'], (n_rows - 1) * np.ones(len(samp)), (n_rows - 1) +
                                            samp['kde'] / samp['kde'].max(),
@@ -150,10 +152,20 @@ phi_range = np.linspace(0.01, 0.10, 100)
 
 colors = {'none': 'purple', 'malE': 'green', 'rbsB': 'gold'}
 ls = ['-', '--', ':', '-.']
-for i, s in enumerate(slope):
-    theo = 0.1 - s * (0.6**-1 - width_range**-1)
-    ax.plot(width_range, theo,  ls=ls[i],
-            lw=1, color=cor['primary_blue'], zorder=1000)
+m_p = [0.005, 0.010, 0.020]
+# for i, s in enumerate(slope):
+# theo = 0.1 - s * (0.6**-1 - width_range**-1)
+# ax.plot(width_range, theo,  ls=ls[i],
+# lw=1, color=cor['primary_blue'], zorder=1000)
+rho = 1.1
+theta = 0.26
+alpha = 3.3
+ls = ['-', '--', ':', '-.']
+for i, m in enumerate(m_p):
+    pref = m * 12 / (rho * theta * np.pi * (3 * alpha - 1))
+    ax.plot(width_range, pref/width_range**3,
+            ls=ls[i], lw=1, color=cor['primary_black'])
+
 
 # Plot the mass spec data
 for g, d in mass_spec_medians.groupby(['dataset_name']):
@@ -164,15 +176,18 @@ for g, d in mass_spec_medians.groupby(['dataset_name']):
 med_params = params[(params['quantity'].isin(['width_mu', 'phi_M'])) &
                     (params['interval'] == 'median')]
 for g, d in params[(params['quantity'].isin(['width_mu', 'phi_M'])) &
-                   (params['overexpression'].isin(['none', 'malE']))].groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source',
-                                                                               'interval'], sort=False):
+                   (params['overexpression'].isin(['none', 'rbsB', 'lacZ', 'malE']))].groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source',
+                                                                                               'interval'], sort=False):
     if g[0] == 'wildtype':
         c = cor['primary_blue']
+    elif g[0] == 'lpp14':
+        c = cor['primary_red']
     else:
         c = cor[f'primary_{colors[g[1]]}']
     if g[3] == 'LB':
         continue
-
+    if len(d) < 2:
+        continue
     if g[4] == 'median':
         ax.plot(d[d['quantity'] == 'width_mu']['lower'], d[d['quantity'] == 'phi_M']['upper'],
                 marker='o', markeredgewidth=0.75, markeredgecolor=c,
@@ -195,7 +210,7 @@ for g, d in params[(params['quantity'].isin(['width_mu', 'phi_M'])) &
         ax.hlines(med_phi_M['lower'], width['lower'], width['upper'], lw=err_widths[g[-1]],
                   color=c, zorder=99)
 
-ax.set_xlim([0.6, 1])
+# ax.set_xlim([0.6, 1])
 ax.set_ylim([0.005, 0.10])
 ax.set_xlabel('average width [µm$^{-1}$]', fontsize=6)
 ax.set_ylabel('periplasmic biomass fraction', fontsize=6)
@@ -210,6 +225,14 @@ ax = ax.ravel()
 ax[0].set_ylim([0.4, 1.2])
 ax[1].set_ylim([1, 6])
 ax[2].set_ylim([1, 8])
+for a in ax:
+    a.set_xlabel('growth rate [hr$^{-1}$]',
+                 fontsize=6)
+ax[0].set_ylabel('width [µm]', fontsize=6)
+ax[1].set_ylabel('length [µm]', fontsize=6)
+ax[2].set_ylabel('aspect ratio', fontsize=6)
+ax[3].set_ylabel('surface-to-volume [µm$^{-1}$]', fontsize=6)
+
 # Plot the mass spec data
 for g, d in lit_size_data.groupby(['source']):
     ax[0].plot(d['growth_rate_hr'], d['width_um'], mapper[g]['m'],
@@ -226,15 +249,16 @@ for g, d in lit_size_data.groupby(['source']):
                alpha=0.35, ms=3)
 
 for g, d in params[(params['quantity'].isin(['surface_area_vol_mu', 'growth_mu', 'width_mu', 'length_mu', 'aspect_ratio_mu'])) &
-                   (params['overexpression'].isin(['none', 'malE']))].groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source',
-                                                                               'interval'], sort=False):
+                   (params['overexpression'].isin(['none', 'rbsB', 'lacZ', 'malE']))].groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source',
+                                                                                               'interval'], sort=False):
     if g[0] == 'wildtype':
         c = cor['primary_blue']
     else:
         c = cor[f'primary_{colors[g[1]]}']
     # if g[3] == 'LB':
         # continue
-
+    if len(d) < 5:
+        continue
     if g[4] == 'median':
 
         ax[0].plot(d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'width_mu']['upper'],
@@ -251,3 +275,67 @@ for g, d in params[(params['quantity'].isin(['surface_area_vol_mu', 'growth_mu',
                    markerfacecolor='white', ms=3, zorder=1000)
 
 # %%
+fig, ax = plt.subplots(1, 2, figsize=(6, 2))
+ax[0].set_ylim([0, 250])
+ax[1].set_ylim([0, 50])
+meds = params[params['interval'] == 'median']
+for g, d in mass_spec_medians.groupby(['dataset_name']):
+    rho_peri = d[d['quantity'] == 'mass_spec_rho_peri']
+    peri_prot = d[d['quantity'] == 'mass_spec_peri_prot_per_cell']
+    ax[0].plot(rho_peri['growth_rate_hr'], rho_peri['lower'] * 1E9, mapper[g]['m'],
+               ms=4, markerfacecolor=mapper[g]['c'], markeredgecolor='k',
+               markeredgewidth=0.5, alpha=0.3)
+    ax[1].plot(peri_prot['growth_rate_hr'], peri_prot['lower'] * 1E9, mapper[g]['m'],
+               ms=4, markerfacecolor=mapper[g]['c'], markeredgecolor=cor['primary_black'],
+               markeredgewidth=0.5, alpha=0.3)
+
+for g, d in params[(params['interval'] != 'median') &
+                   (params['quantity'].isin(['growth_mu', 'rho_peri', 'peri_prot_per_cell']))].groupby(['carbon_source', 'interval', 'strain', 'overexpression', 'inducer_conc']):
+    if len(d) < 3:
+        continue
+    if g[0] == 'LB':
+        continue
+    _lam = meds[(meds['carbon_source'] == g[0]) &
+                (meds['quantity'] == 'growth_mu') &
+                (meds['strain'] == g[2]) &
+                (meds['overexpression'] == g[3]) &
+                (meds['inducer_conc'] == g[4])]
+    _rho_peri = meds[(meds['carbon_source'] == g[0]) &
+                     (meds['quantity'] == 'rho_peri') &
+                     (meds['strain'] == g[2]) &
+                     (meds['overexpression'] == g[3]) &
+                     (meds['inducer_conc'] == g[4])]
+    _peri_prot = meds[(meds['carbon_source'] == g[0]) &
+                      (meds['quantity'] == 'peri_prot_per_cell') &
+                      (meds['strain'] == g[2]) &
+                      (meds['overexpression'] == g[3]) &
+                      (meds['inducer_conc'] == g[4])]
+
+    if g[2] == 'wildtype':
+        c = cor['primary_blue']
+    elif g[2] == 'lpp14':
+        c = cor['primary_red']
+    else:
+        c = cor[f'primary_{colors[g[3]]}']
+    ax[0].plot(_lam['lower'], _rho_peri['lower'] * 1E9, 'o',
+               markeredgecolor=c, markerfacecolor='white',
+               ms=3, markeredgewidth=1, zorder=1000)
+    ax[0].hlines(_rho_peri['lower'] * 1E9, d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'growth_mu']['upper'],
+                 color=c, lw=err_widths[g[1]])
+    ax[0].vlines(_lam['lower'], d[d['quantity'] == 'rho_peri']['lower'] * 1E9, d[d['quantity'] == 'rho_peri']['upper'] * 1E9,
+                 color=c, lw=err_widths[g[1]])
+
+    ax[1].plot(_lam['lower'], _peri_prot['lower'] * 1E9, 'o',
+               markeredgecolor=c, markerfacecolor='white',
+               ms=3, markeredgewidth=1, zorder=1000)
+    ax[1].hlines(_peri_prot['lower'] * 1E9, d[d['quantity'] == 'growth_mu']['lower'], d[d['quantity'] == 'growth_mu']['upper'],
+                 color=c, lw=err_widths[g[1]])
+    ax[1].vlines(_lam['lower'], d[d['quantity'] == 'peri_prot_per_cell']['lower'] * 1E9, d[d['quantity'] == 'peri_prot_per_cell']['upper'] * 1E9,
+                 color=c, lw=err_widths[g[1]])
+
+
+ax[1].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+ax[0].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+ax[0].set_ylabel('periplasmic protein density [fg / µm$^3$]', fontsize=6)
+ax[1].set_ylabel('periplasmic protein mass [fg]', fontsize=6)
+plt.savefig('/Users/gchure/Desktop/plots.pdf')
