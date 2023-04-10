@@ -14,6 +14,7 @@ cor, pal = size.viz.matplotlib_style()
 model = cmdstanpy.CmdStanModel(
     stan_file='./stan_models/one-shot_complete_inference.stan')
 
+
 # %%
 # ##############################################################################
 # DATASET LOADING
@@ -34,6 +35,8 @@ lit_size_data = pd.read_csv(
 mass_spec_data = pd.read_csv(
     '../../data/literature/compiled_mass_fractions.csv')
 tot_prot = pd.read_csv('../../data/literature/collated_total_protein.csv')
+
+# %%
 
 # %%
 # ##############################################################################
@@ -391,7 +394,8 @@ singular_percs.to_csv(
 # %%
 # Percentiles for mass spec data
 params = ['mass_spec_phi_M', 'mass_spec_sav', 'mass_spec_widths', 'mass_spec_rho_peri',
-          'mass_spec_peri_prot_per_cell']
+          'mass_spec_peri_prot_per_cell', 'mass_spec_sa', 'mass_spec_tot_prot',
+          'mass_spec_tot_prot_per_cell']
 
 mass_spec_data['idx'] = np.arange(len(mass_spec_data))
 mass_spec_df = pd.DataFrame([])
@@ -404,6 +408,7 @@ for i, p in enumerate(params):
     for j, (g, d) in enumerate(percs.groupby(f'{p}_dim_0')):
         d['dataset_name'] = mass_spec_data['dataset_name'].values[j]
         d['growth_rate_hr'] = mass_spec_data['growth_rate_hr'].values[j]
+        d['condition'] = mass_spec_data['condition'].values[j]
         d.drop(columns=f'{p}_dim_0', inplace=True)
         mass_spec_df = pd.concat([mass_spec_df, d], sort=False)
 mass_spec_df.to_csv('../../data/mcmc/mass_spec_percentiles.csv', index=False)

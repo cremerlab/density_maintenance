@@ -23,6 +23,7 @@ def load_markercolors():
     """
     colors, _ = get_colors()
     mapper = {
+        'Caglar et al. 2017': {'m': '^', }
         'Bremer & Dennis, 2008': {'m': 'X', 'm_bokeh': 'circle_dot'},
         'Brunschede et al., 1977': {'m': 's', 'm_bokeh': 'square'},
         'Dai et al., 2016': {'m': 'o',  'm_bokeh': 'circle'},

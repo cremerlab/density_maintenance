@@ -183,7 +183,9 @@ transformed parameters {
     vector<lower=0>[N_mass_spec] mass_spec_N_cells = 1E9 ./ (flow_slope .* mass_spec_vol);
     vector<lower=0>[N_mass_spec] mass_spec_peri_vol = pi() .* mass_spec_widths .* mass_spec_lengths .* 0.024;
     vector<lower=0>[N_mass_spec] mass_spec_sav = sav_min - sav_slope * mass_spec_growth_rate;
-    vector<lower=0>[N_mass_spec] mass_spec_tot_peri_prot = mass_fraction .* (total_protein_min + total_protein_slope .* mass_spec_growth_rate); 
+    vector<lower=0>[N_mass_spec] mass_spec_tot_prot = (total_protein_min + total_protein_slope .* mass_spec_growth_rate); 
+    vector<lower=0>[N_mass_spec] mass_spec_tot_prot_per_cell = mass_spec_tot_prot ./ mass_spec_N_cells; 
+    vector<lower=0>[N_mass_spec] mass_spec_tot_peri_prot = mass_fraction .* mass_spec_tot_prot; 
     vector<lower=0>[N_mass_spec] mass_spec_phi_M = mass_spec_tot_peri_prot ./ biomass_mu;
     vector<lower=0>[N_mass_spec] mass_spec_rho_peri = mass_spec_tot_peri_prot ./  (mass_spec_N_cells .* mass_spec_peri_vol);
     vector<lower=0>[N_mass_spec] mass_spec_peri_prot_per_cell = mass_spec_tot_peri_prot ./ mass_spec_N_cells;
