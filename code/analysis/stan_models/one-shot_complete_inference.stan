@@ -1,5 +1,4 @@
 data {
-    vector[2] delta;
     //--------------------------------------------------------------------------
     //  Bradford Assay Calibration Curve
     //--------------------------------------------------------------------------
@@ -24,7 +23,6 @@ data {
     vector<lower=0>[N_size] surface_area;
     vector<lower=0>[N_size] surface_area_volume;
     vector<lower=1>[N_size] aspect_ratio;
-    vector<lower=0>[N_size] size_delta_idx;
 
     //--------------------------------------------------------------------------
     //  Aggregated growth rates to infer minimum width and minimum length.
@@ -189,6 +187,7 @@ transformed parameters {
     vector<lower=0>[N_mass_spec] mass_spec_phi_M = mass_spec_tot_peri_prot ./ biomass_mu;
     vector<lower=0>[N_mass_spec] mass_spec_rho_peri = mass_spec_tot_peri_prot ./  (mass_spec_N_cells .* mass_spec_peri_vol);
     vector<lower=0>[N_mass_spec] mass_spec_peri_prot_per_cell = mass_spec_tot_peri_prot ./ mass_spec_N_cells;
+    vector<lower=0>[N_mass_spec] mass_spec_sa = pi() .* mass_spec_widths .* mass_spec_lengths;
 
 
 }

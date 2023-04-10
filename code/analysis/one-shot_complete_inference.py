@@ -215,7 +215,7 @@ data_dict = {
 
 # %%
 # Sample the posterior
-_samples = model.sample(data_dict, adapt_delta=0.99)  # ,
+_samples = model.sample(data_dict, adapt_delta=0.99)
 # adapt_delta=0.999, iter_sampling=2000)
 samples = az.from_cmdstanpy(_samples)
 
