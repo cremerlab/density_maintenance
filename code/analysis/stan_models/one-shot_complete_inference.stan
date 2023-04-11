@@ -69,7 +69,8 @@ data {
     //  Literature Mass Spec Measurements
     //--------------------------------------------------------------------------
     int<lower=0>N_mass_spec;
-    vector<lower=0>[N_mass_spec] mass_fraction;
+    vector<lower=0>[N_mass_spec] peri_mass_fraction;
+    vector<lower=0>[N_mass_spec] membrane_mass_fraction;
     vector<lower=0>[N_mass_spec] mass_spec_growth_rate;
 }
 
@@ -189,6 +190,7 @@ transformed parameters {
     vector<lower=0>[N_mass_spec] mass_spec_phi_M = mass_spec_tot_peri_prot ./ biomass_mu;
     vector<lower=0>[N_mass_spec] mass_spec_rho_peri = mass_spec_tot_peri_prot ./  (mass_spec_N_cells .* mass_spec_peri_vol);
     vector<lower=0>[N_mass_spec] mass_spec_peri_prot_per_cell = mass_spec_tot_peri_prot ./ mass_spec_N_cells;
+    vector<lower=0>[N_mass_spec
     vector<lower=0>[N_mass_spec] mass_spec_sa = pi() .* mass_spec_widths .* mass_spec_lengths;
 
 
