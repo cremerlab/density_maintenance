@@ -745,5 +745,7 @@ def lit_mapper():
               'Peebo et al. 2015': {'m': '*', 'c': '#363636'},
               'Schmidt et al. 2016': {'m': 'o', 'c': '#464646'},
               'Soufi et al. 2015': {'m': '8', 'c': '#848484'},
-              'Valgepea et al. 2013': {'m': 'd', 'c': '#606060'}}
+              'Valgepea et al. 2013': {'m': 'd', 'c': '#606060'},
+              'Basan et al., 2015': {'m': '>', 'c':'#909090'},
+              'Dai et al., 2016': {'m': 'o', 'c':'#606060'}}
     return mapper

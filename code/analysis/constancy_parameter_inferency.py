@@ -6,12 +6,14 @@ import corner.corner as corner
 import cmdstanpy
 import size.viz
 import arviz as az
+import imp
+imp.reload(size.viz)
 cor, pal = size.viz.matplotlib_style()
+mapper = size.viz.lit_mapper()
 
 # Compile the stan model
 model = cmdstanpy.CmdStanModel(
-    stan_file='./stan_models/constancy_parameter_inference.stan')
-
+    stan_file='./stan_models/growth_rate_dependence_inference.stan')
 
 # %%
 # Load the literature datasets
@@ -46,14 +48,16 @@ mass_spec_data.loc[mass_spec_data['go_terms'].str.contains(
 mass_spec_data.loc[mass_spec_data['go_terms'].str.contains(
     'GO:0042597'), 'classification'] = 'periplasm'
 mass_spec_data = mass_spec_data[~mass_spec_data['classification'].isnull()]
-mass_spec_data = mass_spec_data.groupby(
-    ['dataset_name', 'condition', 'growth_rate_hr', 'classification'])['mass_frac'].sum().reset_index()
-
-# Drop a bad mori point
 mass_spec_data = mass_spec_data[~((mass_spec_data['dataset_name'] == 'Mori et al. 2021') & (
     mass_spec_data['condition'] == '0.2% glucose') & (mass_spec_data['growth_rate_hr'].isin([0.56, 0.69])))]
-membrane = mass_spec_data[mass_spec_data['classification'] == 'membrane']
-periplasm = mass_spec_data[mass_spec_data['classification'] == 'periplasm']
+membrane = mass_spec_data[(mass_spec_data['classification'] == 'membrane') & (
+    mass_spec_data['periplasm'] == False)]
+periplasm = mass_spec_data[(mass_spec_data['classification'] == 'periplasm') & (
+    mass_spec_data['periplasm'] == True)]
+membrane = membrane.groupby(
+    ['dataset_name', 'condition', 'growth_rate_hr', 'classification'])['mass_frac'].sum().reset_index()
+periplasm = periplasm.groupby(
+    ['dataset_name', 'condition', 'growth_rate_hr', 'classification'])['mass_frac'].sum().reset_index()
 
 
 # %%
@@ -66,7 +70,7 @@ data_dict = {
     'N_biomass': len(biomass),
 
     'phi_peri': periplasm['mass_frac'].values.astype(float),
-    'phi_memb': membrane['mass_frac'].values.astype(float),
+    'phi_mem': membrane['mass_frac'].values.astype(float),
     'mass_spec_lambda': periplasm['growth_rate_hr'].values.astype(float),
 
     'size_lambda': lit_size_data['growth_rate_hr'].values.astype(float),
@@ -83,31 +87,93 @@ data_dict = {
 
 _samples = model.sample(data=data_dict)
 samples = az.from_cmdstanpy(_samples)
+
 # %%
-model_params = samples.posterior[[
-    'm_peri', 'rho_mem', 'alpha']].to_dataframe().reset_index()
-model_params = model_params[['m_peri', 'rho_mem', 'alpha']]
-fig = plt.figure(figsize=(3, 3))
-fig = corner(model_params, color=cor['primary_blue'], fig=fig,
-             hist_kwargs={'lw': 1}, plot_contours=False, plot_density=False, data_kwargs={'ms': 1, 'color': cor['primary_blue']})
+# model_params = samples.posterior[[
+# 'm_peri', 'rho_mem', 'alpha', 'kappa']].to_dataframe().reset_index()
+# pars = ['m_peri', 'rho_mem', 'alpha', 'kappa', 'k_m']
+pars = ['w_min', 'ell_min', 'm_min', 'k_w', 'k_ell', 'k_m']
+fig = plt.figure(figsize=(4, 4))
+fig = corner(samples, group='posterior', var_names=pars, fig=fig,
+             hist_kwargs={'lw': 1}, plot_contours=False, plot_density=False, data_kwargs={'ms': 1},
+             divergences=True, divergences_kwargs={'color': cor['primary_red'], 'ms': 1, 'markeredgewidth': 0})
 
 for a in fig.axes:
     a.grid(False)
+
+
 # %%
-mapper = size.viz.lit_mapper()
-fig, ax = plt.subplots(1, 3, figsize=(6, 2))
-ax[0].set_ylim([0.01, 0.12])
-ax[1].set_ylim([0.01, 0.20])
-ax[2].set_ylim([0, 1])
+# lam_range = np.linspace(0.05, 3, 100)
+fig, ax = plt.subplots(2, 2, figsize=(6, 4))
+ax = ax.ravel()
+ax[0].set_ylim([0.4, 1.2])
+ax[1].set_ylim([1, 7])
+ax[2].set_ylim([0, 5])
+for a in ax:
+    a.set_xlabel('growth rate [hr$^{-1}$]')
+ax[0].set_ylabel('width [µm]')
+ax[1].set_ylabel('length [µm]')
+ax[2].set_ylabel('volume [µm]')
+ax[3].set_ylabel('protein / biomass\n[µg / ODmL]')
+# ax[2].set_xlim([0, 1.75])
+# ax[2].set_ylim([275, 450])
+
+pars = ['width_rep', 'length_rep', 'volume_rep', 'prot_rep']
+for j, p in enumerate(pars):
+    post = samples.posterior[p].to_dataframe().reset_index()
+    perc = size.viz.compute_percentiles(post, p, f'{p}_dim_0')
+    if j <= 2:
+        d = lit_size_data
+    else:
+        d = total_protein_data
+    for i in range(len(d)):
+        perc.loc[perc[f'{p}_dim_0'] == i,
+                 'source'] = d['source'].values[i]
+        perc.loc[perc[f'{p}_dim_0'] == i,
+                 'growth_rate_hr'] = d['growth_rate_hr'].values[i]
+
+    for g, d in perc.groupby(['interval']):
+        d.sort_values(by='growth_rate_hr', inplace=True)
+        ax[j].fill_between(d['growth_rate_hr'], d['lower'],
+                           d['upper'], color=cor['blue'], alpha=0.1)
+
+    for g, d in lit_size_data.groupby(['source']):
+        ax[0].plot(d['growth_rate_hr'], d['width_um'], mapper[g]['m'], ms=5, markerfacecolor=mapper[g]['c'],
+                   markeredgecolor=cor['primary_black'], markeredgewidth=0.5, alpha=0.75)
+        ax[1].plot(d['growth_rate_hr'], d['length_um'], mapper[g]['m'], ms=5, markerfacecolor=mapper[g]['c'],
+                   markeredgecolor=cor['primary_black'], markeredgewidth=0.5, alpha=0.75)
+        ax[2].plot(d['growth_rate_hr'], d['volume_um3'], mapper[g]['m'], ms=5, markerfacecolor=mapper[g]['c'],
+                   markeredgecolor=cor['primary_black'], markeredgewidth=0.5, alpha=0.75)
+
+for g, d in total_protein_data.groupby('source'):
+    ax[3].plot(d['growth_rate_hr'], d['total_protein_ug_od600'], mapper[g]['m'], ms=5, markerfacecolor=mapper[g]['c'],
+               markeredgecolor=cor['primary_black'], markeredgewidth=0.5, alpha=0.75)
+
+plt.tight_layout()
+
+# %%
+fig, ax = plt.subplots(1, 3, figsize=(8, 2))
+ax[0].set_ylim([0, 30])
+ax[1].set_ylim([0, 15])
+# ax[1].set_ylim([0.01, 0.20])
+# ax[2].set_ylim([0, 1])
+
+vars = ['m_peri', 'rho_mem']
+for i, v in enumerate(vars):
+    _df = samples.posterior[f'{v}'].to_dataframe().reset_index()
+    percs = size.viz.compute_percentiles(_df, v, f'{v}_dim_0')
+    percs = percs[percs['interval'] == '10%']
+    percs['dataset_name'] = membrane['dataset_name'].values
+    percs['growth_rate_hr'] = membrane['growth_rate_hr'].values
+    for g, d in percs.groupby(['dataset_name']):
+        ax[i].plot(d['growth_rate_hr'], d['lower'], mapper[g]['m'], ms=5,
+                   color=mapper[g]['c'], alpha=0.5, markeredgecolor=cor['primary_black'],
+                   markeredgewidth=0.5)
+
+
 for g in mass_spec_data['dataset_name'].unique():
     p = periplasm[periplasm['dataset_name'] == g]
     m = membrane[membrane['dataset_name'] == g]
-    ax[0].plot(p['growth_rate_hr'].values, p['mass_frac'].values, linestyle='none', marker=mapper[g]['m'],
-               color=mapper[g]['c'], alpha=0.5, markeredgecolor=cor['primary_black'],
-               markeredgewidth=0.5)
-    ax[1].plot(m['growth_rate_hr'].values, m['mass_frac'].values, linestyle='none', marker=mapper[g]['m'],
-               color=mapper[g]['c'], alpha=0.5, markeredgecolor=cor['primary_black'],
-               markeredgewidth=0.5)
     ax[2].plot(p['growth_rate_hr'].values, p['mass_frac'].values/m['mass_frac'].values, linestyle='none', marker=mapper[g]['m'],
                color=mapper[g]['c'], alpha=0.5, markeredgecolor=cor['primary_black'],
                markeredgewidth=0.5)
