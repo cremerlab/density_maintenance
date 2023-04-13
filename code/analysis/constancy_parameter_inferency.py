@@ -50,10 +50,10 @@ mass_spec_data.loc[mass_spec_data['go_terms'].str.contains(
 mass_spec_data = mass_spec_data[~mass_spec_data['classification'].isnull()]
 mass_spec_data = mass_spec_data[~((mass_spec_data['dataset_name'] == 'Mori et al. 2021') & (
     mass_spec_data['condition'] == '0.2% glucose') & (mass_spec_data['growth_rate_hr'].isin([0.56, 0.69])))]
-membrane = mass_spec_data[(mass_spec_data['classification'] == 'membrane') & (
-    mass_spec_data['periplasm'] == False)]
-periplasm = mass_spec_data[(mass_spec_data['classification'] == 'periplasm') & (
-    mass_spec_data['periplasm'] == True)]
+membrane = mass_spec_data[(mass_spec_data['classification'] == 'membrane')]  # & (
+# mass_spec_data['periplasm'] == False)]
+periplasm = mass_spec_data[(mass_spec_data['classification'] == 'periplasm')]  # & (
+# mass_spec_data['periplasm'] == True)]
 membrane = membrane.groupby(
     ['dataset_name', 'condition', 'growth_rate_hr', 'classification'])['mass_frac'].sum().reset_index()
 periplasm = periplasm.groupby(
@@ -92,8 +92,9 @@ samples = az.from_cmdstanpy(_samples)
 # model_params = samples.posterior[[
 # 'm_peri', 'rho_mem', 'alpha', 'kappa']].to_dataframe().reset_index()
 # pars = ['m_peri', 'rho_mem', 'alpha', 'kappa', 'k_m']
-pars = ['w_min', 'ell_min', 'm_min', 'k_w', 'k_ell', 'k_m']
-fig = plt.figure(figsize=(4, 4))
+pars = ['w_min', 'alpha', 'm_min', 'k_w',
+        'k_m', 'm_peri', 'rho_mem', 'kappa']
+fig = plt.figure(figsize=(5, 5))
 fig = corner(samples, group='posterior', var_names=pars, fig=fig,
              hist_kwargs={'lw': 1}, plot_contours=False, plot_density=False, data_kwargs={'ms': 1},
              divergences=True, divergences_kwargs={'color': cor['primary_red'], 'ms': 1, 'markeredgewidth': 0})
@@ -153,27 +154,36 @@ plt.tight_layout()
 
 # %%
 fig, ax = plt.subplots(1, 3, figsize=(8, 2))
-ax[0].set_ylim([0, 30])
-ax[1].set_ylim([0, 15])
-# ax[1].set_ylim([0.01, 0.20])
-# ax[2].set_ylim([0, 1])
+ax[0].set_ylim([0, 0.25])
+# ax[1].set_ylim([0, 0.25])
+ax[2].set_ylim([0, 1])
+# ax[1].set_ylim([0, 15])
 
-vars = ['m_peri', 'rho_mem']
+vars = ['phi_mem_rep', 'phi_peri_rep', 'rel_phi_rep']
 for i, v in enumerate(vars):
     _df = samples.posterior[f'{v}'].to_dataframe().reset_index()
     percs = size.viz.compute_percentiles(_df, v, f'{v}_dim_0')
-    percs = percs[percs['interval'] == '10%']
-    percs['dataset_name'] = membrane['dataset_name'].values
-    percs['growth_rate_hr'] = membrane['growth_rate_hr'].values
-    for g, d in percs.groupby(['dataset_name']):
-        ax[i].plot(d['growth_rate_hr'], d['lower'], mapper[g]['m'], ms=5,
-                   color=mapper[g]['c'], alpha=0.5, markeredgecolor=cor['primary_black'],
-                   markeredgewidth=0.5)
+    for j, k in enumerate(membrane['growth_rate_hr'].values):
+        percs.loc[percs[f'{v}_dim_0'] == j, 'growth_rate_hr'] = k
+    for g, d in percs.groupby(['interval'], sort=False):
+        d.sort_values(by='growth_rate_hr', inplace=True)
+        ax[i].fill_between(d['growth_rate_hr'], d['lower'],
+                           d['upper'], alpha=0.2, color=cor['blue'])
+
+# kappa_df = samples.posterior.kappa.to_dataframe().reset_index()
+# kappa_df['idx'] = 1
+# percs = size.viz.compute_percentiles(kappa_df, 'kappa', 'idx')
 
 
 for g in mass_spec_data['dataset_name'].unique():
     p = periplasm[periplasm['dataset_name'] == g]
     m = membrane[membrane['dataset_name'] == g]
+    ax[0].plot(p['growth_rate_hr'].values, m['mass_frac'].values, linestyle='none', marker=mapper[g]['m'],
+               color=mapper[g]['c'], alpha=0.5, markeredgecolor=cor['primary_black'],
+               markeredgewidth=0.5)
+    ax[1].plot(p['growth_rate_hr'].values, p['mass_frac'].values, linestyle='none', marker=mapper[g]['m'],
+               color=mapper[g]['c'], alpha=0.5, markeredgecolor=cor['primary_black'],
+               markeredgewidth=0.5)
     ax[2].plot(p['growth_rate_hr'].values, p['mass_frac'].values/m['mass_frac'].values, linestyle='none', marker=mapper[g]['m'],
                color=mapper[g]['c'], alpha=0.5, markeredgecolor=cor['primary_black'],
                markeredgewidth=0.5)

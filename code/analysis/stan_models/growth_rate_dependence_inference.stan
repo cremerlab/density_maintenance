@@ -33,14 +33,15 @@ transformed data {
 }
 
 parameters { 
+    real<lower=1> alpha;
     real<lower=0> m_peri;
     real<lower=0> rho_mem;
     real<lower=0> phi_mem_sigma;
     real<lower=0> phi_peri_sigma; 
     real<lower=0> w_min;
-    real<lower=0> ell_min;
+    // real<lower=0> ell_min;
     real<lower=0> k_w;
-    real<lower=0> k_ell;
+    // real<lower=0> k_ell;
     real<lower=0> w_sigma;
     real<lower=0> ell_sigma;
     real<lower=0> m_min;
@@ -60,45 +61,47 @@ parameters {
 }
 
 transformed parameters { 
+    real<lower=0> kappa = m_peri / (alpha * rho_mem);
     real<lower=0> biomass_mu = biomass_centered_mu * sd(biomass) + mean(biomass);
     real<lower=0> flow_slope = flow_prefactor * biomass_mu;
     vector<lower=0>[N_flow] flow_width = w_min + k_w .* flow_lambda;
-    vector<lower=0>[N_flow] flow_length = ell_min + k_ell .* flow_lambda;
+    vector<lower=0>[N_flow] flow_length = alpha .* (flow_width); //ell_min + k_ell .* flow_lambda;
     vector<lower=0>[N_flow] flow_volume = (pi()/12) * flow_width.^2 .* (3 * flow_length - flow_width);
     vector<lower=0>[N_flow] flow_mu = (flow_slope .* flow_volume); 
     vector<lower=0>[N_prot] prot_width = w_min + k_w .* prot_lambda;
-    vector<lower=0>[N_prot] prot_length = ell_min + k_ell .* prot_lambda;
+    vector<lower=0>[N_prot] prot_length = alpha .* prot_width; //ell_min + k_ell .* prot_lambda;
     vector<lower=0>[N_prot] prot_volume = (pi()/12) .* prot_width.^2 .* (3 .* prot_length - prot_width);
     vector<lower=0>[N_mass_spec] ms_width = w_min + k_w .* mass_spec_lambda;
-    vector<lower=0>[N_mass_spec] ms_length = ell_min + k_ell .* mass_spec_lambda;
+    vector<lower=0>[N_mass_spec] ms_length = alpha .* ms_width; //ell_min + k_ell .* mass_spec_lambda;
     vector<lower=0>[N_mass_spec] ms_volume = (pi() / 12) .* ms_width^2 .* (3 .* ms_length - ms_width);
 }
 
 model { 
+    alpha ~ normal(1, 2);
     phi_peri_sigma ~ std_normal();
     phi_mem_sigma ~ std_normal();
     rho_mem ~ normal(0, 10);
     m_peri ~ normal(0, 10);
     flow_prefactor ~ std_normal();    
     w_min ~ std_normal();
-    ell_min ~ normal(0, 2);
+    // ell_min ~ normal(0, 2);
     m_min ~ normal(0, 200);
     k_w ~ std_normal();
-    k_ell ~ std_normal();
+    // k_ell ~ std_normal();
     k_m ~ normal(100, 50);
     biomass_centered_mu ~ std_normal();
     biomass_sigma ~ std_normal();
     w_sigma ~ std_normal();
-    ell_sigma ~ std_normal();
+    // ell_sigma ~ std_normal();
     m_sigma ~ std_normal();
 
     width ~ normal(w_min + k_w * size_lambda, w_sigma);
-    length ~ normal(ell_min + k_ell * size_lambda, ell_sigma);
+    length ~ normal(alpha .* (w_min + k_w * size_lambda), ell_sigma);//ell_min + k_ell * size_lambda, ell_sigma);
     prot_meas ~ normal((m_min + k_m .* prot_volume)./(flow_slope .* prot_volume), m_sigma);
     flow_meas./1E9 ~ normal(1/flow_mu, flow_sigma);
     biomass_centered ~ normal(biomass_centered_mu, biomass_sigma);
     phi_peri ~ normal(m_peri ./ (ms_volume .* k_m), phi_peri_sigma);
-    phi_mem ~ normal(rho_mem .* pi() .* ms_length .* ms_width ./ (ms_volume .* k_m), phi_mem_sigma);
+    phi_mem ~ normal(rho_mem .* pi() .* alpha .* ms_width.^2 ./ (ms_volume .* k_m), phi_mem_sigma);
 
 }
 
@@ -109,9 +112,12 @@ generated quantities {
     vector[N_prot] prot_rep;
     vector[N_mass_spec] rho_mem_rep;
     vector[N_mass_spec] m_peri_rep;
+    vector[N_mass_spec] phi_peri_rep;
+    vector[N_mass_spec] phi_mem_rep;
+    vector[N_mass_spec] rel_phi_rep;
     for (i in 1:N_size) {
         width_rep[i] = normal_rng(w_min + k_w * size_lambda[i], w_sigma);
-        length_rep[i] = normal_rng(ell_min + k_ell * size_lambda[i], ell_sigma);
+        length_rep[i] = normal_rng(alpha * (w_min + k_w * size_lambda[i]), ell_sigma);
         volume_rep[i] = (pi()/12) * width_rep[i]^2 * (3 * length_rep[i] - width_rep[i]);
     }
     for (i in 1:N_prot) {
@@ -121,5 +127,8 @@ generated quantities {
     for (i in 1:N_mass_spec) {
         m_peri_rep[i] = phi_peri[i] * k_m * ms_volume[i];
         rho_mem_rep[i] = phi_mem[i] * k_m * ms_volume[i] / (pi() * ms_width[i] * ms_length[i]);
+        phi_peri_rep[i] = normal_rng(m_peri / (ms_volume[i] * k_m), phi_peri_sigma);
+        phi_mem_rep[i] = normal_rng(rho_mem * pi() * alpha * ms_width[i]^2 / (ms_volume[i] * k_m), phi_mem_sigma);
+        rel_phi_rep[i] = phi_peri_rep[i] / phi_mem_rep[i];
     }
 }
