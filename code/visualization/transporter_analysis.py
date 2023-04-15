@@ -11,6 +11,7 @@ mass_spec_data = pd.read_csv(
     '../../data/literature/compiled_mass_fractions.csv')
 mass_spec_data
 
+
 # %%
 # Envelope proteins
 periplasmic = mass_spec_data[mass_spec_data['periplasm'] == True]

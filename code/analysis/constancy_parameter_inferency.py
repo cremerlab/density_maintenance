@@ -63,6 +63,7 @@ periplasm = periplasm.groupby(
 # %%
 # Assemble the data dictionary
 data_dict = {
+    'const_phi_mem': 1,
     'N_mass_spec': len(membrane),
     'N_size': len(lit_size_data),
     'N_flow': len(flow_data),
@@ -92,8 +93,9 @@ samples = az.from_cmdstanpy(_samples)
 # model_params = samples.posterior[[
 # 'm_peri', 'rho_mem', 'alpha', 'kappa']].to_dataframe().reset_index()
 # pars = ['m_peri', 'rho_mem', 'alpha', 'kappa', 'k_m']
+
 pars = ['w_min', 'alpha', 'm_min', 'k_w',
-        'k_m', 'm_peri', 'rho_mem', 'kappa']
+        'k_m', 'm_peri', 'phi_mem_mu']
 fig = plt.figure(figsize=(5, 5))
 fig = corner(samples, group='posterior', var_names=pars, fig=fig,
              hist_kwargs={'lw': 1}, plot_contours=False, plot_density=False, data_kwargs={'ms': 1},
@@ -187,3 +189,9 @@ for g in mass_spec_data['dataset_name'].unique():
     ax[2].plot(p['growth_rate_hr'].values, p['mass_frac'].values/m['mass_frac'].values, linestyle='none', marker=mapper[g]['m'],
                color=mapper[g]['c'], alpha=0.5, markeredgecolor=cor['primary_black'],
                markeredgewidth=0.5)
+
+for a in ax:
+    a.set_xlabel('growth rate [hr$^{-1}$]')
+ax[0].set_ylabel('membrane protein mass fraction')
+ax[1].set_ylabel('periplasmic protein mass fraction')
+ax[2].set_ylabel('relative mass fraction')
