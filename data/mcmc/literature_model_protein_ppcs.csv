@@ -1,0 +1,7 @@
+lower,upper,quantity,interval,idx
+-33.54233749999999,616.7779249999999,prot_per_cell_rep,95%,1
+50.9240625,398.179625,prot_per_cell_rep,75%,1
+102.12975,289.2205,prot_per_cell_rep,50%,1
+142.717375,228.033125,prot_per_cell_rep,25%,1
+166.45755,199.366,prot_per_cell_rep,10%,1
+182.31150000000002,182.31150000000002,prot_per_cell_rep,median,1

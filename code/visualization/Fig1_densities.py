@@ -14,6 +14,7 @@ prot_data = pd.read_csv('../../data/literature/collated_protein_per_cell.csv')
 mass_spec = pd.read_csv('../../data/literature/compiled_mass_fractions.csv')
 delta = 0.0249
 
+
 # %%
 # Perform regressions
 sav_popt = scipy.stats.linregress(
@@ -103,3 +104,17 @@ ax[0].set_ylabel('membrane protein density\n[fg / µm$^2$]', fontsize=6)
 ax[1].set_ylabel('periplasm protein density\n[fg / µm$^3$]', fontsize=6)
 plt.tight_layout()
 plt.savefig('../../figures/Fig1_empirical_densities.pdf')
+
+# %%
+prot_data['volume'] = np.exp(
+    vol_popt[1] + vol_popt[0] * prot_data['growth_rate_hr'])
+prot_data['density'] = prot_data['fg_protein_per_cell'].values / \
+    prot_data['volume']
+
+fig, ax = plt.subplots(1, 1, figsize=(2, 1.5))
+for g, d in prot_data.groupby(['source']):
+    ax.plot(d['growth_rate_hr'], d['density'], mapper[g]['m'],
+            color=mapper[g]['c'], markeredgecolor=cor['primary_black'],
+            alpha=0.5, ms=4)
+
+ax.set_ylim([0, 400])
