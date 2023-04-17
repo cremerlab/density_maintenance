@@ -746,6 +746,10 @@ def lit_mapper():
               'Schmidt et al. 2016': {'m': 'o', 'c': '#464646'},
               'Soufi et al. 2015': {'m': '8', 'c': '#848484'},
               'Valgepea et al. 2013': {'m': 'd', 'c': '#606060'},
-              'Basan et al., 2015': {'m': '>', 'c':'#909090'},
-              'Dai et al., 2016': {'m': 'o', 'c':'#606060'}}
+              'Basan et al. 2015': {'m': '^', 'c': '#909090'},
+              'Dai et al. 2016': {'m': 'o', 'c': '#606060'},
+              'Bremer & Dennis 2008':  {'m': 'o', 'c': '#dfdfdf'},
+              'Churchward et al. 1982': {'m': '>', 'c': '#848484'},
+              'Neidhardt et al. 1992': {'m': 'v', 'c': '#464646'},
+              'Wright & Lockhart 1964': {'m': '<', 'c': '#909090'}}
     return mapper

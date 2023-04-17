@@ -1,0 +1,34 @@
+growth_rate_hr,fg_protein_per_cell,source,notes
+1.270,399.7,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD
+0.980,311.2,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD
+0.700,221.9,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD
+0.450,221.1,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD
+0.420,201.5,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD
+1.040,156.0,Neidhardt et al. 1992,From Bionumber BNID
+0.416,136.0,Bremer & Dennis 2008,From table 1
+0.693,214.0,Bremer & Dennis 2008,From table 1
+1.040,295.0,Bremer & Dennis 2008,From table 1
+1.386,387.0,Bremer & Dennis 2008,From table 1
+1.733,431.0,Bremer & Dennis 2008,From table 1
+2.079,426.0,Bremer & Dennis 2008,From table 1
+0.091,67.7,Wright & Lockhart 1964,Digitized from Fig. 1
+0.233,126.2,Wright & Lockhart 1964,Digitized from Fig. 1
+0.383,160.6,Wright & Lockhart 1964,Digitized from Fig. 1
+0.502,257.0,Wright & Lockhart 1964,Digitized from Fig. 1
+0.094,80.4,Wright & Lockhart 1964,Digitized from Fig. 1
+0.232,118.8,Wright & Lockhart 1964,Digitized from Fig. 1
+0.381,149.5,Wright & Lockhart 1964,Digitized from Fig. 1
+0.502,203.3,Wright & Lockhart 1964,Digitized from Fig. 1
+0.096,118.8,Wright & Lockhart 1964,Digitized from Fig. 1
+0.097,110.5,Wright & Lockhart 1964,Digitized from Fig. 1
+0.232,184.9,Wright & Lockhart 1964,Digitized from Fig. 1
+0.235,151.1,Wright & Lockhart 1964,Digitized from Fig. 1
+0.382,269.5,Wright & Lockhart 1964,Digitized from Fig. 1
+0.382,226.2,Wright & Lockhart 1964,Digitized from Fig. 1
+0.503,417.1,Wright & Lockhart 1964,Digitized from Fig. 1
+0.502,327.8,Wright & Lockhart 1964,Digitized from Fig. 1
+0.416,101.0,Churchward et al. 1982,From Table 1
+0.693,140.0,Churchward et al. 1982,From Table 1
+1.040,246.0,Churchward et al. 1982,From Table 1
+1.386,417.0,Churchward et al. 1982,From Table 1
+1.733,474.0,Churchward et al. 1982,From Table 1

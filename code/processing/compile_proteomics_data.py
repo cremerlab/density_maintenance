@@ -13,6 +13,7 @@ for g, d in data.groupby(['dataset_name', 'condition', 'growth_rate_hr']):
     if np.round(d['mass_frac'].sum(), decimals=3) == 1.0:
         dfs.append(d)
 data = pd.concat(dfs, sort=False)
+
 data.drop(columns=['cog_desc', 'cog_category', 'gene_product', 'annotation', 'dataset'],
           inplace=True)
 
@@ -42,8 +43,11 @@ for g, _ in tqdm.tqdm(babu.groupby(['name', 'b_number', 'localization'])):
 
 data.loc[data['cog_letter'].isin(
     ['C', 'E', 'F', 'G', 'H', 'I', 'P', 'Q']), 'metabolism'] = True
-data.loc[data['go_terms'].str.contains('GO:0005840'), 'ribosomal'] = True
+data.loc[data['cog_letter'].isin(['J']), 'ribosomal'] = True
+data = data[data['dataset_name'] != 'Valgepea et al. 2013']
 data.to_csv('../../data/literature/compiled_mass_fractions.csv', index=False)
+
+# %%
 
 # %%
 
