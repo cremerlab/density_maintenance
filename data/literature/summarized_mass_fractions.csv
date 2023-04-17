@@ -1,0 +1,385 @@
+,dataset_name,condition,growth_rate_hr,mass_frac,localization
+0,Caglar et al. 2017,gluconate_growth,0.6630116912775283,0.13322781790893765,envelope
+1,Caglar et al. 2017,glucose_time_course,0.7747553284413429,0.14663997845057447,envelope
+2,Li et al. 2014,MOPS complete,1.934364224818452,0.16826405887305204,envelope
+3,Li et al. 2014,MOPS complete without methionine,1.5693898427772346,0.16101724073262166,envelope
+4,Li et al. 2014,MOPS minimal,0.738700370046123,0.21717054728335528,envelope
+5,Mori et al. 2021,0.2% galactose,0.4892803627481966,0.23338688879244,envelope
+6,Mori et al. 2021,0.2% glucose,0.33,0.24804102991002,envelope
+7,Mori et al. 2021,0.2% glucose,0.34,0.24230360039096,envelope
+8,Mori et al. 2021,0.2% glucose,0.35,0.24681558636372,envelope
+9,Mori et al. 2021,0.2% glucose,0.48,0.22663002005363,envelope
+10,Mori et al. 2021,0.2% glucose,0.49,0.2269320811053,envelope
+11,Mori et al. 2021,0.2% glucose,0.5,0.22152458646367001,envelope
+12,Mori et al. 2021,0.2% glucose,0.55,0.23018640067693,envelope
+13,Mori et al. 2021,0.2% glucose,0.71,0.20310830419317,envelope
+14,Mori et al. 2021,0.2% glucose,0.72,0.19952105528083,envelope
+15,Mori et al. 2021,0.2% glucose,0.81,0.18172921049939,envelope
+16,Mori et al. 2021,0.2% melibiose,0.6817841120261757,0.19629321736535,envelope
+17,Mori et al. 2021,0.4% sodium acetate,0.5010702510071894,0.18884522863916,envelope
+18,Mori et al. 2021,10 mM glucose-6-phosphate + 10 mM gluconate,1.1240224549620734,0.17482136866429998,envelope
+19,Mori et al. 2021,12 mM arabinose,0.8487516496652392,0.18129397279344,envelope
+20,Mori et al. 2021,20 mM mannitol,0.9041050181216675,0.19047898371441999,envelope
+21,Mori et al. 2021,24 mM xylose + 20 mM oxaloacetate,0.8317766166719343,0.1904770883244,envelope
+22,Mori et al. 2021,40 mM glycerol + 30 mM succinate,0.7701635339554948,0.19555889994974,envelope
+23,Peebo et al. 2015,glucose_minimal,0.21,0.20084380375643873,envelope
+24,Peebo et al. 2015,glucose_minimal,0.22,0.19101276597316688,envelope
+25,Peebo et al. 2015,glucose_minimal,0.26,0.18839636207543622,envelope
+26,Peebo et al. 2015,glucose_minimal,0.31,0.1936565644326309,envelope
+27,Peebo et al. 2015,glucose_minimal,0.36,0.1800168877626454,envelope
+28,Peebo et al. 2015,glucose_minimal,0.41,0.17673865373785355,envelope
+29,Peebo et al. 2015,glucose_minimal,0.46,0.1676464226822746,envelope
+30,Peebo et al. 2015,glucose_minimal,0.51,0.16441221670386205,envelope
+31,Peebo et al. 2015,rich,0.25,0.18663956595909634,envelope
+32,Peebo et al. 2015,rich,0.35,0.18542373934421408,envelope
+33,Peebo et al. 2015,rich,0.42,0.18633321956880253,envelope
+34,Peebo et al. 2015,rich,0.45,0.1759630790615448,envelope
+35,Peebo et al. 2015,rich,0.53,0.1704107338073233,envelope
+36,Peebo et al. 2015,rich,0.55,0.16047082115978756,envelope
+37,Peebo et al. 2015,rich,0.63,0.17176732468128247,envelope
+38,Peebo et al. 2015,rich,0.65,0.16243157977294348,envelope
+39,Peebo et al. 2015,rich,0.73,0.18915614534944988,envelope
+40,Peebo et al. 2015,rich,0.74,0.16653139989989996,envelope
+41,Peebo et al. 2015,rich,0.78,0.1529636589984576,envelope
+42,Peebo et al. 2015,rich,0.82,0.13963178784810626,envelope
+43,Schmidt et al. 2016,42C,0.66,0.13413143159927662,envelope
+44,Schmidt et al. 2016,acetate,0.3,0.14831230974241297,envelope
+45,Schmidt et al. 2016,chemostat_u0.12,0.12,0.1865517633702892,envelope
+46,Schmidt et al. 2016,chemostat_u0.2,0.2,0.18870204213454303,envelope
+47,Schmidt et al. 2016,chemostat_u0.35,0.35,0.18794300174017184,envelope
+48,Schmidt et al. 2016,chemostat_u0.5,0.5,0.1675991639258656,envelope
+49,Schmidt et al. 2016,fructose,0.65,0.13876823201930621,envelope
+50,Schmidt et al. 2016,fumarate,0.42,0.16754993646074806,envelope
+51,Schmidt et al. 2016,galactose,0.26,0.186276208496561,envelope
+52,Schmidt et al. 2016,glucosamine,0.46,0.17058505478188316,envelope
+53,Schmidt et al. 2016,glucose,0.58,0.14409039801276302,envelope
+54,Schmidt et al. 2016,glycerol,0.47,0.16061403547095704,envelope
+55,Schmidt et al. 2016,glycerol_pAA,1.27,0.14459295699403368,envelope
+56,Schmidt et al. 2016,lb_miller,1.9,0.11952030801648858,envelope
+57,Schmidt et al. 2016,mannose,0.47,0.15963538785358836,envelope
+58,Schmidt et al. 2016,osmotic_stress_glucose,0.55,0.17530878617394297,envelope
+59,Schmidt et al. 2016,pH6,0.63,0.17572116234656746,envelope
+60,Schmidt et al. 2016,pyruvate,0.4,0.1587727363346071,envelope
+61,Schmidt et al. 2016,succinate,0.44,0.1595651063829665,envelope
+62,Schmidt et al. 2016,xylose,0.55,0.14412416155754915,envelope
+63,Soufi et al. 2015,M9_glucose,0.6931471805599453,0.17295653716034548,envelope
+0,Caglar et al. 2017,gluconate_growth,0.6630116912775283,0.08132261682034266,membrane
+1,Caglar et al. 2017,glucose_time_course,0.7747553284413429,0.10072106490199408,membrane
+2,Li et al. 2014,MOPS complete,1.934364224818452,0.15103977979838187,membrane
+3,Li et al. 2014,MOPS complete without methionine,1.5693898427772346,0.12466688964200756,membrane
+4,Li et al. 2014,MOPS minimal,0.738700370046123,0.16594110621261338,membrane
+5,Mori et al. 2021,0.2% galactose,0.4892803627481966,0.16412220161744,membrane
+6,Mori et al. 2021,0.2% glucose,0.33,0.17642914863102,membrane
+7,Mori et al. 2021,0.2% glucose,0.34,0.17131461552096,membrane
+8,Mori et al. 2021,0.2% glucose,0.35,0.17452923982772,membrane
+9,Mori et al. 2021,0.2% glucose,0.48,0.16133824913263,membrane
+10,Mori et al. 2021,0.2% glucose,0.49,0.1625203921923,membrane
+11,Mori et al. 2021,0.2% glucose,0.5,0.15774242709767,membrane
+12,Mori et al. 2021,0.2% glucose,0.55,0.16454646379693,membrane
+13,Mori et al. 2021,0.2% glucose,0.71,0.15065882445217002,membrane
+14,Mori et al. 2021,0.2% glucose,0.72,0.14982185639583,membrane
+15,Mori et al. 2021,0.2% glucose,0.81,0.14229784664588999,membrane
+16,Mori et al. 2021,0.2% melibiose,0.6817841120261757,0.15242982354134998,membrane
+17,Mori et al. 2021,0.4% sodium acetate,0.5010702510071894,0.14187790838376,membrane
+18,Mori et al. 2021,10 mM glucose-6-phosphate + 10 mM gluconate,1.1240224549620734,0.1458043541363,membrane
+19,Mori et al. 2021,12 mM arabinose,0.8487516496652392,0.14678147349744,membrane
+20,Mori et al. 2021,20 mM mannitol,0.9041050181216675,0.15496324730082,membrane
+21,Mori et al. 2021,24 mM xylose + 20 mM oxaloacetate,0.8317766166719343,0.1542370110801,membrane
+22,Mori et al. 2021,40 mM glycerol + 30 mM succinate,0.7701635339554948,0.15749447646394,membrane
+23,Peebo et al. 2015,glucose_minimal,0.21,0.12374978779509299,membrane
+24,Peebo et al. 2015,glucose_minimal,0.22,0.12160922570961316,membrane
+25,Peebo et al. 2015,glucose_minimal,0.26,0.12241745702563787,membrane
+26,Peebo et al. 2015,glucose_minimal,0.31,0.1243827551032543,membrane
+27,Peebo et al. 2015,glucose_minimal,0.36,0.12437941051626719,membrane
+28,Peebo et al. 2015,glucose_minimal,0.41,0.12818661552176291,membrane
+29,Peebo et al. 2015,glucose_minimal,0.46,0.12709119319980933,membrane
+30,Peebo et al. 2015,glucose_minimal,0.51,0.12912803988295565,membrane
+31,Peebo et al. 2015,rich,0.25,0.11353876093548615,membrane
+32,Peebo et al. 2015,rich,0.35,0.11181597353803158,membrane
+33,Peebo et al. 2015,rich,0.42,0.10999760771857875,membrane
+34,Peebo et al. 2015,rich,0.45,0.11070094539946791,membrane
+35,Peebo et al. 2015,rich,0.53,0.11381160899349262,membrane
+36,Peebo et al. 2015,rich,0.55,0.10796852019202459,membrane
+37,Peebo et al. 2015,rich,0.63,0.11183656200642403,membrane
+38,Peebo et al. 2015,rich,0.65,0.11140930803615494,membrane
+39,Peebo et al. 2015,rich,0.73,0.11209547997589107,membrane
+40,Peebo et al. 2015,rich,0.74,0.1190090297662885,membrane
+41,Peebo et al. 2015,rich,0.78,0.11466641544290816,membrane
+42,Peebo et al. 2015,rich,0.82,0.1242421986022009,membrane
+43,Schmidt et al. 2016,42C,0.66,0.09430700643325057,membrane
+44,Schmidt et al. 2016,acetate,0.3,0.09276600686966248,membrane
+45,Schmidt et al. 2016,chemostat_u0.12,0.12,0.112081877591377,membrane
+46,Schmidt et al. 2016,chemostat_u0.2,0.2,0.1114971687868028,membrane
+47,Schmidt et al. 2016,chemostat_u0.35,0.35,0.1140154834892743,membrane
+48,Schmidt et al. 2016,chemostat_u0.5,0.5,0.11112037145939208,membrane
+49,Schmidt et al. 2016,fructose,0.65,0.09204101438004003,membrane
+50,Schmidt et al. 2016,fumarate,0.42,0.09874589157892129,membrane
+51,Schmidt et al. 2016,galactose,0.26,0.09615828793297267,membrane
+52,Schmidt et al. 2016,glucosamine,0.46,0.1104392470279589,membrane
+53,Schmidt et al. 2016,glucose,0.58,0.09904921939472189,membrane
+54,Schmidt et al. 2016,glycerol,0.47,0.10175672720615996,membrane
+55,Schmidt et al. 2016,glycerol_pAA,1.27,0.09902820951036496,membrane
+56,Schmidt et al. 2016,lb_miller,1.9,0.08947023374600273,membrane
+57,Schmidt et al. 2016,mannose,0.47,0.09119443795621537,membrane
+58,Schmidt et al. 2016,osmotic_stress_glucose,0.55,0.11981744784013958,membrane
+59,Schmidt et al. 2016,pH6,0.63,0.11557892157064692,membrane
+60,Schmidt et al. 2016,pyruvate,0.4,0.09647556116025383,membrane
+61,Schmidt et al. 2016,succinate,0.44,0.09500247648175032,membrane
+62,Schmidt et al. 2016,xylose,0.55,0.10273997466524085,membrane
+63,Soufi et al. 2015,M9_glucose,0.6931471805599453,0.1104328378276898,membrane
+0,Caglar et al. 2017,gluconate_growth,0.6630116912775283,0.049068300420016295,periplasm
+1,Caglar et al. 2017,glucose_time_course,0.7747553284413429,0.042032515226163164,periplasm
+2,Li et al. 2014,MOPS complete,1.934364224818452,0.01653481202212109,periplasm
+3,Li et al. 2014,MOPS complete without methionine,1.5693898427772346,0.0362554848700285,periplasm
+4,Li et al. 2014,MOPS minimal,0.738700370046123,0.05018760545328572,periplasm
+5,Mori et al. 2021,0.2% galactose,0.4892803627481966,0.067803231175,periplasm
+6,Mori et al. 2021,0.2% glucose,0.33,0.070244995179,periplasm
+7,Mori et al. 2021,0.2% glucose,0.34,0.06966393387,periplasm
+8,Mori et al. 2021,0.2% glucose,0.35,0.070910308236,periplasm
+9,Mori et al. 2021,0.2% glucose,0.48,0.063867275121,periplasm
+10,Mori et al. 2021,0.2% glucose,0.49,0.063087734413,periplasm
+11,Mori et al. 2021,0.2% glucose,0.5,0.062474896066,periplasm
+12,Mori et al. 2021,0.2% glucose,0.55,0.06427014343,periplasm
+13,Mori et al. 2021,0.2% glucose,0.71,0.051208079081,periplasm
+14,Mori et al. 2021,0.2% glucose,0.72,0.048500697045,periplasm
+15,Mori et al. 2021,0.2% glucose,0.81,0.0384376480035,periplasm
+16,Mori et al. 2021,0.2% melibiose,0.6817841120261757,0.043709610511,periplasm
+17,Mori et al. 2021,0.4% sodium acetate,0.5010702510071894,0.0462737316954,periplasm
+18,Mori et al. 2021,10 mM glucose-6-phosphate + 10 mM gluconate,1.1240224549620734,0.028950269504,periplasm
+19,Mori et al. 2021,12 mM arabinose,0.8487516496652392,0.033663216546,periplasm
+20,Mori et al. 2021,20 mM mannitol,0.9041050181216675,0.0347904335236,periplasm
+21,Mori et al. 2021,24 mM xylose + 20 mM oxaloacetate,0.8317766166719343,0.0355681586043,periplasm
+22,Mori et al. 2021,40 mM glycerol + 30 mM succinate,0.7701635339554948,0.0371338121858,periplasm
+23,Peebo et al. 2015,glucose_minimal,0.21,0.07705011883452972,periplasm
+24,Peebo et al. 2015,glucose_minimal,0.22,0.06936403481407553,periplasm
+25,Peebo et al. 2015,glucose_minimal,0.26,0.06592788719167736,periplasm
+26,Peebo et al. 2015,glucose_minimal,0.31,0.06924299933136331,periplasm
+27,Peebo et al. 2015,glucose_minimal,0.36,0.055610198565723586,periplasm
+28,Peebo et al. 2015,glucose_minimal,0.41,0.04852873395705379,periplasm
+29,Peebo et al. 2015,glucose_minimal,0.46,0.040534077207431705,periplasm
+30,Peebo et al. 2015,glucose_minimal,0.51,0.035258914607848066,periplasm
+31,Peebo et al. 2015,rich,0.25,0.07307939038507832,periplasm
+32,Peebo et al. 2015,rich,0.35,0.0736077658061825,periplasm
+33,Peebo et al. 2015,rich,0.42,0.07627753692165803,periplasm
+34,Peebo et al. 2015,rich,0.45,0.06523655412504445,periplasm
+35,Peebo et al. 2015,rich,0.53,0.05655180656169783,periplasm
+36,Peebo et al. 2015,rich,0.55,0.05250230096776297,periplasm
+37,Peebo et al. 2015,rich,0.63,0.059882858328133524,periplasm
+38,Peebo et al. 2015,rich,0.65,0.05100810553515231,periplasm
+39,Peebo et al. 2015,rich,0.73,0.07702865688057335,periplasm
+40,Peebo et al. 2015,rich,0.74,0.047522370133611457,periplasm
+41,Peebo et al. 2015,rich,0.78,0.038282773417496634,periplasm
+42,Peebo et al. 2015,rich,0.82,0.0153760387281632,periplasm
+43,Schmidt et al. 2016,42C,0.66,0.03971796533430503,periplasm
+44,Schmidt et al. 2016,acetate,0.3,0.05538786573621308,periplasm
+45,Schmidt et al. 2016,chemostat_u0.12,0.12,0.07431096287895689,periplasm
+46,Schmidt et al. 2016,chemostat_u0.2,0.2,0.07700345808799013,periplasm
+47,Schmidt et al. 2016,chemostat_u0.35,0.35,0.07373853820334386,periplasm
+48,Schmidt et al. 2016,chemostat_u0.5,0.5,0.056296094218405215,periplasm
+49,Schmidt et al. 2016,fructose,0.65,0.046630276454636174,periplasm
+50,Schmidt et al. 2016,fumarate,0.42,0.06859614598155506,periplasm
+51,Schmidt et al. 2016,galactose,0.26,0.0899364174430121,periplasm
+52,Schmidt et al. 2016,glucosamine,0.46,0.05997325568642546,periplasm
+53,Schmidt et al. 2016,glucose,0.58,0.044889269878490526,periplasm
+54,Schmidt et al. 2016,glycerol,0.47,0.05869051550748818,periplasm
+55,Schmidt et al. 2016,glycerol_pAA,1.27,0.045427521409443124,periplasm
+56,Schmidt et al. 2016,lb_miller,1.9,0.029999984120638715,periplasm
+57,Schmidt et al. 2016,mannose,0.47,0.06825410764295793,periplasm
+58,Schmidt et al. 2016,osmotic_stress_glucose,0.55,0.055240893870829595,periplasm
+59,Schmidt et al. 2016,pH6,0.63,0.0600039994358269,periplasm
+60,Schmidt et al. 2016,pyruvate,0.4,0.06219582782999681,periplasm
+61,Schmidt et al. 2016,succinate,0.44,0.06440315142883456,periplasm
+62,Schmidt et al. 2016,xylose,0.55,0.04128743284077216,periplasm
+63,Soufi et al. 2015,M9_glucose,0.6931471805599453,0.062427317792849164,periplasm
+0,Caglar et al. 2017,gluconate_growth,0.6630116912775283,0.8667721820909706,cytoplasm
+1,Caglar et al. 2017,glucose_time_course,0.7747553284413429,0.8533600215493458,cytoplasm
+2,Li et al. 2014,MOPS complete,1.934364224818452,0.8317359411269075,cytoplasm
+3,Li et al. 2014,MOPS complete without methionine,1.5693898427772346,0.8389827592673373,cytoplasm
+4,Li et al. 2014,MOPS minimal,0.738700370046123,0.7828294527165931,cytoplasm
+5,Mori et al. 2021,0.2% galactose,0.4892803627481966,0.76661309893835,cytoplasm
+6,Mori et al. 2021,0.2% glucose,0.33,0.75195898498,cytoplasm
+7,Mori et al. 2021,0.2% glucose,0.34,0.7576964041389,cytoplasm
+8,Mori et al. 2021,0.2% glucose,0.35,0.75318442331496,cytoplasm
+9,Mori et al. 2021,0.2% glucose,0.48,0.7733699803362,cytoplasm
+10,Mori et al. 2021,0.2% glucose,0.49,0.7730679084013999,cytoplasm
+11,Mori et al. 2021,0.2% glucose,0.5,0.7784754088931,cytoplasm
+12,Mori et al. 2021,0.2% glucose,0.55,0.769813587795,cytoplasm
+13,Mori et al. 2021,0.2% glucose,0.71,0.7968917043035,cytoplasm
+14,Mori et al. 2021,0.2% glucose,0.72,0.8004789499688,cytoplasm
+15,Mori et al. 2021,0.2% glucose,0.81,0.818270785076749,cytoplasm
+16,Mori et al. 2021,0.2% melibiose,0.6817841120261757,0.8037067984146,cytoplasm
+17,Mori et al. 2021,0.4% sodium acetate,0.5010702510071894,0.8111547505247,cytoplasm
+18,Mori et al. 2021,10 mM glucose-6-phosphate + 10 mM gluconate,1.1240224549620734,0.8251786269125,cytoplasm
+19,Mori et al. 2021,12 mM arabinose,0.8487516496652392,0.8187060104331,cytoplasm
+20,Mori et al. 2021,20 mM mannitol,0.9041050181216675,0.8095210137561,cytoplasm
+21,Mori et al. 2021,24 mM xylose + 20 mM oxaloacetate,0.8317766166719343,0.809522904361,cytoplasm
+22,Mori et al. 2021,40 mM glycerol + 30 mM succinate,0.7701635339554948,0.8044411005581,cytoplasm
+23,Peebo et al. 2015,glucose_minimal,0.21,0.7991561962435269,cytoplasm
+24,Peebo et al. 2015,glucose_minimal,0.22,0.8089872340267986,cytoplasm
+25,Peebo et al. 2015,glucose_minimal,0.26,0.8116036379245304,cytoplasm
+26,Peebo et al. 2015,glucose_minimal,0.31,0.8063434355673352,cytoplasm
+27,Peebo et al. 2015,glucose_minimal,0.36,0.81998311223732,cytoplasm
+28,Peebo et al. 2015,glucose_minimal,0.41,0.8232613462621117,cytoplasm
+29,Peebo et al. 2015,glucose_minimal,0.46,0.8323535773176933,cytoplasm
+30,Peebo et al. 2015,glucose_minimal,0.51,0.8355877832961037,cytoplasm
+31,Peebo et al. 2015,rich,0.25,0.8133604340408689,cytoplasm
+32,Peebo et al. 2015,rich,0.35,0.8145762606557532,cytoplasm
+33,Peebo et al. 2015,rich,0.42,0.8136667804311639,cytoplasm
+34,Peebo et al. 2015,rich,0.45,0.8240369209384231,cytoplasm
+35,Peebo et al. 2015,rich,0.53,0.8295892661926436,cytoplasm
+36,Peebo et al. 2015,rich,0.55,0.8395291788401804,cytoplasm
+37,Peebo et al. 2015,rich,0.63,0.8282326753186863,cytoplasm
+38,Peebo et al. 2015,rich,0.65,0.8375684202270265,cytoplasm
+39,Peebo et al. 2015,rich,0.73,0.8108438546505191,cytoplasm
+40,Peebo et al. 2015,rich,0.74,0.833468600100069,cytoplasm
+41,Peebo et al. 2015,rich,0.78,0.8470363410015106,cytoplasm
+42,Peebo et al. 2015,rich,0.82,0.8603682121518634,cytoplasm
+43,Schmidt et al. 2016,42C,0.66,0.8658685684006834,cytoplasm
+44,Schmidt et al. 2016,acetate,0.3,0.8516876902575484,cytoplasm
+45,Schmidt et al. 2016,chemostat_u0.12,0.12,0.813448236629672,cytoplasm
+46,Schmidt et al. 2016,chemostat_u0.2,0.2,0.8112979578654184,cytoplasm
+47,Schmidt et al. 2016,chemostat_u0.35,0.35,0.812056998259789,cytoplasm
+48,Schmidt et al. 2016,chemostat_u0.5,0.5,0.8324008360740955,cytoplasm
+49,Schmidt et al. 2016,fructose,0.65,0.8612317679806537,cytoplasm
+50,Schmidt et al. 2016,fumarate,0.42,0.8324500635392112,cytoplasm
+51,Schmidt et al. 2016,galactose,0.26,0.8137237915033992,cytoplasm
+52,Schmidt et al. 2016,glucosamine,0.46,0.8294149452180767,cytoplasm
+53,Schmidt et al. 2016,glucose,0.58,0.8559096019871977,cytoplasm
+54,Schmidt et al. 2016,glycerol,0.47,0.8393859645290027,cytoplasm
+55,Schmidt et al. 2016,glycerol_pAA,1.27,0.8554070430059264,cytoplasm
+56,Schmidt et al. 2016,lb_miller,1.9,0.8804796919834716,cytoplasm
+57,Schmidt et al. 2016,mannose,0.47,0.840364612146373,cytoplasm
+58,Schmidt et al. 2016,osmotic_stress_glucose,0.55,0.8246912138260166,cytoplasm
+59,Schmidt et al. 2016,pH6,0.63,0.8242788376533925,cytoplasm
+60,Schmidt et al. 2016,pyruvate,0.4,0.8412272636653535,cytoplasm
+61,Schmidt et al. 2016,succinate,0.44,0.840434893616995,cytoplasm
+62,Schmidt et al. 2016,xylose,0.55,0.8558758384424112,cytoplasm
+63,Soufi et al. 2015,M9_glucose,0.6931471805599453,0.82704346283961,cytoplasm
+0,Caglar et al. 2017,gluconate_growth,0.6630116912775283,0.16810355167406346,ribosomal sector
+1,Caglar et al. 2017,glucose_time_course,0.7747553284413429,0.17374626044444336,ribosomal sector
+2,Li et al. 2014,MOPS complete,1.934364224818452,0.4262789317675006,ribosomal sector
+3,Li et al. 2014,MOPS complete without methionine,1.5693898427772346,0.3296864255274224,ribosomal sector
+4,Li et al. 2014,MOPS minimal,0.738700370046123,0.2180658002350644,ribosomal sector
+5,Mori et al. 2021,0.2% galactose,0.4892803627481966,0.198498919608,ribosomal sector
+6,Mori et al. 2021,0.2% glucose,0.33,0.17766341438,ribosomal sector
+7,Mori et al. 2021,0.2% glucose,0.34,0.18146187615,ribosomal sector
+8,Mori et al. 2021,0.2% glucose,0.35,0.180101735529,ribosomal sector
+9,Mori et al. 2021,0.2% glucose,0.48,0.198033415519,ribosomal sector
+10,Mori et al. 2021,0.2% glucose,0.49,0.2007922616,ribosomal sector
+11,Mori et al. 2021,0.2% glucose,0.5,0.206544420373,ribosomal sector
+12,Mori et al. 2021,0.2% glucose,0.55,0.21524792015,ribosomal sector
+13,Mori et al. 2021,0.2% glucose,0.71,0.23569015892,ribosomal sector
+14,Mori et al. 2021,0.2% glucose,0.72,0.232203127961,ribosomal sector
+15,Mori et al. 2021,0.2% glucose,0.81,0.25545562602,ribosomal sector
+16,Mori et al. 2021,0.2% melibiose,0.6817841120261757,0.223844821114,ribosomal sector
+17,Mori et al. 2021,0.4% sodium acetate,0.5010702510071894,0.188601052856,ribosomal sector
+18,Mori et al. 2021,10 mM glucose-6-phosphate + 10 mM gluconate,1.1240224549620734,0.2753557485,ribosomal sector
+19,Mori et al. 2021,12 mM arabinose,0.8487516496652392,0.253069037967,ribosomal sector
+20,Mori et al. 2021,20 mM mannitol,0.9041050181216675,0.256656001227,ribosomal sector
+21,Mori et al. 2021,24 mM xylose + 20 mM oxaloacetate,0.8317766166719343,0.26048517489,ribosomal sector
+22,Mori et al. 2021,40 mM glycerol + 30 mM succinate,0.7701635339554948,0.251909370331,ribosomal sector
+23,Peebo et al. 2015,glucose_minimal,0.21,0.162557451067356,ribosomal sector
+24,Peebo et al. 2015,glucose_minimal,0.22,0.16263999538920024,ribosomal sector
+25,Peebo et al. 2015,glucose_minimal,0.26,0.1744546370987097,ribosomal sector
+26,Peebo et al. 2015,glucose_minimal,0.31,0.1871013444382784,ribosomal sector
+27,Peebo et al. 2015,glucose_minimal,0.36,0.20908781750228156,ribosomal sector
+28,Peebo et al. 2015,glucose_minimal,0.41,0.22441802321525425,ribosomal sector
+29,Peebo et al. 2015,glucose_minimal,0.46,0.23957195816060087,ribosomal sector
+30,Peebo et al. 2015,glucose_minimal,0.51,0.25408896205986276,ribosomal sector
+31,Peebo et al. 2015,rich,0.25,0.1831589310878816,ribosomal sector
+32,Peebo et al. 2015,rich,0.35,0.19978146576182268,ribosomal sector
+33,Peebo et al. 2015,rich,0.42,0.21488497402510467,ribosomal sector
+34,Peebo et al. 2015,rich,0.45,0.2257550480395367,ribosomal sector
+35,Peebo et al. 2015,rich,0.53,0.2420428082085046,ribosomal sector
+36,Peebo et al. 2015,rich,0.55,0.2512318097442054,ribosomal sector
+37,Peebo et al. 2015,rich,0.63,0.2640381242402907,ribosomal sector
+38,Peebo et al. 2015,rich,0.65,0.2777506838607421,ribosomal sector
+39,Peebo et al. 2015,rich,0.73,0.27608434057162,ribosomal sector
+40,Peebo et al. 2015,rich,0.74,0.2956951380291907,ribosomal sector
+41,Peebo et al. 2015,rich,0.78,0.3113709661368409,ribosomal sector
+42,Peebo et al. 2015,rich,0.82,0.3377576920672417,ribosomal sector
+43,Schmidt et al. 2016,42C,0.66,0.25532552681426446,ribosomal sector
+44,Schmidt et al. 2016,acetate,0.3,0.1690660272730326,ribosomal sector
+45,Schmidt et al. 2016,chemostat_u0.12,0.12,0.15402500980686074,ribosomal sector
+46,Schmidt et al. 2016,chemostat_u0.2,0.2,0.16040919369649434,ribosomal sector
+47,Schmidt et al. 2016,chemostat_u0.35,0.35,0.17347356107910547,ribosomal sector
+48,Schmidt et al. 2016,chemostat_u0.5,0.5,0.2085483867467835,ribosomal sector
+49,Schmidt et al. 2016,fructose,0.65,0.2536380940856611,ribosomal sector
+50,Schmidt et al. 2016,fumarate,0.42,0.20948431475220874,ribosomal sector
+51,Schmidt et al. 2016,galactose,0.26,0.17928134954037742,ribosomal sector
+52,Schmidt et al. 2016,glucosamine,0.46,0.21429586190359382,ribosomal sector
+53,Schmidt et al. 2016,glucose,0.58,0.2639911597070281,ribosomal sector
+54,Schmidt et al. 2016,glycerol,0.47,0.2258686953368786,ribosomal sector
+55,Schmidt et al. 2016,glycerol_pAA,1.27,0.3015961228689542,ribosomal sector
+56,Schmidt et al. 2016,lb_miller,1.9,0.378861326805967,ribosomal sector
+57,Schmidt et al. 2016,mannose,0.47,0.2084361421277621,ribosomal sector
+58,Schmidt et al. 2016,osmotic_stress_glucose,0.55,0.2285163264815953,ribosomal sector
+59,Schmidt et al. 2016,pH6,0.63,0.22225723408918563,ribosomal sector
+60,Schmidt et al. 2016,pyruvate,0.4,0.20278535434445802,ribosomal sector
+61,Schmidt et al. 2016,succinate,0.44,0.219712031012949,ribosomal sector
+62,Schmidt et al. 2016,xylose,0.55,0.24491230932625963,ribosomal sector
+63,Soufi et al. 2015,M9_glucose,0.6931471805599453,0.17748810223083436,ribosomal sector
+0,Caglar et al. 2017,gluconate_growth,0.6630116912775283,0.537382924983643,metabolic sector
+1,Caglar et al. 2017,glucose_time_course,0.7747553284413429,0.5219491719264276,metabolic sector
+2,Li et al. 2014,MOPS complete,1.934364224818452,0.27274295372367785,metabolic sector
+3,Li et al. 2014,MOPS complete without methionine,1.5693898427772346,0.3862589931582446,metabolic sector
+4,Li et al. 2014,MOPS minimal,0.738700370046123,0.4575131621893401,metabolic sector
+5,Mori et al. 2021,0.2% galactose,0.4892803627481966,0.4437347982243,metabolic sector
+6,Mori et al. 2021,0.2% glucose,0.33,0.4479257852798,metabolic sector
+7,Mori et al. 2021,0.2% glucose,0.34,0.4547802318139,metabolic sector
+8,Mori et al. 2021,0.2% glucose,0.35,0.45177788189546,metabolic sector
+9,Mori et al. 2021,0.2% glucose,0.48,0.449804375365,metabolic sector
+10,Mori et al. 2021,0.2% glucose,0.49,0.4435337220032,metabolic sector
+11,Mori et al. 2021,0.2% glucose,0.5,0.450506543226,metabolic sector
+12,Mori et al. 2021,0.2% glucose,0.55,0.4389254311443,metabolic sector
+13,Mori et al. 2021,0.2% glucose,0.71,0.4423499590125,metabolic sector
+14,Mori et al. 2021,0.2% glucose,0.72,0.43986818527279997,metabolic sector
+15,Mori et al. 2021,0.2% glucose,0.81,0.432381654271449,metabolic sector
+16,Mori et al. 2021,0.2% melibiose,0.6817841120261757,0.479045971699,metabolic sector
+17,Mori et al. 2021,0.4% sodium acetate,0.5010702510071894,0.4987678276008,metabolic sector
+18,Mori et al. 2021,10 mM glucose-6-phosphate + 10 mM gluconate,1.1240224549620734,0.4355021220669,metabolic sector
+19,Mori et al. 2021,12 mM arabinose,0.8487516496652392,0.428122432848,metabolic sector
+20,Mori et al. 2021,20 mM mannitol,0.9041050181216675,0.4302268874595,metabolic sector
+21,Mori et al. 2021,24 mM xylose + 20 mM oxaloacetate,0.8317766166719343,0.4319498802063,metabolic sector
+22,Mori et al. 2021,40 mM glycerol + 30 mM succinate,0.7701635339554948,0.4237327298568,metabolic sector
+23,Peebo et al. 2015,glucose_minimal,0.21,0.5736704201170821,metabolic sector
+24,Peebo et al. 2015,glucose_minimal,0.22,0.5770359675241122,metabolic sector
+25,Peebo et al. 2015,glucose_minimal,0.26,0.5640885544553325,metabolic sector
+26,Peebo et al. 2015,glucose_minimal,0.31,0.5547795154108708,metabolic sector
+27,Peebo et al. 2015,glucose_minimal,0.36,0.5291286455838202,metabolic sector
+28,Peebo et al. 2015,glucose_minimal,0.41,0.5186166397347349,metabolic sector
+29,Peebo et al. 2015,glucose_minimal,0.46,0.5034456022912132,metabolic sector
+30,Peebo et al. 2015,glucose_minimal,0.51,0.4869756157576699,metabolic sector
+31,Peebo et al. 2015,rich,0.25,0.5519918940327675,metabolic sector
+32,Peebo et al. 2015,rich,0.35,0.5478359931895046,metabolic sector
+33,Peebo et al. 2015,rich,0.42,0.5355069692183313,metabolic sector
+34,Peebo et al. 2015,rich,0.45,0.5275769877417648,metabolic sector
+35,Peebo et al. 2015,rich,0.53,0.5174782911645076,metabolic sector
+36,Peebo et al. 2015,rich,0.55,0.5080502283077115,metabolic sector
+37,Peebo et al. 2015,rich,0.63,0.5004073210603147,metabolic sector
+38,Peebo et al. 2015,rich,0.65,0.4862171397975063,metabolic sector
+39,Peebo et al. 2015,rich,0.73,0.48697006647113766,metabolic sector
+40,Peebo et al. 2015,rich,0.74,0.4612963782372676,metabolic sector
+41,Peebo et al. 2015,rich,0.78,0.44603515155167855,metabolic sector
+42,Peebo et al. 2015,rich,0.82,0.41670844172368726,metabolic sector
+43,Schmidt et al. 2016,42C,0.66,0.4490684375074368,metabolic sector
+44,Schmidt et al. 2016,acetate,0.3,0.5833752680382264,metabolic sector
+45,Schmidt et al. 2016,chemostat_u0.12,0.12,0.5782218317315415,metabolic sector
+46,Schmidt et al. 2016,chemostat_u0.2,0.2,0.5704770865150264,metabolic sector
+47,Schmidt et al. 2016,chemostat_u0.35,0.35,0.5577695328849327,metabolic sector
+48,Schmidt et al. 2016,chemostat_u0.5,0.5,0.5264024239911672,metabolic sector
+49,Schmidt et al. 2016,fructose,0.65,0.49494550080694893,metabolic sector
+50,Schmidt et al. 2016,fumarate,0.42,0.5269519862890801,metabolic sector
+51,Schmidt et al. 2016,galactose,0.26,0.5604384011340481,metabolic sector
+52,Schmidt et al. 2016,glucosamine,0.46,0.504951257525619,metabolic sector
+53,Schmidt et al. 2016,glucose,0.58,0.46695912722967575,metabolic sector
+54,Schmidt et al. 2016,glycerol,0.47,0.5017603063693551,metabolic sector
+55,Schmidt et al. 2016,glycerol_pAA,1.27,0.42532648808619555,metabolic sector
+56,Schmidt et al. 2016,lb_miller,1.9,0.33967563997530603,metabolic sector
+57,Schmidt et al. 2016,mannose,0.47,0.5325467531433675,metabolic sector
+58,Schmidt et al. 2016,osmotic_stress_glucose,0.55,0.46328996181320203,metabolic sector
+59,Schmidt et al. 2016,pH6,0.63,0.4658254799292293,metabolic sector
+60,Schmidt et al. 2016,pyruvate,0.4,0.5355884535217553,metabolic sector
+61,Schmidt et al. 2016,succinate,0.44,0.5226034220027934,metabolic sector
+62,Schmidt et al. 2016,xylose,0.55,0.48398139380941735,metabolic sector
+63,Soufi et al. 2015,M9_glucose,0.6931471805599453,0.5578592627751928,metabolic sector

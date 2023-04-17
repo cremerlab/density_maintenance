@@ -117,8 +117,11 @@ perc_df.to_csv('../../data/mcmc/literature_model_ms_ppcs.csv', index=False)
 # %%
 # Compute the percentiles for the protein ppcs
 post = samples.posterior.prot_per_cell_rep.to_dataframe().reset_index()
-post['idx'] = 1
 percs = size.viz.compute_percentiles(
-    post, 'prot_per_cell_rep', 'idx', **kwargs)
+    post, 'prot_per_cell_rep', 'prot_per_cell_rep_dim_0', **kwargs)
+for i, (ds, lam) in enumerate(zip(prot_data['source'].values, prot_data['growth_rate_hr'].values)):
+    percs.loc[percs['prot_per_cell_rep_dim_0'] == i, 'source'] = ds
+    percs.loc[percs['prot_per_cell_rep_dim_0'] == i, 'growth_rate_hr'] = lam
+percs.drop(columns=['prot_per_cell_rep_dim_0'], inplace=True)
 percs.to_csv(
     '../../data/mcmc/literature_model_protein_ppcs.csv', index=False)

@@ -37,7 +37,9 @@ model {
 
    w_min ~ normal(0, 0.1);
    w_slope ~ std_normal();
-   w_sigma ~ std_normal();
+   w_sigma ~ normal(0, 0.1);
+   vol_sigma ~ normal(0, 0.1);
+   ell_sigma ~ normal(0, 0.1);
    alpha ~ normal(1, 3);
    rho_prot ~ normal(200, 100);
    m_peri ~ normal(0, 100);
@@ -46,10 +48,10 @@ model {
    // Likelihoods for size measurements
    widths ~ normal(w_min + w_slope .* size_lam, w_sigma);
    lengths ~ normal(alpha .* (w_min + w_slope .* size_lam), ell_sigma);
-   volumes ~ normal((pi()/12) * (w_min + w_slope .* size_lam).^3 * (3 * alpha - 1), vol_sigma);
+   log(volumes) ~ normal(log((pi()/12) * (w_min + w_slope .* size_lam).^3 * (3 * alpha - 1)), vol_sigma);
 
    // Likelihoods for protein measurements
-   prot_per_cell ~ normal(rho_prot * (pi()/12) .* (w_min + w_slope .* prot_lam).^3 * (3 * alpha - 1), prot_sigma);
+   log(prot_per_cell) ~ normal(log(rho_prot * (pi()/12) .* (w_min + w_slope .* prot_lam).^3 * (3 * alpha - 1)), prot_sigma);
 
    // Likelihoods based on protein measurements
    phi_mem ~ normal(phi_mem_mu, phi_mem_sigma);
@@ -70,11 +72,11 @@ generated quantities {
     for (i in 1:N_size) {
         w_rep[i] = normal_rng(w_min + w_slope * size_lam[i], w_sigma);
         ell_rep[i] = normal_rng(alpha * w_rep[i], ell_sigma);
-        vol_rep[i] = normal_rng((pi()/12) * (w_min + w_slope * size_lam[i])^3 * (3 * alpha - 1), vol_sigma);
+        vol_rep[i] = exp(normal_rng(log((pi()/12) * (w_min + w_slope * size_lam[i])^3 * (3 * alpha - 1)), vol_sigma));
     }
 
     for (i in 1:N_prot) {
-        prot_per_cell_rep[i] = normal_rng(rho_prot * (pi()/12) * (w_min + w_slope * prot_lam[i])^3 * (3 * alpha - 1), prot_sigma);
+        prot_per_cell_rep[i] = exp(normal_rng(log(rho_prot * (pi()/12) * (w_min + w_slope * prot_lam[i])^3 * (3 * alpha - 1)), prot_sigma));
     }
 
     for (i in 1:N_mass_spec) {
