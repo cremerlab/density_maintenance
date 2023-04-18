@@ -45,6 +45,7 @@ data.loc[data['cog_letter'].isin(
     ['C', 'E', 'F', 'G', 'H', 'I', 'P', 'Q']), 'metabolism'] = True
 data.loc[data['cog_letter'].isin(['J']), 'ribosomal'] = True
 data = data[data['dataset_name'] != 'Valgepea et al. 2013']
+data = data[data['dataset_name'] != 'Mori et al. 2021']
 data.to_csv('../../../data/literature/compiled_mass_fractions.csv', index=False)
 
 # %%
