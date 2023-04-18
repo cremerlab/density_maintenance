@@ -14,7 +14,8 @@ model = cmdstanpy.CmdStanModel(
     stan_file='./stan_models/literature_based_model_inference.stan')
 
 # Load the data sets
-ms_data = pd.read_csv('../../data/literature/collated_mass_fractions_empirics.csv')
+ms_data = pd.read_csv(
+    '../../data/literature/collated_mass_fractions_empirics.csv')
 prot_data = pd.read_csv('../../data/literature/collated_protein_per_cell.csv')
 size_data = pd.read_csv(
     '../../data/literature/collated_literature_size_data.csv')
@@ -51,17 +52,17 @@ data_dict = {
     'phi_peri': periplasm['mass_frac'].values.astype(float),
     'm_peri_meas': periplasm['mass_fg'].values.astype(float),
     'ms_lam': periplasm['growth_rate_hr'].values.astype(float)
-    
+
 }
 
 # %%
 # Sample the model
-_samples = model.sample(data=data_dict, iter_sampling=5000)
+_samples = model.sample(data=data_dict)
 samples = az.from_cmdstanpy(_samples)
 # %%
 
 pars = ['w_min', 'w_slope', 'alpha', 'rho_prot',
-        'm_peri', 'w_sigma', 'ell_sigma', 'vol_sigma', 'phi_peri_sigma', 'phi_mem_sigma']
+        'm_peri_mu', 'w_sigma', 'ell_sigma', 'vol_sigma', 'phi_peri_sigma', 'phi_mem_sigma']
 fig = plt.figure(figsize=(8, 8))
 fig = corner(samples, group='posterior', var_names=pars, fig=fig,
              hist_kwargs={'lw': 1}, plot_contours=False, plot_density=False, data_kwargs={'ms': 1},
@@ -105,7 +106,7 @@ perc_df.to_csv('../../data/mcmc/literature_model_size_ppcs.csv', index=False)
 
 # %%
 # Compute the percentiles for the mass spec ppc
-size_pars = ['phi_peri_rep', 'phi_mem_rep', 'rho_mem', 'rho_peri']
+size_pars = ['phi_peri_rep', 'phi_mem_rep', 'rho_mem', 'rho_peri', 'm_peri']
 perc_df = pd.DataFrame([])
 for p in size_pars:
     ms_ppc = samples.posterior[p].to_dataframe().reset_index()

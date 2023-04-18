@@ -56,10 +56,12 @@ for a in ax:
 ax[0].set_xlim([0, 2.5])
 ax[2].set_ylim([0, 5])
 ax[3].set_ylim([0, 550])
+ax[3].set_xlim([0, 2.5])
 
 ax[0].set_ylabel('average width [µm]', fontsize=6)
 ax[1].set_ylabel('average length [µm]', fontsize=6)
 ax[2].set_ylabel('average volume [µm$^3$]', fontsize=6)
+ax[3].set_ylabel('protein per cell [fg]', fontsize=6)
 plt.tight_layout()
 plt.savefig('../../figures/Fig2_size_prot_ppcs.pdf', bbox_inches='tight')
 
@@ -83,11 +85,11 @@ for g, d in ms_data[ms_data['localization'].isin(['membrane', 'periplasm'])].gro
 
     if g[1] == 'periplasm':
         ax[-2].plot(d['growth_rate_hr'], d['mass_fg'], mapper[g[0]]['m'], color=mapper[g[0]]['c'],
-                       alpha=0.5, markeredgecolor=cor['primary_black'], markeredgewidth=0.5,
-                       ms=4)
+                    alpha=0.5, markeredgecolor=cor['primary_black'], markeredgewidth=0.5,
+                    ms=4)
 
 axes = {'phi_mem_rep': ax[0], 'phi_peri_rep': ax[1],
-        'rho_mem': ax[2], 'rho_peri': ax[3]}
+        'rho_mem': ax[2], 'rho_peri': ax[3], 'm_peri': ax[4]}
 for g, d in ms_ppcs[ms_ppcs['interval'] != 'median'].groupby(['quantity', 'interval'], sort=False):
     d.sort_values('growth_rate_hr', inplace=True)
     axes[g[0]].fill_between(d['growth_rate_hr'], d['lower'], d['upper'],
@@ -97,6 +99,7 @@ ax[0].set_ylim([0, 0.20])
 ax[1].set_ylim([0, 0.125])
 ax[2].set_ylim([0, 10])
 ax[3].set_ylim([0, 175])
+ax[4].set_ylim([0, 20])
 for a in ax:
     a.set_xlim([0, 2])
     a.set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
@@ -104,5 +107,6 @@ ax[0].set_ylabel('allocation toward\nmembrane protein', fontsize=6)
 ax[1].set_ylabel('allocation toward\nperiplasm protein', fontsize=6)
 ax[2].set_ylabel('membrane protein density\n[fg / µm$^2$]', fontsize=6)
 ax[3].set_ylabel('periplasmic protein density\n[fg / µm$^3$]', fontsize=6)
+ax[4].set_ylabel('periplasmic protein mass [fg]', fontsize=6)
 plt.tight_layout()
 plt.savefig('../../figures/Fig2_model_trends.pdf', bbox_inches='tight')
