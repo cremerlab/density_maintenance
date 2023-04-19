@@ -21,7 +21,7 @@ ms_data['surface_area'] = ms_data['surface_to_volume'] * ms_data['volume']
 ppcs = pd.read_csv('../../data/mcmc/literature_model_params.csv')
 ppcs
 mode = 'sim'
-model = 'const_phi_mem'
+model = 'const_rho_mem'
 ppcs = ppcs[ppcs['model'] == model]
 
 fig, ax = plt.subplots(1, 4, figsize=(6, 1.5))
@@ -97,7 +97,7 @@ for g, d in ppcs[(ppcs['interval'] != 'median') &
     axes[g[0].split(f'_{mode}')[0]].fill_between(d['growth_rate_hr'], d['lower'], d['upper'],
                                                  color=ppc_cmap[g[1]], alpha=0.3)
 
-ax[0].set_ylim([0, 0.50])
+ax[0].set_ylim([0, 0.2])
 ax[1].set_ylim([0, 0.125])
 ax[2].set_ylim([0, 10])
 ax[3].set_ylim([0, 175])

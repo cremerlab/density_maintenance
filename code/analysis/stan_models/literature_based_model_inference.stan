@@ -15,6 +15,7 @@ data {
     vector<lower=0>[N_size] size_lam;
     vector<lower=0>[N_prot] prot_per_cell;
     vector<lower=0>[N_prot] prot_lam;
+    vector<lower=0>[N_prot] rho_prot_meas;
     vector<lower=0>[N_mass_spec] phi_mem;
     vector<lower=0>[N_mass_spec] phi_peri;
     vector<lower=0>[N_mass_spec] rho_mem_meas;
@@ -30,8 +31,9 @@ parameters {
     real<lower=0> vol_sigma;
     real<lower=0> prot_sigma;
     real<lower=1> alpha;
-    real<lower=0> rho_prot_mu;
-    // real<lower=0> rho_prot_sigma;
+    real<lower=0> rho_prot_min;
+    real<lower=0> rho_prot_slope;
+    real<lower=0> rho_prot_sigma;
     real<lower=0> m_peri_mu;
     real<lower=0> m_peri_sigma;
     real<lower=0> phi_peri_sigma;
@@ -41,10 +43,6 @@ parameters {
     array[1 - const_phi_mem] real<lower=0> rho_mem_sigma;  
 }
 
-transformed parameters {
-    // vector<lower=0>[N_prot]  rho_prot_meas = prot_per_cell ./ ((pi()/12) * (w_min + w_slope .* prot_lam).^3 * (3 * alpha - 1));
-}
-
 model {
 
    w_min ~ normal(0, 0.1);
@@ -52,11 +50,12 @@ model {
    w_sigma ~ normal(0, 0.01);
    vol_sigma ~ normal(0, 0.1);
    ell_sigma ~ normal(0, 0.1);
+   rho_prot_min ~ normal(0, 100);
+   rho_prot_slope ~ normal(0, 100);
+   rho_prot_sigma ~ std_normal();
    phi_peri_sigma ~ normal(0, 0.1);
    phi_mem_sigma ~ normal(0, 0.1);
    alpha ~ normal(1, 3);
-   rho_prot_mu ~ normal(0, 200);
-//    rho_prot_sigma ~ normal(0, 10);
    m_peri_mu ~ normal(0, 100);
    m_peri_sigma ~ std_normal();
    if (const_phi_mem) {
@@ -67,7 +66,7 @@ model {
         rho_mem_mu ~ std_normal();
         rho_mem_sigma ~ std_normal();
         rho_mem_meas ~ normal(rho_mem_mu[1], rho_mem_sigma[1]);
-        phi_mem ~ normal(rho_mem_mu[1] * pi() * alpha .* (w_min + w_slope * ms_lam).^2 ./ ((pi()/12) * (w_min + w_slope * ms_lam).^3 * (3 * alpha - 1) .* rho_prot_mu), phi_mem_sigma);
+        phi_mem ~ normal(rho_mem_mu[1] * pi() * alpha .* (w_min + w_slope * ms_lam).^2 ./ ((pi()/12) * (w_min + w_slope * ms_lam).^3 * (3 * alpha - 1) .* (rho_prot_min + rho_prot_slope .* ms_lam)), phi_mem_sigma);
    }
 
    // Likelihoods for size measurements
@@ -76,10 +75,11 @@ model {
    log(volumes) ~ normal(log((pi()/12) * (w_min + w_slope .* size_lam).^3 * (3 * alpha - 1)), vol_sigma);
 
    // Likelihoods for protein measurements
-   log(prot_per_cell) ~ normal(log(rho_prot_mu * (pi()/12) .* (w_min + w_slope .* prot_lam).^3 * (3 * alpha - 1)), prot_sigma);
-//    rho_prot_meas ~ normal(rho_prot_mu, rho_prot_sigma);
+   log(prot_per_cell) ~ normal(log((rho_prot_min + rho_prot_slope .* prot_lam) * (pi()/12) .* (w_min + w_slope .* prot_lam).^3 * (3 * alpha - 1)), prot_sigma);
+   rho_prot_meas ~ normal(rho_prot_min + rho_prot_slope .* prot_lam, rho_prot_sigma);
+
    // Likelihoods based on protein measurements
-   phi_peri ~ normal(m_peri_mu / (rho_prot_mu * (pi()/12) .* (w_min + w_slope .* ms_lam).^3 * (3 * alpha - 1)), phi_peri_sigma);
+   phi_peri ~ normal(m_peri_mu / ((rho_prot_min + rho_prot_slope .* ms_lam) * (pi()/12) .* (w_min + w_slope .* ms_lam).^3 * (3 * alpha - 1)), phi_peri_sigma);
    m_peri_meas ~ normal(m_peri_mu, m_peri_sigma);
 }
 
@@ -111,8 +111,8 @@ generated quantities {
     for (i in 1:N_sim) {
         m_peri_sim[i] = m_peri_mu;
         m_peri_rep[i] = normal_rng(m_peri_sim[i], m_peri_sigma);
-        rho_prot_rep[i] = rho_prot_mu; //normal_rng(rho_prot_mu, rho_prot_sigma);
-        rho_prot_sim[i] = rho_prot_mu;
+        rho_prot_rep[i] = normal_rng(rho_prot_min + rho_prot_slope * lam_sim[i], rho_prot_sigma);
+        rho_prot_sim[i] = rho_prot_min + rho_prot_slope * lam_sim[i];
         w_sim[i] = w_min + w_slope * lam_sim[i];
         w_rep[i] = normal_rng(w_min + w_slope * lam_sim[i], w_sigma);
         ell_sim[i] = alpha * w_sim[i];
@@ -120,22 +120,22 @@ generated quantities {
         vol_rep[i] = exp(normal_rng(log((pi()/12) * (w_min + w_slope * lam_sim[i])^3 * (3 * alpha - 1)), vol_sigma));
         vol_sim[i] = (pi()/12) * w_sim[i]^3 * (3 * alpha - 1);
         prot_per_cell_rep[i] = normal_rng(rho_prot_rep[i] * (pi()/12) * w_rep[i]^3 * (3 * alpha - 1), prot_sigma);    
-        prot_per_cell_sim[i] = rho_prot_mu * (pi()/12) * w_sim[i]^3 * (3 * alpha - 1);    
+        prot_per_cell_sim[i] = rho_prot_sim[i] * (pi()/12) * w_sim[i]^3 * (3 * alpha - 1);    
         if (const_phi_mem) {
             phi_mem_rep[i] = normal_rng(phi_mem_mu[1], phi_mem_sigma);
             phi_mem_sim[i] = phi_mem_mu[1];
             rho_mem_rep[i] = phi_mem_rep[i] * rho_prot_rep[i] * (pi()/12) * w_rep[i]^3 * (3 * alpha - 1) / (pi() * alpha * w_rep[i]^2);
-            rho_mem_sim[i] = phi_mem_sim[i] * rho_prot_mu * (pi()/12) * w_sim[i]^3 * (3 * alpha - 1) / (pi() * alpha * w_sim[i]^2);
+            rho_mem_sim[i] = phi_mem_sim[i] * rho_prot_sim[i] * (pi()/12) * w_sim[i]^3 * (3 * alpha - 1) / (pi() * alpha * w_sim[i]^2);
 
         }
         else {
             phi_mem_rep[i] = normal_rng(rho_mem_mu[1] * (pi() * alpha * w_rep[i]^2) / (vol_rep[i] * rho_prot_rep[i]), phi_mem_sigma);
-            phi_mem_sim[i] =  rho_mem_mu[1] * pi() * alpha * w_sim[i]^2 / (vol_sim[i] * rho_prot_mu);
+            phi_mem_sim[i] =  rho_mem_mu[1] * pi() * alpha * w_sim[i]^2 / (vol_sim[i] * rho_prot_sim[i]);
             rho_mem_rep[i] = normal_rng(rho_mem_mu[1], rho_mem_sigma[1]);
             rho_mem_sim[i] = rho_mem_mu[1];
         }
         phi_peri_rep[i] = normal_rng(m_peri_rep[i] / (rho_prot_rep[i] * (pi()/12) * w_rep[i]^3 * (3 * alpha - 1)), phi_peri_sigma);
-        phi_peri_sim[i] =m_peri_sim[i] / (rho_prot_mu * (pi()/12) * w_sim[i]^3 * (3 * alpha - 1));
+        phi_peri_sim[i] =m_peri_sim[i] / (rho_prot_sim[i] * (pi()/12) * w_sim[i]^3 * (3 * alpha - 1));
         rho_peri_rep[i] = m_peri_mu / (pi() * alpha * delta * w_rep[i]^2);
         rho_peri_sim[i] = m_peri_mu / (pi() * alpha * delta * w_sim[i]^2);
 
@@ -145,7 +145,7 @@ generated quantities {
         } 
         else {
             rel_phi_rep[i] = m_peri_rep[i] / (pi() * phi_mem_rep[i] * rho_prot_rep[i]);
-            rel_phi_sim[i] = m_peri_sim[i] / (pi() * phi_mem_sim[i] * rho_prot_mu);
+            rel_phi_sim[i] = m_peri_sim[i] / (pi() * phi_mem_sim[i] * rho_prot_sim[i]);
         }
         
     }

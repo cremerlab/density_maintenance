@@ -17,7 +17,8 @@ model = cmdstanpy.CmdStanModel(
 # Load the data sets
 ms_data = pd.read_csv(
     '../../data/literature/collated_mass_fractions_empirics.csv')
-prot_data = pd.read_csv('../../data/literature/collated_total_protein.csv')
+prot_data = pd.read_csv(
+    '../../data/literature/collated_total_protein_density.csv')
 size_data = pd.read_csv(
     '../../data/literature/collated_literature_size_data.csv')
 
@@ -26,10 +27,10 @@ membrane = ms_data[ms_data['localization'] == 'membrane']
 periplasm = ms_data[ms_data['localization'] == 'periplasm']
 
 #
-corner_pars = [['w_min', 'w_slope', 'alpha', 'rho_prot_mu',
+corner_pars = [['w_min', 'w_slope', 'alpha', 'rho_prot_min', 'rho_prot_slope', 'rho_prot_sigma',
                'm_peri_mu', 'w_sigma', 'ell_sigma', 'vol_sigma',
                 'phi_peri_sigma', 'rho_mem_mu'],
-               ['w_min', 'w_slope', 'alpha', 'rho_prot_mu',
+               ['w_min', 'w_slope', 'alpha', 'rho_prot_min', 'rho_prot_slope', 'rho_prot_sigma',
                'm_peri_mu', 'w_sigma', 'ell_sigma', 'vol_sigma',
                 'phi_peri_sigma', 'phi_mem_sigma', 'phi_mem_mu']]
 
@@ -72,6 +73,7 @@ for i in tqdm.tqdm(range(2)):
         'prot_lam': prot_data['growth_rate_hr'].values.astype(float),
         'phi_mem': membrane['mass_frac'].values.astype(float),
         'rho_mem_meas': membrane['mass_fg'].values.astype(float) / (membrane['surface_to_volume'].values.astype(float) * membrane['volume'].astype(float)),
+        'rho_prot_meas': prot_data['density'].values.astype(float),
         'phi_peri': periplasm['mass_frac'].values.astype(float),
         'm_peri_meas': periplasm['mass_fg'].values.astype(float),
         'ms_lam': periplasm['growth_rate_hr'].values.astype(float)}
@@ -80,7 +82,7 @@ for i in tqdm.tqdm(range(2)):
     _samples = model.sample(data=data_dict)  # , show_console=True)
     samples = az.from_cmdstanpy(_samples)
     # Finished sampling
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(10, 10))
     fig = corner(samples, group='posterior', var_names=corner_pars[i], fig=fig,
                  hist_kwargs={'lw': 1}, plot_contours=False, plot_density=False, data_kwargs={'ms': 1},
                  divergences=True, divergences_kwargs={'color': cor['primary_red'], 'ms': 1, 'markeredgewidth': 0})

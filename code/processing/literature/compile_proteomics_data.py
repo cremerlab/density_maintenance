@@ -14,7 +14,7 @@ for g, d in data.groupby(['dataset_name', 'condition', 'growth_rate_hr']):
         dfs.append(d)
 data = pd.concat(dfs, sort=False)
 data = data[data['dataset_name'] != 'Valgepea et al. 2013']
-data = data[data['dataset_name'] != 'Mori et al. 2021']
+# data = data[data['dataset_name'] != 'Mori et al. 2021']
 data.drop(columns=['cog_desc', 'cog_category', 'gene_product', 'annotation', 'dataset'],
           inplace=True)
 

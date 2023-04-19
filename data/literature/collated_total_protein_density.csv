@@ -1,0 +1,43 @@
+,growth_rate_hr,fg_protein_per_cell,source,notes,volume,density
+0,1.84,959.0,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD,2.6756532265966433,358.4171485554656
+1,1.27,399.7,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD,1.4940057587829625,267.5357826770367
+2,0.98,311.2,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD,1.110691671502518,280.18576890831986
+3,0.7,221.9,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD,0.8342087027905951,266.00058145845287
+4,0.45,221.1,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD,0.6460643668167922,342.2259628547173
+5,0.42,201.5,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD,0.6265502638280924,321.6022905630535
+6,1.04,156.0,Neidhardt et al. 1992,From Bionumber BNID,1.1809547518559043,132.0965089939657
+7,0.416,136.0,Bremer & Dennis 2008,From table 1,0.6239933111931465,217.95105421875832
+8,0.693,214.0,Bremer & Dennis 2008,From table 1,0.8282601110805033,258.3729400185978
+9,1.04,295.0,Bremer & Dennis 2008,From table 1,1.1809547518559043,249.79788559756335
+10,1.386,387.0,Bremer & Dennis 2008,From table 1,1.682115350111443,230.06745641692206
+11,1.733,431.0,Bremer & Dennis 2008,From table 1,2.398403701093831,179.70285811493514
+12,2.079,426.0,Bremer & Dennis 2008,From table 1,3.4162119039987506,124.69952449417956
+13,0.416,101.0,Churchward et al. 1982,From Table 1,0.6239933111931465,161.86070938304846
+14,0.693,140.0,Churchward et al. 1982,From Table 1,0.8282601110805033,169.02902618039104
+15,1.04,246.0,Churchward et al. 1982,From Table 1,1.1809547518559043,208.30603341356132
+16,1.386,417.0,Churchward et al. 1982,From Table 1,1.682115350111443,247.9021429608695
+17,1.733,474.0,Churchward et al. 1982,From Table 1,2.398403701093831,197.63144952779408
+18,0.464,82.2,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg,0.6553778034625557,125.42383883877814
+19,0.693,102.3,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg,0.8282601110805033,123.51192413038574
+20,0.832,120.5,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg,0.9547334749635321,126.21323454129723
+21,1.04,157.0,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg,1.1809547518559043,132.94328148751677
+22,1.386,204.5,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg,1.682115350111443,121.57311327457509
+23,1.664,252.0,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg,2.2350465957147883,112.74932723244103
+24,2.079,346.9,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg,3.4162119039987506,101.54522311509598
+25,0.416,100.0,Dennis & Bremer 1987,Taken from Table 2,0.6239933111931465,160.25812810202817
+26,0.693,156.0,Dennis & Bremer 1987,Taken from Table 2,0.8282601110805033,188.34662917243574
+27,1.04,234.0,Dennis & Bremer 1987,Taken from Table 2,1.1809547518559043,198.14476349094858
+28,1.386,340.0,Dennis & Bremer 1987,Taken from Table 2,1.682115350111443,202.12644749807106
+29,1.733,450.0,Dennis & Bremer 1987,Taken from Table 2,2.398403701093831,187.6247938555007
+30,0.7,84.6,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)",0.8342087027905951,101.41347089402935
+31,0.7,74.3,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)",0.8342087027905951,89.06644074972081
+32,0.85,85.4,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)",0.972465208974454,87.81805170188191
+33,1.1,125.6,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)",1.2556627205499657,100.02686067241738
+34,1.1,145.8,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)",1.2556627205499657,116.113983169096
+35,1.34,163.6,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)",1.6048408530527698,101.9415723925496
+36,1.53,199.7,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)",1.94890718340849,102.46768122160643
+37,2.77,278.525348387979,Richa,,6.923821100794673,40.227115104983234
+38,1.31,285.405705908518,Richa,,1.5563673087815608,183.37940169917513
+39,0.96,312.281486128251,Richa,,1.0882122266080578,286.9674485294362
+40,0.71,319.888121105936,Richa,,0.8427808782070557,379.562623426472
+41,0.47,302.423070902667,Richa,,0.6594102638550939,458.62657510760977
