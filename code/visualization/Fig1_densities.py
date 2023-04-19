@@ -10,47 +10,17 @@ mapper = size.viz.lit_mapper()
 
 size_data = pd.read_csv(
     '../../data/literature/collated_literature_size_data.csv')
-prot_data = pd.read_csv('../../data/literature/collated_protein_per_cell.csv')
-mass_spec = pd.read_csv('../../data/literature/compiled_mass_fractions.csv')
+prot_data = pd.read_csv('../../data/literature/collated_total_protein.csv')
+mass_spec = pd.read_csv('../../data/literature/collated_mass_fractions_empirics.csv')
 delta = 0.0249
 
 
 # %%
-# Perform regressions
-sav_popt = scipy.stats.linregress(
-    size_data['growth_rate_hr'], size_data['surface_to_volume'])
-vol_popt = scipy.stats.linregress(
-    size_data['growth_rate_hr'], np.log(size_data['volume_um3']))
-prot_popt = scipy.stats.linregress(
-    prot_data['growth_rate_hr'], prot_data['fg_protein_per_cell'])
-
-# Compute the fits
-lam_range = np.linspace(0, 2.75, 100)
-sav_fit = sav_popt[1] + sav_popt[0] * lam_range
-prot_fit = prot_popt[1] + prot_popt[0] * lam_range
-vol_fit = np.exp(vol_popt[1] + vol_popt[0] * lam_range)
-
 # compute the densities of the mass spec data
-membrane = mass_spec[mass_spec['membrane'] == True].groupby(
+membrane = mass_spec[mass_spec['localization'] == 'membrane'].groupby(
     ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
-periplasm = mass_spec[mass_spec['periplasm'] == True].groupby(
+periplasm = mass_spec[mass_spec['localization'] == 'periplasm'].groupby(
     ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
-
-dfs = []
-for i, d in enumerate([membrane, periplasm]):
-    d['sav'] = sav_popt[1] + sav_popt[0] * d['growth_rate_hr'].values
-    d['vol'] = np.exp(vol_popt[1] + vol_popt[0] * d['growth_rate_hr'].values)
-    d['prot'] = prot_popt[1] + prot_popt[0] * d['growth_rate_hr'].values
-    d['mass'] = d['prot'] * d['mass_frac']
-    d['density'] = d['mass'].values / (d['sav'].values * d['vol'].values)
-    if i == 1:
-        d['density'] *= delta**-1
-    dfs.append(d)
-membrane, periplasm = dfs
-
-
-# %%
-
 
 fig, ax = plt.subplots(3, 1, figsize=(2, 2), sharex=True)
 
@@ -67,10 +37,10 @@ for g, d in prot_data.groupby(['source']):
                markeredgecolor=cor['primary_black'], markeredgewidth=0.5, color=mapper[g]['c'],
                ms=3, alpha=0.75, label=g)
 
-# plot the fits
-ax[0].plot(lam_range, vol_fit, lw=1, color=cor['primary_blue'])
-ax[1].plot(lam_range, sav_fit, lw=1, color=cor['primary_blue'])
-ax[2].plot(lam_range, prot_fit, lw=1, color=cor['primary_blue'])
+# # plot the fits
+# ax[0].plot(lam_range, vol_fit, lw=1, color=cor['primary_blue'])
+# ax[1].plot(lam_range, sav_fit, lw=1, color=cor['primary_blue'])
+# ax[2].plot(lam_range, prot_fit, lw=1, color=cor['primary_blue'])
 
 ax[0].set_xlim([0, 2.5])
 ax[0].set_ylim([-0.2, 5])

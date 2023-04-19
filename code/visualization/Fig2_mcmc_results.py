@@ -12,7 +12,7 @@ ppc_cmap = {'95%': cor['pale_blue'], '75%': cor['light_blue'],
 # Load the various datasets
 size_data = pd.read_csv(
     '../../data/literature/collated_literature_size_data.csv')
-prot_data = pd.read_csv('../../data/literature/collated_protein_per_cell.csv')
+prot_data = pd.read_csv('../../data/literature/collated_total_protein.csv')
 ms_data = pd.read_csv(
     '../../data/literature/collated_mass_fractions_empirics.csv')
 ms_data['surface_area'] = ms_data['surface_to_volume'] * ms_data['volume']
@@ -55,7 +55,7 @@ for a in ax:
 
 ax[0].set_xlim([0, 2.5])
 ax[2].set_ylim([0, 5])
-ax[3].set_ylim([0, 550])
+# ax[3].set_ylim([0, 500])
 ax[3].set_xlim([0, 2.5])
 
 ax[0].set_ylabel('average width [µm]', fontsize=6)

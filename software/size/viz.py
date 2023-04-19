@@ -18,7 +18,7 @@ import seaborn as sns
 
 def load_markercolors():
     """
-    Returns a dictionary mapping sources of the E. coli data with standard colors 
+    Returns a dictionary mapping sources of the E. coli data with standard colors
     and glyphs. This ensures constant marking of data across plots.
     """
     colors, _ = get_colors()
@@ -81,7 +81,7 @@ def get_colors(all_palettes=False):
     ----------
     all_palettes : bool
         If True, lists of `dark`, `primary`, and `light` palettes will be returned. If
-        False, only the `primary` palette will be returned. 
+        False, only the `primary` palette will be returned.
     """
     # Define the colors
     colors = {
@@ -134,7 +134,7 @@ def get_colors(all_palettes=False):
 
 def matplotlib_style(return_colors=True, return_palette=True, **kwargs):
     """
-    Assigns the plotting style for matplotlib generated figures. 
+    Assigns the plotting style for matplotlib generated figures.
 
     Parameters
     ----------
@@ -296,7 +296,7 @@ def load_js(fname, args):
         exists in multiple external files, they can be provided as a list of
         strings.
     args: dict
-        The arguments to supply to the custom JS callback. 
+        The arguments to supply to the custom JS callback.
 
     Returns
     -------
@@ -319,7 +319,7 @@ def load_js(fname, args):
 
 def altair_style(return_colors=True, return_palette=True, **kwargs):
     """
-    Assigns the plotting style for matplotlib generated figures. 
+    Assigns the plotting style for matplotlib generated figures.
 
     Parameters
     ----------
@@ -427,26 +427,26 @@ def cell_gallery(biometrics,
                  suptitle=None,
                  cols=10):
     """
-    Creates and saves a figure of each cell segmentation mask, its labeled 
-    contours, and its dimensions, grouped by the cell ID and the image from 
+    Creates and saves a figure of each cell segmentation mask, its labeled
+    contours, and its dimensions, grouped by the cell ID and the image from
     which it was segmented.
 
-    Parameters 
+    Parameters
     -----------
     biometrics : pandas DataFrame
         A DataFrame containing dimension measurements for each cell.
-    cells : pandas DataFrame 
+    cells : pandas DataFrame
         A Dataframe containing the cell intensity images.
     anatomy :  pandas DataFrame
-        A DataFrame containing contour coordinates for each individual cell and 
-        their labeled regions. This DataFrame can be the default output from 
-        `size.image.assign_anatomy` 
+        A DataFrame containing contour coordinates for each individual cell and
+        their labeled regions. This DataFrame can be the default output from
+        `size.image.assign_anatomy`
     fname : str
         The filename of the plot output.
     suptitle : str or None
         The title of the entire plot. If `None`, no title is added.
-    cols : int 
-        The number of columns in the displayed plot. Default is 10 
+    cols : int
+        The number of columns in the displayed plot. Default is 10
 
     Returns
     -------
@@ -751,5 +751,9 @@ def lit_mapper():
               'Bremer & Dennis 2008':  {'m': 'o', 'c': '#dfdfdf'},
               'Churchward et al. 1982': {'m': '>', 'c': '#848484'},
               'Neidhardt et al. 1992': {'m': 'v', 'c': '#464646'},
-              'Wright & Lockhart 1964': {'m': '<', 'c': '#909090'}}
+              'Wright & Lockhart 1964': {'m': '<', 'c': '#909090'},
+              'Chohji et al. 1976': {'m': 'h', 'c': '#363636'},
+              'Dennis & Bremer 1987': {'m': 's', 'c': '#9d9d9d'},
+              'Dennis & Bremer 1974': {'m': '*', 'c': '#9d9d9d'}}
+
     return mapper
