@@ -26,12 +26,22 @@ membrane = ms_data[ms_data['localization'] == 'membrane']
 periplasm = ms_data[ms_data['localization'] == 'periplasm']
 
 #
-corner_pars = ['w_min', 'w_slope', 'alpha', 'rho_prot',
+corner_pars = [['w_min', 'w_slope', 'alpha', 'rho_prot_mu',
                'm_peri_mu', 'w_sigma', 'ell_sigma', 'vol_sigma',
-               'phi_peri_sigma', 'phi_mem_sigma', 'rho_mem_mu']
+                'phi_peri_sigma', 'rho_mem_mu'],
+               ['w_min', 'w_slope', 'alpha', 'rho_prot_mu',
+               'm_peri_mu', 'w_sigma', 'ell_sigma', 'vol_sigma',
+                'phi_peri_sigma', 'phi_mem_sigma', 'phi_mem_mu']]
+
 size_pars = ['w', 'ell', 'vol']
-model_pars = ['phi_peri', 'phi_mem', 'rho_mem',
-              'rho_peri', 'm_peri', 'm_peri', 'rel_phi']
+model_pars = [['phi_peri', 'phi_mem', 'rho_prot',
+              'rho_peri', 'm_peri',  'rel_phi',
+               'rho_mem'],
+              ['phi_peri', 'phi_mem', 'rho_prot',
+              'rho_peri', 'm_peri', 'rel_phi', 'phi_mem',
+               'rho_mem']]
+
+
 prot_pars = ['prot_per_cell']
 model_desc = ['const_rho_mem', 'const_phi_mem']
 # Compute the percentiles for the parameters
@@ -61,18 +71,17 @@ for i in tqdm.tqdm(range(2)):
         'prot_per_cell': prot_data['fg_protein_per_cell'].values.astype(float),
         'prot_lam': prot_data['growth_rate_hr'].values.astype(float),
         'phi_mem': membrane['mass_frac'].values.astype(float),
+        'rho_mem_meas': membrane['mass_fg'].values.astype(float) / (membrane['surface_to_volume'].values.astype(float) * membrane['volume'].astype(float)),
         'phi_peri': periplasm['mass_frac'].values.astype(float),
         'm_peri_meas': periplasm['mass_fg'].values.astype(float),
         'ms_lam': periplasm['growth_rate_hr'].values.astype(float)}
 
     # Sample the model
-    _samples = model.sample(data=data_dict)
+    _samples = model.sample(data=data_dict)  # , show_console=True)
     samples = az.from_cmdstanpy(_samples)
     # Finished sampling
-    if i == 1:
-        corner_pars[-1] = 'phi_mem_mu'
     fig = plt.figure(figsize=(8, 8))
-    fig = corner(samples, group='posterior', var_names=corner_pars, fig=fig,
+    fig = corner(samples, group='posterior', var_names=corner_pars[i], fig=fig,
                  hist_kwargs={'lw': 1}, plot_contours=False, plot_density=False, data_kwargs={'ms': 1},
                  divergences=True, divergences_kwargs={'color': cor['primary_red'], 'ms': 1, 'markeredgewidth': 0})
     for a in fig.axes:
@@ -81,9 +90,9 @@ for i in tqdm.tqdm(range(2)):
         f'../../figures/mcmc/model_diagnostics/model{i+1}_corner.pdf', bbox_inches='tight')
     plt.close()
 
-    post = samples.posterior[corner_pars].to_dataframe().reset_index()
+    post = samples.posterior[corner_pars[i]].to_dataframe().reset_index()
     post['idx'] = 1
-    percs = size.viz.compute_percentiles(post, corner_pars, 'idx', **kwargs)
+    percs = size.viz.compute_percentiles(post, corner_pars[i], 'idx', **kwargs)
     percs.to_csv(
         f'../../data/mcmc/literature_model{i+1}_parameter_percs.csv', index=False)
 
@@ -97,9 +106,10 @@ for i in tqdm.tqdm(range(2)):
             suff = 'rep'
         else:
             suff = 'sim'
-        for k, pars in enumerate([size_pars, model_pars, prot_pars]):
+        for k, pars in enumerate([size_pars, model_pars[i], prot_pars]):
             for p in pars:
                 print("Computing ppcs...")
+                p = p.split('_mu')[0]
                 ppc = samples.posterior[f'{p}_{suff}'].to_dataframe(
                 ).reset_index()
                 percs = size.viz.compute_percentiles(
@@ -112,46 +122,5 @@ for i in tqdm.tqdm(range(2)):
     _perc_df['model'] = model_desc[i]
     perc_df = pd.concat([perc_df, _perc_df], sort=False)
 perc_df.to_csv(
-    f'../../data/mcmc/literature_model{i+1}_params.csv', index=False)
+    f'../../data/mcmc/literature_model_params.csv', index=False)
 print("Done!")
-# %%
-# # Compute the percentiles for the mass spec ppc
-# size_pars = ['phi_peri', 'phi_mem', 'rho_mem',
-#              'rho_peri', 'm_peri', 'm_peri', 'rel_phi']
-# perc_df = pd.DataFrame([])
-# for p in size_pars:
-#     ms_ppc = samples.posterior[p].to_dataframe().reset_index()
-#     ms_percs = size.viz.compute_percentiles(ms_ppc, p, f'{p}_dim_0', **kwargs)
-#     for i, lam in enumerate(lam_sim):
-#         ms_percs.loc[ms_percs[f'{p}_dim_0'] ==
-#                      i, 'growth_rate_hr'] = lam_sim[i]
-#     ms_percs.drop(columns=[f'{p}_dim_0'], inplace=True)
-#     perc_df = pd.concat([perc_df, ms_percs], sort=False)
-# perc_df.to_csv('../../data/mcmc/literature_model_ms_ppcs.csv', index=False)
-
-# # %%
-# # Compute the percentiles for the simulation
-# size_pars = ['phi_peri_sim', 'phi_mem_sim', 'rho_mem_sim',
-#              'rho_peri_sim', 'm_peri_sim', 'rel_phi_sim']
-# perc_df = pd.DataFrame([])
-# for p in size_pars:
-#     ms_ppc = samples.posterior[p].to_dataframe().reset_index()
-#     ms_percs = size.viz.compute_percentiles(ms_ppc, p, f'{p}_dim_0', **kwargs)
-#     for i, lam in enumerate(lam_sim):
-#         ms_percs.loc[ms_percs[f'{p}_dim_0'] ==
-#                      i, 'growth_rate_hr'] = lam_sim[i]
-#     ms_percs.drop(columns=[f'{p}_dim_0'], inplace=True)
-#     perc_df = pd.concat([perc_df, ms_percs], sort=False)
-# perc_df.to_csv('../../data/mcmc/literature_model_ms_ppcs.csv', index=False)
-
-
-# # %%
-# # Compute the percentiles for the protein ppcs
-# post = samples.posterior.prot_per_cell_rep.to_dataframe().reset_index()
-# percs = size.viz.compute_percentiles(
-#     post, 'prot_per_cell_rep', 'prot_per_cell_rep_dim_0', **kwargs)
-# for i, lam in enumerate(lam_sim):
-#     percs.loc[percs['prot_per_cell_rep_dim_0'] == i, 'growth_rate_hr'] = lam
-# percs.drop(columns=['prot_per_cell_rep_dim_0'], inplace=True)
-# percs.to_csv(
-#     '../../data/mcmc/literature_model_protein_ppcs.csv', index=False)

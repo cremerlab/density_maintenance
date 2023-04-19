@@ -18,22 +18,23 @@ ms_data = pd.read_csv(
 ms_data['surface_area'] = ms_data['surface_to_volume'] * ms_data['volume']
 
 # Load the various ppcs
-size_ppcs = pd.read_csv('../../data/mcmc/literature_model_size_ppcs.csv')
-prot_ppcs = pd.read_csv('../../data/mcmc/literature_model_protein_ppcs.csv')
-ms_ppcs = pd.read_csv('../../data/mcmc/literature_model_ms_ppcs.csv')
+ppcs = pd.read_csv('../../data/mcmc/literature_model_params.csv')
+ppcs
+mode = 'sim'
+model = 'const_phi_mem'
+ppcs = ppcs[ppcs['model'] == model]
 
-# %%
 fig, ax = plt.subplots(1, 4, figsize=(6, 1.5))
 
 # Plot the posterior predictive checks
 ax = ax.ravel()
-axes = {'w_rep': ax[0], 'ell_rep': ax[1], 'vol_rep': ax[2]}
-for g, d in size_ppcs[size_ppcs['interval'] != 'median'].groupby(['quantity', 'interval'], sort=False):
+axes = {'w': ax[0], 'ell': ax[1], 'vol': ax[2]}
+for g, d in ppcs[(ppcs['interval'] != 'median') & (ppcs['quantity'].isin([f'{p}_{mode}' for p in ['w', 'ell', 'vol']]))].groupby(['quantity', 'interval'], sort=False):
     d.sort_values(by='growth_rate_hr', inplace=True)
-    axes[g[0]].fill_between(d['growth_rate_hr'], d['lower'], d['upper'], color=ppc_cmap[g[1]],
-                            alpha=0.3)
+    axes[g[0].split('_')[0]].fill_between(d['growth_rate_hr'], d['lower'], d['upper'], color=ppc_cmap[g[1]],
+                                          alpha=0.3)
 
-for g, d in prot_ppcs[prot_ppcs['interval'] != 'median'].groupby(['quantity', 'interval'], sort=False):
+for g, d in ppcs[(ppcs['interval'] != 'median') & (ppcs['quantity'] == f'prot_per_cell_{mode}')].groupby(['quantity', 'interval'], sort=False):
     d.sort_values(by='growth_rate_hr', inplace=True)
     ax[3].fill_between(d['growth_rate_hr'], d['lower'], d['upper'], color=ppc_cmap[g[1]],
                        alpha=0.3)
@@ -55,7 +56,7 @@ for a in ax:
 
 ax[0].set_xlim([0, 2.5])
 ax[2].set_ylim([0, 5])
-# ax[3].set_ylim([0, 500])
+ax[3].set_ylim([0, 500])
 ax[3].set_xlim([0, 2.5])
 
 ax[0].set_ylabel('average width [µm]', fontsize=6)
@@ -88,14 +89,15 @@ for g, d in ms_data[ms_data['localization'].isin(['membrane', 'periplasm'])].gro
                     alpha=0.5, markeredgecolor=cor['primary_black'], markeredgewidth=0.5,
                     ms=4)
 
-axes = {'phi_mem_rep': ax[0], 'phi_peri_rep': ax[1],
+axes = {'phi_mem': ax[0], 'phi_peri': ax[1],
         'rho_mem': ax[2], 'rho_peri': ax[3], 'm_peri': ax[4]}
-for g, d in ms_ppcs[ms_ppcs['interval'] != 'median'].groupby(['quantity', 'interval'], sort=False):
+for g, d in ppcs[(ppcs['interval'] != 'median') &
+                 (ppcs['quantity'].isin([f'{p}_{mode}' for p in axes.keys()]))].groupby(['quantity', 'interval'], sort=False):
     d.sort_values('growth_rate_hr', inplace=True)
-    axes[g[0]].fill_between(d['growth_rate_hr'], d['lower'], d['upper'],
-                            color=ppc_cmap[g[1]], alpha=0.3)
+    axes[g[0].split(f'_{mode}')[0]].fill_between(d['growth_rate_hr'], d['lower'], d['upper'],
+                                                 color=ppc_cmap[g[1]], alpha=0.3)
 
-ax[0].set_ylim([0, 0.20])
+ax[0].set_ylim([0, 0.50])
 ax[1].set_ylim([0, 0.125])
 ax[2].set_ylim([0, 10])
 ax[3].set_ylim([0, 175])
