@@ -14,7 +14,7 @@ mass_spec = pd.read_csv(
 fit = pd.read_csv('../../data/empirical_literature_trends.csv')
 delta = 0.0249
 prot_data = prot_data[prot_data['source'] != 'Richa']
-# prot_data = prot_data[prot_data['source'] != 'Wright & Lockhart 1964']
+prot_data = prot_data[prot_data['source'] != 'Wright & Lockhart 1964']
 # prot_data = prot_data[prot_data['source'] != 'Dennis & Bremer 1974']
 # prot_data = prot_data[prot_data['source'] != 'Chohji et al. 1976']
 
@@ -51,10 +51,10 @@ ax[2].plot(fit['growth_rate_hr'], fit['fg_protein_per_cell'],
 ax[0].set_xlim([0, 2.5])
 ax[0].set_ylim([-0.2, 5])
 ax[1].set_ylim([3, 10])
-ax[2].set_ylim([0, 500])
+ax[2].set_ylim([0, 800])
 ax[0].set_xticks([0, 0.5, 1, 1.5, 2, 2.5])
 ax[0].set_yticks([0, 1, 3, 5])
-ax[2].set_yticks([0, 250, 500])
+# ax[2].set_yticks([0, 250, 500])
 ax[1].set_yticks([3, 6, 9])
 ax[0].set_ylabel('volume\n[µm$^{-3}$]', fontsize=6)
 ax[1].set_ylabel('S/V\n[µm$^{-1}$]', fontsize=6)

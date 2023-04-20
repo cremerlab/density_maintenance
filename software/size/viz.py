@@ -755,6 +755,6 @@ def lit_mapper():
               'Chohji et al. 1976': {'m': 'h', 'c': '#363636'},
               'Dennis & Bremer 1987': {'m': 's', 'c': '#9d9d9d'},
               'Dennis & Bremer 1974': {'m': '*', 'c': '#9d9d9d'},
-              'Richa': {'m': 'o', 'c': 'tomato'}}
+              'Arike et al. 2012': {'m': 'X', 'c': '#545454'}}
 
     return mapper

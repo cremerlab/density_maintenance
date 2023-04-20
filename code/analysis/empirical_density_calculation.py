@@ -8,8 +8,8 @@ size_data = pd.read_csv(
 prot_data = pd.read_csv('../../data/literature/collated_protein_per_cell.csv')
 # prot_data = prot_data[prot_data['source'] != 'Richa']
 # prot_data = prot_data[prot_data['source'] != 'Wright & Lockhart 1964']
-# prot_data = prot_data[(prot_data['source'] == 'Dennis & Bremer 1974') | (
-# prot_data['source'] == 'Chohji et al. 1976')]
+prot_data = prot_data[(prot_data['source'] != 'Dennis & Bremer 1974') & (
+    prot_data['source'] != 'Chohji et al. 1976')]
 # prot_data = prot_data[]
 
 # %%

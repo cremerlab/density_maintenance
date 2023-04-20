@@ -1,43 +1,67 @@
-growth_rate_hr,fg_protein_per_cell,source,notes
-1.84,959,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD
-1.270,399.7,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD
-0.980,311.2,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD
-0.700,221.9,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD
-0.450,221.1,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD
-0.420,201.5,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD
-1.040,156.0,Neidhardt et al. 1992,From Bionumber BNID
-0.416,136.0,Bremer & Dennis 2008,From table 1
-0.693,214.0,Bremer & Dennis 2008,From table 1
-1.040,295.0,Bremer & Dennis 2008,From table 1
-1.386,387.0,Bremer & Dennis 2008,From table 1
-1.733,431.0,Bremer & Dennis 2008,From table 1
-2.079,426.0,Bremer & Dennis 2008,From table 1
-0.416,101.0,Churchward et al. 1982,From Table 1
-0.693,140.0,Churchward et al. 1982,From Table 1
-1.040,246.0,Churchward et al. 1982,From Table 1
-1.386,417.0,Churchward et al. 1982,From Table 1
-1.733,474.0,Churchward et al. 1982,From Table 1
-0.464,82.2,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg
-0.693,102.3,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg
-0.832,120.5,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg
-1.040,157.0,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg
-1.386,204.5,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg
-1.664,252.0,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg
-2.079,346.9,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg
-0.416,100.0,Dennis & Bremer 1987,Taken from Table 2
-0.693,156.0,Dennis & Bremer 1987,Taken from Table 2
-1.040,234.0,Dennis & Bremer 1987,Taken from Table 2
-1.386,340.0,Dennis & Bremer 1987,Taken from Table 2
-1.733,450.0,Dennis & Bremer 1987,Taken from Table 2
-0.70,84.6,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)"
-0.70,74.3,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)"
-0.85,85.4,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)"
-1.10,125.6,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)"
-1.10,145.8,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)"
-1.34,163.6,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)"
-1.53,199.7,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)"
-2.77,278.525348387979,Richa,
-1.31,285.405705908518,Richa,
-0.96,312.281486128251,Richa,
-0.71,319.888121105936,Richa,
-0.47,302.423070902667,Richa,
+growth_rate_hr,fg_protein_per_cell,source,notes,
+1.270,399.7,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD,
+0.980,311.2,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD,
+0.700,221.9,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD,
+0.450,221.1,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD,
+0.420,201.5,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD,
+1.84,959.2,Basan et al. 2015,Computed from supplemental table by dividing protein per OD by cells per OD,
+1.040,156.0,Neidhardt et al. 1992,From Bionumber BNID,
+0.416,136.0,Bremer & Dennis 2008,From table 1,
+0.693,214.0,Bremer & Dennis 2008,From table 1,
+1.040,295.0,Bremer & Dennis 2008,From table 1,
+1.386,387.0,Bremer & Dennis 2008,From table 1,
+1.733,431.0,Bremer & Dennis 2008,From table 1,
+2.079,426.0,Bremer & Dennis 2008,From table 1,
+0.416,101.0,Churchward et al. 1982,From Table 1,
+0.693,140.0,Churchward et al. 1982,From Table 1,
+1.040,246.0,Churchward et al. 1982,From Table 1,
+1.386,417.0,Churchward et al. 1982,From Table 1,
+1.733,474.0,Churchward et al. 1982,From Table 1,
+0.464,82.2,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg,
+0.693,102.3,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg,
+0.832,120.5,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg,
+1.040,157.0,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg,
+1.386,204.5,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg,
+1.664,252.0,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg,
+2.079,346.9,Dennis & Bremer 1974,From Table 1. Calculated assuming 110 Daltons per amino acid an 1.6E-9 Daltons per fg,
+0.416,100.0,Dennis & Bremer 1987,Taken from Table 2,
+0.693,156.0,Dennis & Bremer 1987,Taken from Table 2,
+1.040,234.0,Dennis & Bremer 1987,Taken from Table 2,
+1.386,340.0,Dennis & Bremer 1987,Taken from Table 2,
+1.733,450.0,Dennis & Bremer 1987,Taken from Table 2,
+0.70,84.6,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)",
+0.70,74.3,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)",
+0.85,85.4,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)",
+1.10,125.6,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)",
+1.10,145.8,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)",
+1.34,163.6,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)",
+1.53,199.7,Chohji et al. 1976,"Digitized from Fig. 1C, open circles on solid line (d)",
+0.74,237.8,Li et al. 2014,"Sum of all reported fg masses per cell, calibrated by a Lowry assay",
+1.57,449.3,Li et al. 2014,"Sum of all reported fg masses per cell, calibrated by a Lowry assay",
+1.93,680.6,Li et al. 2014,"Sum of all reported fg masses per cell, calibrated by a Lowry assay",
+0.11,132.6,Valgepea et al. 2013,Calculated from quantities in Supplemental Table 1,
+0.21,158.9,Valgepea et al. 2013,Calculated from quantities in Supplemental Table 1,
+0.31,202.7,Valgepea et al. 2013,Calculated from quantities in Supplemental Table 1,
+0.40,231.2,Valgepea et al. 2013,Calculated from quantities in Supplemental Table 1,
+0.49,253.3,Valgepea et al. 2013,Calculated from quantities in Supplemental Table 1,
+0.11,106.2,Arike et al. 2012,Calculated from average iBAQ copies per cell multiplied by their annotated molecular mass as reported in SI table 1,
+0.21,141.437812,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.22,144.128988,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.25,140.599204,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.26,147.033329,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.31,155.949387,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.35,161.261488,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.36,154.542805,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.41,160.446257,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.42,174.545926,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.45,177.985419,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.46,166.150320,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.51,168.636026,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.53,195.033240,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.55,188.814379,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.63,209.481475,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.65,205.234042,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.73,225.763825,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.74,217.349549,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.78,223.788949,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
+0.82,215.826407,Peebo et al. 2015,Calculated using reported protein copies per fL multiplied by protein mass. Converted to fg per cell assuming an empirical relation between cell volume and growth rate as reported in Si et al. 2017 and 2019. Calculation performed in Belliveau et al. 2021.,
