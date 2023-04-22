@@ -24,6 +24,8 @@ data['periplasm'] = False
 data['membrane'] = False
 data['ribosomal'] = False
 data['metabolism'] = False
+data['inner membrane'] = False
+data['outer membrane'] = False
 for g, _ in tqdm.tqdm(babu.groupby(['name', 'b_number', 'localization'])):
     _dict = {'periplasm': False, 'envelope': True, 'membrane': False}
     if g[-1] == 'PE':
@@ -34,6 +36,14 @@ for g, _ in tqdm.tqdm(babu.groupby(['name', 'b_number', 'localization'])):
         _dict['membrane'] = True
     else:
         _dict['membrane'] = False
+    if g[-1] in ['IM', 'LPI']:
+        _dict['inner membrane'] = True
+    else:
+        _dict['inner membrane'] = False
+    if g[-1] in ['OM', 'LPO']:
+        _dict['outer membrane'] = True
+    else:
+        _dict['outer membrane'] = False
 
     if (len(data[data['gene_name'] == g[0]]) == 0) & (len(data[data['b_number'] == g[1]]) == 0):
         continue
@@ -52,22 +62,35 @@ data.to_csv('../../../data/literature/compiled_mass_fractions.csv', index=False)
 envelope = data[data['envelope'] == True].groupby(
     ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
 envelope['localization'] = 'envelope'
+
 membrane = data[data['membrane'] == True].groupby(
     ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
 membrane['localization'] = 'membrane'
+
 periplasm = data[data['periplasm'] == True].groupby(
     ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
 periplasm['localization'] = 'periplasm'
+
+inner_mem = data[data['inner membrane'] == True].groupby(
+    ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
+inner_mem['localization'] = 'inner membrane'
+
+outer_mem = data[data['outer membrane'] == True].groupby(
+    ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
+outer_mem['localization'] = 'outer membrane'
+
 cytoplasm = data[data['envelope'] == False].groupby(
     ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
 cytoplasm['localization'] = 'cytoplasm'
+
 ribosomal = data[data['ribosomal'] == True].groupby(
     ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
 ribosomal['localization'] = 'ribosomal sector'
+
 metabolic = data[data['metabolism'] == True].groupby(
     ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
 metabolic['localization'] = 'metabolic sector'
 
-aggregated = pd.concat([envelope, membrane, periplasm,
+aggregated = pd.concat([envelope, membrane, periplasm, inner_mem, outer_mem,
                        cytoplasm, ribosomal, metabolic], sort=False)
 aggregated.to_csv('../../../data/literature/summarized_mass_fractions.csv')

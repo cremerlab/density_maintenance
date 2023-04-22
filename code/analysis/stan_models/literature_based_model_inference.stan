@@ -35,7 +35,7 @@ parameters {
     real<lower=0> rho_prot_slope;
     real<lower=0> rho_prot_sigma;
     real<lower=0> m_peri_mu;
-    real<lower=0> m_peri_sigma;
+    // real<lower=0> m_peri_sigma;
     real<lower=0> phi_peri_sigma;
     array[const_phi_mem] real<lower=0> phi_mem_mu;
     real<lower=0> phi_mem_sigma;
@@ -57,7 +57,7 @@ model {
    phi_mem_sigma ~ normal(0, 0.1);
    alpha ~ normal(1, 3);
    m_peri_mu ~ normal(0, 100);
-   m_peri_sigma ~ std_normal();
+//    m_peri_sigma ~ std_normal();
    if (const_phi_mem) {
         phi_mem_mu ~ beta(2, 10);
         phi_mem ~ normal(phi_mem_mu[1], phi_mem_sigma);
@@ -76,11 +76,11 @@ model {
 
    // Likelihoods for protein measurements
    log(prot_per_cell) ~ normal(log((rho_prot_min + rho_prot_slope .* prot_lam) * (pi()/12) .* (w_min + w_slope .* prot_lam).^3 * (3 * alpha - 1)), prot_sigma);
-   rho_prot_meas ~ normal(rho_prot_min + rho_prot_slope .* prot_lam, rho_prot_sigma);
+//    rho_prot_meas ~ normal(rho_prot_min + rho_prot_slope .* prot_lam, rho_prot_sigma);
 
    // Likelihoods based on protein measurements
    phi_peri ~ normal(m_peri_mu / ((rho_prot_min + rho_prot_slope .* ms_lam) * (pi()/12) .* (w_min + w_slope .* ms_lam).^3 * (3 * alpha - 1)), phi_peri_sigma);
-   m_peri_meas ~ normal(m_peri_mu, m_peri_sigma);
+//    m_peri_meas ~ normal(m_peri_mu, m_peri_sigma);
 }
 
 generated quantities {
@@ -110,7 +110,7 @@ generated quantities {
 
     for (i in 1:N_sim) {
         m_peri_sim[i] = m_peri_mu;
-        m_peri_rep[i] = normal_rng(m_peri_sim[i], m_peri_sigma);
+        m_peri_rep[i] = m_peri_mu; //normal_rng(m_peri_sim[i], m_peri_sigma);
         rho_prot_rep[i] = normal_rng(rho_prot_min + rho_prot_slope * lam_sim[i], rho_prot_sigma);
         rho_prot_sim[i] = rho_prot_min + rho_prot_slope * lam_sim[i];
         w_sim[i] = w_min + w_slope * lam_sim[i];

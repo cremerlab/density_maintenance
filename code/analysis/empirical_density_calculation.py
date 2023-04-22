@@ -54,4 +54,4 @@ ms_data['total_protein'] = np.exp(prot_popt[1] +
 ms_data['width'] = width_popt[1] + width_popt[0] * ms_data['growth_rate_hr']
 ms_data['mass_fg'] = ms_data['mass_frac'] * ms_data['total_protein']
 ms_data.to_csv(
-    '../../data/literature/collated_mass_fractions_empirics.csv', index=False)
+    '../../data/literature/collated_mass_fractions_empirics_2.csv', index=False)
