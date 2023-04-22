@@ -32,7 +32,7 @@ parameters {
     real<lower=0> prot_sigma;
     real<lower=1> alpha;
     real<lower=0> rho_prot_min;
-    real<lower=0> rho_prot_slope;
+    real rho_prot_slope;
     real<lower=0> rho_prot_sigma;
     real<lower=0> m_peri_mu;
     // real<lower=0> m_peri_sigma;
@@ -50,7 +50,7 @@ model {
    w_sigma ~ normal(0, 0.01);
    vol_sigma ~ normal(0, 0.1);
    ell_sigma ~ normal(0, 0.1);
-   rho_prot_min ~ normal(0, 100);
+   rho_prot_min ~ normal(200, 100);
    rho_prot_slope ~ normal(0, 100);
    rho_prot_sigma ~ std_normal();
    phi_peri_sigma ~ normal(0, 0.1);

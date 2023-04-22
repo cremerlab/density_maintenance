@@ -20,8 +20,8 @@ ms_data['surface_area'] = ms_data['surface_to_volume'] * ms_data['volume']
 # Load the various ppcs
 ppcs = pd.read_csv('../../data/mcmc/literature_model_params.csv')
 ppcs
-mode = 'sim'
-model = 'const_rho_mem'
+mode = 'rep'
+model = 'const_phi_mem'
 ppcs = ppcs[ppcs['model'] == model]
 
 fig, ax = plt.subplots(1, 4, figsize=(6, 1.5))
@@ -74,7 +74,7 @@ ax[-1].axis(False)
 axes = {'membrane': [ax[0], ax[2]], 'periplasm': [ax[1], ax[3]]}
 for g, d in ms_data[ms_data['localization'].isin(['membrane', 'periplasm'])].groupby(['dataset_name', 'localization']):
     if g[1] == 'membrane':
-        d['density'] = d['mass_fg'] / d['surface_area']
+        d['density'] = d['mass_fg'] / (2 * d['surface_area'])
     else:
         d['density'] = d['mass_fg'] / (d['surface_area'] * 0.0249)
     axes[g[1]][0].plot(d['growth_rate_hr'], d['mass_frac'], mapper[g[0]]['m'], color=mapper[g[0]]['c'],

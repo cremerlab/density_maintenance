@@ -72,7 +72,7 @@ for i in tqdm.tqdm(range(2)):
         'prot_per_cell': prot_data['fg_protein_per_cell'].values.astype(float),
         'prot_lam': prot_data['growth_rate_hr'].values.astype(float),
         'phi_mem': membrane['mass_frac'].values.astype(float),
-        'rho_mem_meas': membrane['mass_fg'].values.astype(float) / (membrane['surface_to_volume'].values.astype(float) * membrane['volume'].astype(float)),
+        'rho_mem_meas': membrane['mass_fg'].values.astype(float) / (2 * membrane['surface_to_volume'].values.astype(float) * membrane['volume'].astype(float)),
         'rho_prot_meas': prot_data['density'].values.astype(float),
         'phi_peri': periplasm['mass_frac'].values.astype(float),
         'm_peri_meas': periplasm['mass_fg'].values.astype(float),
