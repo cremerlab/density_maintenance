@@ -25,26 +25,31 @@ size_data = pd.read_csv(
 # Aggregate the mass spec data
 membrane = ms_data[ms_data['localization'] == 'membrane']
 periplasm = ms_data[ms_data['localization'] == 'periplasm']
+total = ms_data[(ms_data['localization'] == 'cytoplasm') | (
+    ms_data['localization'] == 'envelope')].groupby(
+        ['dataset_name', 'condition', 'growth_rate_hr', 'volume']
+)['mass_fg'].sum().reset_index()
 
 #
-corner_pars = [['w_min', 'w_slope', 'alpha', 'rho_prot_min', 'rho_prot_slope', 'rho_prot_sigma',
+corner_pars = [['w_min', 'w_slope', 'alpha', 'rho_prot_min', 'rho_prot_slope',
                'm_peri_mu', 'w_sigma', 'ell_sigma', 'vol_sigma',
                 'phi_peri_sigma', 'rho_mem_mu'],
-               ['w_min', 'w_slope', 'alpha', 'rho_prot_min', 'rho_prot_slope', 'rho_prot_sigma',
+               ['w_min', 'w_slope', 'alpha', 'rho_prot_min', 'rho_prot_slope',
                'm_peri_mu', 'w_sigma', 'ell_sigma', 'vol_sigma',
                 'phi_peri_sigma', 'phi_mem_sigma', 'phi_mem_mu']]
 
 size_pars = ['w', 'ell', 'vol']
 model_pars = [['phi_peri', 'phi_mem', 'rho_prot',
-              'rho_peri', 'm_peri',  'rel_phi',
-               'rho_mem'],
-              ['phi_peri', 'phi_mem', 'rho_prot',
-              'rho_peri', 'm_peri', 'rel_phi', 'phi_mem',
+              'rho_peri', 'rel_phi',
+               'rho_mem', 'alpha', 'm_peri_mu', 'phi_mem_mu'],
+              ['phi_peri', 'phi_mem', 'rho_prot', 'alpha', 'phi_mem',
+              'rho_peri', 'm_peri', 'rel_phi', 'rho_mem_mu',
                'rho_mem']]
 
 
 prot_pars = ['prot_per_cell']
 model_desc = ['const_rho_mem', 'const_phi_mem']
+
 # Compute the percentiles for the parameters
 upper_percs = [97.5, 87.5, 75, 62.5, 55, 50]
 lower_percs = [2.5, 12.5, 25, 37.5, 45, 50]
@@ -56,6 +61,7 @@ perc_df = pd.DataFrame([])
 for i in tqdm.tqdm(range(2)):
     N_sim = 1000
     lam_sim = np.linspace(0, 3.1, N_sim)
+    width_sim = np.linspace(0.45, 1.5, N_sim)
     # Assemble the data dictionary
     data_dict = {
         'N_size': len(size_data),
@@ -63,6 +69,7 @@ for i in tqdm.tqdm(range(2)):
         'N_mass_spec': len(membrane),
         'N_sim': N_sim,
         'lam_sim': lam_sim,
+        'width_sim': width_sim,
         'delta': 0.0249,
         'const_phi_mem': i,
         'widths': size_data['width_um'].values.astype(float),
@@ -74,12 +81,13 @@ for i in tqdm.tqdm(range(2)):
         'phi_mem': membrane['mass_frac'].values.astype(float),
         'rho_mem_meas': membrane['mass_fg'].values.astype(float) / (2 * membrane['surface_to_volume'].values.astype(float) * membrane['volume'].astype(float)),
         'rho_prot_meas': prot_data['density'].values.astype(float),
+        'rho_prot_meas_ms': total['mass_fg'].values.astype(float) / total['volume'].values.astype(float),
         'phi_peri': periplasm['mass_frac'].values.astype(float),
         'm_peri_meas': periplasm['mass_fg'].values.astype(float),
         'ms_lam': periplasm['growth_rate_hr'].values.astype(float)}
 
     # Sample the model
-    _samples = model.sample(data=data_dict)  # , show_console=True)
+    _samples = model.sample(data=data_dict)
     samples = az.from_cmdstanpy(_samples)
     # Finished sampling
     fig = plt.figure(figsize=(10, 10))
@@ -116,9 +124,11 @@ for i in tqdm.tqdm(range(2)):
                 ).reset_index()
                 percs = size.viz.compute_percentiles(
                     ppc, f'{p}_{suff}', f'{p}_{suff}_dim_0', **kwargs)
-                for ell, lam in enumerate(lam_sim):
+                for ell, (lam, width) in enumerate(zip(lam_sim, width_sim)):
                     percs.loc[percs[f'{p}_{suff}_dim_0']
                               == ell, 'growth_rate_hr'] = lam
+                    percs.loc[percs[f'{p}_{suff}_dim_0']
+                              == ell, 'width'] = width
                 percs.drop(columns=[f'{p}_{suff}_dim_0'], inplace=True)
                 _perc_df = pd.concat([_perc_df, percs], sort=False)
     _perc_df['model'] = model_desc[i]

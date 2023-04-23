@@ -66,7 +66,7 @@ plt.savefig('../../figures/Fig1_empirical_trends.pdf')
 # Plot the densities
 fig, ax = plt.subplots(2, 2, figsize=(3.75, 2.5), sharex=True)
 ax = ax.ravel()
-ax[0].set_ylim([150, 250])
+ax[0].set_ylim([150, 300])
 ax[1].set_ylim([0, 6])
 ax[2].set_ylim([0, 170])
 ax[3].set_ylim([0.5, 7])
@@ -81,7 +81,8 @@ for i, _d in enumerate([cyto, membrane, periplasm]):
         _d['density'] = _d['mass_fg'] / \
             (_d['surface_to_volume'] * _d['volume'] * delta)
     else:
-        _d['density'] = _d['mass_fg'] / _d['volume']
+        _d['density'] = _d['mass_fg'] / \
+            (_d['volume'] - _d['surface_to_volume'] * _d['volume'] * delta)
     _d.sort_values(by='growth_rate_hr', inplace=True)
     _d['fc'] = _d['density'] / _d['density'].min()
     for g, d in _d.groupby(['dataset_name']):
