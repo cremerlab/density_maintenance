@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import corner.corner as corner
+import scipy.stats
 import arviz as az
 import cmdstanpy
 import size.viz
@@ -43,8 +44,9 @@ model_pars = [['phi_peri', 'phi_mem', 'rho_prot',
               'rho_peri', 'rel_phi',
                'rho_mem', 'alpha', 'm_peri_mu', 'phi_mem_mu'],
               ['phi_peri', 'phi_mem', 'rho_prot', 'alpha', 'phi_mem',
-              'rho_peri', 'm_peri', 'rel_phi', 'rho_mem_mu',
-               'rho_mem']]
+              'rho_peri', 'm_peri', 'rel_phi', 'rho_mem']]
+model_kde_pars = [['rho_prot', 'rho_mem_mu', 'alpha', 'm_peri_mu'],
+                  ['rho_prot', 'phi_mem_mu', 'alpha', 'm_peri_mu']]
 
 
 prot_pars = ['prot_per_cell']
@@ -58,6 +60,7 @@ kwargs = {'lower_bounds': lower_percs,
           'upper_bounds': upper_percs, 'interval_labels': labels}
 
 perc_df = pd.DataFrame([])
+kde_df = pd.DataFrame([])
 for i in tqdm.tqdm(range(2)):
     N_sim = 1000
     lam_sim = np.linspace(0, 3.1, N_sim)
@@ -106,7 +109,7 @@ for i in tqdm.tqdm(range(2)):
     percs.to_csv(
         f'../../data/mcmc/literature_model{i+1}_parameter_percs.csv', index=False)
 
-    # Compute the percentiles for the size ppc
+    # Compute the percentiles ppc
     datasets = size_data['source'].values
     growth_rates = size_data['growth_rate_hr'].values
     _perc_df = pd.DataFrame([])
@@ -133,6 +136,20 @@ for i in tqdm.tqdm(range(2)):
                 _perc_df = pd.concat([_perc_df, percs], sort=False)
     _perc_df['model'] = model_desc[i]
     perc_df = pd.concat([perc_df, _perc_df], sort=False)
+
+    # Compute a kernel density estimate over all of the model pars.
+    for j, p in enumerate(model_kde_pars[i]):
+        post = samples.posterior[p].to_dataframe().reset_index()
+        prange = np.linspace(0.75 * post[p].min(), 1.25 * post[p].max(), 300)
+        kernel = scipy.stats.gaussian_kde(post[p].values)
+        kde = kernel(prange)
+        kde *= kde.sum()**-1
+        _df = pd.DataFrame(np.array([prange, kde]).T, columns=['value', 'kde'])
+        _df['parameter'] = p
+        _df['model'] = model_desc[i]
+        kde_df = pd.concat([kde_df, _df], sort=False)
+
 perc_df.to_csv(
     f'../../data/mcmc/literature_model_params.csv', index=False)
+kde_df.to_csv('../../data/mcmc/literature_model_params_kde.csv', index=False)
 print("Done!")

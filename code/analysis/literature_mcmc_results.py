@@ -69,6 +69,11 @@ plt.tight_layout()
 plt.savefig('../../figures/Fig2_size_prot_ppcs.pdf', bbox_inches='tight')
 
 # %%
+total_prot = ms_data[ms_data['localization'].isin(['cytoplasm',
+                                                   'envelope'])
+                     ].groupby(['dataset_name', 'condition', 'growth_rate_hr',
+                                'volume'])['mass_fg'].sum().reset_index()
+
 # Plot the allocation ppcs
 fig, ax = plt.subplots(3, 2, figsize=(6, 4.5))
 ax = ax.ravel()
@@ -79,6 +84,7 @@ for g, d in ms_data[ms_data['localization'].isin(['membrane', 'periplasm', 'cyto
     elif g[1] == 'periplasm':
         d['density'] = d['mass_fg'] / (d['surface_area'] * 0.0249)
     else:
+        d = total_prot[total_prot['dataset_name'] == g[0]]
         d['density'] = d['mass_fg'] / d['volume']
     if g[1] == 'cytoplasm':
         ax[5].plot(d['growth_rate_hr'], d['density'], mapper[g[0]]['m'], color=mapper[g[0]]['c'],
@@ -108,7 +114,7 @@ for g, d in ppcs[(ppcs['interval'] != 'median') &
 
 ax[0].set_ylim([0, 0.2])
 ax[1].set_ylim([0, 0.125])
-ax[2].set_ylim([0, 10])
+ax[2].set_ylim([0, 6])
 ax[3].set_ylim([0, 175])
 ax[4].set_ylim([0, 20])
 for a in ax:

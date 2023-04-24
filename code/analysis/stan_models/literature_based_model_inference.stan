@@ -81,7 +81,6 @@ model {
 
    // Likelihoods for protein measurements
    rho_prot_meas ~ normal(rho_prot_min + rho_prot_slope .* prot_lam, rho_prot_sigma);
-//    rho_prot_meas_ms ~ normal(rho_prot_min + rho_prot_slope .* ms_lam, rho_prot_sigma);
    log(prot_per_cell) ~ normal(log(rho_prot * (pi()/12) .* (w_min + w_slope .* prot_lam).^3 * (3 * alpha - 1)), prot_sigma);
 
    // Likelihoods based on protein measurements
@@ -92,6 +91,8 @@ model {
 
 generated quantities {
     // PPC for fit quantities
+    vector[N_sim] alpha_rep;
+    vector[N_sim] alpha_sim;
     vector[N_sim] w_rep;
     vector[N_sim] ell_rep;
     vector[N_sim] vol_rep;
@@ -116,6 +117,8 @@ generated quantities {
     vector[N_sim] rel_phi_sim;
 
     for (i in 1:N_sim) {
+        alpha_rep[i] = alpha; 
+        alpha_sim[i] = alpha;
         m_peri_sim[i] = m_peri_mu;
         m_peri_rep[i] = normal_rng(m_peri_mu, m_peri_sigma);
         rho_prot_rep[i] = normal_rng(rho_prot_min + rho_prot_slope * lam_sim[i], rho_prot_sigma);
