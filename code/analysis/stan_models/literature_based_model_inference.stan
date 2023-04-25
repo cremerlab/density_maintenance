@@ -25,6 +25,10 @@ data {
     vector<lower=0>[N_mass_spec] ms_lam;
 }
 
+transformed data {
+    vector<lower=1>[N_size] aspect_ratio = lengths ./ widths;
+}
+
 parameters { 
     real<lower=0> w_min;
     real<lower=0> w_slope;
@@ -33,6 +37,7 @@ parameters {
     real<lower=0> vol_sigma;
     real<lower=0> prot_sigma;
     real<lower=1> alpha;
+    real<lower=0> alpha_sigma;
     real<lower=0> rho_prot_min;
     real<upper=0> rho_prot_slope;
     real<lower=0> rho_prot_sigma;
@@ -62,6 +67,7 @@ model {
    phi_peri_sigma ~ normal(0, 0.1);
    phi_mem_sigma ~ normal(0, 0.1);
    alpha ~ normal(1, 3);
+   alpha_sigma ~ std_normal();
    m_peri_mu ~ normal(0, 100);
    if (const_phi_mem) {
         phi_mem_mu ~ beta(2, 10);
@@ -77,6 +83,7 @@ model {
    // Likelihoods for size measurements
    widths ~ normal(w_min + w_slope .* size_lam, w_sigma);
    lengths ~ normal(alpha .* (w_min + w_slope .* size_lam), ell_sigma);
+   aspect_ratio ~ normal(alpha, alpha_sigma);
    log(volumes) ~ normal(log((pi()/12) * (w_min + w_slope .* size_lam).^3 * (3 * alpha - 1)), vol_sigma);
 
    // Likelihoods for protein measurements
@@ -117,8 +124,6 @@ generated quantities {
     vector[N_sim] rel_phi_sim;
 
     for (i in 1:N_sim) {
-        alpha_rep[i] = alpha; 
-        alpha_sim[i] = alpha;
         m_peri_sim[i] = m_peri_mu;
         m_peri_rep[i] = normal_rng(m_peri_mu, m_peri_sigma);
         rho_prot_rep[i] = normal_rng(rho_prot_min + rho_prot_slope * lam_sim[i], rho_prot_sigma);
@@ -129,6 +134,9 @@ generated quantities {
         ell_rep[i] = normal_rng(alpha * w_rep[i], ell_sigma);
         vol_rep[i] = exp(normal_rng(log((pi()/12) * (w_min + w_slope * lam_sim[i])^3 * (3 * alpha - 1)), vol_sigma));
         vol_sim[i] = (pi()/12) * w_sim[i]^3 * (3 * alpha - 1);
+        alpha_rep[i] = normal_rng(alpha, alpha_sigma);
+        alpha_sim[i] = alpha;
+
         prot_per_cell_rep[i] = normal_rng(rho_prot_rep[i] * (pi()/12) * w_rep[i]^3 * (3 * alpha - 1), prot_sigma);    
         prot_per_cell_sim[i] = rho_prot_sim[i] * (pi()/12) * w_sim[i]^3 * (3 * alpha - 1);    
         if (const_phi_mem) {

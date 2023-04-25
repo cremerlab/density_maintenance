@@ -149,6 +149,25 @@ generated quantities {
     vector[J_size_cond] alpha = length_mu ./ width_mu;
     vector[J_brad_cond] phi_peri = prot_per_biomass_mu ./ total_protein_mu; 
     vector[J_brad_cond] N_cells = 1E9 / (flow_prefactor * biomass_mu * volume_mu[brad_mapper]);
-    vector[J_brad_cond] m_peri = prot_per_biomass_mu ./ N_cells;
-    vector[J_brad_cond] rho_peri = m_peri ./ peri_volume_mu[brad_mapper];
+    vector[J_brad_cond] m_peri = 1E9 * prot_per_biomass_mu ./ N_cells;
+    vector[J_brad_cond] rho_peri = m_peri ./ peri_volume_mu[brad_mapper];   
+    vector[J_brad_cond] od595_brad_rep;
+    vector[J_brad_cond] N_cells_rep;
+    vector[J_brad_cond] m_peri_rep;
+    vector[J_size_cond] width_rep;
+    vector[J_size_cond] length_rep;
+    vector[J_size_cond] volume_rep;
+    vector[J_size_cond] alpha_rep;
+    vector[J_size_cond] growth_rate_rep;
+    for (i in 1:J_size_cond) {
+        width_rep[i] = normal_rng(width_mu[i], width_sigma[i]);
+        length_rep[i] = normal_rng(length_mu[i], length_sigma[i]);
+        volume_rep[i] = normal_rng(volume_mu[i], volume_sigma[i]);
+        growth_rate_rep[i] = normal_rng(growth_mu[i], growth_rates_sigma[i]);
+        alpha_rep[i] = length_rep[i] / width_rep[i];
+    }
+
+    for (i in 1:J_brad_cond) {
+        m_peri_rep[i] = 1E9 * normal_rng(prot_per_biomass_mu, prot_per_biomass) 
+    }
 }

@@ -175,7 +175,9 @@ samples = az.from_cmdstanpy(_samples)
 size_groupby = ['strain', 'carbon_source',
                 'overexpression', 'inducer_conc', 'size_cond_idx']
 # Perform a KDE over the posteriors
-shape_parameters = ['width_mu', 'length_mu', 'volume_mu', 'peri_volume_mu']
+shape_parameters = ['width_mu', 'length_mu', 'volume_mu', 'peri_volume_mu',
+                    'alpha', 'growth_rate_rep', 'width_rep', 'length_rep',
+                    'volume_rep', 'alpha_rep']
 shape_post_kde = pd.DataFrame([])
 for s in tqdm.tqdm(shape_parameters):
     post = samples.posterior[s].to_dataframe().reset_index()
