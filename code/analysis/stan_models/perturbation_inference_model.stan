@@ -167,7 +167,7 @@ generated quantities {
         alpha_rep[i] = length_rep[i] / width_rep[i];
     }
 
-    for (i in 1:J_brad_cond) {
-        m_peri_rep[i] = 1E9 * normal_rng(prot_per_biomass_mu, prot_per_biomass) 
-    }
+    // for (i in 1:J_brad_cond) {
+        // m_peri_rep[i] = 1E9 * normal_rng(prot_per_biomass_mu, prot_per_biomass_sigma) / N_cells[i]; 
+    // }
 }

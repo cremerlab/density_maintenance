@@ -17,10 +17,13 @@ ms_data = pd.read_csv(
 ppcs = pd.read_csv('../../data/mcmc/literature_model_params.csv')
 ppcs = ppcs[ppcs['model'] == 'const_phi_mem']
 size_data['aspect_ratio'] = size_data['length_um'] / size_data['width_um']
+
 # %%
 err_widths = {'95%': 0.5, '75%': 1, '25%': 1.5}
 fig, ax = plt.subplots(2, 2, figsize=(3, 2.25), sharex=True)
 ax = ax.ravel()
+for a in ax:
+    a.set_xticks([0, 1, 2])
 ax[0].set_ylim([0.3, 1.3])
 ax[1].set_ylim([1, 6])
 ax[2].set_ylim([-0.5, 5])
@@ -65,8 +68,8 @@ for g, d in size_data.groupby(['source']):
                    color=mapper[g]['c'], alpha=0.45, zorder=500)
 
 for g, d in growth_params.groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source'], sort=False):
-    # if (g[0] != 'wildtype') | (g[1] != 'none'):
-        # continu
+    if (g[0] != 'wildtype') | (g[1] != 'none'):
+        continue
     sizes = model_params[(model_params['strain'] == g[0]) &
                          (model_params['overexpression'] == g[1]) &
                          (model_params['inducer_conc'] == g[2]) &
@@ -92,6 +95,8 @@ plt.savefig('../../figures/Fig4_wildtype_dimensions.pdf', bbox_inches='tight')
 fig, ax = plt.subplots(1, 2, figsize=(3.5, 1.5), sharex=True)
 ax[0].set_ylim([0, 20])
 ax[1].set_ylim([0, 0.10])
+for a in ax:
+    a.set_xticks([])
 for g, d in ms_data.groupby(['dataset_name', 'condition', 'growth_rate_hr']):
     peri = d[d['localization'] == 'periplasm']
     tot = d[d['localization'].isin(['cytoplasm', 'envelope'])]
@@ -114,15 +119,18 @@ for g, d in growth_params.groupby(['strain', 'overexpression', 'inducer_conc', '
         continue
     med_growth = d[d['interval'] == 'median']
     for i, p in enumerate(['m_peri', 'phi_peri']):
-        if p == ''
+        if p == 'm_peri':
+            prefactor = 1E9
+        else:
+            prefactor = 1
         med_p = pars[(pars['quantity'] == p) &
                      (pars['interval'] == 'median')]
-        ax[i].plot(med_growth['lower'], med_p['lower'], 'o', ms=3, markeredgecolor=pert_cors[g[0]][g[1]],
+        ax[i].plot(med_growth['lower'], prefactor * med_p['lower'], 'o', ms=3, markeredgecolor=pert_cors[g[0]][g[1]],
                    markeredgewidth=1, markerfacecolor='white', zorder=1000)
         for _g, _d in sizes[(sizes['interval'] != 'median') & (sizes['quantity'] == p)].groupby(['interval']):
-            ax[i].vlines(med_growth['lower'], _d['lower'], _d['upper'], lw=err_widths[_g],
+            ax[i].vlines(med_growth['lower'], prefactor * _d['lower'], prefactor * _d['upper'], lw=err_widths[_g],
                          color=pert_cors[g[0]][g[1]], zorder=999)
         for _g, _d in d[d['interval'] != 'median'].groupby(['interval']):
-            ax[i].hlines(med_p['lower'], _d['lower'], _d['upper'], lw=err_widths[_g],
+            ax[i].hlines(prefactor * med_p['lower'],  _d['lower'], _d['upper'], lw=err_widths[_g],
                          color=pert_cors[g[0]][g[1]], zorder=999)
 plt.tight_layout()
