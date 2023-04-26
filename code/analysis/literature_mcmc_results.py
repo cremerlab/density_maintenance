@@ -157,3 +157,5 @@ for g, d in const_rho[(const_rho['interval'] != 'median') & (const_rho['quantity
     d.sort_values(by='width', inplace=True)
     ax[1].fill_between(d['width'], d['lower'], d['upper'], color=ppc_cmap[g],
                        alpha=0.3)
+
+ax[1].set_xlim([0.5, 1.25])

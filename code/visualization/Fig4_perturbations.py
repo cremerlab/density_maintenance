@@ -65,8 +65,8 @@ for g, d in size_data.groupby(['source']):
                    color=mapper[g]['c'], alpha=0.45, zorder=500)
 
 for g, d in growth_params.groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source'], sort=False):
-    if (g[0] != 'wildtype') | (g[1] != 'none'):
-        continue
+    # if (g[0] != 'wildtype') | (g[1] != 'none'):
+        # continu
     sizes = model_params[(model_params['strain'] == g[0]) &
                          (model_params['overexpression'] == g[1]) &
                          (model_params['inducer_conc'] == g[2]) &
@@ -114,6 +114,7 @@ for g, d in growth_params.groupby(['strain', 'overexpression', 'inducer_conc', '
         continue
     med_growth = d[d['interval'] == 'median']
     for i, p in enumerate(['m_peri', 'phi_peri']):
+        if p == ''
         med_p = pars[(pars['quantity'] == p) &
                      (pars['interval'] == 'median')]
         ax[i].plot(med_growth['lower'], med_p['lower'], 'o', ms=3, markeredgecolor=pert_cors[g[0]][g[1]],
