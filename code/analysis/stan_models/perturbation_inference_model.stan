@@ -159,6 +159,7 @@ generated quantities {
     vector[J_size_cond] volume_rep;
     vector[J_size_cond] alpha_rep;
     vector[J_size_cond] growth_rate_rep;
+    vector[J_size_cond] od595_per_biomass_rep
     for (i in 1:J_size_cond) {
         width_rep[i] = normal_rng(width_mu[i], width_sigma[i]);
         length_rep[i] = normal_rng(length_mu[i], length_sigma[i]);
