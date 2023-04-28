@@ -33,7 +33,7 @@ growth_data = pd.read_csv(
     '../../data/summaries/summarized_growth_measurements.csv')
 tot_prot = pd.read_csv(
     '../../data/literature/collated_total_protein_per_od.csv')
-tot_prot = tot_prot[tot_prot['source'].isin(['Basan et al. 2015', 'Dai et al. 2016']) &
+tot_prot = tot_prot[tot_prot['source'].isin(['This study']) &
                     (tot_prot['growth_rate_hr'] <= 1.5)]
 # %%
 # ##############################################################################
@@ -325,8 +325,35 @@ plt.savefig(
     '../../figures/mcmc/size_diagnostics/perturbation_inference_size_ppc.pdf')
 
 # %%
+# Visualize growth rate ppcs.
+fig, ax = plt.subplots(1, 1, figsize=(4, 7))
+inds = {g: i for i, (g, _) in enumerate(growth_data.groupby(
+    ['strain', 'carbon_source', 'overexpression', 'inducer_conc']))}
+for g, d in growth_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc']):
+    ax.plot(d['growth_rate_hr'], inds[g] + np.random.normal(0, 0.1, len(d)), 'o', color=cor['primary_red'],
+            ms=3)
+ppcs = samples.posterior.growth_rate_rep.to_dataframe().reset_index()
+for i in range(len(growth_data)):
+    _d = growth_data.iloc[i]
+    ppcs.loc[ppcs['growth_rate_rep_dim_0'] == i, 'strain'] = _d['strain']
+    ppcs.loc[ppcs['growth_rate_rep_dim_0'] == i,
+             'carbon_source'] = _d['carbon_source']
+    ppcs.loc[ppcs['growth_rate_rep_dim_0'] == i,
+             'overexpression'] = _d['overexpression']
+    ppcs.loc[ppcs['growth_rate_rep_dim_0'] ==
+             i, 'inducer_conc'] = _d['inducer_conc']
 
 
+percs = size.viz.compute_percentiles(ppcs, 'growth_rate_rep', [
+                                     'strain', 'carbon_source', 'overexpression', 'inducer_conc'])
+
+for g, d in percs.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc', 'interval'], sort=False):
+    ax.hlines(inds[g[:-1]], d['lower'], d['upper'],
+              lw=10, color=ppc_cmap[g[-1]], zorder=1)
+
+ax.set_yticks(list(inds.values()))
+ax.set_yticklabels(list(inds.keys()))
+ax.set_xlabel('growth rate [hr$^{-1}$]')
 # %%
 # ##############################################################################
 # PARAMETER SUMMARIZATION
@@ -420,7 +447,7 @@ for i, p in enumerate(shape_parameters):
     param_percs = pd.concat([param_percs, percs], sort=False)
 
 # Process the parameters for the protein quantities
-params = ['phi_peri_rep', 'm_peri_rep', 'rho_peri_rep']
+params = ['phi_peri', 'm_peri', 'rho_peri']
 for i, p in enumerate(params):
     p_df = samples.posterior[p].to_dataframe().reset_index()
     percs = size.viz.compute_percentiles(p_df, p, f'{p}_dim_0',

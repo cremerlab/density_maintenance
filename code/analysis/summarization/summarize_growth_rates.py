@@ -6,7 +6,7 @@ import tqdm
 data = pd.read_csv(
     '../../../data/growth_curves/growth_measurements_processed.csv')
 summarized = pd.DataFrame([])
-for g, d in tqdm.tqdm(data.groupby(['strain', 'carbon_source',  'overexpression', 'inducer_conc_ng_ml', 'run_idx'])):
+for g, d in tqdm.tqdm(data.groupby(['strain', 'carbon_source',  'overexpression', 'inducer_conc', 'run_idx'])):
     popt = scipy.stats.linregress(
         d['elapsed_time_hr'].values, np.log(d['od_600nm']))
     slope = popt[0]

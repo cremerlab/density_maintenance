@@ -48,10 +48,10 @@ pert_cors = {'wildtype': {'lacZ': cor['dark_black'],
 # Plot the percentiles
 perc_cors = {'95%': cor['pale_blue'], '75%': cor['light_blue'],
              '25%': cor['primary_blue'], 'median': cor['blue']}
-axes = {'w_rep': ax[0], 'ell_rep': ax[1],
-        'vol_rep': ax[2], 'alpha_rep': ax[3]}
-for i, (g, d) in enumerate(ppcs[ppcs['quantity'].isin(['w_rep', 'ell_rep',
-                                                       'vol_rep', 'alpha_rep']) &
+axes = {'width_mu': ax[0], 'length_mu': ax[1],
+        'volume_mu': ax[2], 'alpha_mu': ax[3]}
+for i, (g, d) in enumerate(ppcs[ppcs['quantity'].isin(['width_mu', 'length_mu',
+                                                       'volume_mu', 'alpha_mu']) &
                                 ppcs['interval'].isin(perc_cors.keys())
                                 ].groupby(['quantity', 'interval'], sort=False)):
     if g[1] != 'median':
@@ -74,7 +74,7 @@ for g, d in growth_params.groupby(['strain', 'overexpression', 'inducer_conc', '
                          (model_params['overexpression'] == g[1]) &
                          (model_params['inducer_conc'] == g[2]) &
                          (model_params['carbon_source'] == g[3]) &
-                         (model_params['quantity'].isin(['width_rep', 'length_rep', 'volume_rep', 'alpha_rep']))]
+                         (model_params['quantity'].isin(['width', 'length_rep', 'volume_rep', 'alpha_rep']))]
     med_growth = d[d['interval'] == 'median']
     for i, p in enumerate(['width_rep', 'length_rep', 'volume_rep', 'alpha_rep']):
         med_p = sizes[(sizes['quantity'] == p) &
@@ -114,11 +114,11 @@ for g, d in growth_params.groupby(['strain', 'overexpression', 'inducer_conc', '
                         (model_params['overexpression'] == g[1]) &
                         (model_params['inducer_conc'] == g[2]) &
                         (model_params['carbon_source'] == g[3]) &
-                        (model_params['quantity'].isin(['m_peri_rep', 'phi_peri_rep']))]
+                        (model_params['quantity'].isin(['m_peri', 'phi_peri']))]
     if len(pars) == 0:
         continue
     med_growth = d[d['interval'] == 'median']
-    for i, p in enumerate(['m_peri_rep', 'phi_peri_rep']):
+    for i, p in enumerate(['m_peri', 'phi_peri']):
         if p == 'm_peri_rep':
             prefactor = 1E9
         else:
