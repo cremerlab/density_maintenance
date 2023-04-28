@@ -114,20 +114,21 @@ for g, d in growth_params.groupby(['strain', 'overexpression', 'inducer_conc', '
                         (model_params['overexpression'] == g[1]) &
                         (model_params['inducer_conc'] == g[2]) &
                         (model_params['carbon_source'] == g[3]) &
-                        (model_params['quantity'].isin(['m_peri', 'phi_peri']))]
+                        (model_params['quantity'].isin(['m_peri_rep', 'phi_peri_rep']))]
     if len(pars) == 0:
         continue
     med_growth = d[d['interval'] == 'median']
-    for i, p in enumerate(['m_peri', 'phi_peri']):
-        if p == 'm_peri':
+    for i, p in enumerate(['m_peri_rep', 'phi_peri_rep']):
+        if p == 'm_peri_rep':
             prefactor = 1E9
         else:
             prefactor = 1
         med_p = pars[(pars['quantity'] == p) &
                      (pars['interval'] == 'median')]
+
         ax[i].plot(med_growth['lower'], prefactor * med_p['lower'], 'o', ms=3, markeredgecolor=pert_cors[g[0]][g[1]],
                    markeredgewidth=1, markerfacecolor='white', zorder=1000)
-        for _g, _d in sizes[(sizes['interval'] != 'median') & (sizes['quantity'] == p)].groupby(['interval']):
+        for _g, _d in pars[(pars['interval'] != 'median') & (pars['quantity'] == p)].groupby(['interval']):
             ax[i].vlines(med_growth['lower'], prefactor * _d['lower'], prefactor * _d['upper'], lw=err_widths[_g],
                          color=pert_cors[g[0]][g[1]], zorder=999)
         for _g, _d in d[d['interval'] != 'median'].groupby(['interval']):

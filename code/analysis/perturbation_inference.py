@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import corner
+import corner.corner as corner
 import cmdstanpy
 import arviz as az
 import matplotlib.pyplot as plt
@@ -33,7 +33,8 @@ growth_data = pd.read_csv(
     '../../data/summaries/summarized_growth_measurements.csv')
 tot_prot = pd.read_csv(
     '../../data/literature/collated_total_protein_per_od.csv')
-
+tot_prot = tot_prot[tot_prot['source'].isin(['Basan et al. 2015', 'Dai et al. 2016']) &
+                    (tot_prot['growth_rate_hr'] <= 1.5)]
 # %%
 # ##############################################################################
 # DATASET FILTERING
@@ -157,6 +158,7 @@ data_dict = {
     'biomass': biomass_data['dry_mass_ug'],
     'N_prot': len(tot_prot),
     'total_protein': tot_prot['total_protein'],
+    'total_protein_lam': tot_prot['growth_rate_hr'],
     'total_protein_growth_rates': tot_prot['growth_rate_hr'],
 
     'N_flow': len(flow_data),
@@ -170,14 +172,171 @@ data_dict = {
 _samples = model.sample(data_dict, adapt_delta=0.99)
 samples = az.from_cmdstanpy(_samples)
 
+# %%
+# ##############################################################################
+# POSTERIOR PREDICTIVE CHECKS
+# ##############################################################################
+# Plot the ppc for the calibration data
+cal_ppc = samples.posterior.od595_cal_rep.to_dataframe().reset_index()
+for conc, n in zip(cal_data['protein_conc_ug_ml'], np.arange(len(cal_data))):
+    cal_ppc.loc[cal_ppc['od595_cal_rep_dim_0'] == n, 'conc'] = conc
+cal_percs = size.viz.compute_percentiles(cal_ppc, 'od595_cal_rep', 'conc')
+
+fig, ax = plt.subplots(1, 1)
+cmap = sns.color_palette('Greys', len(cal_percs['interval'].unique()) + 1)
+ppc_cmap = {i: c for i, c in zip(cal_percs['interval'].unique(), cmap)}
+for i, (g, d) in enumerate(cal_percs.groupby(['interval'], sort=False)):
+    ax.fill_between(d['conc'].values, d['lower'].values, d['upper'].values,
+                    color=ppc_cmap[g], zorder=i+1)
+ax.plot(cal_data['protein_conc_ug_ml'], cal_data['od_595nm'], 'o',
+        color=cor['primary_red'], ms=4, zorder=i+1)
+ax.set_xlabel('protein standard concentration [µg / mL]')
+ax.set_ylabel('OD$_{595nm}$')
+plt.savefig(
+    '../../figures/mcmc/protein_diagnostics/perturbation_inference_calibration_curve_ppc.pdf')
+# %%
+# Compute the percentiles
+prot_ppc_df = samples.posterior.od595_meas_rep.to_dataframe().reset_index()
+
+for dim, idx in zip(np.arange(len(brad_data)), brad_data['cond_idx'].values):
+    prot_ppc_df.loc[prot_ppc_df['od595_meas_rep_dim_0']
+                    == dim, 'cond_idx'] = idx
+
+prot_ppc_percs = size.viz.compute_percentiles(
+    prot_ppc_df, 'od595_meas_rep', 'cond_idx')
+
+fig, ax = plt.subplots(1, 1, figsize=(4, 6))
+
+for i, (g, d) in enumerate(prot_ppc_percs.groupby(['cond_idx', 'interval'], sort=False)):
+    ax.hlines(g[0], d['lower'], d['upper'], lw=5,
+              color=ppc_cmap[g[1]], zorder=i+1)
+
+
+for g, d in brad_data.groupby(['cond_idx']):
+    ax.plot(d['od_per_biomass'], np.ones(len(d)) * g + np.random.normal(0, 0.05, len(d)),
+            'o', color=cor['primary_red'], ms=4, zorder=i+1)
+
+labels = []
+for g, d in brad_data.groupby(['cond_idx', 'strain', 'carbon_source',
+                               'overexpression', 'inducer_conc_ng_mL']):
+    labels.append(g[1:])
+ax.set_yticks(brad_data['cond_idx'].unique())
+ax.set_yticklabels(labels)
+ax.set_xlabel('OD$_{595nm}$')
+plt.savefig(
+    '../../figures/mcmc/protein_diagnostics/perturbation_inference_bradford_ppc.pdf')
+
 
 # %%
+total_protein_ppc = samples.posterior.total_protein_rep.to_dataframe().reset_index()
+for i in range(len(tot_prot)):
+    total_protein_ppc.loc[total_protein_ppc['total_protein_rep_dim_0']
+                          == i, 'growth_rate_hr'] = tot_prot['growth_rate_hr'].values[i]
+    total_protein_ppc.loc[total_protein_ppc['total_protein_rep_dim_0']
+                          == i, 'source'] = tot_prot['source'].values[i]
+total_protein_perc = size.viz.compute_percentiles(total_protein_ppc, 'total_protein_rep',
+                                                  ['growth_rate_hr', 'source'])
+
+fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+for i, (g, d) in enumerate(total_protein_perc.groupby(['interval'], sort=False)):
+    ax.fill_between(d['growth_rate_hr'], d['lower'], d['upper'],
+                    color=ppc_cmap[g], label='__nolegend__')
+
+for g, d in tot_prot.groupby(['source']):
+    ax.plot(d['growth_rate_hr'], d['total_protein'], 'o', label=g,
+            ms=4)
+
+ax.legend()
+ax.set_xlabel('growth rate [hr$^{-1}$]')
+ax.set_ylabel('total protein [µg / OD$_{600nm}$ mL]')
+plt.savefig(
+    '../../figures/mcmc/protein_diagnostics/perturbation_inference_total_protein_trend.pdf')
+
+# %%
+# Biomass ppc
+biomass_ppc = samples.posterior.biomass_rep.to_dataframe()
+biomass_ppc['idx'] = 1
+biomass_percs = size.viz.compute_percentiles(biomass_ppc, 'biomass_rep', 'idx')
+
+fig, ax = plt.subplots(1, 1, figsize=(4, 1))
+
+for i, (g, d) in enumerate(biomass_percs.groupby(['interval'], sort=False)):
+    ax.hlines(1, d['lower'], d['upper'], lw=15, zorder=i+1, color=ppc_cmap[g])
+
+
+ax.plot(biomass_data['dry_mass_ug'], np.ones(
+    len(biomass_data)), 'o', color=cor['primary_green'], zorder=i+1)
+ax.set_yticks([])
+ax.set_xlabel('dry mass [µg / OD$_{600nm}$ mL]')
+plt.savefig(
+    '../../figures/mcmc/protein_diagnostics/perturbation_inference_biomass_ppc.pdf')
+
+# %%
+fig, ax = plt.subplots(1, 5, figsize=(12, 4), sharey=True)
+# ax = ax.ravel()
+props = ['width', 'length', 'volume', 'peri_volume', 'alpha']
+for p, a in zip(props, ax.ravel()):
+    a.set_xlabel(p)
+
+loc = {k: ax[i] for i, k in enumerate(props)}
+for p in props:
+    _ppc = samples.posterior[f'{p}_rep'].to_dataframe().reset_index()
+
+    for dim, idx in enumerate(size_data['size_cond_idx'].unique()):
+        _ppc.loc[_ppc[f'{p}_rep_dim_0'] == dim, 'idx'] = idx
+
+    _perc = size.viz.compute_percentiles(_ppc, f'{p}_rep', 'idx')
+    for i, (g, d) in enumerate(_perc.groupby(['idx', 'interval'], sort=False)):
+
+        loc[p].hlines(g[0], d['lower'], d['upper'], lw=2, color=ppc_cmap[g[1]],
+                      zorder=i+1)
+
+for g, d in size_data.groupby(['size_cond_idx']):
+    _ones = np.ones(len(d))
+    ax[0].plot(d['width_median'], _ones * g +
+               np.random.normal(0, 0.05, len(d)), 'o', color=cor['primary_red'],
+               ms=3, zorder=1000)
+    ax[1].plot(d['length'], _ones * g +
+               np.random.normal(0, 0.05, len(d)), 'o', color=cor['primary_red'],
+               ms=3, zorder=1000)
+    ax[2].plot(d['volume'], _ones * g +
+               np.random.normal(0, 0.05, len(d)), 'o', color=cor['primary_red'],
+               ms=3, zorder=1000)
+    ax[3].plot(d['periplasm_volume'], _ones * g +
+               np.random.normal(0, 0.05, len(d)), 'o', color=cor['primary_red'],
+               ms=3, zorder=1000)
+    # ax[1, 1].plot(d['surface_area'], _ones * g +
+    #   np.random.normal(0, 0.05, len(d)), 'o', color=cor['primary_red'],
+    #   ms=3, zorder=1000)
+    # ax[1, 2].plot(d['surface_to_volume'], _ones * g +
+    #   np.random.normal(0, 0.05, len(d)), 'o', color=cor['primary_red'],
+    #   ms=3, zorder=1000)
+    ax[4].plot(d['aspect_ratio'], _ones * g +
+               np.random.normal(0, 0.05, len(d)), 'o', color=cor['primary_red'],
+               ms=3, zorder=1000)
+
+labels = [g[1:] for g, _ in size_data.groupby(
+    ['size_cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc'])]
+_ = ax[0].set_yticks(size_data['size_cond_idx'].unique())
+_ = ax[3].set_yticks(size_data['size_cond_idx'].unique())
+_ = ax[0].set_yticklabels(labels)
+_ = ax[3].set_yticklabels(labels)
+plt.savefig(
+    '../../figures/mcmc/size_diagnostics/perturbation_inference_size_ppc.pdf')
+
+# %%
+
+
+# %%
+# ##############################################################################
+# PARAMETER SUMMARIZATION
+# ##############################################################################
 size_groupby = ['strain', 'carbon_source',
                 'overexpression', 'inducer_conc', 'size_cond_idx']
 # Perform a KDE over the posteriors
 shape_parameters = ['width_mu', 'length_mu', 'volume_mu', 'peri_volume_mu',
-                    'alpha', 'growth_rate_rep', 'width_rep', 'length_rep',
-                    'volume_rep', 'alpha_rep']
+                    'alpha_mu', 'alpha_rep', 'growth_rate_rep', 'width_rep', 'length_rep',
+                    'volume_rep', 'peri_volume_rep']
 shape_post_kde = pd.DataFrame([])
 for s in tqdm.tqdm(shape_parameters):
     post = samples.posterior[s].to_dataframe().reset_index()
@@ -209,7 +368,8 @@ shape_post_kde.to_csv(
 # Perform KDE over posterior of model params
 brad_groupby = ['strain', 'carbon_source',
                 'overexpression', 'inducer_conc_ng_mL', 'cond_idx']
-model_params = ['phi_peri', 'm_peri', 'rho_peri', 'alpha']
+model_params = ['phi_peri_rep', 'm_peri_rep', 'rho_peri_rep', 'alpha_rep',
+                'm_peri', 'phi_peri', 'rho_peri']
 model_post_kde = pd.DataFrame([])
 for s in tqdm.tqdm(model_params):
     post = samples.posterior[s].to_dataframe().reset_index()
@@ -260,8 +420,7 @@ for i, p in enumerate(shape_parameters):
     param_percs = pd.concat([param_percs, percs], sort=False)
 
 # Process the parameters for the protein quantities
-params = ['phi_peri', 'm_peri', 'rho_peri']
-
+params = ['phi_peri_rep', 'm_peri_rep', 'rho_peri_rep']
 for i, p in enumerate(params):
     p_df = samples.posterior[p].to_dataframe().reset_index()
     percs = size.viz.compute_percentiles(p_df, p, f'{p}_dim_0',
