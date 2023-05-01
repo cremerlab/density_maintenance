@@ -36,6 +36,7 @@ tot_prot = pd.read_csv(
 tot_prot = tot_prot[tot_prot['source'].isin(['This study']) &
                     (tot_prot['growth_rate_hr'] <= 1.5)]
 # %%
+strains = ['malE-rbsB-fliC-KO', 'wildtype', 'lpp14']
 # ##############################################################################
 # DATASET FILTERING
 # ##############################################################################
@@ -49,29 +50,30 @@ brad_data = brad_data[~((brad_data['overexpression'] != 'none') & (
 # Keep only the bradford data with more than two replicates
 brad_data = pd.concat([d for _, d in brad_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']) if len(d) > 2], sort=False)
-brad_data = brad_data[brad_data['strain'].isin(
-    ['wildtype',  'malE-rbsB-fliC-KO', 'lpp14'])]
+brad_data = brad_data[brad_data['strain'].isin(strains)]
 brad_data = brad_data[brad_data['overexpression'].isin(
     ['none', 'malE', 'rbsB', 'lacZ'])]
 
 # Restrict size data
 size_data = size_data[size_data['temperature_C'] == 37]
-size_data = size_data[size_data['strain'].isin(
-    ['wildtype', 'malE-rbsB-fliC-KO', 'lpp14'])]
+size_data = size_data[size_data['strain'].isin(strains)]
 size_data = pd.concat([d for _, d in size_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc']) if len(d) > 2], sort=False)
 size_data = size_data[~((size_data['overexpression'] != 'none') & (
     size_data['inducer_conc'] == 0))]
 size_data = size_data[size_data['overexpression'].isin(
     ['none', 'malE', 'rbsB', 'lacZ'])]
+
 # Restrict flow data to only wildtype
-flow_data = flow_data[flow_data['strain'] == 'wildtype']
+flow_data = flow_data[(flow_data['strain'] == 'wildtype')
+                      & (flow_data['carbon_source'] != 'LB')]
+
 flow_data = flow_data.groupby(
     ['date', 'carbon_source', 'run_no']).mean().reset_index()
 
 # # Restrict growth data
 growth_data = growth_data[growth_data['overexpression'].isin(['none', 'malE', 'rbsB', 'lacZ']) &
-                          growth_data['strain'].isin(['wildtype', 'malE-rbsB-fliC-KO', 'lpp14'])]
+                          growth_data['strain'].isin(strains)]
 
 
 # %%
@@ -83,20 +85,18 @@ growth_data = growth_data[growth_data['overexpression'].isin(['none', 'malE', 'r
 size_data['size_cond_idx'] = size_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer_conc']).ngroup() + 1
 
-## BRADFORD INDEXING ###########################################################
-# Map size identifiers to the bradford conditions
-brad_data['brad_mapper'] = 0
-for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc', 'size_cond_idx']):
-    brad_data.loc[(brad_data['strain'] == g[0]) &
-                  (brad_data['carbon_source'] == g[1]) &
-                  (brad_data['overexpression'] == g[2]) &
-                  (brad_data['inducer_conc_ng_mL'] == g[3]),
-                  'brad_mapper'] = g[-1]
-brad_data = brad_data[brad_data['brad_mapper'] > 0]
+## FLOW INDEXING ###############################################################
+# Map size identifiers to the flow growth conditions.
+flow_data['flow_mapper'] = 0
+for g, d in size_data.groupby(['carbon_source', 'size_cond_idx']):
+    flow_data.loc[(flow_data['carbon_source'] == g[0]), 'flow_mapper'] = g[1]
+flow_data = flow_data.groupby(['flow_mapper', 'carbon_source', 'run_no', 'date'])[
+    'cells_per_biomass'].mean().reset_index()
+flow_data = flow_data[flow_data['cells_per_biomass'] > 1E6]
+flow_data['flow_idx'] = flow_data.groupby(['carbon_source']).ngroup() + 1
 
+## BRADFORD INDEXING ###########################################################
 # Filter, label, and transform bradford data
-brad_data['cond_idx'] = brad_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']).ngroup() + 1
 brad_data['conv_factor'] = brad_data['dilution_factor'] * \
     brad_data['extraction_volume_mL'] / \
     (brad_data['culture_volume_mL'])
@@ -112,14 +112,28 @@ for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression', 'ind
                     'size_idx'] = g[-1]
 growth_data.dropna(inplace=True)
 
-## FLOW INDEXING ###############################################################
-# Map size identifiers to the flow growth conditions.
-flow_data['flow_mapper'] = 0
-for g, d in size_data[(size_data['strain'] == 'wildtype') &
-                      (size_data['overexpression'] == 'none') &
-                      (size_data['inducer_conc'] == 0)
-                      ].groupby(['carbon_source', 'size_cond_idx']):
-    flow_data.loc[flow_data['carbon_source'] == g[0], 'flow_mapper'] = g[1]
+# Map size identifiers to the bradford conditions
+brad_data['brad_size_mapper'] = 0
+for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc', 'size_cond_idx']):
+    brad_data.loc[(brad_data['strain'] == g[0]) &
+                  (brad_data['carbon_source'] == g[1]) &
+                  (brad_data['overexpression'] == g[2]) &
+                  (brad_data['inducer_conc_ng_mL'] == g[3]),
+                  'brad_size_mapper'] = g[-1]
+brad_data = brad_data[brad_data['brad_size_mapper'] > 0]
+brad_data['brad_flow_mapper'] = 0
+for g, d in flow_data.groupby(['carbon_source', 'flow_idx']):
+    brad_data.loc[brad_data['carbon_source']
+                  == g[0], 'brad_flow_mapper'] = g[1]
+
+brad_data['brad_growth_mapper'] = 0
+for g, d in growth_data.groupby(['size_idx', 'cond_idx']):
+    brad_data.loc[brad_data['brad_size_mapper']
+                  == g[0], 'brad_growth_mapper'] = g[1]
+
+brad_data = brad_data[brad_data['brad_growth_mapper'] > 0]
+brad_data['cond_idx'] = brad_data.groupby(
+    ['strain', 'carbon_source', 'overexpression', 'inducer_conc_ng_mL']).ngroup() + 1
 
 # %%
 data_dict = {
@@ -127,7 +141,6 @@ data_dict = {
     'N_cal': len(cal_data),
     'concentration': cal_data['protein_conc_ug_ml'].values.astype(float),
     'cal_od': cal_data['od_595nm'].values.astype(float),
-    'prot_frac': 0.55,
 
     'J_growth_cond': growth_data['cond_idx'].max(),
     'N_growth': len(growth_data),
@@ -144,23 +157,24 @@ data_dict = {
     'peri_volume': size_data['periplasm_volume'].values.astype(float),
     'surface_area': size_data['surface_area'].values.astype(float),
     'surface_area_volume': size_data['surface_to_volume'].values.astype(float),
-    'aspect_ratio': size_data['aspect_ratio'].values.astype(float),
 
-    'N_brad': len(brad_data),
     'J_brad_cond': brad_data['cond_idx'].max(),
+    'N_brad': len(brad_data),
     'brad_idx': brad_data['cond_idx'].values.astype(int),
-    'brad_mapper': brad_data['brad_mapper'].unique(),
+    'brad_size_mapper': brad_data['brad_size_mapper'].unique(),
+    'brad_flow_mapper': np.array([g[1] for g, _ in brad_data.groupby(['cond_idx', 'brad_flow_mapper'])]),
+    'brad_growth_mapper': np.array([g[1] for g, _ in brad_data.groupby(['cond_idx', 'brad_growth_mapper'])]),
     'brad_od595': brad_data['od_595nm'].values.astype(float),
     'brad_od600': brad_data['od_600nm'].values.astype(float),
     'conv_factor': brad_data['conv_factor'].values.astype(float),
 
-    'N_biomass': len(biomass_data),
-    'biomass': biomass_data['dry_mass_ug'],
     'N_prot': len(tot_prot),
     'total_protein': tot_prot['total_protein'],
     'total_protein_lam': tot_prot['growth_rate_hr'],
     'total_protein_growth_rates': tot_prot['growth_rate_hr'],
 
+    'J_flow_cond': flow_data['flow_idx'].max(),
+    'flow_idx': flow_data['flow_idx'].values.astype(int),
     'N_flow': len(flow_data),
     'flow_mapper': flow_data['flow_mapper'].values.astype(int),
     'flow_events': flow_data['cells_per_biomass'].values.astype(float)
@@ -169,7 +183,7 @@ data_dict = {
 
 # %%
 # Sample the posterior
-_samples = model.sample(data_dict, adapt_delta=0.99)
+_samples = model.sample(data_dict, adapt_delta=0.99)  # , show_console=True)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
@@ -251,26 +265,31 @@ ax.set_xlabel('growth rate [hr$^{-1}$]')
 ax.set_ylabel('total protein [µg / OD$_{600nm}$ mL]')
 plt.savefig(
     '../../figures/mcmc/protein_diagnostics/perturbation_inference_total_protein_trend.pdf')
+# %% Flow PPC
+fig, ax = plt.subplots(1, 1, figsize=(4, 6))
+ax.set_xscale('log')
 
-# %%
-# Biomass ppc
-biomass_ppc = samples.posterior.biomass_rep.to_dataframe()
-biomass_ppc['idx'] = 1
-biomass_percs = size.viz.compute_percentiles(biomass_ppc, 'biomass_rep', 'idx')
+ppc = samples.posterior.flow_rep.to_dataframe().reset_index()
+for i in range(len(flow_data)):
+    _d = flow_data.iloc[i]
+    ppc.loc[ppc['flow_rep_dim_0'] == i, 'carbon_source'] = _d['carbon_source']
+perc = size.viz.compute_percentiles(ppc, 'flow_rep', 'carbon_source')
 
-fig, ax = plt.subplots(1, 1, figsize=(4, 1))
+labels = []
+locs = {}
+for i, (g, d) in enumerate(flow_data.groupby(['carbon_source'])):
+    locs[g] = i
+    ax.plot(d['cells_per_biomass'], locs[g] + np.random.normal(0, 0.05, len(d)), 'o',
+            color=cor['primary_red'], zorder=1000)
+    labels.append(g)
 
-for i, (g, d) in enumerate(biomass_percs.groupby(['interval'], sort=False)):
-    ax.hlines(1, d['lower'], d['upper'], lw=15, zorder=i+1, color=ppc_cmap[g])
 
+for i, (g, d) in enumerate(perc.groupby(['carbon_source', 'interval'], sort=False)):
+    ax.hlines(locs[g[0]], d['lower'], d['upper'], lw=5, color=ppc_cmap[g[1]])
 
-ax.plot(biomass_data['dry_mass_ug'], np.ones(
-    len(biomass_data)), 'o', color=cor['primary_green'], zorder=i+1)
-ax.set_yticks([])
-ax.set_xlabel('dry mass [µg / OD$_{600nm}$ mL]')
-plt.savefig(
-    '../../figures/mcmc/protein_diagnostics/perturbation_inference_biomass_ppc.pdf')
-
+ax.set_yticks(np.arange(len(labels)))
+ax.set_yticklabels(labels)
+ax.set_xlabel('cells per OD$_{600}$ mL')
 # %%
 fig, ax = plt.subplots(1, 5, figsize=(12, 4), sharey=True)
 # ax = ax.ravel()
@@ -395,8 +414,7 @@ shape_post_kde.to_csv(
 # Perform KDE over posterior of model params
 brad_groupby = ['strain', 'carbon_source',
                 'overexpression', 'inducer_conc_ng_mL', 'cond_idx']
-model_params = ['phi_peri_rep', 'm_peri_rep', 'rho_peri_rep', 'alpha_rep',
-                'm_peri', 'phi_peri', 'rho_peri']
+model_params = ['alpha_rep', 'm_peri', 'phi_peri', 'rho_peri']
 model_post_kde = pd.DataFrame([])
 for s in tqdm.tqdm(model_params):
     post = samples.posterior[s].to_dataframe().reset_index()
@@ -445,6 +463,7 @@ for i, p in enumerate(shape_parameters):
                                                    'overexpression', 'inducer_conc']] = g[:-1]
     percs.drop(columns=f'{p}_dim_0', inplace=True)
     param_percs = pd.concat([param_percs, percs], sort=False)
+
 
 # Process the parameters for the protein quantities
 params = ['phi_peri', 'm_peri', 'rho_peri']

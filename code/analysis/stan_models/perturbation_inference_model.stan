@@ -2,7 +2,6 @@ data {
     // Measurement dimensions
     int<lower=1> N_size;
     int<lower=1> N_prot;
-    int<lower=1> N_biomass;
     int<lower=1> N_cal;
     int<lower=1> N_brad;
     int<lower=1> N_flow;
@@ -12,13 +11,7 @@ data {
     int<lower=1> J_size_cond;
     int<lower=1> J_brad_cond; 
     int<lower=1> J_growth_cond;
-
-    // ID vectors
-    array[N_growth] int<lower=1, upper=J_growth_cond> growth_idx;  
-    array[N_size] int<lower=1, upper=J_size_cond> size_idx;  
-    array[N_brad] int<lower=1, upper=J_brad_cond> brad_idx;  
-    array[J_brad_cond] int<lower=1, upper=J_size_cond> brad_mapper; // Maps bradford conditions to size conditions
-
+    int<lower=1> J_flow_cond;
 
     // Size measurements
     vector<lower=0>[N_size] width;
@@ -33,11 +26,9 @@ data {
     vector<lower=0>[N_prot] total_protein;
     vector<lower=0>[N_prot] total_protein_lam;
 
-    // Total biomass measurement
-    vector<lower=0>[N_biomass] biomass;
-
     // Flow measurements
     vector<lower=0>[N_flow] flow_events;
+    array[N_flow] int<lower=1, upper=J_flow_cond> flow_idx;
     array[N_flow] int<lower=1, upper=J_size_cond> flow_mapper;
 
     // Bradford assay measurements
@@ -47,11 +38,17 @@ data {
     vector<lower=0>[N_cal] concentration; 
     vector<lower=0>[N_cal] cal_od;
 
+    array[N_growth] int<lower=1, upper=J_growth_cond> growth_idx;  
+    array[N_size] int<lower=1, upper=J_size_cond> size_idx;  
+    array[N_brad] int<lower=1, upper=J_brad_cond> brad_idx;  
+    array[J_brad_cond] int<lower=1, upper=J_size_cond> brad_size_mapper; // Maps bradford conditions to size conditions
+    array[J_brad_cond] int<lower=1, upper=J_growth_cond> brad_growth_mapper;
+    array[J_brad_cond] int<lower=1, upper=J_flow_cond> brad_flow_mapper; // Maps bradford conditions to size conditions
+
 
 }
 
 transformed data {
-    vector[N_biomass] biomass_centered = (biomass - mean(biomass)) / sd(biomass);
     vector[N_size] aspect_ratio = length ./ width;
 }
 
@@ -80,24 +77,19 @@ parameters {
     vector<lower=0>[J_brad_cond] od595_per_biomass_sigma;
 
     // Biomass and total protein parameters
-    real biomass_centered_mu;
-    real<lower=0> biomass_sigma;
     real<lower=0> total_prot_0;
     real total_prot_slope;
     real<lower=0> total_prot_sigma;
 
     // Cell count numbers
-    real<lower=0> flow_prefactor;
+    vector[J_flow_cond] log_flow_mu;
     real<lower=0> flow_sigma;
-
 }
 
 transformed parameters {
-    real<lower=0> biomass_mu = biomass_centered_mu * sd(biomass) + mean(biomass);
-    vector<lower=0>[J_brad_cond] prot_per_biomass_mu = exp(log_prot_per_biomass_mu);
-    real<lower=0> flow_slope = flow_prefactor * biomass_mu;
-    vector<lower=0>[N_flow] flow_mu = flow_slope * volume_mu[flow_mapper];
+    vector<lower=0>[J_brad_cond] prot_per_biomass_mu = exp(log_prot_per_biomass_mu); 
     vector<lower=0>[J_growth_cond] growth_mu = exp(log_growth_mu);
+    vector<lower=0>[J_flow_cond] flow_mu = exp(log_flow_mu);
 
 }
 
@@ -141,16 +133,12 @@ model {
     aspect_ratio ~ normal(alpha_mu[size_idx], alpha_sigma[size_idx]);
 
     // Cell count measurements
-    flow_sigma ~ normal(0, 0.1);
-    flow_prefactor ~ std_normal();
-    flow_events/1E9 ~ normal(1/flow_mu, flow_sigma);
+    flow_sigma ~ std_normal();
+    log(flow_events) ~ normal(log_flow_mu[flow_idx], flow_sigma);
 
     //Biomass emeasurements
     total_prot_0 ~ normal(500, 100);
     total_prot_slope ~ normal(0, 100);
-    biomass_centered_mu ~ normal(0, 1);
-    biomass_sigma ~ std_normal();
-    biomass_centered ~ normal(biomass_centered_mu, biomass_sigma);
     total_protein ~ normal(total_prot_0 + total_prot_slope * total_protein_lam, total_prot_sigma);
 }
 
@@ -166,23 +154,14 @@ generated quantities {
             prot_per_biomass_mu[brad_idx[i]] ./ conv_factor[i]), 
             od595_per_biomass_sigma[brad_idx[i]]));
     }
-
+    vector[N_flow] flow_rep;
+    for (i in 1:N_flow) {
+        flow_rep[i] = exp(normal_rng(log_flow_mu[flow_idx[i]], flow_sigma));
+    }
     //PPCs for total protein
     vector[N_prot] total_protein_rep;
     for (i in 1:N_prot) {
         total_protein_rep[i] = normal_rng(total_prot_0 + total_prot_slope * total_protein_lam[i], total_prot_sigma); 
-    }
-
-    //PPCs for total biomass
-    vector[N_biomass] biomass_rep;
-    for (i in 1:N_biomass) {
-        biomass_rep[i] = mean(biomass) + sd(biomass) * normal_rng(biomass_centered_mu, biomass_sigma);
-    }
-
-    //PPCs for flow events
-    vector[N_flow] flow_events_rep;
-    for (i in 1:N_flow) {
-        flow_events_rep[i] = 1E9 * normal_rng(1/flow_mu[i], flow_sigma);
     }
 
     //PPcs for growth rate
@@ -191,24 +170,14 @@ generated quantities {
         growth_rate_rep[i] = exp(normal_rng(log_growth_mu[growth_idx[i]], growth_rates_sigma[growth_idx[i]]));
     }
 
-    vector[J_brad_cond] phi_peri = prot_per_biomass_mu ./ (total_prot_0 + total_prot_slope * growth_mu[brad_mapper]); 
-    vector[J_brad_cond] N_cells = 1E9 / (flow_prefactor * biomass_mu * volume_mu[brad_mapper]);
-    vector[J_brad_cond] m_peri = 1E9 * prot_per_biomass_mu ./ N_cells;
-    vector[J_brad_cond] rho_peri = m_peri ./ peri_volume_mu[brad_mapper];   
-    vector[J_brad_cond] od595_brad_rep;
-    vector[J_brad_cond] N_cells_rep;
-    vector[J_brad_cond] m_peri_rep;
-    vector[J_brad_cond] od595_per_biomass_rep;
-    vector[J_brad_cond] num_od595_per_biomass_rep;
-    vector[J_brad_cond] prot_per_biomass_rep;
-    vector[J_brad_cond] phi_peri_rep;
-    vector[J_brad_cond] rho_peri_rep;
+    vector[J_brad_cond] phi_peri = prot_per_biomass_mu ./ (total_prot_0 + total_prot_slope * growth_mu[brad_growth_mapper]); 
+    vector[J_brad_cond] m_peri = 1E9 * prot_per_biomass_mu ./ flow_mu[brad_flow_mapper];
+    vector[J_brad_cond] rho_peri = m_peri ./ peri_volume_mu[brad_size_mapper];   
     vector[J_size_cond] width_rep;
     vector[J_size_cond] length_rep;
     vector[J_size_cond] volume_rep;
     vector[J_size_cond] peri_volume_rep;
     vector[J_size_cond] alpha_rep;
-    real biomass_rep_2;
 
 
     for (i in 1:J_size_cond) {
@@ -217,26 +186,5 @@ generated quantities {
         volume_rep[i] = normal_rng(volume_mu[i], volume_sigma[i]);
         peri_volume_rep[i] = normal_rng(peri_volume_mu[i], peri_volume_sigma[i]);
         alpha_rep[i] = normal_rng(alpha_mu[i], alpha_sigma[i]);
-    }
-    for (i in 1:J_brad_cond) {
-        od595_per_biomass_rep[i] = 0;
-        num_od595_per_biomass_rep[i] = 0;
-    }
-
-    for (i in 1:N_brad) {
-    od595_per_biomass_rep[brad_idx[i]] = od595_per_biomass_rep[brad_idx[i]] + exp(normal_rng(log(cal_slope .* 
-            prot_per_biomass_mu[brad_idx[i]] ./ conv_factor[i]), 
-            od595_per_biomass_sigma[brad_idx[i]])); 
-    num_od595_per_biomass_rep[brad_idx[i]] = num_od595_per_biomass_rep[brad_idx[i]] + 1;
-
-    }  
-
-    for (i in 1:J_brad_cond) { 
-        biomass_rep_2 = mean(biomass) + sd(biomass) * normal_rng(biomass_centered_mu, biomass_sigma); 
-        prot_per_biomass_rep[i] = ((od595_per_biomass_rep[i]/num_od595_per_biomass_rep[i]) - cal_intercept)/(cal_slope);
-        N_cells_rep[i] = 1E9 .* normal_rng(1/(flow_prefactor * biomass_rep_2 * volume_rep[brad_mapper[i]]), flow_sigma);
-        m_peri_rep[i] = prot_per_biomass_rep[i] / N_cells_rep[i];
-        rho_peri_rep[i] = m_peri_rep[i] / (N_cells_rep[i] * peri_volume_rep[brad_mapper[i]]);
-        phi_peri_rep[i] = prot_per_biomass_rep[i] / (total_prot_0 + total_prot_slope * growth_mu[brad_mapper[i]]);
     }
 }

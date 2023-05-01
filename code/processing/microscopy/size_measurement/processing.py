@@ -11,9 +11,9 @@ import joblib
 import multiprocessing as mp
 cor, pal = size.viz.matplotlib_style()
 mp.cpu_count()
-ROOT = '../../../../data/images/wildtype/'
+ROOT = '../../../../data/images/'
 # Load images, convert to greyscale,and filter.
-dirs = np.sort(glob.glob(f'{ROOT}/*/'))
+dirs = np.sort(glob.glob(f'{ROOT}/*'))
 
 # %%
 size_df = pd.DataFrame([])
@@ -112,5 +112,5 @@ for direc in tqdm.tqdm(dirs):
 # %%
 # Save the huge size dataframe
 size_df = pd.concat([pd.read_csv(f)
-                    for f in glob.glob(f'{ROOT}/*/*.csv')], sort=False)
-size_df.to_csv('./output/wildtype_size_measurements.csv')
+                    for f in glob.glob(f'{ROOT}/*/*/*.csv')], sort=False)
+size_df.to_csv('./output/compiled_size_measurements.csv')

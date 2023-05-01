@@ -11,6 +11,7 @@ data['delta'] = 0.024
 data.loc[data['strain'] == 'lpp14', 'delta'] = 0.028
 data.loc[data['strain'] == 'lpp21', 'delta'] = 0.028
 
+# %%
 # Recompute dimensions
 data['surface_area'] = np.pi * data['length'] * data['width_median']
 data['volume'] = (np.pi / 12) * data['width_median']**2 * \
@@ -26,13 +27,15 @@ data['aspect_ratio'] = data['length'] / data['width_median']
 # Impose bounds
 data = data[(data['width_median'] >= 0.25) & (data['width_median'] <= 1.5) &
             (data['width_var'] <= 0.05)]
-
+# %%
 # Enforce consistent naming
 data.loc[data['inducer'].str.lower() == 'noind', 'inducer'] = 'none'
 
+# %%
 # Drop ATC induction samples
-data = data[data['inducer_conc'].isin([0, 10, 20, 30, 50, 100])]
-data.head()
+data = data[(data['inducer_conc'].isin([0, 10, 20, 30, 50, 100])) |
+            (data['inducer'] == 'cm')]
+
 # %%
 data = data.groupby(['date', 'run_no', 'carbon_source', 'strain',
                      'overexpression', 'inducer', 'inducer_conc', 'temperature_C'])[
