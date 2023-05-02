@@ -37,6 +37,7 @@ tot_prot = tot_prot[tot_prot['source'].isin(['This study']) &
                     (tot_prot['growth_rate_hr'] <= 1.5)]
 # %%
 strains = ['malE-rbsB-fliC-KO', 'wildtype', 'lpp14']
+inducers = ['none', 'ctc', 'cm']
 # ##############################################################################
 # DATASET FILTERING
 # ##############################################################################
@@ -53,16 +54,17 @@ brad_data = pd.concat([d for _, d in brad_data.groupby(
 brad_data = brad_data[brad_data['strain'].isin(strains)]
 brad_data = brad_data[brad_data['overexpression'].isin(
     ['none', 'malE', 'rbsB', 'lacZ'])]
-
+# %%
 # Restrict size data
 size_data = size_data[size_data['temperature_C'] == 37]
 size_data = size_data[size_data['strain'].isin(strains)]
 size_data = pd.concat([d for _, d in size_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer_conc']) if len(d) > 2], sort=False)
+    ['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc']) if len(d) > 2], sort=False)
 size_data = size_data[~((size_data['overexpression'] != 'none') & (
     size_data['inducer_conc'] == 0))]
 size_data = size_data[size_data['overexpression'].isin(
     ['none', 'malE', 'rbsB', 'lacZ'])]
+size_data = size_data[size_data['inducer'].isin(inducers)]
 
 # Restrict flow data to only wildtype
 flow_data = flow_data[(flow_data['strain'] == 'wildtype')
@@ -73,8 +75,8 @@ flow_data = flow_data.groupby(
 
 # # Restrict growth data
 growth_data = growth_data[growth_data['overexpression'].isin(['none', 'malE', 'rbsB', 'lacZ']) &
-                          growth_data['strain'].isin(strains)]
-
+                          growth_data['strain'].isin(strains) &
+                          growth_data['inducer'].isin(inducers)]
 
 # %%
 # ##############################################################################
@@ -83,7 +85,7 @@ growth_data = growth_data[growth_data['overexpression'].isin(['none', 'malE', 'r
 ## SIZE INDEXING ###############################################################
 # Add indexing to the size data
 size_data['size_cond_idx'] = size_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer_conc']).ngroup() + 1
+    ['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc']).ngroup() + 1
 
 ## FLOW INDEXING ###############################################################
 # Map size identifiers to the flow growth conditions.
@@ -94,7 +96,7 @@ flow_data = flow_data.groupby(['flow_mapper', 'carbon_source', 'run_no', 'date']
     'cells_per_biomass'].mean().reset_index()
 flow_data = flow_data[flow_data['cells_per_biomass'] > 1E6]
 flow_data['flow_idx'] = flow_data.groupby(['carbon_source']).ngroup() + 1
-
+# %%
 ## BRADFORD INDEXING ###########################################################
 # Filter, label, and transform bradford data
 brad_data['conv_factor'] = brad_data['dilution_factor'] * \
@@ -105,27 +107,29 @@ brad_data['od_per_biomass'] = brad_data['od_595nm']
 
 ## GROWTH INDEXING #############################################################
 growth_data['cond_idx'] = growth_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer_conc']).ngroup() + 1
-for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc', 'size_cond_idx']):
+    ['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc']).ngroup() + 1
+for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'size_cond_idx']):
     growth_data.loc[(growth_data['strain'] == g[0]) & (growth_data['carbon_source'] == g[1])
-                    & (growth_data['overexpression'] == g[2]) & (growth_data['inducer_conc'] == g[3]),
+                    & (growth_data['overexpression'] == g[2]) & (growth_data['inducer'] == g[3]) &
+                    (growth_data['inducer_conc'] == g[4]),
                     'size_idx'] = g[-1]
 growth_data.dropna(inplace=True)
-
+# %%
 # Map size identifiers to the bradford conditions
 brad_data['brad_size_mapper'] = 0
-for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc', 'size_cond_idx']):
+for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc', 'inducer', 'size_cond_idx']):
     brad_data.loc[(brad_data['strain'] == g[0]) &
                   (brad_data['carbon_source'] == g[1]) &
                   (brad_data['overexpression'] == g[2]) &
                   (brad_data['inducer_conc_ng_mL'] == g[3]),
                   'brad_size_mapper'] = g[-1]
+
 brad_data = brad_data[brad_data['brad_size_mapper'] > 0]
 brad_data['brad_flow_mapper'] = 0
 for g, d in flow_data.groupby(['carbon_source', 'flow_idx']):
     brad_data.loc[brad_data['carbon_source']
                   == g[0], 'brad_flow_mapper'] = g[1]
-
+# %%
 brad_data['brad_growth_mapper'] = 0
 for g, d in growth_data.groupby(['size_idx', 'cond_idx']):
     brad_data.loc[brad_data['brad_size_mapper']
@@ -183,7 +187,8 @@ data_dict = {
 
 # %%
 # Sample the posterior
-_samples = model.sample(data_dict, adapt_delta=0.99)  # , show_console=True)
+_samples = model.sample(data_dict,
+                        adapt_delta=0.99)  # , show_console=True)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
@@ -335,7 +340,7 @@ for g, d in size_data.groupby(['size_cond_idx']):
                ms=3, zorder=1000)
 
 labels = [g[1:] for g, _ in size_data.groupby(
-    ['size_cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc'])]
+    ['size_cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc'])]
 _ = ax[0].set_yticks(size_data['size_cond_idx'].unique())
 _ = ax[3].set_yticks(size_data['size_cond_idx'].unique())
 _ = ax[0].set_yticklabels(labels)
@@ -347,8 +352,8 @@ plt.savefig(
 # Visualize growth rate ppcs.
 fig, ax = plt.subplots(1, 1, figsize=(4, 7))
 inds = {g: i for i, (g, _) in enumerate(growth_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer_conc']))}
-for g, d in growth_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc']):
+    ['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc']))}
+for g, d in growth_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc']):
     ax.plot(d['growth_rate_hr'], inds[g] + np.random.normal(0, 0.1, len(d)), 'o', color=cor['primary_red'],
             ms=3)
 ppcs = samples.posterior.growth_rate_rep.to_dataframe().reset_index()
@@ -361,12 +366,13 @@ for i in range(len(growth_data)):
              'overexpression'] = _d['overexpression']
     ppcs.loc[ppcs['growth_rate_rep_dim_0'] ==
              i, 'inducer_conc'] = _d['inducer_conc']
-
+    ppcs.loc[ppcs['growth_rate_rep_dim_0'] ==
+             i, 'inducer'] = _d['inducer']
 
 percs = size.viz.compute_percentiles(ppcs, 'growth_rate_rep', [
-                                     'strain', 'carbon_source', 'overexpression', 'inducer_conc'])
+                                     'strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc'])
 
-for g, d in percs.groupby(['strain', 'carbon_source', 'overexpression', 'inducer_conc', 'interval'], sort=False):
+for g, d in percs.groupby(['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'interval'], sort=False):
     ax.hlines(inds[g[:-1]], d['lower'], d['upper'],
               lw=10, color=ppc_cmap[g[-1]], zorder=1)
 
@@ -378,7 +384,7 @@ ax.set_xlabel('growth rate [hr$^{-1}$]')
 # PARAMETER SUMMARIZATION
 # ##############################################################################
 size_groupby = ['strain', 'carbon_source',
-                'overexpression', 'inducer_conc', 'size_cond_idx']
+                'overexpression', 'inducer', 'inducer_conc', 'size_cond_idx']
 # Perform a KDE over the posteriors
 shape_parameters = ['width_mu', 'length_mu', 'volume_mu', 'peri_volume_mu',
                     'alpha_mu', 'alpha_rep', 'growth_rate_rep', 'width_rep', 'length_rep',
