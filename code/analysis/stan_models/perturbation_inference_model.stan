@@ -2,7 +2,9 @@ data {
     // Measurement dimensions
     int<lower=1> N_size;
     int<lower=1> N_prot;
-    int<lower=1> N_cal;
+    int<lower=1> N_prot_cal;
+    int<lower=1> N_brad_cal;
+
     int<lower=1> N_brad;
     int<lower=1> N_flow;
     int<lower=1> N_growth;
@@ -23,8 +25,11 @@ data {
     vector<lower=0>[N_growth] growth_rates;
 
     // Total protein measurements
-    vector<lower=0>[N_prot] total_protein;
-    vector<lower=0>[N_prot] total_protein_lam;
+    vector<lower=0>[N_prot] total_protein_od555_per_biomass;
+    vector<lower=0>[N_prot_cal] biuret_cal_concentration;
+    vector<lower=0>[N_prot_cal] biuret_cal_od555;
+    vector<lower=0>[N_prot] total_protein_lam;  
+    array[N_prot] int<lower=1, upper=J_growth_cond> biuret_growth_mapper;
 
     // Flow measurements
     vector<lower=0>[N_flow] flow_events;
@@ -35,8 +40,8 @@ data {
     vector<lower=0>[N_brad] brad_od595; 
     vector<lower=0>[N_brad] brad_od600; 
     vector<lower=0>[N_brad] conv_factor;
-    vector<lower=0>[N_cal] concentration; 
-    vector<lower=0>[N_cal] cal_od;
+    vector<lower=0>[N_brad_cal] concentration; 
+    vector<lower=0>[N_brad_cal] cal_od;
 
     array[N_growth] int<lower=1, upper=J_growth_cond> growth_idx;  
     array[N_size] int<lower=1, upper=J_size_cond> size_idx;  
@@ -70,11 +75,16 @@ parameters {
     vector<lower=0>[J_growth_cond] growth_rates_sigma;
 
     // Bradford assay parameters
-    real<lower=0> cal_slope;
-    real<lower=0> cal_intercept;
-    real<lower=0> cal_sigma;
+    real<lower=0> bradford_cal_slope;
+    real<lower=0> bradford_cal_intercept;
+    real<lower=0> bradford_cal_sigma;
     vector[J_brad_cond] log_prot_per_biomass_mu;
     vector<lower=0>[J_brad_cond] od595_per_biomass_sigma;
+
+    // Biuret assay parameters
+    real<lower=0> biuret_cal_slope;
+    real<lower=0> biuret_cal_intercept;
+    real<lower=0> biuret_cal_sigma;
 
     // Biomass and total protein parameters
     real<lower=0> total_prot_0;
@@ -90,25 +100,29 @@ transformed parameters {
     vector<lower=0>[J_brad_cond] prot_per_biomass_mu = exp(log_prot_per_biomass_mu); 
     vector<lower=0>[J_growth_cond] growth_mu = exp(log_growth_mu);
     vector<lower=0>[J_flow_cond] flow_mu = exp(log_flow_mu);
-
+    vector<lower=0>[N_prot] total_prot_mu = total_prot_0 + total_prot_slope .* growth_mu[biuret_growth_mapper];
 }
 
 model {
 
     // Bradford assay - Calibration
-    cal_slope ~ normal(0, 0.1);
-    cal_intercept ~ normal(0, 0.1);
-    cal_sigma ~ std_normal();
-    cal_od ~ normal(cal_intercept + cal_slope .* concentration, cal_sigma);
+    bradford_cal_slope ~ normal(0, 0.1);
+    bradford_cal_intercept ~ normal(0, 0.1);
+    bradford_cal_sigma ~ std_normal();
+    
+    cal_od ~ normal(bradford_cal_intercept + bradford_cal_slope .* concentration, bradford_cal_sigma);
 
     // Bradford assay - Measurements
     log_prot_per_biomass_mu ~ std_normal();
     od595_per_biomass_sigma ~ normal(0, 0.1);
 
     // Likelihood
-    log((brad_od595 - cal_intercept)./brad_od600)  ~ normal(log(cal_slope .* 
+    log((brad_od595 - bradford_cal_intercept)./brad_od600)  ~ normal(log(bradford_cal_slope .* 
             prot_per_biomass_mu[brad_idx] ./ conv_factor), 
             od595_per_biomass_sigma[brad_idx]);
+
+ 
+
 
     // Growth rate measurements
     log_growth_mu ~ std_normal();
@@ -126,10 +140,10 @@ model {
     peri_volume_sigma ~ std_normal();
     alpha_mu ~ normal(4, 1);
     alpha_sigma ~ normal(0, 0.1);
-    width ~ normal(width_mu[size_idx], width_sigma[size_idx]);
+    log(width) ~ normal(log(width_mu[size_idx]), width_sigma[size_idx]);
     length ~ normal(length_mu[size_idx], length_sigma[size_idx]);
     volume ~ normal(volume_mu[size_idx], volume_sigma[size_idx]);
-    peri_volume ~ normal(peri_volume_mu[size_idx], peri_volume_sigma[size_idx]);
+    log(peri_volume) ~ normal(log(peri_volume_mu[size_idx]), peri_volume_sigma[size_idx]);
     aspect_ratio ~ normal(alpha_mu[size_idx], alpha_sigma[size_idx]);
 
     // Cell count measurements
@@ -137,20 +151,27 @@ model {
     log(flow_events) ~ normal(log_flow_mu[flow_idx], flow_sigma);
 
     //Biomass emeasurements
-    total_prot_0 ~ normal(500, 100);
+    total_prot_0 ~ normal(300, 100);
     total_prot_slope ~ normal(0, 100);
-    total_protein ~ normal(total_prot_0 + total_prot_slope * total_protein_lam, total_prot_sigma);
+    total_prot_sigma ~ std_normal();
+
+    // Biuret  assay
+    biuret_cal_slope ~ normal(0, 0.1);
+    biuret_cal_intercept ~ normal(0, 0.1);
+    biuret_cal_sigma ~ std_normal();
+    biuret_cal_od555 ~ normal(biuret_cal_intercept + biuret_cal_slope .* biuret_cal_concentration, biuret_cal_sigma);
+    total_protein_od555_per_biomass ~ normal(biuret_cal_intercept + biuret_cal_slope .* total_prot_mu, total_prot_sigma);
 }
 
 generated quantities {
     //PPCs for bradford calibration
-    vector[N_cal] od595_cal_rep;
-    for (i in 1:N_cal) {
-        od595_cal_rep[i] = normal_rng(cal_intercept + cal_slope * concentration[i], cal_sigma);
+    vector[N_brad_cal] od595_cal_rep;
+    for (i in 1:N_brad_cal) {
+        od595_cal_rep[i] = normal_rng(bradford_cal_intercept + bradford_cal_slope * concentration[i], bradford_cal_sigma);
     }
     vector[N_brad] od595_meas_rep;
     for (i in 1:N_brad) {
-        od595_meas_rep[i] = cal_intercept + brad_od600[i] * exp(normal_rng(log(cal_slope .* 
+        od595_meas_rep[i] = bradford_cal_intercept + brad_od600[i] * exp(normal_rng(log(bradford_cal_slope .* 
             prot_per_biomass_mu[brad_idx[i]] ./ conv_factor[i]), 
             od595_per_biomass_sigma[brad_idx[i]]));
     }
@@ -159,9 +180,13 @@ generated quantities {
         flow_rep[i] = exp(normal_rng(log_flow_mu[flow_idx[i]], flow_sigma));
     }
     //PPCs for total protein
-    vector[N_prot] total_protein_rep;
+    vector[N_prot] total_protein_od555_rep;
     for (i in 1:N_prot) {
-        total_protein_rep[i] = normal_rng(total_prot_0 + total_prot_slope * total_protein_lam[i], total_prot_sigma); 
+        total_protein_od555_rep[i] = normal_rng(biuret_cal_intercept + biuret_cal_slope * total_prot_mu[i], total_prot_sigma);
+    }
+    vector[N_prot_cal] biuret_cal_rep;
+    for (i in 1:N_prot_cal) {
+        biuret_cal_rep[i] = normal_rng(biuret_cal_intercept + biuret_cal_slope * biuret_cal_concentration[i], biuret_cal_slope);
     }
 
     //PPcs for growth rate
@@ -181,10 +206,10 @@ generated quantities {
 
 
     for (i in 1:J_size_cond) {
-        width_rep[i] = normal_rng(width_mu[i], width_sigma[i]);
+        width_rep[i] = exp(normal_rng(log(width_mu[i]), width_sigma[i]));
         length_rep[i] = normal_rng(length_mu[i], length_sigma[i]);
         volume_rep[i] = normal_rng(volume_mu[i], volume_sigma[i]);
-        peri_volume_rep[i] = normal_rng(peri_volume_mu[i], peri_volume_sigma[i]);
+        peri_volume_rep[i] = exp(normal_rng(log(peri_volume_mu[i]), peri_volume_sigma[i]));
         alpha_rep[i] = normal_rng(alpha_mu[i], alpha_sigma[i]);
     }
 }

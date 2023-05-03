@@ -11,7 +11,7 @@ import joblib
 import multiprocessing as mp
 cor, pal = size.viz.matplotlib_style()
 mp.cpu_count()
-ROOT = '../../../../data/images/'
+ROOT = '../../../../data/images'
 # Load images, convert to greyscale,and filter.
 dirs = np.sort(glob.glob(f'{ROOT}/*'))
 
@@ -20,7 +20,7 @@ size_df = pd.DataFrame([])
 biom = []
 for direc in tqdm.tqdm(dirs):
     # Get the images
-    files = glob.glob(f'{direc}*.tif')
+    files = glob.glob(f'{direc}/*.tif')
 
     # Convert to grey scale
     try:
@@ -41,11 +41,12 @@ for direc in tqdm.tqdm(dirs):
     for i, f in enumerate(tqdm.tqdm(files)):
         # Parse file information
         date, fname = f.split('/')[-2:]
-        date = date[:-2]
-        _, carbon, over_expression, inducer, inducer_conc, temp, suffix = fname.split(
+        date = date[:-3]
+        run_no = date[-1]
+        strain, carbon, over_expression, inducer, inducer_conc, temp, suffix = fname.split(
             '_')
         temp = float(temp[:-1])
-        if date == '2022-09-29_':
+        if date == '2022-09-29':
             ip_dist = 0.065
         else:
             ip_dist = 0.032
@@ -83,7 +84,8 @@ for direc in tqdm.tqdm(dirs):
             d['inducer'] = inducer
             d['inducer_conc'] = inducer_conc
             d['image'] = suffix
-            d['strain'] = 'wildtype'
+            d['strain'] = strain
+            d['run_no'] = run_no
         size_df = pd.concat([size_df, biometrics])
         biom.append(biometrics)
 
@@ -99,11 +101,20 @@ for direc in tqdm.tqdm(dirs):
     cell_sizes.to_csv(f'{direc}/{date}_sizes.csv', index=False)
     # Generate the gallerires
     print('Generating cell galleries...')
-    for g, d in cell_sizes.groupby(['carbon_source']):
-        fname = f'./output/galleries/{date}_wildtype_{g}_gallery.png'
-        suptitle = f'{date} WT {g} OE: {over_expression} Inducer: {inducer} {inducer_conc} Temp: {temp}C'
-        cells = cell_images[cell_images['carbon_source'] == g]
-        splines = cell_splines[cell_splines['carbon_source'] == g]
+    for g, d in cell_sizes.groupby(['carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C']):
+        idx = '_'.join([str(_g) for _g in g])
+        fname = f'./output/galleries/{date}_wildtype_{idx}_gallery.png'
+        suptitle = f'{date} {strain} {g[0]} OE: {g[1]} Inducer: {g[2]} {g[3]} Temp: {g[4]} C'
+        cells = cell_images[(cell_images['carbon_source'] == g[0]) &
+                            (cell_images['overexpression'] == g[1]) &
+                            (cell_images['inducer'] == g[2]) &
+                            (cell_images['inducer_conc'] == g[3]) &
+                            (cell_images['temperature_C'] == g[4])]
+        splines = cell_splines[(cell_splines['carbon_source'] == g[0]) &
+                               (cell_splines['overexpression'] == g[1]) &
+                               (cell_splines['inducer'] == g[2]) &
+                               (cell_splines['inducer_conc'] == g[3]) &
+                               (cell_splines['temperature_C'] == g[4])]
         _ = size.viz.cell_gallery(
             d, cells, splines, fname=fname, suptitle=suptitle)
         plt.close()

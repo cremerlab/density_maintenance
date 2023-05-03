@@ -67,9 +67,9 @@ for g, d in size_data.groupby(['source']):
                    markeredgecolor=cor['primary_black'], markeredgewidth=0.5,
                    color=mapper[g]['c'], alpha=0.45, zorder=500)
 
-for g, d in growth_params.groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source'], sort=False):
-    # if (g[0] != 'wildtype') | (g[1] != 'none'):
-    # continue
+for g, d in growth_params.groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source', 'inducer', 'temperature'], sort=False):
+    if (g[0] != 'wildtype') | (g[1] != 'none') | (g[2] != 0) | (g[5] != 37):
+        continue
     sizes = model_params[(model_params['strain'] == g[0]) &
                          (model_params['overexpression'] == g[1]) &
                          (model_params['inducer_conc'] == g[2]) &

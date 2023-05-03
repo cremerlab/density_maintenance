@@ -7,9 +7,9 @@ data = pd.read_csv(
     '../../processing/microscopy/size_measurement/output/compiled_size_measurements.csv')
 
 # %%
-data['delta'] = 0.024
-data.loc[data['strain'] == 'lpp14', 'delta'] = 0.028
-data.loc[data['strain'] == 'lpp21', 'delta'] = 0.028
+data['delta'] = 0.0246
+data.loc[data['strain'] == 'lpp14', 'delta'] = 0.0276
+data.loc[data['strain'] == 'lpp21', 'delta'] = 0.0285
 
 # %%
 # Recompute dimensions
@@ -25,7 +25,7 @@ data['aspect_ratio'] = data['length'] / data['width_median']
 
 # %%
 # Impose bounds
-data = data[(data['width_median'] >= 0.25) & (data['width_median'] <= 1.5) &
+data = data[(data['width_median'] >= 0.25) & (data['width_median'] <= 1.8) &
             (data['width_var'] <= 0.05)]
 # %%
 # Enforce consistent naming
@@ -33,8 +33,8 @@ data.loc[data['inducer'].str.lower() == 'noind', 'inducer'] = 'none'
 
 # %%
 # Drop ATC induction samples
-data = data[(data['inducer_conc'].isin([0, 10, 20, 30, 50, 100])) |
-            (data['inducer'] == 'cm')]
+data = data[(data['inducer'] != 'atc') & (
+    data['inducer_conc'].isin([0, 2, 4, 6, 10, 30, 50, 100]))]
 
 # %%
 data = data.groupby(['date', 'run_no', 'carbon_source', 'strain',
@@ -45,5 +45,3 @@ data = data.groupby(['date', 'run_no', 'carbon_source', 'strain',
      'periplasm_volume', 'periplasm_volume_fraction', 'delta']].mean().reset_index()
 data.to_csv(
     '../../../data/summaries/summarized_size_measurements.csv', index=False)
-
-# %%
