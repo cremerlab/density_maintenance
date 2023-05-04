@@ -35,19 +35,22 @@ biuret_prot = pd.read_csv(
     '../../data/protein_quantification/biuret_total_protein.csv')
 biuret_cal = pd.read_csv(
     '../../data/protein_quantification/biuret_calibration_curve.csv')
+biuret_cal = biuret_cal[biuret_cal['replicate'] == 1]
 # tot_prot = pd.read_csv('../../data/literature/collated_total_protein_per_od.csv')
 # tot_prot = tot_prot[tot_prot['source'].isin(['This study']) &
 # (tot_prot['growth_rate_hr'] <= 1.5)]
 # %%
-strains = ['malE-rbsB-fliC-KO', 'malE-rbsB-KO', 'wildtype', 'lpp14']
+strains = ['malE-rbsB-fliC-KO', 'wildtype', 'lpp14']
 
 # ##############################################################################
 # DATASET FILTERING
 # ##############################################################################
 # Correct bradford data that is out of bounds.
+brad_data = brad_data[brad_data['temperature'] == 37]
 brad_data['od_600nm_true'] = brad_data['od_600nm']
-brad_data.loc[brad_data['od_600nm'] >= 0.45, 'od_600nm_true'] = np.exp(
-    1.26 * np.log(brad_data[brad_data['od_600nm'] >= 0.45]['od_600nm'].values) + 0.25)
+brad_data = brad_data[brad_data['od_600nm'] <= 0.5]
+# brad_data.loc[brad_data['od_600nm'] >= 0.45, 'od_600nm_true'] = np.exp(
+# 1.26 * np.log(brad_data[brad_data['od_600nm'] >= 0.45]['od_600nm'].values) + 0.25)
 
 # Keep only the bradford data with more than two replicates
 brad_data = pd.concat([d for _, d in brad_data.groupby(
@@ -57,7 +60,7 @@ brad_data = brad_data[brad_data['overexpression'].isin(
     ['none', 'malE', 'rbsB', 'lacZ'])]
 # %%
 # Restrict size data
-# size_data = size_data[size_data['temperature_C'] == 37]
+size_data = size_data[size_data['temperature_C'] == 37]
 size_data = size_data[size_data['strain'].isin(strains)]
 size_data = pd.concat([d for _, d in size_data.groupby(
     ['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C']) if len(d) > 1], sort=False)
@@ -74,7 +77,10 @@ flow_data = flow_data.groupby(
 
 # # Restrict growth data
 growth_data = growth_data[growth_data['overexpression'].isin(['none', 'malE', 'rbsB', 'lacZ']) &
-                          growth_data['strain'].isin(strains)]
+                          growth_data['strain'].isin(strains) &
+                          (growth_data['temperature_C'] == 37)]
+growth_data = pd.concat([d for _, d in growth_data.groupby(
+    ['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C']) if len(d) > 1], sort=False)
 
 # %%
 # ##############################################################################
@@ -198,7 +204,7 @@ data_dict = {
 # %%
 # Sample the posterior
 # adapt_delta=0.999, max_treedepth=11)
-_samples = model.sample(data_dict)
+_samples = model.sample(data_dict, adapt_delta=0.99)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
@@ -417,7 +423,7 @@ ax.set_xlabel('growth rate [hr$^{-1}$]')
 # PARAMETER SUMMARIZATION
 # ##############################################################################
 size_groupby = ['strain', 'carbon_source',
-                'overexpression', 'inducer', 'inducer_conc', 'temperature', 'size_cond_idx']
+                'overexpression', 'inducer', 'inducer_conc', 'temperature_C', 'size_cond_idx']
 # Perform a KDE over the posteriors
 shape_parameters = ['width_mu', 'length_mu', 'volume_mu', 'peri_volume_mu',
                     'alpha_mu', 'alpha_rep', 'growth_rate_rep', 'width_rep', 'length_rep',
@@ -497,9 +503,9 @@ for i, p in enumerate(shape_parameters):
                                          upper_bounds=upper,
                                          interval_labels=int_labels)
     for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression',
-                                   'inducer_conc', 'inducer', 'temperature', 'size_cond_idx']):
+                                   'inducer_conc', 'inducer', 'temperature_C', 'size_cond_idx']):
         percs.loc[percs[f'{p}_dim_0'] == g[-1]-1, ['strain', 'carbon_source',
-                                                   'overexpression', 'inducer_conc']] = g[:-1]
+                                                   'overexpression', 'inducer_conc', 'inducer', 'temperature_C']] = g[:-1]
     percs.drop(columns=f'{p}_dim_0', inplace=True)
     param_percs = pd.concat([param_percs, percs], sort=False)
 
@@ -513,7 +519,7 @@ for i, p in enumerate(params):
                                          upper_bounds=upper,
                                          interval_labels=int_labels)
     for g, d in brad_data.groupby(['strain', 'carbon_source', 'overexpression',
-                                   'inducer_conc', 'inducer_conc', 'temperature', 'cond_idx']):
+                                   'inducer', 'inducer_conc', 'temperature', 'cond_idx']):
         percs.loc[percs[f'{p}_dim_0'] == g[-1]-1, ['strain', 'carbon_source', 'overexpression',
                                                    'inducer', 'inducer_conc', 'temperature']] = g[:-1]
     percs.drop(columns=f'{p}_dim_0', inplace=True)
@@ -528,9 +534,8 @@ percs = size.viz.compute_percentiles(lam_df, 'growth_mu', 'growth_mu_dim_0',
                                      lower_bounds=lower,
                                      upper_bounds=upper,
                                      interval_labels=int_labels)
-for g, d in growth_data.groupby(['strain', 'carbon_source', 'overexpression',
-                                 'inducer_conc', 'cond_idx']):
+for g, d in growth_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C', 'cond_idx']):
     percs.loc[percs[f'growth_mu_dim_0'] == g[-1]-1, ['strain', 'carbon_source', 'overexpression',
-                                                     'inducer_conc']] = g[:-1]
+                                                     'inducer', 'inducer_conc', 'temperature']] = g[:-1]
 percs.drop(columns=f'growth_mu_dim_0', inplace=True)
 percs.to_csv('../../data/mcmc/growth_parameter_percentiles.csv', index=False)

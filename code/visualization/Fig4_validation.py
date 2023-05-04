@@ -68,8 +68,8 @@ for g, d in size_data.groupby(['source']):
                    color=mapper[g]['c'], alpha=0.45, zorder=500)
 
 for g, d in growth_params.groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source', 'inducer', 'temperature'], sort=False):
-    if (g[0] != 'wildtype') | (g[1] != 'none') | (g[2] != 0) | (g[5] != 37):
-        continue
+    # if (g[0] != 'wildtype') | (g[1] != 'none') | (g[2] != 0) | (g[5] != 37):
+    # continue
     sizes = model_params[(model_params['strain'] == g[0]) &
                          (model_params['overexpression'] == g[1]) &
                          (model_params['inducer_conc'] == g[2]) &
@@ -79,7 +79,7 @@ for g, d in growth_params.groupby(['strain', 'overexpression', 'inducer_conc', '
     for i, p in enumerate(['width_mu', 'length_mu', 'volume_mu', 'alpha_mu']):
         med_p = sizes[(sizes['quantity'] == p) &
                       (sizes['interval'] == 'median')]
-        ax[i].plot(med_growth['lower'], med_p['lower'], 'o', ms=3.5, markeredgecolor=pert_cors[g[0]][g[1]],
+        ax[i].plot(med_growth['lower'], med_p['lower'], 'o', ms=3, markeredgecolor=pert_cors[g[0]][g[1]],
                    markeredgewidth=0.5, markerfacecolor='white', zorder=1000)
         for _g, _d in sizes[(sizes['interval'] != 'median') & (sizes['quantity'] == p)].groupby(['interval']):
             ax[i].vlines(med_growth['lower'], _d['lower'], _d['upper'], lw=err_widths[_g],
@@ -95,7 +95,7 @@ plt.savefig('../../figures/Fig4_wildtype_dimensions.pdf', bbox_inches='tight')
 fig, ax = plt.subplots(1, 2, figsize=(3.25, 1.75), sharex=True)
 ax[0].set_ylim([0, 25])
 ax[1].set_ylim([0, 0.10])
-ax[0].set_xlim([0, 2.1])
+ax[0].set_xlim([0.2, 1.3])
 ax[0].set_ylabel('$m_{peri}$ [fg / cell]', fontsize=6)
 ax[1].set_ylabel('$\phi_{peri}$', fontsize=6)
 ax[0].set_title('periplasmic protein mass', fontsize=6)
@@ -130,8 +130,8 @@ for g, d in ms_data.groupby(['dataset_name', 'condition', 'growth_rate_hr']):
                markeredgewidth=0.25, alpha=0.45)
 
 for g, d in growth_params.groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source'], sort=False):
-    if (g[0] != 'wildtype') | (g[1] != 'none'):
-        continue
+    # if (g[0] != 'wildtype') | (g[1] != 'none'):
+    # continue
     pars = model_params[(model_params['strain'] == g[0]) &
                         (model_params['overexpression'] == g[1]) &
                         (model_params['inducer_conc'] == g[2]) &
