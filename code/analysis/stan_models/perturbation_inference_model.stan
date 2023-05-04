@@ -1,8 +1,8 @@
 data { 
     // Measurement dimensions
     int<lower=1> N_size;
-    int<lower=1> N_prot;
-    int<lower=1> N_prot_cal;
+    int<lower=1> N_biuret;
+    int<lower=1> N_biuret_cal;
     int<lower=1> N_brad_cal;
 
     int<lower=1> N_brad;
@@ -10,9 +10,8 @@ data {
     int<lower=1> N_growth;
 
     // Condition dimensions
-    int<lower=1> J_size_cond;
+    int<lower=1> J_cond;
     int<lower=1> J_brad_cond; 
-    int<lower=1> J_growth_cond;
     int<lower=1> J_flow_cond;
 
     // Size measurements
@@ -25,29 +24,29 @@ data {
     vector<lower=0>[N_growth] growth_rates;
 
     // Total protein measurements
-    vector<lower=0>[N_prot] total_protein_od555_per_biomass;
-    vector<lower=0>[N_prot_cal] biuret_cal_concentration;
-    vector<lower=0>[N_prot_cal] biuret_cal_od555;
-    vector<lower=0>[N_prot] total_protein_lam;  
-    array[N_prot] int<lower=1, upper=J_growth_cond> biuret_growth_mapper;
+    vector<lower=0>[N_biuret] biuret_od555;
+    vector<lower=0>[N_biuret] biuret_od600;
+    vector<lower=0>[N_biuret_cal] biuret_cal_conc;
+    vector<lower=0>[N_biuret_cal] biuret_cal_od;
+    vector<lower=0>[N_biuret] biuret_conv_factor;
+    array[N_biuret] int<lower=1, upper=J_cond> biuret_mapper;
 
     // Flow measurements
     vector<lower=0>[N_flow] flow_events;
     array[N_flow] int<lower=1, upper=J_flow_cond> flow_idx;
-    array[N_flow] int<lower=1, upper=J_size_cond> flow_mapper;
+    array[N_flow] int<lower=1, upper=J_cond> flow_mapper;
 
     // Bradford assay measurements
     vector<lower=0>[N_brad] brad_od595; 
     vector<lower=0>[N_brad] brad_od600; 
-    vector<lower=0>[N_brad] conv_factor;
-    vector<lower=0>[N_brad_cal] concentration; 
-    vector<lower=0>[N_brad_cal] cal_od;
+    vector<lower=0>[N_brad] brad_conv_factor;
+    vector<lower=0>[N_brad_cal] brad_cal_conc; 
+    vector<lower=0>[N_brad_cal] brad_cal_od;
 
-    array[N_growth] int<lower=1, upper=J_growth_cond> growth_idx;  
-    array[N_size] int<lower=1, upper=J_size_cond> size_idx;  
+    array[N_growth] int<lower=1, upper=J_cond> growth_idx;  
+    array[N_size] int<lower=1, upper=J_cond> size_idx;  
     array[N_brad] int<lower=1, upper=J_brad_cond> brad_idx;  
-    array[J_brad_cond] int<lower=1, upper=J_size_cond> brad_size_mapper; // Maps bradford conditions to size conditions
-    array[J_brad_cond] int<lower=1, upper=J_growth_cond> brad_growth_mapper;
+    array[J_brad_cond] int<lower=1, upper=J_cond> brad_mapper;
     array[J_brad_cond] int<lower=1, upper=J_flow_cond> brad_flow_mapper; // Maps bradford conditions to size conditions
 
 
@@ -59,20 +58,20 @@ transformed data {
 
 parameters {
     // Size parameters
-    vector<lower=0>[J_size_cond] width_mu;
-    vector<lower=0>[J_size_cond] width_sigma;
-    vector<lower=0>[J_size_cond] length_mu;
-    vector<lower=0>[J_size_cond] length_sigma;
-    vector<lower=0>[J_size_cond] volume_mu;
-    vector<lower=0>[J_size_cond] volume_sigma;
-    vector<lower=0>[J_size_cond] peri_volume_mu;
-    vector<lower=0>[J_size_cond] peri_volume_sigma;
-    vector<lower=0>[J_size_cond] alpha_mu;
-    vector<lower=0>[J_size_cond] alpha_sigma;
+    vector<lower=0>[J_cond] width_mu;
+    vector<lower=0>[J_cond] width_sigma;
+    vector<lower=0>[J_cond] length_mu;
+    vector<lower=0>[J_cond] length_sigma;
+    vector<lower=0>[J_cond] volume_mu;
+    vector<lower=0>[J_cond] volume_sigma;
+    vector<lower=0>[J_cond] peri_volume_mu;
+    vector<lower=0>[J_cond] peri_volume_sigma;
+    vector<lower=0>[J_cond] alpha_mu;
+    vector<lower=0>[J_cond] alpha_sigma;
 
     // Growth parameters
-    vector[J_growth_cond] log_growth_mu;
-    vector<lower=0>[J_growth_cond] growth_rates_sigma;
+    vector[J_cond] log_growth_mu;
+    vector<lower=0>[J_cond] growth_rates_sigma;
 
     // Bradford assay parameters
     real<lower=0> bradford_cal_slope;
@@ -98,9 +97,9 @@ parameters {
 
 transformed parameters {
     vector<lower=0>[J_brad_cond] prot_per_biomass_mu = exp(log_prot_per_biomass_mu); 
-    vector<lower=0>[J_growth_cond] growth_mu = exp(log_growth_mu);
+    vector<lower=0>[J_cond] growth_mu = exp(log_growth_mu);
     vector<lower=0>[J_flow_cond] flow_mu = exp(log_flow_mu);
-    vector<lower=0>[N_prot] total_prot_mu = total_prot_0 + total_prot_slope .* growth_mu[biuret_growth_mapper];
+    vector<lower=0>[N_biuret] total_prot_mu = total_prot_0  + total_prot_slope .* growth_mu[biuret_mapper];
 }
 
 model {
@@ -110,7 +109,7 @@ model {
     bradford_cal_intercept ~ normal(0, 0.1);
     bradford_cal_sigma ~ std_normal();
     
-    cal_od ~ normal(bradford_cal_intercept + bradford_cal_slope .* concentration, bradford_cal_sigma);
+    brad_cal_od ~ normal(bradford_cal_intercept + bradford_cal_slope .* brad_cal_conc, bradford_cal_sigma);
 
     // Bradford assay - Measurements
     log_prot_per_biomass_mu ~ std_normal();
@@ -118,7 +117,7 @@ model {
 
     // Likelihood
     log((brad_od595 - bradford_cal_intercept)./brad_od600)  ~ normal(log(bradford_cal_slope .* 
-            prot_per_biomass_mu[brad_idx] ./ conv_factor), 
+            prot_per_biomass_mu[brad_idx] ./ brad_conv_factor), 
             od595_per_biomass_sigma[brad_idx]);
 
  
@@ -159,20 +158,20 @@ model {
     biuret_cal_slope ~ normal(0, 0.1);
     biuret_cal_intercept ~ normal(0, 0.1);
     biuret_cal_sigma ~ std_normal();
-    biuret_cal_od555 ~ normal(biuret_cal_intercept + biuret_cal_slope .* biuret_cal_concentration, biuret_cal_sigma);
-    total_protein_od555_per_biomass ~ normal(biuret_cal_intercept + biuret_cal_slope .* total_prot_mu, total_prot_sigma);
+    biuret_cal_od ~ normal(biuret_cal_intercept + biuret_cal_slope .* biuret_cal_conc, biuret_cal_sigma);
+    (biuret_od555 - biuret_cal_intercept)./biuret_od600 ~ normal(biuret_cal_slope .* total_prot_mu ./ biuret_conv_factor, total_prot_sigma);
 }
 
 generated quantities {
     //PPCs for bradford calibration
     vector[N_brad_cal] od595_cal_rep;
     for (i in 1:N_brad_cal) {
-        od595_cal_rep[i] = normal_rng(bradford_cal_intercept + bradford_cal_slope * concentration[i], bradford_cal_sigma);
+        od595_cal_rep[i] = normal_rng(bradford_cal_intercept + bradford_cal_slope * brad_cal_conc[i], bradford_cal_sigma);
     }
     vector[N_brad] od595_meas_rep;
     for (i in 1:N_brad) {
         od595_meas_rep[i] = bradford_cal_intercept + brad_od600[i] * exp(normal_rng(log(bradford_cal_slope .* 
-            prot_per_biomass_mu[brad_idx[i]] ./ conv_factor[i]), 
+            prot_per_biomass_mu[brad_idx[i]] ./ brad_conv_factor[i]), 
             od595_per_biomass_sigma[brad_idx[i]]));
     }
     vector[N_flow] flow_rep;
@@ -180,13 +179,13 @@ generated quantities {
         flow_rep[i] = exp(normal_rng(log_flow_mu[flow_idx[i]], flow_sigma));
     }
     //PPCs for total protein
-    vector[N_prot] total_protein_od555_rep;
-    for (i in 1:N_prot) {
-        total_protein_od555_rep[i] = normal_rng(biuret_cal_intercept + biuret_cal_slope * total_prot_mu[i], total_prot_sigma);
+    vector[N_biuret] total_protein_od555_rep;
+    for (i in 1:N_biuret) {
+        total_protein_od555_rep[i] = biuret_cal_intercept + biuret_od600[i] * normal_rng(biuret_cal_slope * total_prot_mu[i] / biuret_conv_factor[i], total_prot_sigma);
     }
-    vector[N_prot_cal] biuret_cal_rep;
-    for (i in 1:N_prot_cal) {
-        biuret_cal_rep[i] = normal_rng(biuret_cal_intercept + biuret_cal_slope * biuret_cal_concentration[i], biuret_cal_slope);
+    vector[N_biuret_cal] biuret_cal_rep;
+    for (i in 1:N_biuret_cal) {
+        biuret_cal_rep[i] = normal_rng(biuret_cal_intercept + biuret_cal_slope * biuret_cal_conc[i], biuret_cal_slope);
     }
 
     //PPcs for growth rate
@@ -195,17 +194,17 @@ generated quantities {
         growth_rate_rep[i] = exp(normal_rng(log_growth_mu[growth_idx[i]], growth_rates_sigma[growth_idx[i]]));
     }
 
-    vector[J_brad_cond] phi_peri = prot_per_biomass_mu ./ (total_prot_0 + total_prot_slope * growth_mu[brad_growth_mapper]); 
+    vector[J_brad_cond] phi_peri = prot_per_biomass_mu ./ (total_prot_0 + total_prot_slope * growth_mu[brad_mapper]); 
     vector[J_brad_cond] m_peri = 1E9 * prot_per_biomass_mu ./ flow_mu[brad_flow_mapper];
-    vector[J_brad_cond] rho_peri = m_peri ./ peri_volume_mu[brad_size_mapper];   
-    vector[J_size_cond] width_rep;
-    vector[J_size_cond] length_rep;
-    vector[J_size_cond] volume_rep;
-    vector[J_size_cond] peri_volume_rep;
-    vector[J_size_cond] alpha_rep;
+    vector[J_brad_cond] rho_peri = m_peri ./ peri_volume_mu[brad_mapper];   
+    vector[J_cond] width_rep;
+    vector[J_cond] length_rep;
+    vector[J_cond] volume_rep;
+    vector[J_cond] peri_volume_rep;
+    vector[J_cond] alpha_rep;
 
 
-    for (i in 1:J_size_cond) {
+    for (i in 1:J_cond) {
         width_rep[i] = exp(normal_rng(log(width_mu[i]), width_sigma[i]));
         length_rep[i] = normal_rng(length_mu[i], length_sigma[i]);
         volume_rep[i] = normal_rng(volume_mu[i], volume_sigma[i]);

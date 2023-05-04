@@ -20,191 +20,72 @@ model = cmdstanpy.CmdStanModel(
 # ##############################################################################
 # DATASET LOADING
 # ##############################################################################
-cal_data = pd.read_csv(
-    '../../data/protein_quantification/bradford_calibration_curve.csv')
 brad_data = pd.read_csv(
-    '../../data/protein_quantification/bradford_periplasmic_protein.csv')
-size_data = pd.read_csv(
-    '../../data/summaries/summarized_size_measurements.csv')
-biomass_data = pd.read_csv(
-    '../../data/literature/Basan2015/Basan2015_drymass_protein_cellcount.csv')
-flow_data = pd.read_csv('../../data/summaries/flow_cytometry_counts.csv')
+    '../../data/processed/labeled_protein_measurements.csv')
 growth_data = pd.read_csv(
-    '../../data/summaries/summarized_growth_measurements.csv')
-biuret_prot = pd.read_csv(
-    '../../data/protein_quantification/biuret_total_protein.csv')
+    '../../data/processed/labeled_growth_measurements.csv')
+size_data = pd.read_csv('../../data/processed/labeled_size_measurements.csv')
+biuret_data = pd.read_csv(
+    '../../data/processed/labeled_total_protein_measurements.csv')
+flow_data = pd.read_csv('../../data/processed/labeled_flow_measurements.csv')
+
+brad_cal = pd.read_csv(
+    '../../data/protein_quantification/bradford_calibration_curve.csv')
 biuret_cal = pd.read_csv(
     '../../data/protein_quantification/biuret_calibration_curve.csv')
-biuret_cal = biuret_cal[biuret_cal['replicate'] == 1]
-# tot_prot = pd.read_csv('../../data/literature/collated_total_protein_per_od.csv')
-# tot_prot = tot_prot[tot_prot['source'].isin(['This study']) &
-# (tot_prot['growth_rate_hr'] <= 1.5)]
-# %%
-strains = ['malE-rbsB-fliC-KO', 'wildtype', 'lpp14']
 
-# ##############################################################################
-# DATASET FILTERING
-# ##############################################################################
-# Correct bradford data that is out of bounds.
-brad_data = brad_data[brad_data['temperature'] == 37]
-brad_data['od_600nm_true'] = brad_data['od_600nm']
-brad_data = brad_data[brad_data['od_600nm'] <= 0.5]
-# brad_data.loc[brad_data['od_600nm'] >= 0.45, 'od_600nm_true'] = np.exp(
-# 1.26 * np.log(brad_data[brad_data['od_600nm'] >= 0.45]['od_600nm'].values) + 0.25)
-
-# Keep only the bradford data with more than two replicates
-brad_data = pd.concat([d for _, d in brad_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature']) if len(d) > 1], sort=False)
-brad_data = brad_data[brad_data['strain'].isin(strains)]
-brad_data = brad_data[brad_data['overexpression'].isin(
-    ['none', 'malE', 'rbsB', 'lacZ'])]
-# %%
-# Restrict size data
-size_data = size_data[size_data['temperature_C'] == 37]
-size_data = size_data[size_data['strain'].isin(strains)]
-size_data = pd.concat([d for _, d in size_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C']) if len(d) > 1], sort=False)
-
-size_data = size_data[size_data['overexpression'].isin(
-    ['none', 'malE', 'rbsB', 'lacZ'])]
-
-# Restrict flow data to only wildtype
-flow_data = flow_data[(flow_data['strain'] == 'wildtype')
-                      & (flow_data['carbon_source'] != 'LB')]
-
-flow_data = flow_data.groupby(
-    ['date', 'carbon_source', 'run_no']).mean().reset_index()
-
-# # Restrict growth data
-growth_data = growth_data[growth_data['overexpression'].isin(['none', 'malE', 'rbsB', 'lacZ']) &
-                          growth_data['strain'].isin(strains) &
-                          (growth_data['temperature_C'] == 37)]
-growth_data = pd.concat([d for _, d in growth_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C']) if len(d) > 1], sort=False)
-
-# %%
-# ##############################################################################
-# DATA LABELING
-# ##############################################################################
-## SIZE INDEXING ###############################################################
-# Add indexing to the size data
-size_data['size_cond_idx'] = size_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C']).ngroup() + 1
-
-## FLOW INDEXING ###############################################################
-# Map size identifiers to the flow growth conditions.
-flow_data['flow_mapper'] = 0
-for g, d in size_data.groupby(['carbon_source', 'size_cond_idx']):
-    flow_data.loc[(flow_data['carbon_source'] == g[0]), 'flow_mapper'] = g[1]
-flow_data = flow_data.groupby(['flow_mapper', 'carbon_source', 'run_no', 'date'])[
-    'cells_per_biomass'].mean().reset_index()
-flow_data = flow_data[flow_data['cells_per_biomass'] > 1E6]
-flow_data['flow_idx'] = flow_data.groupby(['carbon_source']).ngroup() + 1
-# %%
-## BRADFORD INDEXING ###########################################################
-# Filter, label, and transform bradford data
 brad_data['conv_factor'] = brad_data['dilution_factor'] * \
     brad_data['extraction_volume_mL'] / \
     (brad_data['culture_volume_mL'])
-brad_data['od_per_biomass'] = brad_data['od_595nm']
-
-
-## GROWTH INDEXING #############################################################
-growth_data['cond_idx'] = growth_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc']).ngroup() + 1
-for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C', 'size_cond_idx']):
-    growth_data.loc[(growth_data['strain'] == g[0]) & (growth_data['carbon_source'] == g[1])
-                    & (growth_data['overexpression'] == g[2]) & (growth_data['inducer'] == g[3]) &
-                    (growth_data['inducer_conc'] == g[4]) & (
-                        growth_data['temperature_C'] == g[5]),
-                    'size_idx'] = g[-1]
-growth_data.dropna(inplace=True)
-
-## BIURET INDEXING #############################################################
-for g, d in growth_data[(growth_data['strain'] == 'wildtype') & (growth_data['overexpression'] == 'none')
-                        & (growth_data['temperature_C'] == 37)].groupby(['carbon_source', 'cond_idx']):
-    biuret_prot.loc[biuret_prot['carbon_source'] == g[0], 'mapper'] = g[1]
-biuret_prot = biuret_prot[~biuret_prot['carbon_source'].isin(['LB', 'RDM'])]
 # %%
-# Map size identifiers to the bradford conditions
-brad_data['brad_size_mapper'] = 0
-for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C', 'size_cond_idx']):
-    brad_data.loc[(brad_data['strain'] == g[0]) &
-                  (brad_data['carbon_source'] == g[1]) &
-                  (brad_data['overexpression'] == g[2]) &
-                  (brad_data['inducer'] == g[3]) &
-                  (brad_data['inducer_conc'] == g[4]) &
-                  (brad_data['temperature'] == g[5]),
-                  'brad_size_mapper'] = g[-1]
-
-# brad_data = brad_data[brad_data['brad_size_mapper'] > 0]
-brad_data['brad_flow_mapper'] = 0
-for g, d in flow_data.groupby(['carbon_source', 'flow_idx']):
-    brad_data.loc[brad_data['carbon_source']
-                  == g[0], 'brad_flow_mapper'] = g[1]
-# %%
-brad_data['brad_growth_mapper'] = 0
-for g, d in growth_data.groupby(['size_idx', 'cond_idx']):
-    brad_data.loc[brad_data['brad_size_mapper']
-                  == g[0], 'brad_growth_mapper'] = g[1]
-
-brad_data = brad_data[brad_data['brad_growth_mapper'] > 0]
-brad_data['cond_idx'] = brad_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature']).ngroup() + 1
-
-# %%
+# Assemble the data dictionary
 data_dict = {
-
-    'N_brad_cal': len(cal_data),
-    'concentration': cal_data['protein_conc_ug_ml'].values.astype(float),
-    'cal_od': cal_data['od_595nm'].values.astype(float),
-
-    'J_growth_cond': growth_data['cond_idx'].max(),
-    'N_growth': len(growth_data),
-    'growth_rates': growth_data['growth_rate_hr'].values.astype(float),
-    'growth_idx': growth_data['cond_idx'].values.astype(int),
-    'size_growth_idx': growth_data['size_idx'].values.astype(int),
-
     'N_size': len(size_data),
-    'J_size_cond': size_data['size_cond_idx'].max(),
-    'size_idx': size_data['size_cond_idx'].values.astype(int),
-    'width': size_data['width_median'].values.astype(float),
-    'length': size_data['length'].values.astype(float),
-    'volume': size_data['volume'].values.astype(float),
-    'peri_volume': size_data['periplasm_volume'].values.astype(float),
-    'surface_area': size_data['surface_area'].values.astype(float),
-    'surface_area_volume': size_data['surface_to_volume'].values.astype(float),
-
-    'J_brad_cond': brad_data['cond_idx'].max(),
     'N_brad': len(brad_data),
-    'brad_idx': brad_data['cond_idx'].values.astype(int),
-    'brad_size_mapper': brad_data['brad_size_mapper'].unique(),
-    'brad_flow_mapper': np.array([g[1] for g, _ in brad_data.groupby(['cond_idx', 'brad_flow_mapper'])]),
-    'brad_growth_mapper': np.array([g[1] for g, _ in brad_data.groupby(['cond_idx', 'brad_growth_mapper'])]),
-    'brad_od595': brad_data['od_595nm'].values.astype(float),
-    'brad_od600': brad_data['od_600nm'].values.astype(float),
-    'conv_factor': brad_data['conv_factor'].values.astype(float),
-
-    'N_prot': len(biuret_prot),
-    'N_prot_cal': len(biuret_cal),
-    'total_protein_od555_per_biomass': biuret_prot['od555_per_od600'],
-    'total_protein_lam': biuret_prot['growth_rate_hr'].values,
-    'biuret_cal_concentration': biuret_cal['protein_conc_ug_ml'].values,
-    'biuret_cal_od555': biuret_cal['od_555nm'].values,
-    'biuret_growth_mapper': biuret_prot['mapper'].values.astype(int),
-
-    'J_flow_cond': flow_data['flow_idx'].max(),
-    'flow_idx': flow_data['flow_idx'].values.astype(int),
+    'N_biuret': len(biuret_data),
     'N_flow': len(flow_data),
-    'flow_mapper': flow_data['flow_mapper'].values.astype(int),
-    'flow_events': flow_data['cells_per_biomass'].values.astype(float)
+    'N_growth': len(growth_data),
+    'N_biuret_cal': len(biuret_cal),
+    'N_brad_cal': len(brad_cal),
+    'N_biuret_cal': len(biuret_cal),
+
+    'J_cond': size_data['perturbation_idx'].max(),
+    'J_brad_cond': brad_data['perturbation_idx'].max(),
+    'J_flow_cond': len(flow_data['carbon_idx'].unique()),
+
+    'width': size_data['width_median'].values,
+    'length': size_data['length'].values,
+    'volume': size_data['volume'].values,
+    'peri_volume': size_data['periplasm_volume'].values,
+    'size_idx': size_data['perturbation_idx'].values,
+
+    'growth_rates': growth_data['growth_rate_hr'].values,
+    'growth_idx': growth_data['perturbation_idx'].values,
+
+    'flow_events': flow_data['cells_per_biomass'].values,
+    'flow_idx':  flow_data['cond_idx'].values,
+    'flow_mapper': flow_data['wt_carbon_idx'].values,
+
+    'brad_od595': brad_data['od_595nm'].values,
+    'brad_od600': brad_data['od_600nm'].values,
+    'brad_conv_factor': brad_data['conv_factor'].values,
+    'brad_cal_conc': brad_cal['protein_conc_ug_ml'].values,
+    'brad_cal_od': brad_cal['od_595nm'].values,
+    'brad_idx': brad_data['perturbation_idx'].values,
+    'brad_mapper': brad_data['perturbation_idx'].unique(),
+    'brad_flow_mapper': brad_data.groupby(['perturbation_idx'])['carbon_idx'].min(),
+
+    'biuret_od555': biuret_data['od_555nm'].values,
+    'biuret_od600': biuret_data['od_600nm'].values,
+    'biuret_conv_factor': biuret_data['conv_factor'].values,
+    'biuret_cal_od': biuret_cal['od_555nm'].values,
+    'biuret_cal_conc': biuret_cal['protein_conc_ug_ml'].values,
+    'biuret_mapper': biuret_data['wt_carbon_idx'].values
 }
 
-
-# %%
-# Sample the posterior
-# adapt_delta=0.999, max_treedepth=11)
-_samples = model.sample(data_dict, adapt_delta=0.99)
+# |, show_console=True)
+# , show_console=True)
+_samples = model.sample(data=data_dict, adapt_delta=0.95)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
@@ -217,7 +98,7 @@ samples = az.from_cmdstanpy(_samples)
 # BRADFORD
 ##########
 cal_ppc = samples.posterior.od595_cal_rep.to_dataframe().reset_index()
-for conc, n in zip(cal_data['protein_conc_ug_ml'], np.arange(len(cal_data))):
+for conc, n in zip(brad_cal['protein_conc_ug_ml'], np.arange(len(brad_cal))):
     cal_ppc.loc[cal_ppc['od595_cal_rep_dim_0'] == n, 'conc'] = conc
 cal_percs = size.viz.compute_percentiles(cal_ppc, 'od595_cal_rep', 'conc')
 
@@ -227,7 +108,7 @@ ppc_cmap = {i: c for i, c in zip(cal_percs['interval'].unique(), cmap)}
 for i, (g, d) in enumerate(cal_percs.groupby(['interval'], sort=False)):
     ax.fill_between(d['conc'].values, d['lower'].values, d['upper'].values,
                     color=ppc_cmap[g], zorder=i+1)
-ax.plot(cal_data['protein_conc_ug_ml'], cal_data['od_595nm'], 'o',
+ax.plot(brad_cal['protein_conc_ug_ml'], brad_cal['od_595nm'], 'o',
         color=cor['primary_red'], ms=4, zorder=i+1)
 ax.set_xlabel('protein standard concentration [µg / mL]')
 ax.set_ylabel('OD$_{595nm}$')
@@ -238,7 +119,7 @@ plt.savefig(
 # BIURET
 ##########
 cal_ppc = samples.posterior.biuret_cal_rep.to_dataframe().reset_index()
-for conc, n in zip(biuret_cal['protein_conc_ug_ml'], np.arange(len(cal_data))):
+for conc, n in zip(biuret_cal['protein_conc_ug_ml'], np.arange(len(brad_cal))):
     cal_ppc.loc[cal_ppc['biuret_cal_rep_dim_0'] == n, 'conc'] = conc
 cal_percs = size.viz.compute_percentiles(cal_ppc, 'biuret_cal_rep', 'conc')
 
@@ -259,29 +140,29 @@ plt.savefig(
 # Compute the percentiles
 prot_ppc_df = samples.posterior.od595_meas_rep.to_dataframe().reset_index()
 
-for dim, idx in zip(np.arange(len(brad_data)), brad_data['cond_idx'].values):
+for dim, idx in zip(np.arange(len(brad_data)), brad_data['perturbation_idx'].values):
     prot_ppc_df.loc[prot_ppc_df['od595_meas_rep_dim_0']
-                    == dim, 'cond_idx'] = idx
+                    == dim, 'perturbation_idx'] = idx
 
 prot_ppc_percs = size.viz.compute_percentiles(
-    prot_ppc_df, 'od595_meas_rep', 'cond_idx')
+    prot_ppc_df, 'od595_meas_rep', 'perturbation_idx')
 
 fig, ax = plt.subplots(1, 1, figsize=(4, 6))
 
-for i, (g, d) in enumerate(prot_ppc_percs.groupby(['cond_idx', 'interval'], sort=False)):
+for i, (g, d) in enumerate(prot_ppc_percs.groupby(['perturbation_idx', 'interval'], sort=False)):
     ax.hlines(g[0], d['lower'], d['upper'], lw=5,
               color=ppc_cmap[g[1]], zorder=i+1)
 
 
-for g, d in brad_data.groupby(['cond_idx']):
-    ax.plot(d['od_per_biomass'], np.ones(len(d)) * g + np.random.normal(0, 0.05, len(d)),
+for g, d in brad_data.groupby(['perturbation_idx']):
+    ax.plot(d['od_595nm'], np.ones(len(d)) * g + np.random.normal(0, 0.05, len(d)),
             'o', color=cor['primary_red'], ms=4, zorder=i+1)
 
 labels = []
-for g, d in brad_data.groupby(['cond_idx', 'strain', 'carbon_source',
-                               'overexpression', 'inducer', 'inducer_conc', 'temperature']):
-    labels.append(g[1:])
-ax.set_yticks(brad_data['cond_idx'].unique())
+for g, d in brad_data.groupby(['perturbation_idx', 'strain', 'carbon_source',
+                               'overexpression', 'inducer_conc']):
+    labels.append(g)
+ax.set_yticks(np.arange(len(labels))+1)
 ax.set_yticklabels(labels)
 ax.set_xlabel('OD$_{595nm}$')
 plt.savefig(
@@ -289,9 +170,9 @@ plt.savefig(
 
 #  %%
 total_protein_ppc = samples.posterior.total_protein_od555_rep.to_dataframe().reset_index()
-for i in range(len(biuret_prot)):
+for i in range(len(biuret_data)):
     total_protein_ppc.loc[total_protein_ppc['total_protein_od555_rep_dim_0']
-                          == i, 'growth_rate_hr'] = biuret_prot['growth_rate_hr'].values[i]
+                          == i, 'growth_rate_hr'] = biuret_data['growth_rate_hr'].values[i]
 total_protein_perc = size.viz.compute_percentiles(total_protein_ppc, 'total_protein_od555_rep',
                                                   ['growth_rate_hr'])
 
@@ -300,13 +181,14 @@ for i, (g, d) in enumerate(total_protein_perc.groupby(['interval'], sort=False))
     ax.fill_between(d['growth_rate_hr'], d['lower'], d['upper'],
                     color=ppc_cmap[g], label='__nolegend__')
 
-ax.plot(biuret_prot['growth_rate_hr'], biuret_prot['od555_per_od600'],
-        'o', label=g, ms=4)
+ax.plot(biuret_data['growth_rate_hr'], biuret_data['od_555nm'],
+        'o', label=g, ms=4, color=cor['primary_red'])
 
 ax.legend()
 ax.set_xlabel('growth rate [hr$^{-1}$]')
-ax.set_ylabel('OD$_{555nm}$ per OD$_{600nm}$')
-# plt.savefig('../../figures/mcmc/protein_diagnostics/perturbation_inference_total_protein_trend.pdf')
+ax.set_ylabel('OD$_{555nm}$')
+plt.savefig(
+    '../../figures/mcmc/protein_diagnostics/perturbation_inference_total_protein_trend.pdf')
 # %% Flow PPC
 fig, ax = plt.subplots(1, 1, figsize=(4, 6))
 ax.set_xscale('log')
@@ -343,8 +225,8 @@ loc = {k: ax[i] for i, k in enumerate(props)}
 for p in props:
     _ppc = samples.posterior[f'{p}_rep'].to_dataframe().reset_index()
 
-    for dim, idx in enumerate(size_data['size_cond_idx'].unique()):
-        _ppc.loc[_ppc[f'{p}_rep_dim_0'] == dim, 'idx'] = idx
+    for idx in size_data['perturbation_idx'].unique():
+        _ppc.loc[_ppc[f'{p}_rep_dim_0'] == idx - 1, 'idx'] = idx
 
     _perc = size.viz.compute_percentiles(_ppc, f'{p}_rep', 'idx')
     for i, (g, d) in enumerate(_perc.groupby(['idx', 'interval'], sort=False)):
@@ -352,18 +234,21 @@ for p in props:
         loc[p].hlines(g[0], d['lower'], d['upper'], lw=2, color=ppc_cmap[g[1]],
                       zorder=i+1)
 
-for g, d in size_data.groupby(['size_cond_idx']):
+labels = []
+idx = 1
+for g, d in size_data.groupby(['perturbation_idx', 'strain', 'carbon_source', 'overexpression', 'inducer_conc']):
+    labels.append(g[1:])
     _ones = np.ones(len(d))
-    ax[0].plot(d['width_median'], _ones * g +
+    ax[0].plot(d['width_median'], _ones * idx +
                np.random.normal(0, 0.05, len(d)), 'o', color=cor['primary_red'],
                ms=3, zorder=1000)
-    ax[1].plot(d['length'], _ones * g +
+    ax[1].plot(d['length'], _ones * idx +
                np.random.normal(0, 0.05, len(d)), 'o', color=cor['primary_red'],
                ms=3, zorder=1000)
-    ax[2].plot(d['volume'], _ones * g +
+    ax[2].plot(d['volume'], _ones * idx +
                np.random.normal(0, 0.05, len(d)), 'o', color=cor['primary_red'],
                ms=3, zorder=1000)
-    ax[3].plot(d['periplasm_volume'], _ones * g +
+    ax[3].plot(d['periplasm_volume'], _ones * idx +
                np.random.normal(0, 0.05, len(d)), 'o', color=cor['primary_red'],
                ms=3, zorder=1000)
     # ax[1, 1].plot(d['surface_area'], _ones * g +
@@ -372,14 +257,13 @@ for g, d in size_data.groupby(['size_cond_idx']):
     # ax[1, 2].plot(d['surface_to_volume'], _ones * g +
     #   np.random.normal(0, 0.05, len(d)), 'o', color=cor['primary_red'],
     #   ms=3, zorder=1000)
-    ax[4].plot(d['aspect_ratio'], _ones * g +
+    ax[4].plot(d['aspect_ratio'], _ones * idx +
                np.random.normal(0, 0.05, len(d)), 'o', color=cor['primary_red'],
                ms=3, zorder=1000)
+    idx += 1
 
-labels = [g[1:] for g, _ in size_data.groupby(
-    ['size_cond_idx', 'strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C'])]
-_ = ax[0].set_yticks(size_data['size_cond_idx'].unique())
-_ = ax[3].set_yticks(size_data['size_cond_idx'].unique())
+_ = ax[0].set_yticks(1 + np.arange(len(labels)))
+_ = ax[3].set_yticks(1 + np.arange(len(labels)))
 _ = ax[0].set_yticklabels(labels)
 _ = ax[3].set_yticklabels(labels)
 plt.savefig(
@@ -389,8 +273,8 @@ plt.savefig(
 # Visualize growth rate ppcs.
 fig, ax = plt.subplots(1, 1, figsize=(4, 7))
 inds = {g: i for i, (g, _) in enumerate(growth_data.groupby(
-    ['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C']))}
-for g, d in growth_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C']):
+    ['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature']))}
+for g, d in growth_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature']):
     ax.plot(d['growth_rate_hr'], inds[g] + np.random.normal(0, 0.1, len(d)), 'o', color=cor['primary_red'],
             ms=3)
 ppcs = samples.posterior.growth_rate_rep.to_dataframe().reset_index()
@@ -406,12 +290,12 @@ for i in range(len(growth_data)):
     ppcs.loc[ppcs['growth_rate_rep_dim_0'] ==
              i, 'inducer'] = _d['inducer']
     ppcs.loc[ppcs['growth_rate_rep_dim_0'] ==
-             i, 'temperature_C'] = _d['temperature_C']
+             i, 'temperature'] = _d['temperature']
 
 percs = size.viz.compute_percentiles(ppcs, 'growth_rate_rep', [
-                                     'strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C'])
+                                     'strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature'])
 
-for g, d in percs.groupby(['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C', 'interval'], sort=False):
+for g, d in percs.groupby(['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature', 'interval'], sort=False):
     ax.hlines(inds[g[:-1]], d['lower'], d['upper'],
               lw=10, color=ppc_cmap[g[-1]], zorder=1)
 
@@ -423,7 +307,7 @@ ax.set_xlabel('growth rate [hr$^{-1}$]')
 # PARAMETER SUMMARIZATION
 # ##############################################################################
 size_groupby = ['strain', 'carbon_source',
-                'overexpression', 'inducer', 'inducer_conc', 'temperature_C', 'size_cond_idx']
+                'overexpression', 'inducer', 'inducer_conc', 'temperature', 'perturbation_idx']
 # Perform a KDE over the posteriors
 shape_parameters = ['width_mu', 'length_mu', 'volume_mu', 'peri_volume_mu',
                     'alpha_mu', 'alpha_rep', 'growth_rate_rep', 'width_rep', 'length_rep',
@@ -458,7 +342,7 @@ shape_post_kde.to_csv(
 # %%
 # Perform KDE over posterior of model params
 brad_groupby = ['strain', 'carbon_source',
-                'overexpression', 'inducer', 'inducer_conc', 'temperature', 'cond_idx']
+                'overexpression', 'inducer', 'inducer_conc', 'temperature', 'perturbation_idx']
 model_params = ['alpha_rep', 'm_peri', 'phi_peri', 'rho_peri']
 model_post_kde = pd.DataFrame([])
 for s in tqdm.tqdm(model_params):
@@ -503,9 +387,9 @@ for i, p in enumerate(shape_parameters):
                                          upper_bounds=upper,
                                          interval_labels=int_labels)
     for g, d in size_data.groupby(['strain', 'carbon_source', 'overexpression',
-                                   'inducer_conc', 'inducer', 'temperature_C', 'size_cond_idx']):
+                                   'inducer_conc', 'inducer', 'temperature', 'perturbation_idx']):
         percs.loc[percs[f'{p}_dim_0'] == g[-1]-1, ['strain', 'carbon_source',
-                                                   'overexpression', 'inducer_conc', 'inducer', 'temperature_C']] = g[:-1]
+                                                   'overexpression', 'inducer_conc', 'inducer', 'temperature']] = g[:-1]
     percs.drop(columns=f'{p}_dim_0', inplace=True)
     param_percs = pd.concat([param_percs, percs], sort=False)
 
@@ -519,7 +403,7 @@ for i, p in enumerate(params):
                                          upper_bounds=upper,
                                          interval_labels=int_labels)
     for g, d in brad_data.groupby(['strain', 'carbon_source', 'overexpression',
-                                   'inducer', 'inducer_conc', 'temperature', 'cond_idx']):
+                                   'inducer', 'inducer_conc', 'temperature', 'perturbation_idx']):
         percs.loc[percs[f'{p}_dim_0'] == g[-1]-1, ['strain', 'carbon_source', 'overexpression',
                                                    'inducer', 'inducer_conc', 'temperature']] = g[:-1]
     percs.drop(columns=f'{p}_dim_0', inplace=True)
@@ -534,7 +418,7 @@ percs = size.viz.compute_percentiles(lam_df, 'growth_mu', 'growth_mu_dim_0',
                                      lower_bounds=lower,
                                      upper_bounds=upper,
                                      interval_labels=int_labels)
-for g, d in growth_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C', 'cond_idx']):
+for g, d in growth_data.groupby(['strain', 'carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature', 'perturbation_idx']):
     percs.loc[percs[f'growth_mu_dim_0'] == g[-1]-1, ['strain', 'carbon_source', 'overexpression',
                                                      'inducer', 'inducer_conc', 'temperature']] = g[:-1]
 percs.drop(columns=f'growth_mu_dim_0', inplace=True)
