@@ -120,8 +120,6 @@ model {
             prot_per_biomass_mu[brad_idx] ./ brad_conv_factor), 
             od595_per_biomass_sigma[brad_idx]);
 
- 
-
 
     // Growth rate measurements
     log_growth_mu ~ std_normal();

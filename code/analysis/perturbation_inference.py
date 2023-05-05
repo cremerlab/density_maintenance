@@ -63,8 +63,8 @@ data_dict = {
     'growth_idx': growth_data['perturbation_idx'].values,
 
     'flow_events': flow_data['cells_per_biomass'].values,
-    'flow_idx':  flow_data['cond_idx'].values,
-    'flow_mapper': flow_data['wt_carbon_idx'].values,
+    'flow_idx':  flow_data['carbon_idx'].values,
+    'flow_mapper': flow_data['carbon_idx'].values,
 
     'brad_od595': brad_data['od_595nm'].values,
     'brad_od600': brad_data['od_600nm'].values,

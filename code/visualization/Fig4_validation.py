@@ -94,7 +94,7 @@ plt.savefig('../../figures/Fig4_wildtype_dimensions.pdf', bbox_inches='tight')
 
 fig, ax = plt.subplots(1, 2, figsize=(3.25, 1.75), sharex=True)
 ax[0].set_ylim([0, 25])
-ax[1].set_ylim([0, 0.10])
+ax[1].set_ylim([0, 0.15])
 ax[0].set_xlim([0.2, 1.3])
 ax[0].set_ylabel('$m_{peri}$ [fg / cell]', fontsize=6)
 ax[1].set_ylabel('$\phi_{peri}$', fontsize=6)
