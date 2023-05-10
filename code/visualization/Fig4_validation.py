@@ -41,8 +41,8 @@ ax[3].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
 pert_cors = {'wildtype': {'lacZ': cor['dark_black'],
                           'none': cor['blue']},
              'malE-rbsB-fliC-KO': {'none': cor['primary_purple'],
-                                   'rbsB': cor['primary_green'],
-                                   'malE': cor['primary_gold']},
+                                   'malE': cor['primary_green'],
+                                   'rbsB': cor['primary_gold']},
              'lpp14': {'none': cor['primary_red']}}
 
 # Plot the percentiles
@@ -94,7 +94,7 @@ plt.savefig('../../figures/Fig4_wildtype_dimensions.pdf', bbox_inches='tight')
 
 fig, ax = plt.subplots(1, 2, figsize=(3.25, 1.75), sharex=True)
 ax[0].set_ylim([0, 25])
-ax[1].set_ylim([0, 0.15])
+ax[1].set_ylim([0, 0.125])
 ax[0].set_xlim([0.2, 1.3])
 ax[0].set_ylabel('$m_{peri}$ [fg / cell]', fontsize=6)
 ax[1].set_ylabel('$\phi_{peri}$', fontsize=6)
@@ -130,8 +130,8 @@ for g, d in ms_data.groupby(['dataset_name', 'condition', 'growth_rate_hr']):
                markeredgewidth=0.25, alpha=0.45)
 
 for g, d in growth_params.groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source'], sort=False):
-    # if (g[0] != 'wildtype') | (g[1] != 'none'):
-    # continue
+    if (g[0] != 'wildtype') | (g[1] != 'none'):
+        continue
     pars = model_params[(model_params['strain'] == g[0]) &
                         (model_params['overexpression'] == g[1]) &
                         (model_params['inducer_conc'] == g[2]) &
@@ -156,6 +156,14 @@ for g, d in growth_params.groupby(['strain', 'overexpression', 'inducer_conc', '
         for _g, _d in d[d['interval'] != 'median'].groupby(['interval']):
             ax[i].hlines(prefactor * med_p['lower'],  _d['lower'], _d['upper'], lw=err_widths[_g],
                          color=pert_cors[g[0]][g[1]], zorder=999)
+for k, v in pert_cors.items():
+    for _k, _v in v.items():
+        ax[1].plot([], [], 'o', markeredgecolor=_v, markerfacecolor='w', markeredgewidth=1, ms=4,
+                   label=f'{k}/{_k}')
+
+# leg = ax[1].legend(title='strain/overexpression',
+        #    fontsize=6, bbox_to_anchor=(1, 1))
+
 plt.tight_layout()
 plt.savefig('../../figures/Fig4_protein_protocol_validation.pdf',
             bbox_inches='tight')

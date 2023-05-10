@@ -53,9 +53,7 @@ for i, d in enumerate([size_data, growth_data, brad_data]):
                (d['overexpression'] == _o) & (d['inducer'] == _ind) &
                (d['inducer_conc'] == _indc) & (d['temperature'] == _tem)].copy()
         if len(_d) > 0:
-            idx = len(reps) - (j + 1)
-            if idx == 0:
-                idx = len(reps)
+            idx = j + 1  # len(reps) - (j + 1)
             _d['perturbation_idx'] = idx
             wt_idx = reps.iloc[j]['carbon_source']
             _d['wt_carbon_idx'] = int(
@@ -77,6 +75,12 @@ for d in [flow, biuret]:
     d['wt_carbon_idx'] = d['wt_carbon_idx'].values.astype(int)
     valid_dfs.append(d)
 
+# Add specific mappers to the brad data
+valid_dfs[2]['idx'] = valid_dfs[2].groupby(
+    ['strain', 'carbon_source', 'overexpression', 'inducer_conc']).ngroup() + 1
+
+
+# %%
 # Save the pruned and labeled dataframes to disk.
 names = ['size', 'growth', 'protein', 'flow', 'total_protein']
 for i, nom in enumerate(names):

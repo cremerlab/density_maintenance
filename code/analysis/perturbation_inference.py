@@ -34,6 +34,7 @@ brad_cal = pd.read_csv(
 biuret_cal = pd.read_csv(
     '../../data/protein_quantification/biuret_calibration_curve.csv')
 
+brad_data = brad_data[brad_data['od_600nm'] <= 0.5]
 brad_data['conv_factor'] = brad_data['dilution_factor'] * \
     brad_data['extraction_volume_mL'] / \
     (brad_data['culture_volume_mL'])
@@ -49,9 +50,9 @@ data_dict = {
     'N_brad_cal': len(brad_cal),
     'N_biuret_cal': len(biuret_cal),
 
-    'J_cond': size_data['perturbation_idx'].max(),
-    'J_brad_cond': brad_data['perturbation_idx'].max(),
-    'J_flow_cond': len(flow_data['carbon_idx'].unique()),
+    'J_size_growth_cond': size_data['perturbation_idx'].max(),
+    'J_brad_cond': brad_data['idx'].max(),
+    'J_flow_cond': flow_data['carbon_idx'].max(),
 
     'width': size_data['width_median'].values,
     'length': size_data['length'].values,
@@ -64,16 +65,15 @@ data_dict = {
 
     'flow_events': flow_data['cells_per_biomass'].values,
     'flow_idx':  flow_data['carbon_idx'].values,
-    'flow_mapper': flow_data['carbon_idx'].values,
 
     'brad_od595': brad_data['od_595nm'].values,
     'brad_od600': brad_data['od_600nm'].values,
     'brad_conv_factor': brad_data['conv_factor'].values,
     'brad_cal_conc': brad_cal['protein_conc_ug_ml'].values,
     'brad_cal_od': brad_cal['od_595nm'].values,
-    'brad_idx': brad_data['perturbation_idx'].values,
-    'brad_mapper': brad_data['perturbation_idx'].unique(),
-    'brad_flow_mapper': brad_data.groupby(['perturbation_idx'])['carbon_idx'].min(),
+    'brad_idx': brad_data['idx'].values,
+    'brad_size_growth_mapper': brad_data['perturbation_idx'].unique(),
+    'brad_flow_mapper': brad_data.groupby(['idx'])['carbon_idx'].min(),
 
     'biuret_od555': biuret_data['od_555nm'].values,
     'biuret_od600': biuret_data['od_600nm'].values,
@@ -85,7 +85,7 @@ data_dict = {
 
 # |, show_console=True)
 # , show_console=True)
-_samples = model.sample(data=data_dict, adapt_delta=0.95)
+_samples = model.sample(data=data_dict, adapt_delta=0.99)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
@@ -140,26 +140,26 @@ plt.savefig(
 # Compute the percentiles
 prot_ppc_df = samples.posterior.od595_meas_rep.to_dataframe().reset_index()
 
-for dim, idx in zip(np.arange(len(brad_data)), brad_data['perturbation_idx'].values):
+for dim, idx in zip(np.arange(len(brad_data)), brad_data['idx'].values):
     prot_ppc_df.loc[prot_ppc_df['od595_meas_rep_dim_0']
-                    == dim, 'perturbation_idx'] = idx
+                    == dim, 'idx'] = idx
 
 prot_ppc_percs = size.viz.compute_percentiles(
-    prot_ppc_df, 'od595_meas_rep', 'perturbation_idx')
+    prot_ppc_df, 'od595_meas_rep', 'idx')
 
 fig, ax = plt.subplots(1, 1, figsize=(4, 6))
 
-for i, (g, d) in enumerate(prot_ppc_percs.groupby(['perturbation_idx', 'interval'], sort=False)):
+for i, (g, d) in enumerate(prot_ppc_percs.groupby(['idx', 'interval'], sort=False)):
     ax.hlines(g[0], d['lower'], d['upper'], lw=5,
               color=ppc_cmap[g[1]], zorder=i+1)
 
 
-for g, d in brad_data.groupby(['perturbation_idx']):
+for g, d in brad_data.groupby(['idx']):
     ax.plot(d['od_595nm'], np.ones(len(d)) * g + np.random.normal(0, 0.05, len(d)),
             'o', color=cor['primary_red'], ms=4, zorder=i+1)
 
 labels = []
-for g, d in brad_data.groupby(['perturbation_idx', 'strain', 'carbon_source',
+for g, d in brad_data.groupby(['idx', 'strain', 'carbon_source',
                                'overexpression', 'inducer_conc']):
     labels.append(g)
 ax.set_yticks(np.arange(len(labels))+1)
@@ -318,9 +318,9 @@ for s in tqdm.tqdm(shape_parameters):
     for g, d in size_data.groupby(size_groupby):
         for i, _g in enumerate(size_groupby[:-1]):
             post.loc[post[f'{s}_dim_0'] == g[-1]-1, _g] = g[i]
-    minval = 0.01 * post[s].median()
-    maxval = 3 * post[s].median()
-    score_range = np.linspace(minval, maxval, 500)
+    minval = 0.2 * post[s].median()
+    maxval = 2 * post[s].median()
+    score_range = np.linspace(minval, maxval, 1000)
     for g, d in post.groupby(size_groupby[:-1]):
 
         # Evaluate the kernel density
@@ -403,7 +403,7 @@ for i, p in enumerate(params):
                                          upper_bounds=upper,
                                          interval_labels=int_labels)
     for g, d in brad_data.groupby(['strain', 'carbon_source', 'overexpression',
-                                   'inducer', 'inducer_conc', 'temperature', 'perturbation_idx']):
+                                   'inducer', 'inducer_conc', 'temperature', 'idx']):
         percs.loc[percs[f'{p}_dim_0'] == g[-1]-1, ['strain', 'carbon_source', 'overexpression',
                                                    'inducer', 'inducer_conc', 'temperature']] = g[:-1]
     percs.drop(columns=f'{p}_dim_0', inplace=True)

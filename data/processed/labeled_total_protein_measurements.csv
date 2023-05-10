@@ -1,5 +1,5 @@
 carbon_source,od_600nm,od_555nm,growth_rate_hr,conv_factor,wt_carbon_idx,cond_idx,carbon_idx
-glucoseCAA,0.385,0.075,1.31,0.1511,11,1,5
-glucose,0.441,0.095,0.97,0.1476,12,2,4
-glycerol,0.426,0.081,0.71,0.1582,13,3,3
-acetate,0.409,0.097,0.46,0.1506,15,4,1
+glucoseCAA,0.385,0.075,1.31,0.1511,14,1,5
+glucose,0.441,0.095,0.97,0.1476,19,4,4
+glycerol,0.426,0.081,0.71,0.1582,15,2,3
+acetate,0.409,0.097,0.46,0.1506,18,3,1
