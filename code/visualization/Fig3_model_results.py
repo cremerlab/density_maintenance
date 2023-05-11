@@ -18,8 +18,8 @@ kdes = pd.read_csv('../../data/mcmc/literature_model_params_kde.csv')
 
 size_data['aspect_ratio'] = size_data['length_um'].values / \
     size_data['width_um'].values
-m2_ppcs = ppcs[ppcs['model'] == 'const_rho_mem']
-ppcs = ppcs[ppcs['model'] == 'const_phi_mem']
+m2_ppcs = ppcs[(ppcs['model'] == 'const_rho_mem')]
+# ppcs = ppcs[ppcs['model'] == 'const_phi_mem']
 kdes = kdes[kdes['model'] == 'const_phi_mem']
 size_data['aspect_ratio'] = size_data['length_um'] / size_data['width_um']
 
@@ -155,8 +155,11 @@ for g, d in size_data.groupby(['source']):
                    markeredgecolor=cor['primary_black'], color=mapper[g]['c'],
                    alpha=0.75, zorder=1000)
 axes = {'w_rep': ax[1], 'ell_rep': ax[2], 'vol_rep': ax[3], 'alpha_rep': ax[0]}
-for g, d in ppcs[ppcs['quantity'].isin(['w_rep', 'ell_rep', 'vol_rep', 'alpha_rep']) &
-                 (ppcs['interval'].isin(perc_colors.keys()))].groupby(['quantity', 'interval'], sort=False):
+
+_ppcs = ppcs[(ppcs['volume_scale'] == 'linear_width') &
+             (ppcs['model'] == 'const_rho_mem')]
+for g, d in _ppcs[_ppcs['quantity'].isin(['w_rep', 'ell_rep', 'vol_rep', 'alpha_rep']) &
+                  (_ppcs['interval'].isin(perc_colors.keys()))].groupby(['quantity', 'interval'], sort=False):
     if g[1] != 'median':
         axes[g[0]].fill_between(d['growth_rate_hr'], d['lower'], d['upper'],
                                 color=cor[f'{perc_colors[g[1]]}_black'], alpha=0.25)
@@ -164,7 +167,7 @@ for g, d in ppcs[ppcs['quantity'].isin(['w_rep', 'ell_rep', 'vol_rep', 'alpha_re
         axes[g[0]].plot(d['growth_rate_hr'], d['lower'], lw=1,
                         color=cor[f'{perc_colors[g[1]]}_black'], alpha=0.25)
 plt.tight_layout()
-plt.savefig('../../figures/Fig3_size_ppc.pdf')
+# plt.savefig('../../figures/Fig3_size_ppc.pdf')
 # %%
 fig, ax = plt.subplots(1, 2, figsize=(6, 1.5), sharex=True)
 for a in ax:
@@ -181,7 +184,9 @@ for g, d in ms_data[ms_data['localization'].isin(['periplasm', 'membrane'])].gro
                color=mapper[g]['c'], markeredgewidth=0.5, markeredgecolor=cor['primary_black'],
                alpha=0.5, ms=5)
 
-for g, d in ppcs[ppcs['interval'].isin(perc_colors.keys()) & ppcs['quantity'].isin(['rel_phi_rep'])].groupby(['interval'], sort=False):
+_ppcs = ppcs[(ppcs['volume_scale'] == 'linear_width') &
+             (ppcs['model'] == 'const_phi_mem')]
+for g, d in _ppcs[_ppcs['interval'].isin(perc_colors.keys()) & _ppcs['quantity'].isin(['rel_phi_rep'])].groupby(['interval'], sort=False):
     if g[0] != 'median':
         ax[0].fill_between(d['width'], d['lower'], d['upper'],
                            alpha=0.3, color=cor[f'{perc_colors[g]}_blue'])
@@ -189,7 +194,9 @@ for g, d in ppcs[ppcs['interval'].isin(perc_colors.keys()) & ppcs['quantity'].is
         ax[0].plot(d['width'], d['lower'], d['upper'],
                    alpha=0.3, color=cor[f'{perc_colors[g]}_blue'])
 
-for g, d in m2_ppcs[m2_ppcs['interval'].isin(perc_colors.keys()) & m2_ppcs['quantity'].isin(['rel_phi_rep'])].groupby(['interval'], sort=False):
+_ppcs = ppcs[(ppcs['volume_scale'] == 'linear_width') &
+             (ppcs['model'] == 'const_rho_mem')]
+for g, d in _ppcs[_ppcs['interval'].isin(perc_colors.keys()) & _ppcs['quantity'].isin(['rel_phi_rep'])].groupby(['interval'], sort=False):
     if g[0] != 'median':
         ax[1].fill_between(d['width'], d['lower'], d['upper'],
                            alpha=0.3, color=cor[f'{perc_colors[g]}_green'])
@@ -197,7 +204,7 @@ for g, d in m2_ppcs[m2_ppcs['interval'].isin(perc_colors.keys()) & m2_ppcs['quan
         ax[1].plot(d['width'], d['lower'], d['upper'],
                    alpha=0.3, color=cor[f'{perc_colors[g]}_green'])
 
-plt.savefig('../../figures/Fig3_model_comparison.pdf')
+# plt.savefig('../../figures/Fig3_model_comparison.pdf')
 # %%
 fig, ax = plt.subplots(2, 1, figsize=(2, 2.5), sharex=True)
 ax[0].set_ylabel(r'$\rho_{mem}$ [fg / µm$^2$]', fontsize=6)

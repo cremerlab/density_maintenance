@@ -191,7 +191,7 @@ generated quantities {
 
     vector[J_brad_cond] phi_peri = prot_per_biomass_mu ./ (total_prot_0 + total_prot_slope * growth_mu[brad_size_growth_mapper]); 
     vector[J_brad_cond] m_peri = 1E9 * prot_per_biomass_mu ./ flow_mu[brad_flow_mapper];
-    vector[J_brad_cond] rho_peri = m_peri ./ (pi() .* length_mu[brad_size_growth_mapper] .* width_mu[brad_size_growth_mapper] * 0.0246);//peri_volume_mu[brad_size_growth_mapper]  ;   
+    vector[J_brad_cond] rho_peri = m_peri ./ peri_volume_mu[brad_size_growth_mapper]  ;   
     vector[J_size_growth_cond] width_rep;
     vector[J_size_growth_cond] length_rep;
     vector[J_size_growth_cond] volume_rep;
