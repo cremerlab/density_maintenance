@@ -33,21 +33,21 @@ ax[1].set_yticks([1, 2,  3, 4, 5, 6])
 ax[2].set_yticks([0, 1, 2, 3, 4])
 ax[0].set_ylabel('average\nwidth [µm]', fontsize=6)
 ax[1].set_ylabel('average\nlength [µm]', fontsize=6)
-ax[2].set_ylabel('average\nvolume [µm$^3$]', fontsize=6)
+ax[2].set_ylabel('average\nvolume [µm$^3$]\n', fontsize=6)
 ax[3].set_ylabel('average\naspect ratio [µm$^3$]', fontsize=6)
 ax[2].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
 ax[3].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
 
 pert_cors = {'wildtype': {'lacZ': cor['dark_black'],
-                          'none': cor['blue']},
+                          'none': cor['primary_blue']},
              'malE-rbsB-fliC-KO': {'none': cor['primary_purple'],
                                    'malE': cor['primary_green'],
                                    'rbsB': cor['primary_gold']},
              'lpp14': {'none': cor['primary_red']}}
 
 # Plot the percentiles
-perc_cors = {'95%': cor['pale_blue'], '75%': cor['light_blue'],
-             '25%': cor['primary_blue'], 'median': cor['blue']}
+perc_cors = {'95%': cor['pale_black'], '75%': cor['light_black'],
+             '25%': cor['primary_black'], 'median': cor['black']}
 axes = {'w_rep': ax[0], 'ell_rep': ax[1],
         'vol_rep': ax[2], 'alpha_rep': ax[3]}
 for i, (g, d) in enumerate(ppcs[ppcs['quantity'].isin(['w_rep', 'ell_rep',
@@ -68,8 +68,8 @@ for g, d in size_data.groupby(['source']):
                    color=mapper[g]['c'], alpha=0.45, zorder=500)
 
 for g, d in growth_params.groupby(['strain', 'overexpression', 'inducer_conc', 'carbon_source', 'inducer', 'temperature'], sort=False):
-    # if (g[0] != 'wildtype') | (g[1] != 'none') | (g[2] != 0) | (g[5] != 37):
-    # continue
+    if (g[0] != 'wildtype') | (g[1] != 'none') | (g[2] != 0) | (g[5] != 37):
+        continue
     sizes = model_params[(model_params['strain'] == g[0]) &
                          (model_params['overexpression'] == g[1]) &
                          (model_params['inducer_conc'] == g[2]) &

@@ -31,9 +31,9 @@ wildtype,acetate,lamB,37,ctc,100,0,1,0,FALSE
 wildtype,acetate,none,37,ctc,50,0,1,0,FALSE
 wildtype,glucose,lacZ,37,ctc,1,0,1,0,FALSE
 wildtype,glucose,lacZ,37,ctc,3,0,1,0,FALSE
-wildtype,glucose,lacZ,37,ctc,5,0,2,3,FALSE
+wildtype,glucose,lacZ,37,ctc,5,3,3,3,TRUE
 wildtype,glucose,lacZ,37,ctc,6,0,1,0,FALSE
-wildtype,glucose,lacZ,37,ctc,20,0,2,4,FALSE
+wildtype,glucose,lacZ,37,ctc,20,4,3,4,TRUE
 wildtype,glucose,lamB,37,none,0,0,2,0,FALSE
 wildtype,glucose,lamB,37,ctc,1,0,1,0,FALSE
 wildtype,glucose,lamB,37,ctc,3,0,2,0,FALSE
@@ -60,7 +60,7 @@ wildtype,acetate,lacZ,37,none,0,2,0,0,FALSE
 wildtype,glucose,none,37,ctc,2,2,0,0,FALSE
 wildtype,glucose,none,37,ctc,4,2,0,0,FALSE
 wildtype,glucose,none,37,ctc,6,2,0,0,FALSE
-wildtype,glucose,lacZ,37,ctc,10,4,2,4,TRUE
+wildtype,glucose,lacZ,37,ctc,10,4,3,4,TRUE
 lpp14,LB,none,37,none,0,4,3,0,FALSE
 lpp14,acetate,none,37,none,0,4,3,4,TRUE
 lpp14,glycerol,none,37,none,0,5,4,5,TRUE

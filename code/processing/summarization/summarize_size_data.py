@@ -33,7 +33,7 @@ data.loc[data['inducer'].str.lower() == 'noind', 'inducer'] = 'none'
 # %%
 # Drop ATC induction samples
 data = data[(data['inducer'] != 'atc') & (
-    data['inducer_conc'].isin([0, 2, 4, 6, 10, 30, 50, 100]))]
+    data['inducer_conc'].isin([0, 2, 4, 5, 6, 10, 20, 30, 50, 100]))]
 
 # %%
 data = data.groupby(['date', 'run_no', 'carbon_source', 'strain',
