@@ -24,7 +24,8 @@ kdes = pd.read_csv('../../data/mcmc/perturbation_shape_posterior_kde.csv')
 ms_data = pd.read_csv(
     '../../data/literature/collated_mass_fractions_empirics.csv')
 ppcs = pd.read_csv('../../data/mcmc/literature_model_params.csv')
-ppcs = ppcs[ppcs['model'] == 'const_phi_mem']
+ppcs = ppcs[(ppcs['model'] == 'const_phi_mem') &
+            (ppcs['volume_scale'] == 'linear_width')]
 size_data['aspect_ratio'] = size_data['length_um'] / size_data['width_um']
 
 
@@ -74,6 +75,33 @@ ax[0].set_title('average cell width in acetate', fontsize=6)
 ax[1].set_title('average cell length in acetate', fontsize=6)
 ax[2].set_title('average cell aspect ratio in acetate', fontsize=6)
 plt.savefig('../../figures/Fig5_perturbation_size_kdes.pdf')
+# %%
+fig, ax = plt.subplots(3, 1, figsize=(0.5, 3), sharex=True)
+for a in ax:
+    a.axis('off')
+for i, (g, d) in enumerate(kdes[(kdes['carbon_source'] == 'acetate') &
+                                kdes['inducer_conc'].isin([0, 50])
+                                ].groupby(['strain', 'overexpression'])):
+    if g[1] != 'none':
+        d = d[d['inducer_conc'] > 0]
+    for _g, _d in d[d['parameter'].isin(list(axes.keys()))].groupby(['parameter']):
+        _wt = wt[wt['parameter'] == _g]
+        _wt = _wt.iloc[np.argmax(_wt['kde'])]['value']
+        if (g[0] == 'lpp14'):
+            maxdiff = 1 - (_d.iloc[np.argmax(_d['kde'].values)]['value'] / _wt)
+            print(_g, maxdiff)
+            deltas.append(maxdiff)
+
+        elif (g[0] == 'malE-rbsB-fliC-KO') & (g[1] == 'rbsB') & (_g == 'length_mu'):
+            maxdiff = 1 - (_d.iloc[np.argmax(_d['kde'].values)]['value'] / _wt)
+            print(_g, maxdiff)
+            deltas.append(maxdiff)
+
+        axes[_g].fill_between(_d.value/_wt, np.zeros(len(_d)), _d.kde/_d.kde.max(),
+                              color=pert_cors[g[0]][g[1]], lw=1, alpha=0.25,
+                              zorder=1001 + i)
+        axes[_g].plot(_d.value/_wt, _d.kde/_d.kde.max(), '-',
+                      color=pert_cors[g[0]][g[1]], lw=1, zorder=1000 + i)
 
 # %%
 fig, ax = plt.subplots(3, 1, figsize=(2, 3), sharex=True)
@@ -81,7 +109,7 @@ ax = ax.ravel()
 for a in ax:
     a.set_xlim([0.15, 1.25])
 ax[0].set_ylim([0.3, 1.3])
-ax[1].set_ylim([1, 5])
+ax[1].set_ylim([0, 5])
 
 ax[2].set_ylim([0.5, 8])
 ax[0].set_ylabel('average\nwidth [µm]', fontsize=6)

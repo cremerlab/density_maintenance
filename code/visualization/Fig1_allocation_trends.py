@@ -10,7 +10,7 @@ cor, pal = size.viz.matplotlib_style()
 data = pd.read_csv(
     '../../data/literature/collated_mass_fractions_empirics.csv')
 data_complete = pd.read_csv(
-    '../../data/literature/compiled_mass_fractions.csv')
+    '../../data/literature/collated_mass_fractions.csv')
 cyto_cogs = data_complete[data_complete['envelope'] == False].groupby(['dataset_name', 'growth_rate_hr', 'condition', 'cog_class'])[
     'mass_frac'].sum().reset_index()
 cyto_cogs
@@ -45,6 +45,51 @@ for g, d in env_cogs.groupby(['dataset_name', 'growth_rate_hr', 'condition']):
 plt.subplots_adjust(hspace=0.1)
 plt.savefig('../../figures/Fig1_compartment_cog_classification.pdf',
             bbox_inches='tight')
+# %%
+
+# Subcategorize the envelope
+envelope = data_complete[data_complete['envelope'] == True].copy()
+envelope['func'] = 'other'
+envelope.loc[envelope['cog_letter'].isin(
+    ['G', 'E', 'F', 'H', 'I', 'P']), 'func'] = 'nutrient transport'
+envelope.loc[envelope['cog_letter'].isin(['C']), 'func'] = 'energy generation'
+envelope.loc[envelope['cog_letter'].isin(
+    ['M']), 'func'] = 'cell wall & membrane biogenesis'
+envelope.loc[envelope['cog_letter'].isin(
+    ['N', 'T']), 'func'] = 'motility & signaling'
+
+# Set up coordinates for growth rate positioning on x axis
+locs = {g: i for i, (g, _) in enumerate(envelope.sort_values(
+    by='growth_rate_hr').groupby(['growth_rate_hr', 'dataset_name', 'condition']))}
+labels = [f'{np.round(v[0], decimals=2)}' for v in locs.keys()]
+ordering = ['cell wall & membrane biogenesis',
+            'nutrient transport', 'energy generation', 'motility & signaling',
+            'other']
+barcors = {o: c for o, c in zip(ordering, [cor['dark_purple'], cor['purple'], cor['primary_purple'],
+                                           cor['light_purple'], cor['pale_purple']])}
+# Make a wide diagram of the bars
+fig, ax = plt.subplots(1, 1, figsize=(6, 1))
+fracs = [[], []]
+for g, d in envelope.groupby(['growth_rate_hr', 'dataset_name', 'condition']):
+    tot = d['mass_frac'].sum()
+    _d = d.groupby(['func'])['mass_frac'].sum() / tot
+    fracs[0].append(_d[ordering[0]])
+    fracs[1].append(_d[ordering[1]])
+    bottom = 0
+    for i, o in enumerate(ordering):
+        ax.bar(locs[g], _d[o], bottom=bottom, color=barcors[o], linewidth=0.25,
+               edgecolor='k')
+        bottom += _d[o]
+    ax.plot(locs[g], 1.05, mapper[g[1]]['m'], markeredgecolor=cor['primary_black'],
+            markerfacecolor=mapper[g[1]]['c'], ms=3, markeredgewidth=0.25, alpha=0.5)
+
+ax.set_facecolor('#FFF')
+ax.set_yticks([])
+ax.set_xlim([-0.5, len(locs) - 0.5])
+ax.set_xticks([v for v in locs.values()])
+ax.set_xticklabels([f'{v[0]:0.3f}' for v in locs.keys()],
+                   fontsize=5, rotation=90)
+plt.savefig('../../figures/Fig1_envelope_bars.pdf')
 # %%
 
 inner_membrane = data[data['localization'] == 'inner membrane']

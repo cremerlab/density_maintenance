@@ -15,7 +15,8 @@ size_data = pd.read_csv(
 ms_data = pd.read_csv(
     '../../data/literature/collated_mass_fractions_empirics.csv')
 ppcs = pd.read_csv('../../data/mcmc/literature_model_params.csv')
-ppcs = ppcs[ppcs['model'] == 'const_phi_mem']
+ppcs = ppcs[(ppcs['model'] == 'const_phi_mem') &
+            (ppcs['volume_scale'] == 'linear_width')]
 size_data['aspect_ratio'] = size_data['length_um'] / size_data['width_um']
 
 # %%
