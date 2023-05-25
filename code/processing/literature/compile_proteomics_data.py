@@ -4,13 +4,15 @@ import pandas as pd
 import tqdm
 babu = pd.read_csv(
     '../../../data/literature/Babu2018/Babu2018_minimal_classification.csv')
-files = ['Mori2021', 'Soufi2015', 'Caglar2017', 'Belliveau2021']
+files = ['Mori2021', 'Soufi2015', 'Caglar2017',
+         'Belliveau2021']
 dfs = [pd.read_csv(
     f'../../../data/literature/{f}/{f}_processed.csv') for f in files]
 data = pd.concat(dfs, sort=False)
+# %%
 dfs = []
 for g, d in data.groupby(['dataset_name', 'condition', 'growth_rate_hr']):
-    if np.round(d['mass_frac'].sum(), decimals=3) == 1.0:
+    if np.round(d['mass_frac'].sum(), decimals=3) <= 1.0:
         dfs.append(d)
 data = pd.concat(dfs, sort=False)
 data = data[data['dataset_name'] != 'Valgepea et al. 2013']
@@ -18,6 +20,7 @@ data = data[data['dataset_name'] != 'Valgepea et al. 2013']
 data.drop(columns=['cog_desc', 'cog_category', 'gene_product', 'annotation', 'dataset'],
           inplace=True)
 
+# %%
 # babu = babu[babu['localization'] != 'EC']
 data['envelope'] = False
 data['periplasm'] = False
@@ -55,7 +58,7 @@ for g, _ in tqdm.tqdm(babu.groupby(['name', 'b_number', 'localization'])):
 data.loc[data['cog_letter'].isin(
     ['C', 'E', 'F', 'G', 'H', 'I', 'P', 'Q']), 'metabolism'] = True
 data.loc[data['cog_letter'].isin(['J']), 'ribosomal'] = True
-data.to_csv('../../../data/literature/compiled_mass_fractions.csv', index=False)
+data.to_csv('../../../data/literature/collated_mass_fractions.csv', index=False)
 
 # %%
 # Create aggregate summaries

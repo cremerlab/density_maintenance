@@ -1,0 +1,17 @@
+Sample ID,Group,Growth rate (1/h),Strain,Growth medium,Carbon source,Nitrogen source,Supplement,Description,Time after shift (min),File name
+RIF_A0,Reference,0.96,NCM3722,M9,0.2% glucose,10 mM NH4Cl,N/A,NCM3722 (wild type),0 (pre-shift),RIF_A0_S9_L008_R1_001.fastq
+RIF_A1,,,,,,,,,1,RIF_A1_S10_L008_R1_001.fastq
+RIF_A2,,,,,,,,,2,RIF_A2_S11_L008_R1_001.fastq
+RIF_A3,,,,,,,,,3,RIF_A3_S12_L008_R1_001.fastq
+RIF_A5,,,,,,,,,5,RIF_A5_S13_L008_R1_001.fastq
+RIF_A7,,,,,,,,,7,RIF_A7_S14_L008_R1_001.fastq
+RIF_A9,,,,,,,,,9,RIF_A9_S15_L008_R1_001.fastq
+RIF_A11,,,,,,,,,11,RIF_A11_S16_L008_R1_001.fastq
+RIF_B0,C-limitation,0.34,NQ1390,M9,0.2% glucose,10 mM NH4Cl,40 µM 3MBA,Titratable glucose uptake (Pu-ptsG),0 (pre-shift),RIF_B0_S17_L008_R1_001.fastq
+RIF_B1,,,,,,,,,1,RIF_B1_S18_L008_R1_001.fastq
+RIF_B2,,,,,,,,,2,RIF_B2_S19_L008_R1_001.fastq
+RIF_B3,,,,,,,,,3,RIF_B3_S20_L008_R1_001.fastq
+RIF_B5,,,,,,,,,5,RIF_B5_S21_L008_R1_001.fastq
+RIF_B7,,,,,,,,,7,RIF_B7_S22_L008_R1_001.fastq
+RIF_B9,,,,,,,,,9,RIF_B9_S23_L008_R1_001.fastq
+RIF_B11,,,,,,,,,11,RIF_B11_S24_L008_R1_001.fastq
