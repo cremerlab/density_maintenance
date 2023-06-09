@@ -166,6 +166,8 @@ generated quantities {
     vector[N_sim] rel_phi_rep;
     vector[N_sim] calc_lam_rep;
     vector[N_sim] rel_phi_rho_prot_rep;
+    vector[N_sim] sav_rep;
+    vector[N_sim] m_mem_rep;
 
     // Vectors for calculated distribution of true value
     vector[N_sim] alpha_sim;
@@ -182,6 +184,8 @@ generated quantities {
     vector[N_sim] rel_phi_sim;
     vector[N_sim] calc_lam_sim;
     vector[N_sim] rel_phi_rho_prot_sim;
+    vector[N_sim] sav_sim;
+    vector[N_sim] m_mem_sim;
 
     // Iterate through each simulation value
     for (i in 1:N_sim) {
@@ -214,10 +218,12 @@ generated quantities {
             vol_rep[i] = exp(normal_rng(log((pi()/12) * w_rep[i]^3 * (3 * alpha_rep[i] - 1)), vol_sigma));
 
         }
-   
-        // Length and protein quantities, conditioned on scaling and model-dependent parameters.
-        ell_sim[i] = alpha_sim * w_sim[i];
+        // Length, SAV, and protein quantities, conditioned on scaling and model-dependent parameters.
+        ell_sim[i] = alpha_sim[i] * w_sim[i];
         ell_rep[i] = normal_rng(alpha_rep[i] * w_rep[i], ell_sigma);  
+        sav_sim[i] = pi() * ell_sim[i] * w_sim[i] / vol_sim[i];
+        sav_rep[i] = pi() * ell_rep[i] * w_rep[i] / vol_rep[i];
+
         prot_per_cell_rep[i] = normal_rng(rho_prot_rep[i] * (pi()/12) * w_rep[i]^3 * (3 * alpha - 1), prot_sigma);    
         prot_per_cell_sim[i] = rho_prot_sim[i] * (pi()/12) * w_sim[i]^3 * (3 * alpha - 1);    
 
@@ -235,7 +241,8 @@ generated quantities {
             rho_mem_rep[i] = normal_rng(rho_mem_mu[1], rho_mem_sigma[1]);
             rho_mem_sim[i] = rho_mem_mu[1];
         }
-
+        m_mem_rep[i] = phi_mem_rep[i] * prot_per_cell_rep[i];
+        m_mem_sim[i] = phi_mem_sim[i] * prot_per_cell_sim[i];
         phi_peri_rep[i] = normal_rng(m_peri_rep[i] / (rho_prot_rep[i] * (pi()/12) * w_rep[i]^3 * (3 * alpha - 1)), phi_peri_sigma);
         phi_peri_sim[i] = m_peri_sim[i] / (rho_prot_sim[i] * (pi()/12) * w_sim[i]^3 * (3 * alpha - 1));
         rho_peri_rep[i] = m_peri_mu / (pi() * alpha_rep[i] * delta * w_rep[i]^2);

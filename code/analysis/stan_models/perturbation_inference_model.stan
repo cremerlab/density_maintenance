@@ -19,6 +19,7 @@ data {
     vector<lower=0>[N_size] length;
     vector<lower=0>[N_size] volume;
     vector<lower=0>[N_size] peri_volume;
+    vector<lower=0>[N_size] sav;
 
     // Growth measurements
     vector<lower=0>[N_growth] growth_rates;
@@ -65,6 +66,8 @@ parameters {
     vector<lower=0>[J_size_growth_cond] peri_volume_sigma;
     vector<lower=0>[J_size_growth_cond] alpha_mu;
     vector<lower=0>[J_size_growth_cond] alpha_sigma;
+    vector<lower=0>[J_size_growth_cond] sav_mu;
+    vector<lower=0>[J_size_growth_cond] sav_sigma;
 
     // Growth parameters
     vector[J_size_growth_cond] log_growth_mu;
@@ -134,11 +137,16 @@ model {
     peri_volume_sigma ~ std_normal();
     alpha_mu ~ normal(4, 1);
     alpha_sigma ~ normal(0, 0.1);
+    sav_mu ~ normal(0, 10);
+    sav_sigma ~ std_normal();
+
+
     log(width) ~ normal(log(width_mu[size_idx]), width_sigma[size_idx]);
     length ~ normal(length_mu[size_idx], length_sigma[size_idx]);
     volume ~ normal(volume_mu[size_idx], volume_sigma[size_idx]);
     log(peri_volume) ~ normal(log(peri_volume_mu[size_idx]), peri_volume_sigma[size_idx]);
     aspect_ratio ~ normal(alpha_mu[size_idx], alpha_sigma[size_idx]);
+    sav ~ normal(sav_mu[size_idx], sav_sigma[size_idx]);
 
     // Cell count measurements
     flow_sigma ~ std_normal();
@@ -197,6 +205,7 @@ generated quantities {
     vector[J_size_growth_cond] volume_rep;
     vector[J_size_growth_cond] peri_volume_rep;
     vector[J_size_growth_cond] alpha_rep;
+    vector[J_size_growth_cond] sav_rep;
 
 
     for (i in 1:J_size_growth_cond) {
@@ -205,5 +214,6 @@ generated quantities {
         volume_rep[i] = normal_rng(volume_mu[i], volume_sigma[i]);
         peri_volume_rep[i] = exp(normal_rng(log(peri_volume_mu[i]), peri_volume_sigma[i]));
         alpha_rep[i] = normal_rng(alpha_mu[i], alpha_sigma[i]);
+        sav_rep[i] = normal_rng(sav_mu[i], sav_sigma[i]);
     }
 }

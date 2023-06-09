@@ -58,6 +58,7 @@ data_dict = {
     'length': size_data['length'].values,
     'volume': size_data['volume'].values,
     'peri_volume': size_data['periplasm_volume'].values,
+    'sav': size_data['surface_to_volume'].values,
     'size_idx': size_data['perturbation_idx'].values,
 
     'growth_rates': growth_data['growth_rate_hr'].values,
@@ -310,7 +311,7 @@ size_groupby = ['strain', 'carbon_source',
                 'overexpression', 'inducer', 'inducer_conc', 'temperature', 'perturbation_idx']
 # Perform a KDE over the posteriors
 shape_parameters = ['width_mu', 'length_mu', 'volume_mu', 'peri_volume_mu',
-                    'alpha_mu', 'alpha_rep', 'growth_rate_rep', 'width_rep', 'length_rep',
+                    'alpha_mu', 'alpha_rep', 'sav_mu', 'sav_rep', 'growth_rate_rep', 'width_rep', 'length_rep',
                     'volume_rep', 'peri_volume_rep']
 shape_post_kde = pd.DataFrame([])
 for s in tqdm.tqdm(shape_parameters):

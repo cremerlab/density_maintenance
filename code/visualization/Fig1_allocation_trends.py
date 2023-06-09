@@ -45,7 +45,7 @@ for g, d in env_cogs.groupby(['dataset_name', 'growth_rate_hr', 'condition']):
 plt.subplots_adjust(hspace=0.1)
 plt.savefig('../../figures/Fig1_compartment_cog_classification.pdf',
             bbox_inches='tight')
-# %%
+ %%
 
 # Subcategorize the envelope
 envelope = data_complete[data_complete['envelope'] == True].copy()

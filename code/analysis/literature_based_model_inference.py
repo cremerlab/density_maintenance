@@ -40,7 +40,7 @@ corner_pars = [['alpha', 'rho_prot_min', 'rho_prot_slope',
                'm_peri_mu', 'w_sigma', 'ell_sigma', 'vol_sigma',
                 'phi_peri_sigma', 'phi_mem_sigma', 'phi_mem_mu']]
 
-size_pars = ['w', 'ell', 'vol']
+size_pars = ['w', 'ell', 'vol', 'sav']
 model_pars = [['phi_peri', 'phi_mem', 'rho_prot',
               'rho_peri', 'rel_phi',
                'rho_mem', 'alpha', 'm_peri_mu', 'phi_mem_mu'],

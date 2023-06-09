@@ -1,11 +1,13 @@
 # %%
+import size.viz
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tqdm
 babu = pd.read_csv(
     '../../../data/literature/Babu2018/Babu2018_minimal_classification.csv')
 files = ['Mori2021', 'Soufi2015', 'Caglar2017',
-         'Belliveau2021']
+         'Belliveau2021']  # , 'Balakrishnan2022']
 dfs = [pd.read_csv(
     f'../../../data/literature/{f}/{f}_processed.csv') for f in files]
 data = pd.concat(dfs, sort=False)
@@ -94,6 +96,14 @@ metabolic = data[data['metabolism'] == True].groupby(
     ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
 metabolic['localization'] = 'metabolic sector'
 
+inner_mem = data[data['inner membrane'] == True].groupby(
+    ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
+inner_mem['localization'] = 'inner membrane'
+
+outer_mem = data[data['outer membrane'] == True].groupby(
+    ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
+outer_mem['localization'] = 'outer membrane'
+
 aggregated = pd.concat([envelope, membrane, periplasm, inner_mem, outer_mem,
-                       cytoplasm, ribosomal, metabolic], sort=False)
+                        cytoplasm, ribosomal, metabolic, inner_mem, outer_mem], sort=False)
 aggregated.to_csv('../../../data/literature/summarized_mass_fractions.csv')

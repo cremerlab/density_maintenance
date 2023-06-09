@@ -1,30 +1,30 @@
-Sample ID,Group,Growth rate (1/h),Strain,Growth medium,Carbon source,Nitrogen source,Supplement,Description,File name,,
-c5,C-limitation,0.91,NCM3722,M9,0.2% glucose,11.34 mM (NH4)2SO4,,NCM3722 (wild type) in M9 medium,Rohan_0_S1_L008_R1_001.fastq,,
-c1,,0.75,NQ1243,M9,0.2% glucose,11.34 mM (NH4)2SO4,300 µM 3MBA,Titratable glucose uptake (Pu-ptsG),Rohan_C1_S2_L008_R1_001.fastq,,
-c2,,0.56,NQ1243,M9,0.2% glucose,11.34 mM (NH4)2SO4,,Titratable glucose uptake (Pu-ptsG),Rohan_C2_S3_L008_R1_001.fastq,,
-c3,,0.51,NQ1390,M9,0.2% glucose,11.34 mM (NH4)2SO4,400 µM 3MBA,Titratable glucose uptake (Pu-ptsG),Rohan_C3_S4_L008_R1_001.fastq,,
-c4,,0.3,NQ1390,M9,0.2% glucose,11.34 mM (NH4)2SO4,40 µM 3MBA,Titratable glucose uptake (Pu-ptsG),Rohan_C4_S5_L008_R1_001.fastq,,
-c0_1,,0.95,NCM3722,M9,0.2% glucose,11.34 mM (NH4)2SO4,,Biological replicate of sample c5,Rf_S1_L004_R1_001.fastq,,
-c1_1,,0.78,NQ1243,M9,0.2% glucose,11.34 mM (NH4)2SO4,300 µM 3MBA,Biological replicate of sample c1,C1_S2_L004_R1_001.fastq,,
-c2_1,,0.59,NQ1243,M9,0.2% glucose,11.34 mM (NH4)2SO4,,Biological replicate of sample c2,C2_S3_L004_R1_001.fastq,,
-c3_1,,0.46,NQ1390,M9,0.2% glucose,11.34 mM (NH4)2SO4,400 µM 3MBA,Biological replicate of sample c3,C3_S4_L004_R1_001.fastq,,
-c4_1,,0.39,NQ1390,M9,0.2% glucose,11.34 mM (NH4)2SO4,40 µM 3MBA,Biological replicate of sample c4,C4_S5_L004_R1_001.fastq,,
-a1,A-limitation,0.69,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO4,60 µM IPTG,Titratable ammonia assimilation (Plac-GOGAT),Rohan_A1_S6_L008_R1_001.fastq,,
-a2,,0.51,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO4,40 µM IPTG,Titratable ammonia assimilation (Plac-GOGAT),Rohan_A2_S7_L008_R1_001.fastq,,
-a3,,0.33,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO4,28 µM IPTG,Titratable ammonia assimilation (Plac-GOGAT),Rohan_A3_S8_L008_R1_001.fastq,,
-a4,,0.24,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO4,20 µM IPTG,Titratable ammonia assimilation (Plac-GOGAT),Rohan_A4_S9_L008_R1_001.fastq,,
-a1_1,,0.76,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO4,60 µM IPTG,Biological replicate of sample a1,A1_S6_L004_R1_001.fastq,,
-a2_1,,0.55,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO5,40 µM IPTG,Biological replicate of sample a2,A2_S7_L004_R1_001.fastq,,
-a3_1,,0.45,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO6,30 µM IPTG,Biological replicate of sample a3,A3_S8_L004_R1_001.fastq,,
-a4_1,,0.34,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO7,20 µM IPTG,Biological replicate of sample a4,A4_S9_L004_R1_001.fastq,,
-r0,R-limitation,0.89,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,,NCM3722 (wild type) in MOPS medium,R0_S9_L001_R1_001.fastq,,
-r1,,0.71,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,2 µM chloramphenicol,Cloramphenicol (translational) inhibition,R1_S10_L001_R1_001.fastq,,
-r2,,0.53,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,4 µM chloramphenicol,Cloramphenicol (translational) inhibition,R2_S11_L001_R1_001.fastq,,
-r3,,0.45,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,6 µM chloramphenicol,Cloramphenicol (translational) inhibition,R3_S12_L001_R1_001.fastq,,
-r4,,0.4,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,8 µM chloramphenicol,Cloramphenicol (translational) inhibition,R4_S13_L001_R1_001.fastq,,
-r5,,0.38,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,9 µM chloramphenicol,Cloramphenicol (translational) inhibition,R5_S14_L001_R1_001.fastq,,
-r0_1,,0.91,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,,Biological replicate of sample r0,R0_S10_L004_R1_001.fastq,,
-r1_1,,0.61,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,2 µM chloramphenicol,Biological replicate of sample r1,R1_S11_L004_R1_001.fastq,,
-r2_1,,0.44,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,4 µM chloramphenicol,Biological replicate of sample r2,R2_S12_L004_R1_001.fastq,,
-r3_1,,0.35,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,6 µM chloramphenicol,Biological replicate of sample r3,R3_S13_L004_R1_001.fastq,,
-r4_1,,0.28,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,8 µM chloramphenicol,Biological replicate of sample r4,R4_S14_L004_R1_001.fastq,,
+Sample ID,Group,Growth rate (1/h),Strain,Growth medium,Carbon source,Nitrogen source,Supplement,Description,File name,replicate
+c5,C-limitation,0.91,NCM3722,M9,0.2% glucose,11.34 mM (NH4)2SO4,None,NCM3722 (wild type) in M9 medium,Rohan_0_S1_L008_R1_001.fastq,1
+c1,,0.75,NQ1243,M9,0.2% glucose,11.34 mM (NH4)2SO4,300 µM 3MBA,Titratable glucose uptake (Pu-ptsG),Rohan_C1_S2_L008_R1_001.fastq,1
+c2,,0.56,NQ1243,M9,0.2% glucose,11.34 mM (NH4)2SO4,None,Titratable glucose uptake (Pu-ptsG),Rohan_C2_S3_L008_R1_001.fastq,1
+c3,,0.51,NQ1390,M9,0.2% glucose,11.34 mM (NH4)2SO4,400 µM 3MBA,Titratable glucose uptake (Pu-ptsG),Rohan_C3_S4_L008_R1_001.fastq,1
+c4,,0.3,NQ1390,M9,0.2% glucose,11.34 mM (NH4)2SO4,40 µM 3MBA,Titratable glucose uptake (Pu-ptsG),Rohan_C4_S5_L008_R1_001.fastq,1
+c0_1,,0.95,NCM3722,M9,0.2% glucose,11.34 mM (NH4)2SO4,None,Biological replicate of sample c5,Rf_S1_L004_R1_001.fastq,2
+c1_1,,0.78,NQ1243,M9,0.2% glucose,11.34 mM (NH4)2SO4,300 µM 3MBA,Biological replicate of sample c1,C1_S2_L004_R1_001.fastq,2
+c2_1,,0.59,NQ1243,M9,0.2% glucose,11.34 mM (NH4)2SO4,None,Biological replicate of sample c2,C2_S3_L004_R1_001.fastq,2
+c3_1,,0.46,NQ1390,M9,0.2% glucose,11.34 mM (NH4)2SO4,400 µM 3MBA,Biological replicate of sample c3,C3_S4_L004_R1_001.fastq,2
+c4_1,,0.39,NQ1390,M9,0.2% glucose,11.34 mM (NH4)2SO4,40 µM 3MBA,Biological replicate of sample c4,C4_S5_L004_R1_001.fastq,2
+a1,A-limitation,0.69,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO4,60 µM IPTG,Titratable ammonia assimilation (Plac-GOGAT),Rohan_A1_S6_L008_R1_001.fastq,1
+a2,,0.51,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO4,40 µM IPTG,Titratable ammonia assimilation (Plac-GOGAT),Rohan_A2_S7_L008_R1_001.fastq,1
+a3,,0.33,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO4,28 µM IPTG,Titratable ammonia assimilation (Plac-GOGAT),Rohan_A3_S8_L008_R1_001.fastq,1
+a4,,0.24,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO4,20 µM IPTG,Titratable ammonia assimilation (Plac-GOGAT),Rohan_A4_S9_L008_R1_001.fastq,1
+a1_1,,0.76,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO4,60 µM IPTG,Biological replicate of sample a1,A1_S6_L004_R1_001.fastq,2
+a2_1,,0.55,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO5,40 µM IPTG,Biological replicate of sample a2,A2_S7_L004_R1_001.fastq,2
+a3_1,,0.45,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO6,30 µM IPTG,Biological replicate of sample a3,A3_S8_L004_R1_001.fastq,2
+a4_1,,0.34,NQ393,M9,0.2% glucose,11.34 mM (NH4)2SO7,20 µM IPTG,Biological replicate of sample a4,A4_S9_L004_R1_001.fastq,2
+r0,R-limitation,0.89,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,None,NCM3722 (wild type) in MOPS medium,R0_S9_L001_R1_001.fastq,1
+r1,,0.71,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,2 µM chloramphenicol,Cloramphenicol (translational) inhibition,R1_S10_L001_R1_001.fastq,1
+r2,,0.53,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,4 µM chloramphenicol,Cloramphenicol (translational) inhibition,R2_S11_L001_R1_001.fastq,1
+r3,,0.45,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,6 µM chloramphenicol,Cloramphenicol (translational) inhibition,R3_S12_L001_R1_001.fastq,1
+r4,,0.4,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,8 µM chloramphenicol,Cloramphenicol (translational) inhibition,R4_S13_L001_R1_001.fastq,1
+r5,,0.38,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,9 µM chloramphenicol,Cloramphenicol (translational) inhibition,R5_S14_L001_R1_001.fastq,1
+r0_1,,0.91,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,None,Biological replicate of sample r0,R0_S10_L004_R1_001.fastq,2
+r1_1,,0.61,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,2 µM chloramphenicol,Biological replicate of sample r1,R1_S11_L004_R1_001.fastq,2
+r2_1,,0.44,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,4 µM chloramphenicol,Biological replicate of sample r2,R2_S12_L004_R1_001.fastq,2
+r3_1,,0.35,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,6 µM chloramphenicol,Biological replicate of sample r3,R3_S13_L004_R1_001.fastq,2
+r4_1,,0.28,NCM3722,MOPS,0.2% glucose,10 mM NH4Cl,8 µM chloramphenicol,Biological replicate of sample r4,R4_S14_L004_R1_001.fastq,2
