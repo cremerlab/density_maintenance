@@ -271,8 +271,8 @@ generated quantities {
             } 
 
         else {
-                rel_phi_rep[i] = (m_peri_rep[i]) / (pi() * alpha_rep[i] * rho_mem_rep[i] * width_sim[i]^2);
-                rel_phi_sim[i] = (m_peri_sim[i]) / (pi() * alpha_sim[i] * rho_mem_sim[i] * width_sim[i]^2); 
+                rel_phi_rep[i] = (m_peri_rep[i]) / (2 * pi() * alpha_rep[i] * rho_mem_rep[i] * width_sim[i]^2);
+                rel_phi_sim[i] = (m_peri_sim[i]) / (2 * pi() * alpha_sim[i] * rho_mem_sim[i] * width_sim[i]^2); 
                 }
 
         }

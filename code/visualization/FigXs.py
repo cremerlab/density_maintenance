@@ -17,6 +17,7 @@ ms_data = pd.read_csv(
 
 _wt_data = pd.read_csv('../../data/mcmc/growth_parameter_percentiles.csv')
 wt_data = pd.concat([wt_data, _wt_data])
+_data = pd.concat([wt_data, _wt_data])
 wt_data = wt_data[(wt_data['strain'] == 'wildtype') &
                   (wt_data['overexpression'] == 'none') &
                   (wt_data['inducer_conc'] == 0) &
@@ -194,8 +195,8 @@ plt.savefig('../../figures/FigXG_allocation_model.pdf', bbox_inches='tight')
 
 # %%
 fig, ax = plt.subplots(2, 2, figsize=(3, 1.75), sharex=True)
-ax[0, 0].set_xlim([-0.1, 2.5])
-ax[0, 0].set_xticks([0, 0.5, 1,  1.5, 2, 2.5])
+ax[0, 0].set_xlim([-0.1, 2])
+ax[0, 0].set_xticks([0, 0.5, 1,  1.5, 2, 2])
 ax[0, 0].set_ylim([0.3, 1.3])
 ax[0, 0].set_yticks([0.5, 0.75, 1.0])
 ax[1, 0].set_ylim([0.5, 6])
@@ -381,3 +382,144 @@ ax[0].set_ylim([0, 6])
 ax[1].set_ylim([0, 150])
 plt.tight_layout()
 plt.savefig('../../figures/FigXG_densities_model.pdf', bbox_inches='tight')
+
+# %%
+# Bump chart
+fig, ax = plt.subplots(2, 2, figsize=(2.5, 1.5), sharex=True)
+
+wt_ace = wt_data[wt_data['carbon_source'] == 'acetate']
+d3_ace = _data[(_data['strain'] == 'malE-rbsB-fliC-KO') &
+               (_data['overexpression'] == 'none') &
+               (_data['inducer_conc'] == 0) &
+               (_data['carbon_source'] == 'acetate')]
+malE_ace = _data[(_data['strain'] == 'malE-rbsB-fliC-KO') &
+                 (_data['overexpression'] == 'malE') &
+                 (_data['inducer_conc'] == 100) &
+                 (_data['carbon_source'] == 'acetate')]
+lpp_ace = _data[(_data['strain'] == 'lpp14') &
+                (_data['overexpression'] == 'none') &
+                (_data['inducer_conc'] == 0) &
+                (_data['carbon_source'] == 'acetate')]
+
+axes = {'width_mu': ax[0, 0], 'length_mu': ax[0, 1],
+        'alpha_mu': ax[1, 0], 'm_peri': ax[1, 1]}
+meds = {}
+for i, (_d, c) in enumerate(zip([wt_ace, lpp_ace, d3_ace, malE_ace],
+                                [cor['primary_blue'], cor['primary_red'], cor['primary_purple'],
+                                 cor['primary_green']])):
+    for g, d in _d[_d['quantity'].isin(axes.keys())].groupby(['quantity']):
+        _med = d[d['interval'] == 'median']
+        _95 = d[d['interval'] == '95%']
+        if i == 0:
+            meds[g] = _med['lower'].values[0]
+        axes[g].vlines(i, (_95['lower'] - meds[g])/meds[g],
+                       (_95['upper'] - meds[g])/meds[g], lw=0.5, color=c)
+        axes[g].plot(i, (_med['lower'] - meds[g])/meds[g], 'o', markeredgecolor=c, markerfacecolor='w',
+                     ms=4.5)
+
+for a in ax.ravel()[:-1]:
+    a.set_ylim([-0.15, 0.25])
+    # a.set_ylabel("% change from WT", fontsize=6)
+    a.set_yticks([-0.1, 0, 0.1, 0.2])
+    a.set_yticklabels(['-10%', '0%', '+10%', '+20%'])
+    a.set_xlim([-0.2, 3.2])
+ax[1, 1].set_yticks([-0.5, -0.25, 0])
+ax[1, 1].set_yticklabels(['-50%', '-25%', '0%'])
+ax[0, 0].set_title('cell width', fontsize=6)
+ax[0, 1].set_title('cell length', fontsize=6)
+ax[1, 0].set_title('cell aspect ratio', fontsize=6)
+ax[1, 1].set_title('periplasmic protein mass', fontsize=6)
+
+ax[1, 0].set_xticks([0, 1, 2, 3])
+ax[1, 1].set_xticks([0, 1, 2, 3])
+ax[1, 0].set_xticklabels(
+    ['WT', 'lpp$^{14}$', '$\Delta$3',  '$\Delta$3\n+ malE'])
+ax[1, 1].set_xticklabels(
+    ['WT', 'lpp$^{14}$', '$\Delta$3',  '$\Delta$3\n+ malE'])
+plt.subplots_adjust(hspace=0.2, wspace=0.35)
+plt.savefig('../../figures/FigXG_perc_change_sizes.pdf')
+
+# %%
+fig, ax = plt.subplots(1, 1, figsize=(1.5, 1.5))
+ax.set_ylim([0, 25])
+ax.set_xlim([0, 2])
+for g, d in ms_data[ms_data['localization'] == 'periplasm'].groupby(['dataset_name']):
+    ax.plot(d['growth_rate_hr'], d['mass_fg'], mapper[g]['m'],
+            markeredgecolor=cor['primary_black'], markerfacecolor=mapper[g]['c'],
+            alpha=0.5, ms=4.5, label='__nolegend__')
+
+c = {'wildtype, none': cor['primary_blue'],
+     'malE-rbsB-fliC-KO, none': cor['primary_purple'],
+     'malE-rbsB-fliC-KO, malE': cor['primary_green'],
+     'malE-rbsB-fliC-KO, rbsB': cor['primary_gold'],
+     'lpp14, none': cor['primary_red']}
+
+for g, d in model[(model['quantity'] == 'm_peri_rep')
+                  & model['interval'].isin(inter_colors.keys())].groupby(['interval'], sort=False):
+    ax.fill_between(d['growth_rate_hr'], d['lower'], d['upper'],
+                    color=inter_colors[g], alpha=0.5, label='__nolegend__')
+
+labels = []
+for g, d in _data[_data['quantity'].isin(['m_peri', 'growth_mu']) &
+                  _data['interval'].isin(['median', '95%']) &
+                  _data['overexpression'].isin(['none', 'malE', 'rbsB'])
+                  ].groupby(['strain', 'carbon_source',
+                             'overexpression', 'inducer_conc']):
+    if g[1] == 'LB':
+        continue
+    _c = c[f'{g[0]}, {g[2]}']
+
+    if g[0] == 'malE-rbsB-fliC-KO':
+        label = f'$\Delta$3'
+    else:
+        label = f'{g[0]}'
+    if g[2] != 'none':
+        label += f' + {g[2]}'
+    if label not in labels:
+        labels.append(label)
+    else:
+        label = '__nolegend__'
+    _med = d[d['interval'] == 'median']
+    _95 = d[d['interval'] == '95%']
+    ax.vlines(_med[_med['quantity'] == 'growth_mu']['lower'].values[0],
+              _95[_95['quantity'] == 'm_peri']['lower'].values[0],
+              _95[_95['quantity'] == 'm_peri']['upper'].values[0],
+              color=_c, lw=0.75, label='__nolegend__')
+    ax.hlines(_med[_med['quantity'] == 'm_peri']['lower'].values[0],
+              _95[_95['quantity'] == 'growth_mu']['lower'].values[0],
+              _95[_95['quantity'] == 'growth_mu']['upper'].values[0],
+              color=_c, lw=0.75, label='__nolegend__')
+    ax.plot(_med[_med['quantity'] == 'growth_mu']['lower'].values[0],
+            _med[_med['quantity'] == 'm_peri']['lower'].values[0],
+            'o', ms=4.5, markeredgecolor=_c, markerfacecolor='w',
+            markeredgewidth=0.75, label=label)
+
+ax.set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+ax.set_ylabel('periplasmic protein [fg / cell]', fontsize=6)
+ax.legend(fontsize=4, loc='upper right')
+plt.savefig('../../figures/FigXG_m_peri.pdf', bbox_inches='tight')
+
+# %%
+fig, ax = plt.subplots(1, 1, figsize=(1.25, 1.9), sharex=True, sharey=True)
+ax.set_xticks([0, 1])
+ax.set_ylim([-10, 13])
+ax.set_yticks([-10, -5, 0, 5, 10])
+ax.set_ylabel('log$_2$ enrichment in supernatant', fontsize=6)
+ax.set_xticklabels(['other\nproteins', 'periplasmic\nproteins'], fontsize=6)
+
+colors = ['black', 'purple']
+ms_conf['sublocalization'] = 'periplasmic'
+ms_conf.loc[ms_conf['localization'] != 'periplasm',
+            'sublocalization'] = 'non-periplasmic'
+for i, (g, d) in enumerate(ms_conf.groupby(['sublocalization'])):
+    print(g)
+    _ = ax.plot(np.random.normal(0, 0.1, len(d)) + i, np.log2(d['relative_signal']), '.', color=cor[f'primary_{colors[i]}'], markeredgewidth=0, alpha=0.75,
+                ms=2.5)
+
+    # for i, p in enumerate(['peri_enrichment', 'cyto_enrichment']):
+    # _ = axes[g].plot(np.log2(d[p]), np.random.normal(
+    # 0, 0.1, len(d)) + i, '.', color=cor[f'primary_{colors[i]}'], markeredgewidth=0, alpha=0.5,
+    # ms=3)
+ax.set_title('mass spectrometry\nconfirmation', fontsize=6)
+# plt.tight_layout()
+plt.savefig('../../figures/FigSX_MS_periplasm_validation_plots.pdf')

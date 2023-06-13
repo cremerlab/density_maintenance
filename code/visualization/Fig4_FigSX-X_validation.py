@@ -205,6 +205,12 @@ plt.tight_layout()
 # ######################################################################
 # SUPPLEMENTAL FIGURES
 # ######################################################################
+ms_conf = pd.read_csv(
+    '../../data/mass_spectrometry/periplasm_fractionation_confirmation.csv')
+ppcs = pd.read_csv('../../data/mcmc/literature_model_params.csv')
+ppcs = ppcs[(ppcs['model'] == 'const_phi_mem') &
+            (ppcs['volume_scale'] == 'linear_width')]
+
 fig, ax = plt.subplots(1, 1, figsize=(1.25, 1.9), sharex=True, sharey=True)
 ax.set_xticks([0, 1])
 ax.set_ylim([-10, 13])
@@ -227,4 +233,4 @@ for i, (g, d) in enumerate(ms_conf.groupby(['sublocalization'])):
     # ms=3)
 ax.set_title('mass spectrometry\nconfirmation', fontsize=6)
 # plt.tight_layout()
-plt.savefig('../../figures/FigSX_MS_periplasm_validation_plots.pdf')
+# plt.savefig('../../figures/FigSX_MS_periplasm_validation_plots.pdf')

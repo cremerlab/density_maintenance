@@ -23,7 +23,8 @@ ms_data['surface_area'] = ms_data['surface_to_volume'] * ms_data['volume']
 ppcs = pd.read_csv('../../data/mcmc/literature_model_params.csv')
 ppcs
 mode = 'rep'
-model = 'const_phi_mem'
+model = 'const_rho_mem'
+scale = 'linear_width'
 ppcs = ppcs[ppcs['model'] == model]
 
 fig, ax = plt.subplots(1, 4, figsize=(6, 1.5))
@@ -31,12 +32,14 @@ fig, ax = plt.subplots(1, 4, figsize=(6, 1.5))
 # Plot the posterior predictive checks
 ax = ax.ravel()
 axes = {'w': ax[0], 'ell': ax[1], 'vol': ax[2]}
-for g, d in ppcs[(ppcs['interval'] != 'median') & (ppcs['quantity'].isin([f'{p}_{mode}' for p in ['w', 'ell', 'vol']]))].groupby(['quantity', 'interval'], sort=False):
+for g, d in ppcs[(ppcs['interval'] != 'median') & (ppcs['quantity'].isin([f'{p}_{mode}' for p in ['w', 'ell', 'vol']])) &
+                 (ppcs['volume_scale'] == scale)].groupby(['quantity', 'interval'], sort=False):
     d.sort_values(by='growth_rate_hr', inplace=True)
     axes[g[0].split('_')[0]].fill_between(d['growth_rate_hr'], d['lower'], d['upper'], color=ppc_cmap[g[1]],
                                           alpha=0.3)
 
-for g, d in ppcs[(ppcs['interval'] != 'median') & (ppcs['quantity'] == f'prot_per_cell_{mode}')].groupby(['quantity', 'interval'], sort=False):
+for g, d in ppcs[(ppcs['interval'] != 'median') & (ppcs['quantity'] == f'prot_per_cell_{mode}') &
+                 (ppcs['volume_scale'] == 'scale')].groupby(['quantity', 'interval'], sort=False):
     d.sort_values(by='growth_rate_hr', inplace=True)
     ax[3].fill_between(d['growth_rate_hr'], d['lower'], d['upper'], color=ppc_cmap[g[1]],
                        alpha=0.3)
@@ -107,7 +110,8 @@ axes = {'phi_mem': ax[0], 'phi_peri': ax[1],
         'rho_mem': ax[2], 'rho_peri': ax[3], 'm_peri': ax[4],
         'rho_prot': ax[5]}
 for g, d in ppcs[(ppcs['interval'] != 'median') &
-                 (ppcs['quantity'].isin([f'{p}_{mode}' for p in axes.keys()]))].groupby(['quantity', 'interval'], sort=False):
+                 (ppcs['quantity'].isin([f'{p}_{mode}' for p in axes.keys()])) &
+                 (ppcs['volume_scale'] == scale)].groupby(['quantity', 'interval'], sort=False):
     d.sort_values('growth_rate_hr', inplace=True)
     axes[g[0].split(f'_{mode}')[0]].fill_between(d['growth_rate_hr'], d['lower'], d['upper'],
                                                  color=ppc_cmap[g[1]], alpha=0.3)
