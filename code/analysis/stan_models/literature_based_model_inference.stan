@@ -118,7 +118,7 @@ model {
         log(prot_per_cell) ~ normal(log(rho_prot * C_0[1] .* exp(tau[1] .* prot_lam)), prot_sigma);
         phi_peri ~ normal(m_peri_mu / (rho_prot_ms * C_0[1] .* exp(tau[1] .* ms_lam)), phi_peri_sigma);
         if (const_phi_mem == 0) {
-            phi_mem ~ normal(rho_mem_mu[1] *  pi() * alpha .* cbrt(12 * C_0[1] .* exp(ms_lam .* tau[1]) ./ (pi() * (3 * alpha - 1))).^2 ./ ((rho_prot_min + rho_prot_slope .* ms_lam) .* C_0[1] .* exp(ms_lam * tau[1])), phi_mem_sigma);
+            phi_mem ~ normal(rho_mem_mu[1] * 2 * pi() * alpha .* cbrt(12 * C_0[1] .* exp(ms_lam .* tau[1]) ./ (pi() * (3 * alpha - 1))).^2 ./ ((rho_prot_min + rho_prot_slope .* ms_lam) .* C_0[1] .* exp(ms_lam * tau[1])), phi_mem_sigma);
         }
         else {
             phi_mem ~ normal(phi_mem_mu[1], phi_mem_sigma);

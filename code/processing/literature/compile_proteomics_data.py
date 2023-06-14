@@ -21,7 +21,10 @@ data = data[data['dataset_name'] != 'Valgepea et al. 2013']
 # data = data[data['dataset_name'] != 'Mori et al. 2021']
 data.drop(columns=['cog_desc', 'cog_category', 'gene_product', 'annotation', 'dataset'],
           inplace=True)
-
+ribo_prots = ['rrsa', 'rpsa', 'rpsb', 'rpsc', 'rpd', 'rpse', 'rpsf', 'rpsg', 'rpsh', 'rpsi', 'rpsj', 'rpsk',
+              'rpsl', 'rpsm', 'rpsn', 'rpso', 'rpsp', 'rpsq', 'rpsr', 'rpst', 'rpsu', 'rrla', 'rrfa', 'rpla', 'rplb', 'rplc', 'rpld', 'rple', 'rplf', 'rplj', 'rpll', 'rpli',
+              'rplk', 'rplm', 'rpln', 'rplo', 'rplop', 'rplq', 'rplr', 'rpls', 'rplt', 'rplu', 'rplv', 'rplw', 'rplx', 'rply', 'rpma',
+              'rpmb', 'rpmc', 'rpmd', 'rpme', 'rpmf', 'rmpg', 'rpmh', 'rpmi', 'rpmj']
 # %%
 # babu = babu[babu['localization'] != 'EC']
 data['envelope'] = False
@@ -59,7 +62,7 @@ for g, _ in tqdm.tqdm(babu.groupby(['name', 'b_number', 'localization'])):
 
 data.loc[data['cog_letter'].isin(
     ['C', 'E', 'F', 'G', 'H', 'I', 'P', 'Q']), 'metabolism'] = True
-data.loc[data['cog_letter'].isin(['J']), 'ribosomal'] = True
+data.loc[data['gene_name'].str.lower().isin(ribo_prots), 'ribosomal'] = True
 data.to_csv('../../../data/literature/collated_mass_fractions.csv', index=False)
 
 # %%
