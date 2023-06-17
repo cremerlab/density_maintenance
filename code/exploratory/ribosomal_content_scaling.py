@@ -21,10 +21,12 @@ lam = growth.model.steady_state_growth_rate(
 
 # model pred
 k = 150
-beta = 0.4558
+beta = 1/0.4558
 alpha = 4
 phi_mem = 0.1
-pred = (24 * alpha / (k * (3 * alpha - 1))) * (1 + beta * opt_phiRb)/phi_mem
+pred_1 = (24 * alpha / (k * (3 * alpha - 1))) * (1 + beta * opt_phiRb)/0.1
+pred_2 = (24 * alpha / (k * (3 * alpha - 1))) * (1 + beta * opt_phiRb)/0.105
+pred_3 = (24 * alpha / (k * (3 * alpha - 1))) * (1 + beta * opt_phiRb)/0.11
 
 fig, ax = plt.subplots(1, 2, figsize=(6, 2.5))
 for g, d in rib.groupby(['dataset_name']):
@@ -39,11 +41,28 @@ ax[0].plot(lam, opt_phiRb, '-', color=cor['primary_blue'],
            lw=2, label='optimal allocation theory')
 # ax[1].plot(opt_phiRb, '-', color=cor['primary_blue'], lw=2)
 
-ax[1].plot(opt_phiRb, pred, '-', color=cor['primary_blue'],
-           lw=2, label='density maintenance theory')
+ax[1].plot(opt_phiRb, pred_1, '-', color=cor['primary_blue'],
+           lw=2, label='density maintenance theory, $\phi_{mem} = 0.1$')
+ax[1].plot(opt_phiRb, pred_2, '--', color=cor['primary_blue'],
+           lw=2, label='density maintenance theory, $\phi_{mem} = 0.105$')
+ax[1].plot(opt_phiRb, pred_3, ':', color=cor['primary_blue'],
+           lw=2, label='density maintenance theory, $\phi_{mem} = 0.11$')
+
 ax[0].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
 ax[0].set_ylabel('ribosomal mass fraction $\phi_{Rb}$', fontsize=6)
 ax[1].set_xlabel('ribosomal mass fraction $\phi_{Rb}$', fontsize=6)
 ax[1].set_ylabel('average cell width [µm]', fontsize=6)
 ax[0].legend(fontsize=5)
 ax[1].legend(fontsize=5)
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
