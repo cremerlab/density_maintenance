@@ -37,6 +37,8 @@ phiRb_data['width'] = width_popt[1] + \
     width_popt[0] * phiRb_data['growth_rate_hr']
 
 # %%
+
+# %%
 mem = ms_data[ms_data['localization'] == 'membrane']
 rho_mem = mem['mass_fg'] / (2 * mem['surface_area'])
 N_ppc = 500
@@ -55,12 +57,12 @@ data_dict = {'N_ms': len(mem),
              'delta': 0.0246,
              'beta_rp': 0.4558,
              'rho_mem': rho_mem.astype(float),
-             'rho_biomass': 300,
+             'rho_biomass': 350,
              'phi_mem': mem['mass_frac'].values.astype(float),
              'alpha': size_data['length_um'].values/size_data['width_um'].values,
              'm_peri': ms_data[ms_data['localization'] == 'periplasm']['mass_fg'].values}
 
-_samples = model.sample(data=data_dict)
+_samples = model.sample(data=data_dict, show_console=True)
 samples = az.from_cmdstanpy(_samples)
 
 
