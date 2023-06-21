@@ -4,6 +4,7 @@
     int<lower=1> N_size; // Number of size measurements
     int<lower=1> N_ppc;  // Number of elements desired in ppcs. 
     int<lower=1> N_biomass;
+    int<lower=0, upper=1> linear_alpha;
 
     // Observed data
     vector<lower=0>[N_ms] rho_mem; // Areal membrane protein density
@@ -11,9 +12,11 @@
     vector<lower=0>[N_ms] m_peri; // Mass of periplasmic protein per cell
     vector<lower=1>[N_size] alpha;  // Length-to-width aspect ratio
     vector<lower=1>[N_biomass] rho_biomass;
+    vector<lower=0>[N_size] size_lam;
 
     // Variable for ppc simulation
     vector<lower=0>[N_ppc] phiRb; // Allocation towards ribosomes
+    vector<lower=0>[N_ppc] lam;
 
     // Constants for calculations
     real<lower=0> beta_rp; // Conversion factor from R/P to phiRb
@@ -29,9 +32,12 @@ parameters {
     real<lower=0> phi_mem_sigma;
     real<lower=0> m_peri_mu;
     real<lower=0> m_peri_sigma;
-    real<lower=1> alpha_mu;
+    array[1 - linear_alpha] real<lower=1> alpha_mu;
+    array[linear_alpha] real<lower=0> alpha_int;
+    array[linear_alpha] real<lower=0> alpha_slope;
     real<lower=0> alpha_sigma;
 }
+
 
 model {
     rho_mem_mu ~ std_normal();
@@ -40,14 +46,23 @@ model {
     rho_biomass_sigma ~ normal(0, 10);
     phi_mem_mu ~ std_normal();
     phi_mem_sigma ~ normal(0, 0.1);
-    alpha_mu ~ std_normal();
     alpha_sigma ~ normal(0, 0.1);
     m_peri_mu ~ std_normal();
     m_peri_sigma ~ normal(0, 0.1);
+
     rho_mem ~ normal(rho_mem_mu, rho_mem_sigma);
     rho_biomass ~ normal(rho_biomass_mu, rho_biomass_sigma);
     phi_mem ~ normal(phi_mem_mu, phi_mem_sigma);
-    alpha ~ normal(alpha_mu, alpha_sigma);
+    if (linear_alpha) { 
+        alpha_slope ~ std_normal();
+        alpha_int ~ std_normal();
+        alpha ~ normal(alpha_int[1] + alpha_slope[1] .* size_lam, alpha_sigma);
+    }
+    else { 
+        alpha_mu ~ std_normal();
+        alpha ~ normal(alpha_mu[1], alpha_sigma);
+    }
+
     m_peri ~ normal(m_peri_mu, m_peri_sigma);
 }
 
@@ -56,7 +71,8 @@ generated quantities {
    real<lower=0> rho_mem_rep; 
    real<lower=0> rho_biomass_rep;
    real<lower=0> m_peri_rep;
-   real<lower=1> alpha_rep;
+   vector<lower=0>[N_ppc] alpha_rep;
+   vector<lower=0>[N_ppc] alpha_mu_0;
    real<lower=0> phi_mem_rep;
 
    // Vector PPC declaration
@@ -69,14 +85,28 @@ generated quantities {
    // Scalar PPC generation
    rho_mem_rep = normal_rng(rho_mem_mu, rho_mem_sigma);
    m_peri_rep = normal_rng(m_peri_mu, m_peri_sigma);     
-   alpha_rep = normal_rng(alpha_mu, alpha_sigma);
    phi_mem_rep = normal_rng(phi_mem_mu, phi_mem_sigma);
    rho_biomass_rep = normal_rng(rho_biomass_mu, rho_biomass_sigma);
+   if (linear_alpha) {
+       for (i in 1:N_ppc) {
+        alpha_rep[i] = normal_rng(alpha_int[1] + alpha_slope[1] * lam[i], alpha_sigma);
+        alpha_mu_0[i] = alpha_int[1] + alpha_slope[1] * lam[i];
+            }
+        }
+   else {
+        alpha_rep[1] = normal_rng(alpha_mu[1], alpha_sigma);
+        alpha_mu_0[1] = alpha_mu[1];
+        for (i in 2:N_ppc) {
+            alpha_rep[i] = alpha_rep[1];
+            alpha_mu_0[i] = alpha_mu_0[1];
+        }
+   }
+
    for (i in 1:N_ppc) { 
-        kappa[i] = (24 * alpha_mu / (3 * alpha_mu - 1)) * (rho_mem_mu / rho_biomass_mu);
+        kappa[i] = (24 * alpha_mu_0[i] / (3 * alpha_mu_0[i] - 1)) * (rho_mem_mu / rho_biomass_mu);
         width_rep[i] = kappa[i] * (1 + phiRb[i] / beta_rp) / phi_mem_mu;
-        rho_peri[i] = m_peri_mu / (pi() * alpha_mu * width_rep[i]^2 * delta);
-        ell_rep[i] = alpha_mu * width_rep[i];
-        vol_rep[i] = (pi() / 12) * width_rep[i]^3 * (3 * alpha_mu  - 1);
+        rho_peri[i] = m_peri_mu / (pi() * alpha_mu_0[i] * width_rep[i]^2 * delta);
+        ell_rep[i] = alpha_mu_0[i] * width_rep[i];
+        vol_rep[i] = (pi() / 12) * width_rep[i]^3 * (3 * alpha_mu_0[i]  - 1);
    }
 }

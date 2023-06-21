@@ -42,12 +42,12 @@ mem = ms_data[ms_data['localization'] == 'membrane']
 rho_mem = mem['mass_fg'] / (2 * mem['surface_area'])
 N_ppc = 500
 nu_range = np.linspace(0.1, 20, N_ppc)
-# phiRb_range = size.fluxparity.phiRb_optimal_allocation(consts['gamma_max'], nu_range,
-#    consts['Kd_cpc'], consts['phi_O'])
-# lam_range = size.fluxparity.steady_state_growth_rate(
-# consts['gamma_max'], phiRb_range, nu_range, consts['Kd_cpc'], consts['phi_O'])
-lam_range = np.linspace(0, 2.5, 500)
-phiRb_range = phiRb_popt[1] + phiRb_popt[0] * lam_range
+phiRb_range = size.fluxparity.phiRb_optimal_allocation(consts['gamma_max'], nu_range,
+                                                       consts['Kd_cpc'], consts['phi_O'])
+lam_range = size.fluxparity.steady_state_growth_rate(
+    consts['gamma_max'], phiRb_range, nu_range, consts['Kd_cpc'], consts['phi_O'])
+# lam_range = np.linspace(0, 2.5, 500)
+# phiRb_range = phiRb_popt[1] + phiRb_popt[0] * lam_range
 
 model = cmdstanpy.CmdStanModel(stan_file="constant_inference.stan")
 
@@ -56,12 +56,15 @@ data_dict = {'N_ms': len(mem),
              'N_biomass': len(biomass_density),
              'N_ppc': N_ppc,
              'phiRb': phiRb_range,
+             'lam': lam_range,
              'delta': 0.0246,
              'beta_rp': 0.4558,
              'rho_mem': rho_mem.astype(float),
              'rho_biomass': biomass_density['drymass_density_fg_fL'].values,
              'phi_mem': mem['mass_frac'].values.astype(float),
              'alpha': size_data['length_um'].values/size_data['width_um'].values,
+             'size_lam': size_data['growth_rate_hr'].values,
+             'linear_alpha': 1,
              'm_peri': ms_data[ms_data['localization'] == 'periplasm']['mass_fg'].values}
 
 _samples = model.sample(data=data_dict)
