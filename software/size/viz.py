@@ -64,7 +64,7 @@ def lit_mapper():
         'Pierucci 1978': {'m': 'v'},
         'Grossman et al. 1982': {'m': 'X'},
         'Zaritsky & Woldringh 1978': {'m': '<'},
-        'Rueba & Woldringh  1980': {'m': 's'},
+        'Rueba & Woldringh 1980': {'m': 's'},
         'Zaritsky et al. 1993': {'m': '>'},
         'Si et al. 2017': {'m': '^'},
         'Caglar et al. 2017': {'m': 'h'},
@@ -88,8 +88,8 @@ def lit_mapper():
         'Mir et al. 2011': {'m': 'p'},
         'Watson et al. 1976': {'m': '^'},
         'Woldringh et al. 1981': {'m': 'v'},
-        'Poole 1977': {'m', '>'},
-        'Zhu & Dai 2019': {'m', '.'}
+        'Poole 1977': {'m': '>'},
+        'Zhu & Dai 2019': {'m': '.'}
     }
     # Set colors rooted in blue
     cmap = sns.color_palette(f"light:{colors['primary_black']}",
@@ -759,33 +759,3 @@ def compute_percentiles(df,
                 _df[groupby[i]] = g[i]
             perc_df = pd.concat([perc_df, _df], sort=False)
     return perc_df
-
-
-def lit_mapper():
-    mapper = {'Taheri-Araghi et al. 2015': {'m': 'o', 'c': '#909090'},
-              'Pierucci 1978': {'m': 'v', 'c': '#9d9d9d'},
-              'Grossman et al. 1982': {'m': 'X', 'c': '#dfdfdf'},
-              'Zaritsky & Woldringh, 1978': {'m': '<', 'c': '#6c6c6c'},
-              'Rueba & Woldringh,  1980': {'m': 's', 'c': '#d7d7d7'},
-              'Zaritsky et al. 1993': {'m': '>', 'c': '#545454'},
-              'Si et al. 2017': {'m': '^', 'c': '#787878'},
-              'Caglar et al. 2017': {'m': 'h', 'c': '#cdcdcd'},
-              'Li et al. 2014': {'m': 'p', 'c': '#0d0d0d'},
-              'Mori et al. 2021': {'m': 'P', 'c': '#1a1a1a'},
-              'Peebo et al. 2015': {'m': '*', 'c': '#363636'},
-              'Schmidt et al. 2016': {'m': 'o', 'c': '#464646'},
-              'Soufi et al. 2015': {'m': '8', 'c': '#848484'},
-              'Valgepea et al. 2013': {'m': 'd', 'c': '#606060'},
-              'Basan et al. 2015': {'m': '^', 'c': '#909090'},
-              'Dai et al. 2016': {'m': 'o', 'c': '#606060'},
-              'Bremer & Dennis 2008':  {'m': 'o', 'c': '#dfdfdf'},
-              'Churchward et al. 1982': {'m': '>', 'c': '#848484'},
-              'Neidhardt et al. 1992': {'m': 'v', 'c': '#464646'},
-              'Wright & Lockhart 1964': {'m': '<', 'c': '#909090'},
-              'Chohji et al. 1976': {'m': 'h', 'c': '#363636'},
-              'Dennis & Bremer 1987': {'m': 's', 'c': '#9d9d9d'},
-              'Dennis & Bremer 1974': {'m': '*', 'c': '#9d9d9d'},
-              'Arike et al. 2012': {'m': 'X', 'c': '#545454'},
-              'Balakrishnan et al. 2022': {'m': 'X', 'c': '#0d0d0d'}}
-
-    return mapper

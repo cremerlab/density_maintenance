@@ -1,9 +1,9 @@
 growth_rate_hr,drymass_density_fg_fL,source,notes
-0.222,0.309,Oldewurtle et al. 2021,Digitized medians from Fig 2B. Note that this is measured at 30 deg C.
-0.260,0.317,Oldewurtle et al. 2021,Digitized medians from Fig 2B. Note that this is measured at 30 deg C.
-0.361,0.309,Oldewurtle et al. 2021,Digitized medians from Fig 2B. Note that this is measured at 30 deg C.
-0.689,0.308,Oldewurtle et al. 2021,Digitized medians from Fig 2B. Note that this is measured at 30 deg C.
-1.16,0.280,Oldewurtle et al. 2021,Digitized medians from Fig 2B. Note that this is measured at 30 deg C.
+0.222,309,Oldewurtle et al. 2021,Digitized medians from Fig 2B. Note that this is measured at 30 deg C.
+0.260,317,Oldewurtle et al. 2021,Digitized medians from Fig 2B. Note that this is measured at 30 deg C.
+0.361,309,Oldewurtle et al. 2021,Digitized medians from Fig 2B. Note that this is measured at 30 deg C.
+0.689,308,Oldewurtle et al. 2021,Digitized medians from Fig 2B. Note that this is measured at 30 deg C.
+1.16,280,Oldewurtle et al. 2021,Digitized medians from Fig 2B. Note that this is measured at 30 deg C.
 1.38629436111989,286.312,Kubitschek et al. 1983,"Taken from Fig. 3, converted from buoyant density assuming a 74% water content (BNID: 105482)"
 1.48531538691417,282.464,Kubitschek et al. 1983,"Taken from Fig. 3, converted from buoyant density assuming a 74% water content (BNID: 105482)"
 0.152492379723188,281.632,Kubitschek et al. 1983,Taken from Table 1 converted from buoyant density assuming a 74% water content (BNID: 105482)
@@ -30,15 +30,16 @@ growth_rate_hr,drymass_density_fg_fL,source,notes
 1.040,285.446,Churchward et al. 1982,Calculated using reported values for total drymass (DNA + RNA + Protein) and calculating volume from growth rate via an empirical exponential fit. 
 1.386,352.668,Churchward et al. 1982,Calculated using reported values for total drymass (DNA + RNA + Protein) and calculating volume from growth rate via an empirical exponential fit. 
 1.733,296.908,Churchward et al. 1982,Calculated using reported values for total drymass (DNA + RNA + Protein) and calculating volume from growth rate via an empirical exponential fit. 
-0.243,0.2814,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
-0.25560,0.2817,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
-0.27293,0.2810,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
-0.29026,0.2815,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
-0.44188,0.2809,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
-0.51120,0.2815,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
-0.9076,0.2832,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
-0.9315,0.2832,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
-1.5076,0.2833,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
-1.7979,0.2836,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
-2.0686,0.2836,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
-2.0860,0.2836,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
+0.243,281.4,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
+0.25560,281.7,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
+0.27293,281,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
+0.29026,281.5,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
+0.44188,280.9,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
+0.51120,281.5,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
+0.9076,283.2,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
+0.9315,283.2,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
+1.5076,283.3,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
+1.7979,283.6,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
+2.0686,283.6,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
+2.0860,283.6,Woldringh et al. 1981,Calculated as average position of bars in Fig 2. Dry mass density calculated assuming a 74% water content (BNID: 105482)
+0.733,281.06,Poole 1977,Mean density taken from abstract and growth rate reported in methods section. Dry mass density calculated assuming a 74% water content (BNID: 105482)
