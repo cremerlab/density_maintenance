@@ -18,10 +18,13 @@
     vector<lower=0>[N_ppc] phiRb; // Allocation towards ribosomes
     vector<lower=0>[N_ppc] lam;
 
+
     // Constants for calculations
     real<lower=0> beta_rp; // Conversion factor from R/P to phiRb
     real<lower=0> delta; // Periplasmic width
+    real<lower=0> SA_prefactor;
 }
+
 
 parameters {
     real<lower=0> rho_mem_mu;
@@ -103,7 +106,7 @@ generated quantities {
    }
 
    for (i in 1:N_ppc) { 
-        kappa[i] = (24 * alpha_mu_0[i] / (3 * alpha_mu_0[i] - 1)) * (rho_mem_mu / rho_biomass_mu);
+        kappa[i] = (SA_prefactor * alpha_mu_0[i] / (3 * alpha_mu_0[i] - 1)) * (rho_mem_mu / rho_biomass_mu);
         width_rep[i] = kappa[i] * (1 + phiRb[i] / beta_rp) / phi_mem_mu;
         rho_peri[i] = m_peri_mu / (pi() * alpha_mu_0[i] * width_rep[i]^2 * delta);
         ell_rep[i] = alpha_mu_0[i] * width_rep[i];

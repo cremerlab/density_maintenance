@@ -38,7 +38,7 @@ phiRb_data['width'] = width_popt[1] + \
 
 
 # %%
-mem = ms_data[ms_data['localization'] == 'membrane']
+mem = ms_data[ms_data['localization'] == 'membrane'].drop_duplicates()
 rho_mem = mem['mass_fg'] / (2 * mem['surface_area'])
 N_ppc = 500
 nu_range = np.linspace(0.1, 20, N_ppc)
@@ -59,12 +59,13 @@ data_dict = {'N_ms': len(mem),
              'lam': lam_range,
              'delta': 0.0246,
              'beta_rp': 0.4558,
+             'SA_prefactor': 24,
              'rho_mem': rho_mem.astype(float),
              'rho_biomass': biomass_density['drymass_density_fg_fL'].values,
              'phi_mem': mem['mass_frac'].values.astype(float),
              'alpha': size_data['length_um'].values/size_data['width_um'].values,
              'size_lam': size_data['growth_rate_hr'].values,
-             'linear_alpha': 1,
+             'linear_alpha': 0,
              'm_peri': ms_data[ms_data['localization'] == 'periplasm']['mass_fg'].values}
 
 _samples = model.sample(data=data_dict)
@@ -107,7 +108,7 @@ for g, d in ms_data[ms_data['localization'].isin(['periplasm', 'membrane'])].gro
 
     ax[2].plot(mem['growth_rate_hr'], mem['mass_frac'], **_style, zorder=1000)
     ax[3].plot(mem['growth_rate_hr'], mem['mass_fg'] /
-               (2 * mem['surface_area']), **_style, zorder=1000)
+               (mem['surface_area']), **_style, zorder=1000)
     ax[4].plot(peri['growth_rate_hr'], peri['mass_fg'], **_style, zorder=1000)
 
 for g, d in size_data.groupby(['source']):
@@ -228,7 +229,9 @@ for i, var in enumerate(pred_props):
                                color=colors[j], alpha=0.25)
 
 plt.tight_layout()
-plt.savefig('../../figures/allocation_pred_ppcs.pdf', bbox_inches='tight')
+plt.suptitle('avg membrane', fontsize=6)
+plt.savefig('../../figures/allocation_pred_ppcs_average.pdf',
+            bbox_inches='tight')
 
 # %%
 fig, ax = plt.subplots(1, 2, figsize=(4, 2))

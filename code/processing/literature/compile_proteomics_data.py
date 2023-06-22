@@ -99,14 +99,6 @@ metabolic = data[data['metabolism'] == True].groupby(
     ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
 metabolic['localization'] = 'metabolic sector'
 
-inner_mem = data[data['inner membrane'] == True].groupby(
-    ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
-inner_mem['localization'] = 'inner membrane'
-
-outer_mem = data[data['outer membrane'] == True].groupby(
-    ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
-outer_mem['localization'] = 'outer membrane'
-
 aggregated = pd.concat([envelope, membrane, periplasm, inner_mem, outer_mem,
                         cytoplasm, ribosomal, metabolic, inner_mem, outer_mem], sort=False)
 aggregated.to_csv('../../../data/literature/summarized_mass_fractions.csv')
