@@ -21,6 +21,7 @@ def lit_mapper():
     Returns a dictionary mapping sources of the E. coli data with standard colors
     and glyphs. This ensures constant marking of data across plots.
     """
+    rng = np.random.default_rng(666)
     colors, _ = get_colors()
     mapper = {
         'Bremer & Dennis 2008': {'m': 'X'},
@@ -92,9 +93,9 @@ def lit_mapper():
         'Zhu & Dai 2019': {'m': '.'}
     }
     # Set colors rooted in blue
-    cmap = sns.color_palette(f"light:{colors['primary_black']}",
+    cmap = sns.color_palette(f"light:{colors['black']}",
                              n_colors=len(mapper)).as_hex()
-    cmap.reverse()
+    rng.shuffle(cmap)
     counter = 0
     for k, _ in mapper.items():
         mapper[k]['c'] = cmap[counter]
@@ -257,186 +258,6 @@ def matplotlib_style(return_colors=True, return_palette=True, **kwargs):
     colors, palette = get_colors(**kwargs)
     sns.set_palette(palette)
 
-    # Determine what, if anything should be returned
-    out = []
-    if return_colors == True:
-        out.append(colors)
-    if return_palette == True:
-        out.append(palette)
-
-    if len(out) == 1:
-        return out[0]
-    else:
-        return out
-
-
-def bokeh_style(return_colors=True, return_palette=True):
-    theme_json = {
-        "attrs": {
-            "Figure": {"background_fill_color": "#f0f3f7", },
-            "Axis": {
-                "axis_line_color": None,
-                "major_tick_line_color": None,
-                "minor_tick_line_color": None,
-            },
-            "Legend": {
-                "border_line_color": "slategray",
-                "background_fill_color": "#f0f3f7",
-                "border_line_width": 0.75,
-                "background_fill_alpha": 0.75,
-            },
-            "Grid": {"grid_line_color": "#FFFFFF", "grid_line_width": 0.75, },
-            "Text": {
-                "text_font_style": "regular",
-                "text_font_size": "12pt",
-                "text_font": "Nunito"
-            },
-            "Title": {
-                "background_fill_color": "#FFFFFF",
-                "text_color": "#3c3c3c",
-                "align": "left",
-                'text_font_style': 'normal',
-                'text_font_size': "10pt",
-                "offset": 5
-            },
-        }
-    }
-
-    colors, palette = get_colors()
-    theme = bokeh.themes.Theme(json=theme_json)
-    bokeh.io.curdoc().theme = theme
-    out = []
-    if return_colors:
-        out.append(colors)
-    if return_palette:
-        out.append(palette)
-    if return_colors | return_palette:
-        return out
-
-
-def load_js(fname, args):
-    """
-    Given external javascript file names and arguments, load a bokeh CustomJS
-    object
-
-    Parameters
-    ----------
-    fname: str or list of str
-        The file name of the external javascript file. If the desired javascript
-        exists in multiple external files, they can be provided as a list of
-        strings.
-    args: dict
-        The arguments to supply to the custom JS callback.
-
-    Returns
-    -------
-    cb : bokeh CustomJS model object
-        Returns a bokeh CustomJS model object with the supplied code and
-        arguments. This can be directly assigned as callback functions.
-    """
-    if type(fname) == str:
-        with open(fname) as f:
-            js = f.read()
-    elif type(fname) == list:
-        js = ''
-        for _fname in fname:
-            with open(_fname) as f:
-                js += f.read()
-
-    cb = CustomJS(code=js, args=args)
-    return cb
-
-
-def altair_style(return_colors=True, return_palette=True, **kwargs):
-    """
-    Assigns the plotting style for matplotlib generated figures.
-
-    Parameters
-    ----------
-    return_colors : bool
-        If True, a dictionary of the colors is returned. Default is True.
-    return_palette: bool
-        If True, a sequential color palette is returned. Default is True.
-    """
-    colors, palette = get_colors(**kwargs)
-    primary_palette = palette
-
-    def _theme():
-        return {
-            'config': {
-                'background': 'white',
-                'group': {
-                    'fill': 'white',
-                },
-                'view': {
-                    'strokeWidth': 0,
-                    'height': 300,
-                    'width': 400,
-                    'fill': '#f0f3f7',
-                },
-                'point': {
-                    'size': 40,
-                    'filled': True,
-                    'opacity': 1,
-                    'strokeWidth': 0.75,
-                    'stroke': '#FFFFFF'
-                },
-                'square': {
-                    'size': 40,
-                    'filled': True,
-                    'opacity': 1,
-                    'strokeWidth': 0.75,
-                    'stroke': '#FFFFFF'
-                },
-                'circle': {
-                    'size': 40,
-                    'filled': True,
-                    'opacity': 1,
-                    'strokeWidth': 0.75,
-                    'stroke': '#FFFFFF'
-                },
-                'line': {
-                    'size': 2,
-                },
-                'axis': {
-                    'domainColor': '#ffffff',
-                    'domainWidth': 0.5,
-                    'labelColor': '#5b5b5b',
-                    'labelFontSize': 10,
-                    'labelFont': 'Arial',
-                    'titleFont': 'Arial',
-                    'titleFontWeight': 700,
-                    'titleFontSize': 14,
-                    'titleColor': '#4b4b4b',
-                    'grid': True,
-                    'gridColor': '#ffffff',
-                    'gridWidth': 0.5,
-                    'ticks': False,
-                },
-                'range': {
-                    'category': primary_palette
-                },
-                'legend': {
-                    'labelFontSize': 14,
-                    'labelFont': 'Nunito Sans',
-                    'titleFont': 'Nunito Sans',
-                    'titleFontSize': 14,
-                    'titleFontWeight': 700,
-                    'titleFontColor': '#44b4b4b',
-                    'symbolSize': 75,
-                },
-                'title': {
-                    'font': 'Nunito Sans',
-                    'fontWeight': 700,
-                    'fontSize': 14,
-                    'fontColor': '#4b4b4b',
-                }
-            }
-        }
-
-    # enable the newly registered theme
-    alt.themes.register('personal', _theme)
-    alt.themes.enable('personal')
     # Determine what, if anything should be returned
     out = []
     if return_colors == True:
@@ -759,3 +580,16 @@ def compute_percentiles(df,
                 _df[groupby[i]] = g[i]
             perc_df = pd.concat([perc_df, _df], sort=False)
     return perc_df
+
+
+def style_point(source, alpha=0.75):
+    mapper = lit_mapper()
+    cor, _ = matplotlib_style()
+    style = {'marker': mapper[source]['m'],
+             'color': mapper[source]['c'],
+             'markeredgecolor': cor['primary_black'],
+             'markeredgewidth': 0.25,
+             'alpha': alpha,
+             'label': source,
+             'linestyle': 'none'}
+    return style
