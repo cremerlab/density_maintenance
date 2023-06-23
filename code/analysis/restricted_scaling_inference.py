@@ -254,7 +254,7 @@ phiRb_post = phiRb_popt[1] + phiRb_popt[0] * lam_post
 
 # Estimate nu max based on this
 nu_pre = size.fluxparity.estimate_nu_FPM(
-    phiRb_pre, lam_pre, const, const['phi_O']*1.1)
+    phiRb_pre, lam_pre, const, const['phi_O'])
 nu_post = size.fluxparity.estimate_nu_FPM(
     phiRb_post, lam_post, const, const['phi_O'])
 
@@ -264,7 +264,7 @@ preshift = {'gamma_max': const['gamma_max'],
             'Kd_TAA': const['Kd_TAA'],
             'Kd_TAA_star': const['Kd_TAA_star'],
             'kappa_max': const['kappa_max'],
-            'phi_O': 1.1 * const['phi_O'],
+            'phi_O': const['phi_O'],
             'tau': const['tau']}
 postshift = {'gamma_max': const['gamma_max'],
              'nu_max': nu_post,
