@@ -18,13 +18,19 @@ opt_phiRb = size.fluxparity.phiRb_optimal_allocation(
     const['gamma_max'], nu_range, const['Kd_cpc'], const['phi_O'])
 lam = size.fluxparity.steady_state_growth_rate(
     const['gamma_max'], opt_phiRb, nu_range, const['Kd_cpc'], const['phi_O'])
-
+phiRb_range = np.linspace(0.01, 0.3, 200)
 # model pred
-k = (300 / 2.5)
-beta = 1/0.4558
+rho_biomass = 285
+rho_mem = 2
+beta = 0.4558
 alpha = 4
-phi_mem = 0.06
-pred_1 = (12 * alpha / (k * (3 * alpha - 1))) * (1 + beta * opt_phiRb)/phi_mem
+kappa = 12 * alpha / (3 * alpha - 1)
+phi_mem = 0.12
+C = 2
+zeta = C * rho_mem / phi_mem
+zeta = 37
+pred = kappa * zeta * (1 + phiRb_range / beta) / rho_biomass
+
 # pred_2 = (24 * alpha / (k * (3 * alpha - 1))) * (1 + beta * opt_phiRb)/0.105
 # pred_3 = (24 * alpha / (k * (3 * alpha - 1))) * (1 + beta * opt_phiRb)/0.11
 
@@ -41,7 +47,7 @@ for g, d in rib.groupby(['dataset_name']):
     #    lw=2, label='optimal allocation theory')
 # ax[1].plot(opt_phiRb, '-', color=cor['primary_blue'], lw=2)
 
-ax[1].plot(opt_phiRb, pred_1, '-', color=cor['primary_blue'],
+ax[1].plot(phiRb_range, pred, '-', color=cor['primary_blue'],
            lw=2, label='density maintenance theory, $\phi_{mem}$ =' + str(phi_mem))
 # ax[1].plot(opt_phiRb, pred_2, '--', color=cor['primary_blue'],
 #    lw=2, label='density maintenance theory, $\phi_{mem} = 0.105$')
