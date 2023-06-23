@@ -11,10 +11,13 @@ mapper = size.viz.lit_mapper()
 # Add our data with 95%
 size_data = pd.read_csv(
     '../../data/literature/collated_literature_size_data.csv')
+size_data = size_data[~size_data['source'].isin(
+    ['Si et al. 2017', 'Taher-Araghi et al. 2015'])]
 wt_data = pd.read_csv('../../data/mcmc/perturbation_parameter_percentiles.csv')
 ms_data = pd.read_csv(
     '../../data/literature/collated_mass_fractions_empirics.csv')
-
+phiRb_data = pd.read_csv(
+    '../../data/literature/Chure2023/chure2023_collated_mass_fractions.csv')
 _wt_data = pd.read_csv('../../data/mcmc/growth_parameter_percentiles.csv')
 wt_data = pd.concat([wt_data, _wt_data])
 _data = pd.concat([wt_data, _wt_data])
@@ -26,6 +29,26 @@ model = pd.read_csv('../../data/mcmc/literature_model_params.csv')
 model = model[(model['volume_scale'] == 'linear_width')
               & (model['model'] == 'const_phi_mem')]
 
+# %%
+width_popt = scipy.stats.linregress(
+    size_data['growth_rate_hr'], size_data['width_um'])
+phiRb_popt = scipy.stats.linregress(
+    phiRb_data['growth_rate_hr'], phiRb_data['mass_fraction'])
+size_data['mass_fraction'] = phiRb_popt[1] + \
+    phiRb_popt[0] * size_data['growth_rate_hr']
+phiRb_data['width_um'] = width_popt[1] + \
+    width_popt[0] * phiRb_data['growth_rate_hr']
+ms = ms_data[ms_data['localization'] == 'ribosomal sector'].copy()
+ms.rename(columns={'dataset_name': 'source', 'width': 'width_um',
+          'mass_frac': 'mass_fraction'}, inplace=True)
+merged = pd.concat([size_data[['source', 'width_um', 'mass_fraction', 'growth_rate_hr']],
+                   phiRb_data[['source', 'width_um',
+                               'mass_fraction', 'growth_rate_hr']],
+                   ms[['source', 'width_um', 'mass_fraction', 'growth_rate_hr']]])
+merged = merged[(merged['source'] != 'Si et al. 2017') & (
+    merged['source'] != 'Taheri-Araghi et al. 2015')]
+size_data = size_data[size_data['source'] != 'Si et al. 2017']
+size_data = size_data[size_data['source'] != 'Taheri-Araghi et al. 2015']
 # %%
 popt = scipy.stats.linregress(
     size_data['growth_rate_hr'], np.log(size_data['volume_um3']))
@@ -523,3 +546,5 @@ for i, (g, d) in enumerate(ms_conf.groupby(['sublocalization'])):
 ax.set_title('mass spectrometry\nconfirmation', fontsize=6)
 # plt.tight_layout()
 plt.savefig('../../figures/FigSX_MS_periplasm_validation_plots.pdf')
+
+# %%

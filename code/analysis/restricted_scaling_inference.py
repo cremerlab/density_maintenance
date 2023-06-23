@@ -90,8 +90,11 @@ _samples = model.sample(data=data_dict)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
-fig, ax = plt.subplots(3, 3, figsize=(5, 4.5))
+fig, ax = plt.subplots(4, 3, figsize=(5, 6))
 ax = ax.ravel()
+# Use the bottom three rows for a big-ass legend
+for a in ax[-3:]:
+    a.axis('off')
 
 # Set axis limits
 ax[0].set_xlim([0, 0.7])
@@ -120,32 +123,48 @@ for a in ax[1:]:
     a.set_xlim([0, 2])
     a.set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
 
+
+# Plot the datasets and store the sources in a stupid way
+sources = []
+
 for g, d in merged.groupby('source'):
+    if g not in sources:
+        sources.append(g)
     _style = size.viz.style_point(g)
     ax[0].plot(d['mass_fraction'] / 0.4558, d['width_um'], **_style)
 
 for g, d in size_data.groupby('source'):
+    if g not in sources:
+        sources.append(g)
     _style = size.viz.style_point(g)
     ax[1].plot(d['growth_rate_hr'], d['aspect_ratio'], **_style)
 
 for g, d in mem.groupby('dataset_name'):
+    if g not in sources:
+        sources.append(g)
     _style = size.viz.style_point(g)
     ax[2].plot(d['growth_rate_hr'], d['mass_frac'], **_style)
     ax[6].plot(d['growth_rate_hr'], d['mass_fg'] /
                (sa[loc] * d['surface_area']), **_style)
 
 for g, d in peri.groupby('dataset_name'):
+    if g not in sources:
+        sources.append(g)
     _style = size.viz.style_point(g)
     ax[7].plot(d['growth_rate_hr'], d['mass_fg'] /
                (sa[loc] * d['surface_area'] * 0.0246), **_style)
 
 for g, d in size_data.groupby('source'):
+    if g not in sources:
+        sources.append(g)
     _style = size.viz.style_point(g)
     ax[3].plot(d['growth_rate_hr'], d['width_um'], **_style)
     ax[4].plot(d['growth_rate_hr'], d['length_um'], **_style)
     ax[5].plot(d['growth_rate_hr'], d['volume_um3'], **_style)
 
 for g, d in biomass.groupby('source'):
+    if g not in sources:
+        sources.append(g)
     _style = size.viz.style_point(g)
     ax[8].plot(d['growth_rate_hr'], d['drymass_density_fg_fL'], **_style)
 
@@ -228,15 +247,22 @@ for i, par in enumerate(ppcs):
             upper.append(_p[1])
         if i == 0:
             x = phiRb_range / 0.4558
-            ax = axes[par][0]
+            _ax = axes[par][0]
             axes[par][1].fill_between(lam_range, lower, upper, color=cor[f'{hue[j]}_blue'],
                                       alpha=0.5)
         else:
             x = lam_range
-            ax = axes[par][0]
-        ax.fill_between(x, lower, upper, color=cor[f'{hue[j]}_{color[i]}'],
-                        alpha=0.5)
+            _ax = axes[par][0]
+        _ax.fill_between(x, lower, upper, color=cor[f'{hue[j]}_{color[i]}'],
+                         alpha=0.5)
 
+
+for s in sources:
+    _style = size.viz.style_point(s)
+    ax[9].plot([], [], ms=4, **_style)
+ax[9].plot([], [], 'o', ms=3,
+           markeredgecolor=cor['primary_blue'], color='w', markeredgewidth=1, label='this study')
+ax[9].legend(fontsize=4, ncols=5, handletextpad=0.1, bbox_to_anchor=(3.5, 0.5))
 
 plt.tight_layout()
 plt.savefig(
@@ -299,3 +325,23 @@ ax[1].legend(fontsize=6)
 ax[1].set_xlabel('time from upshift [hr]', fontsize=6)
 ax[0].set_ylabel('ribosome content', fontsize=6)
 ax[1].set_ylabel('cell width [µm]', fontsize=6)
+
+# %%
+fig, ax = plt.subplots(1, 1, figsize=(1.5, 1.5))
+ax.set_xlim([0, 2])
+ax.set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+ax.set_ylabel('RNA / Protein', fontsize=6)
+
+for g, d in merged.groupby('source'):
+    _style = size.viz.style_point(g, alpha=0.4)
+    ax.plot(d['growth_rate_hr'], d['mass_fraction']/0.4558, ms=4.5, **_style)
+
+ax.plot(lam_range, phiRb_range/0.4558, '-', lw=1,
+        color=cor['primary_red'], label='optimal allocation')
+ax.plot(lam_range, (phiRb_popt[1] + phiRb_popt[0] * lam_range) / 0.4558,
+        '-', lw=1, color=cor['primary_blue'], label='empirical relation')
+
+ax.legend(fontsize=4, bbox_to_anchor=(1, 1))
+plt.savefig('../../figures/FigXG_RNA_P_scaling.pdf')
+
+# %%
