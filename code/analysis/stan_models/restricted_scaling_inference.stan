@@ -50,11 +50,11 @@ model {
     alpha_mu ~ std_normal();
     alpha_sigma ~ std_normal();
     width_sigma ~ std_normal();
-    phi_mem_mu ~ std_normal();
+    phi_mem_mu ~ normal(0, 0.1);
     phi_mem_sigma ~ normal(0, 0.1);
     rho_biomass_mu ~ normal(300, 100);
     rho_biomass_sigma ~ normal(0, 10);
-    k ~ std_normal();
+    k ~ lognormal(6, 2);
 
     // Likelihoods
     m_peri ~ normal(m_peri_mu, m_peri_sigma);
@@ -70,7 +70,7 @@ generated quantities {
     real<lower=0> phi_mem_rep = normal_rng(phi_mem_mu, phi_mem_sigma);
     real<lower=0> rho_biomass_rep = normal_rng(rho_biomass_mu, rho_biomass_sigma);
     real<lower=0> m_peri_rep = normal_rng(m_peri_mu, m_peri_sigma);
-    // real<lower=0> rho_mem = rho_biomass_rep / k;
+    real<lower=0> rho_mem = rho_biomass_rep / k;
 
     // Simulated PPCs
     vector<lower=0>[N_ppc] width_rep;
@@ -78,9 +78,9 @@ generated quantities {
     vector<lower=0>[N_ppc] vol_rep;
     vector<lower=0>[N_ppc] rho_peri_rep;
     for (i in 1:N_ppc) {
-        width_rep[i] = (12 * sa_prefactor * alpha_mu) * (1 + phiRb_range[i] ./ beta_rp) ./ (k * (3 * alpha_mu - 1) * phi_mem_mu);
+        width_rep[i] = normal_rng((12 * sa_prefactor * alpha_mu) * (1 + phiRb_range[i] ./ beta_rp) ./ (k * (3 * alpha_mu - 1) * phi_mem_mu), width_sigma);
         ell_rep[i] = alpha_mu * width_rep[i];
         vol_rep[i] = pi() * width_rep[i]^3 * (3 * alpha_mu - 1) / 12;
-        rho_peri_rep[i] = m_peri_mu / (pi() * alpha_mu * width_rep[i]^3 * delta);
+        rho_peri_rep[i] = m_peri_mu / (pi() * alpha_mu * width_rep[i]^2 * delta);
     }
 }
