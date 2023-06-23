@@ -241,3 +241,61 @@ for i, par in enumerate(ppcs):
 plt.tight_layout()
 plt.savefig(
     f'../../figures/FigX_{loc}_restricted_inference.pdf', bbox_inches='tight')
+# %%
+shift_data = pd.read_csv('../../data/literature/woldringh1980_upshift.csv')
+# %%
+# Shift dynamics
+lam_pre = np.log(2) / (72/60)  # Preshift with doubling time of 72 min
+lam_post = np.log(2) / (24/60)  # Postshift with doubling time of 24 min
+
+# Estimate the phiRb given linear relation
+phiRb_pre = phiRb_popt[1] + phiRb_popt[0] * lam_pre
+phiRb_post = phiRb_popt[1] + phiRb_popt[0] * lam_post
+
+# Estimate nu max based on this
+nu_pre = size.fluxparity.estimate_nu_FPM(
+    phiRb_pre, lam_pre, const, const['phi_O']*1.1)
+nu_post = size.fluxparity.estimate_nu_FPM(
+    phiRb_post, lam_post, const, const['phi_O'])
+
+# %%
+preshift = {'gamma_max': const['gamma_max'],
+            'nu_max': nu_pre,
+            'Kd_TAA': const['Kd_TAA'],
+            'Kd_TAA_star': const['Kd_TAA_star'],
+            'kappa_max': const['kappa_max'],
+            'phi_O': 1.1 * const['phi_O'],
+            'tau': const['tau']}
+postshift = {'gamma_max': const['gamma_max'],
+             'nu_max': nu_post,
+             'Kd_TAA': const['Kd_TAA'],
+             'Kd_TAA_star': const['Kd_TAA_star'],
+             'kappa_max': const['kappa_max'],
+             'phi_O': const['phi_O'],
+             'tau': const['tau']}
+
+df = size.fluxparity.nutrient_shift_FPM([preshift, postshift])
+
+df['Rb_content'] = df['M_Rb'] / df['M']
+alpha = float(np.mean(samples.posterior.alpha_mu).values)
+k = float(np.mean(samples.posterior.k).values)
+phi_mem = float(np.mean(samples.posterior.phi_mem_mu).values)
+pref = (12 * alpha * sa[loc]) / (k * phi_mem * (3 * alpha - 1))
+df['width'] = pref * (1 + df['Rb_content'].values / 0.4558)
+# %%
+fig, ax = plt.subplots(2, 1, figsize=(4, 3), sharex=True)
+ax[0].set_ylim([0, 0.25])
+ax[1].set_ylim([0.5, 1])
+ax[0].plot(df['shifted_time'], df['Rb_content'],
+           '--', lw=1, color=cor['primary_red'], label='flux-parity parity prediction')
+ax[1].plot(df['shifted_time'], df['width'],
+           '--', lw=1, color=cor['primary_red'], label='density maintenance prediction')
+ax[1].plot(shift_data['time_hr'], shift_data['width_um'], 'o', ms=4,
+           markeredgecolor=cor['primary_black'], color=cor['light_black'], alpha=0.5,
+           markeredgewidth=0.25, label='Woldringh 1980')
+
+ax[0].legend(fontsize=6)
+ax[1].legend(fontsize=6)
+ax[1].set_xlabel('time from upshift [hr]', fontsize=6)
+ax[0].set_ylabel('ribosome content', fontsize=6)
+ax[1].set_ylabel('cell width [µm]', fontsize=6)

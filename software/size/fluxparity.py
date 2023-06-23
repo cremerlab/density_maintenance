@@ -1,20 +1,24 @@
 import numpy as np
 import pandas as pd
+import scipy.integrate
+import tqdm
+
 
 def load_constants():
     """Returns constants frequently used in this work"""
-    params =  {'vtl_max': 20 ,  #Max translation speed in AA/s
-                  'm_Rb': 7459, # Proteinaceous mass of ribosome  in AA
-                  'Kd_cpc': 0.03, # precursor dissociation constant in abundance units 
-                  'Kd_cnt': 5E-4, # Nutrient monod constant in M
-                  'Y': 2.95E19, # Yield coefficient in  precursor mass per nutrient mass nutrient per L 
-                  'OD_conv': 1.5E17, # Conversion factor from OD to AA mass.
-                  'Kd_TAA': 3E-5, # uncharged tRNA dissociation constant in abundance units
-                  'Kd_TAA_star': 3E-5, # Charged tRNA dissociation constant in abundance units
-                  'kappa_max': (64 * 5 * 3600) / 1E9, # Maximum tRNA synthesis rate  in abundance units per unit time
-                  'tau': 1, # ppGpp threshold parameter for charged/uncharged tRNA balance
-                  'phi_O': 0.55,
-                } 
+    params = {'vtl_max': 20,  # Max translation speed in AA/s
+              'm_Rb': 7459,  # Proteinaceous mass of ribosome  in AA
+              'Kd_cpc': 0.03,  # precursor dissociation constant in abundance units
+              'Kd_cnt': 5E-4,  # Nutrient monod constant in M
+              'Y': 2.95E19,  # Yield coefficient in  precursor mass per nutrient mass nutrient per L
+              'OD_conv': 1.5E17,  # Conversion factor from OD to AA mass.
+              'Kd_TAA': 3E-5,  # uncharged tRNA dissociation constant in abundance units
+              'Kd_TAA_star': 3E-5,  # Charged tRNA dissociation constant in abundance units
+              # Maximum tRNA synthesis rate  in abundance units per unit time
+              'kappa_max': (64 * 5 * 3600) / 1E9,
+              'tau': 1,  # ppGpp threshold parameter for charged/uncharged tRNA balance
+              'phi_O': 0.55,
+              }
     params['gamma_max'] = params['vtl_max'] * 3600 / params['m_Rb']
     return params
 
@@ -96,7 +100,7 @@ def self_replicator(params,
     # Resource allocation
     dM_Rb_dt = phi_Rb * dM_dt
     dM_Mb_dt = phi_Mb * dM_dt
-         
+
     # Precursor dynamics
     if dil_approx:
         dc_pc_dt = (nu * M_Mb - dM_dt) / M
@@ -136,9 +140,11 @@ def steady_state_precursors(gamma_max, phi_Rb, nu_max, Kd_cpc, phi_O=0):
     that the nutritional capacy is equal to its maximal value. 
 
     """
-    ss_lam = steady_state_growth_rate(gamma_max, phi_Rb, nu_max, Kd_cpc, phi_O=phi_O)
+    ss_lam = steady_state_growth_rate(
+        gamma_max, phi_Rb, nu_max, Kd_cpc, phi_O=phi_O)
     cpc = (nu_max * (1 - phi_Rb - phi_O) / ss_lam) - 1
     return cpc
+
 
 def steady_state_growth_rate(gamma_max, phi_Rb, nu_max, Kd_cpc, phi_O=0):
     """
@@ -169,10 +175,12 @@ def steady_state_growth_rate(gamma_max, phi_Rb, nu_max, Kd_cpc, phi_O=0):
     """
     Nu = nu_max * (1 - phi_Rb - phi_O)
     Gamma = gamma_max * phi_Rb
-    numer = Nu + Gamma - np.sqrt((Nu + Gamma)**2 - 4 * (1 - Kd_cpc) * Nu * Gamma)
+    numer = Nu + Gamma - \
+        np.sqrt((Nu + Gamma)**2 - 4 * (1 - Kd_cpc) * Nu * Gamma)
     denom = 2 * (1 - Kd_cpc)
     lam = numer / denom
     return lam
+
 
 def steady_state_gamma(gamma_max, phi_Rb, nu_max, Kd_cpc, phi_O=0):
     """
@@ -196,7 +204,8 @@ def steady_state_gamma(gamma_max, phi_Rb, nu_max, Kd_cpc, phi_O=0):
         The translational efficiency in units of inverse time
     """
 
-    c_pc = steady_state_precursors(gamma_max, phi_Rb, nu_max, Kd_cpc, phi_O=phi_O)
+    c_pc = steady_state_precursors(
+        gamma_max, phi_Rb, nu_max, Kd_cpc, phi_O=phi_O)
     return gamma_max * (c_pc / (c_pc + Kd_cpc))
 
 
@@ -222,9 +231,11 @@ def phiRb_optimal_allocation(gamma_max, nu_max, Kd_cpc, phi_O=0):
     """
     numer = nu_max * (-2 * Kd_cpc * gamma_max + gamma_max + nu_max) +\
         np.sqrt(Kd_cpc * gamma_max * nu_max) * (gamma_max - nu_max)
-    denom = -4 * Kd_cpc * gamma_max * nu_max + gamma_max**2 + 2 * gamma_max * nu_max + nu_max**2
+    denom = -4 * Kd_cpc * gamma_max * nu_max + \
+        gamma_max**2 + 2 * gamma_max * nu_max + nu_max**2
     phi_Rb_opt = (1 - phi_O) * numer / denom
     return phi_Rb_opt
+
 
 def phiRb_constant_translation(gamma_max, nu_max, cpc_Kd, Kd_cpc, phi_O=0):
     """
@@ -246,6 +257,7 @@ def phiRb_constant_translation(gamma_max, nu_max, cpc_Kd, Kd_cpc, phi_O=0):
     """
     c_pc = cpc_Kd * Kd_cpc
     return (1 - phi_O) * nu_max * (c_pc + Kd_cpc) / (nu_max * (c_pc + Kd_cpc) + gamma_max * c_pc * (c_pc + 1))
+
 
 def self_replicator_FPM(params,
                         time,
@@ -300,7 +312,7 @@ def self_replicator_FPM(params,
                 to the metabolic machinery. 
             Y : float [0, inf)
                 The yield coefficient of turning nutrients into precursors.
-        
+
         dynamic_phiRb: bool or dict
             If True, phiRb will dynamically adjusted in reponse to charged/uncharged
             tRNA balance. If a dictionary is provided, seeded phiRb will be used.  
@@ -321,7 +333,7 @@ def self_replicator_FPM(params,
         dil_approx: bool
             If True, then the approximation is made that the dilution of charged-tRNAs
             with growing biomass is negligible.
-  
+
     Returns
     -------
     out: list, [dM_dt, dM_Rb_dt, dM_Mb_dt, (dc_nt_dt), dT_AA_dt, dT_AA_star_dt]
@@ -354,7 +366,8 @@ def self_replicator_FPM(params,
 
     fa = 1
     if 'antibiotic' in args.keys():
-       fa -= args['antibiotic']['c_drug'] / (args['antibiotic']['c_drug'] + args['antibiotic']['Kd_drug'])
+        fa -= args['antibiotic']['c_drug'] / \
+            (args['antibiotic']['c_drug'] + args['antibiotic']['Kd_drug'])
 
     # Biomass accumulation
     dM_dt = fa * gamma * M_Rb
@@ -383,22 +396,21 @@ def self_replicator_FPM(params,
         dcnt_dt = -nu * M_Mb / args['nutrients']['Y']
         out = [dM_dt, dM_Rb_dt, dM_Mb_dt, dcnt_dt, dT_AA_dt, dT_AA_star_dt]
     else:
-        out = [dM_dt, dM_Rb_dt, dM_Mb_dt, dT_AA_dt, dT_AA_star_dt]     
+        out = [dM_dt, dM_Rb_dt, dM_Mb_dt, dT_AA_dt, dT_AA_star_dt]
     return out
 
 
-  
 def self_replicator_ppGpp_chlor(params,
-                          time,
-                          gamma_max,
-                          nu_max, 
-                          tau, 
-                          Kd_TAA,
-                          Kd_TAA_star,
-                          kappa_max,
-                          phi_O,
-                          c_ab,
-                          Kd_cab):
+                                time,
+                                gamma_max,
+                                nu_max,
+                                tau,
+                                Kd_TAA,
+                                Kd_TAA_star,
+                                kappa_max,
+                                phi_O,
+                                c_ab,
+                                Kd_cab):
     """
     Defines the system of ordinary differenetial equations (ODEs) which describe 
     the self-replicator model with ppGpp regulation.
@@ -456,11 +468,11 @@ def self_replicator_ppGpp_chlor(params,
         dT_AA_dt : The dynamics of the uncharged tRNA concentration.
         dT_AA_star_dt : The dynamics of the uncharged tRNA concentration.
     """
-    # Unpack the parameters 
+    # Unpack the parameters
     M, M_Rb, M_Mb, T_AA, T_AA_star = params
 
     # Compute the capacities
-    gamma = gamma_max * (T_AA_star / (T_AA_star + Kd_TAA_star)) 
+    gamma = gamma_max * (T_AA_star / (T_AA_star + Kd_TAA_star))
     nu = nu_max * (T_AA / (T_AA + Kd_TAA))
     fa = 1 - (c_ab / (c_ab + Kd_cab))
 
@@ -480,6 +492,257 @@ def self_replicator_ppGpp_chlor(params,
     dT_AA_star_dt = (nu * M_Mb - dM_dt * (1 + T_AA_star)) / M
     dT_AA_dt = kappa + (dM_dt * (1 - T_AA) - nu * M_Mb) / M
     out = [dM_dt, dM_Rb_dt, dM_Mb_dt, dT_AA_dt, dT_AA_star_dt]
-     
+
     return out
 
+
+def equilibrate_FPM(args,
+                    tol=3,
+                    max_iter=50,
+                    dt=0.0001,
+                    t_return=1):
+    """
+    Numerically integrates the flux-parity model until steady-state is reached. 
+
+    Parameters 
+    -----------
+    args: dict
+        Dictionary of arguments to be passed to the system of ODES via 
+        scipy.integrate.odeint. See documentation for self_replicator_FPM
+        for documentation on args.
+    tol: int 
+        Absolute tolerance for finding equilibrium. Corresponds to the decimal
+        limit of the ratio of precursor concentrations between successive time 
+        steps. Default is 3 decimal places
+    max_iter: int
+        The maximum number of interations over which to run the integration. Default 
+        is 10 iterations.
+    dt: float
+        Size of timestep to be taken. Default is 0.0001 time units
+    t_return: int
+        The number of final N time points to return. Default is 1, returning 
+        the final time step
+
+    Returns
+    -------
+    out: list or list of lists
+        Returns the number of elements of the integrator for the final  
+        time point or points, given the value of t_return. 
+    """
+    M0 = 1E9
+    alloc_space = (1 - args['phi_O']) / 2
+    phi_Rb = alloc_space
+    phi_Mb = alloc_space
+    if 'nutrients' in args.keys():
+        init_params = [M0, phi_Rb * M0, phi_Mb * M0,
+                       args['nutrients']['c_nt'], 1E-5, 1E-5]
+    else:
+        init_params = [M0, phi_Rb * M0, phi_Mb * M0, 1E-5, 1E-5]
+
+    iterations = 1
+    converged = False
+    max_time = 200
+    while (iterations <= max_iter) & (converged == False):
+        time = np.arange(0, max_time, dt)
+        out = scipy.integrate.odeint(self_replicator_FPM,
+                                     init_params,
+                                     time,
+                                     args=(args,))
+
+        # Determine if a steady state has been reached
+        ratio = out[-1][-1] / out[-1][-2]
+        MRb_M = out[-1][1] / out[-1][0]
+        if 'phiRb' not in args.keys():
+            phiRb = (1 - args['phi_O']) * ratio / (ratio + args['tau'])
+        else:
+            phiRb = args['phiRb']
+        ribo_ratio = MRb_M / phiRb
+        if np.round(ribo_ratio, decimals=tol) == 1:
+            converged = True
+        else:
+            MRb_M = out[-1][1]/out[-1][0]
+            MMb_M = out[-1][2]/out[-1][0]
+            init_params = [M0, MRb_M * M0, MMb_M *
+                           M0, out[-1][-2], out[-1][-1]]
+            # max_time += 10
+            iterations += 1
+
+        if iterations == max_iter:
+            print(
+                f'Steady state was not reached (ratio of Mrb_M / phiRb= {np.round(ribo_ratio, decimals=tol)}. Returning output anyway.')
+    if t_return != 1:
+        return out[-t_return:]
+    else:
+        return out[-1]
+
+
+def compute_nu(gamma_max,
+               Kd,
+               phiRb,
+               lam,
+               phi_O):
+    """
+    Estimates the metabolic rate given measured params under the simple
+    self-replication model.
+    """
+    return (lam / (1 - phiRb - phi_O)) * (((lam * Kd)/(gamma_max * phiRb - lam)) + 1)
+
+
+def estimate_nu_FPM(phiRb,
+                    lam,
+                    const,
+                    phi_O,
+                    nu_buffer=1,
+                    dt=0.0001,
+                    tol=2,
+                    guess=False,
+                    verbose=False):
+    """
+    Integrates the FPM model to find the metabolic rate which yields a given 
+    growth rate. 
+
+    Parameters
+    ----------
+    phiRb: float, [0, 1)
+        The desired allocation parameter towards ribosomal proteins
+    lam: float [0, inf)
+        The desired steady-state growth rate in units of invers time.
+    const: dict
+        A dictionary of model constants to be used.
+    phi_O : float [0, 1)
+        The allocation parameter towards other proteins.
+    nu_buffer: int
+        After estimating the metabolic rate under the simple model, a new 
+        range of metabolic rates is defined with bounds of +/- nu_buffer. If 
+        nu_buffer - 1 < 0, a value of 0.00001 is used.
+    dt : float
+        The timestep over which to integrate.
+    tol : 2
+        The decimal tolerance in difference between desired and realized growth 
+        rate.
+    guess : float [0, inf)
+        Your best guess at finding nu. If not provided, the optimal allocation 
+        will be used to estimate it.
+    verbose: bool
+        If True, progess will be pushed to console.
+
+    Returns
+    -------
+    nu: float, [0, inf)
+        Returns the metabolic rate which yields a growth rate with the 
+        tolerance. If the tolerance is not met, the closest value will be
+        returned.
+    """
+    if guess == False:
+        nu = compute_nu(const['gamma_max'], const['Kd_cpc'], phiRb, lam, phi_O)
+    else:
+        nu = guess
+    lower = nu - nu_buffer
+    if lower <= 0:
+        lower = 0.001
+    upper = nu + nu_buffer
+    nu_range = np.linspace(lower, upper, 400)
+    converged = False
+    ind = 0
+    diffs = []
+    if verbose:
+        iterator = enumerate(tqdm.tqdm(nu_range))
+    else:
+        iterator = enumerate(nu_range)
+    for _, n in iterator:
+        args = {'gamma_max': const['gamma_max'],
+                'nu_max': n,
+                'tau': const['tau'],
+                'Kd_TAA': const['Kd_TAA'],
+                'Kd_TAA_star': const['Kd_TAA_star'],
+                'kappa_max': const['kappa_max'],
+                'phi_O':  phi_O}
+
+        out = equilibrate_FPM(args, dt=dt, tol=tol, t_return=2)
+        gr = np.log(out[1][0] / out[0][0]) / dt
+        diff = np.round(gr / lam, decimals=tol)
+        diffs.append(diff)
+
+        if diff == 1:
+            converged = True
+            break
+    if converged:
+        return n
+    else:
+        diffs = np.array(diffs)
+        print('Metabolic rate not found over range. Try rerunning over a larger range.')
+        return nu_range[np.argmin(np.abs(diffs - 1))]
+
+
+def nutrient_shift_FPM(args,
+                       shift_time=2,
+                       total_time=10,
+                       dt=0.001):
+    """
+    Performs a simple nutrient upshift under flux-parity allocation given 
+    arguments for integration. 
+
+    Parameters 
+    -----------
+    args: list of dictionaries
+        A list of dictionaries that are passed to the `self_replicator_FPM`
+        function in the `model` submodule. 
+    shift_time : float
+        Time at which the shift whould be applied.
+    total_time : float
+        The total time the integration should be run
+    dt : float
+        The time step for the integration.
+
+    Returns
+    -------
+    df : pandas DataFrame
+        A pandas DataFrame of teh shift with columns corresponding to 
+        the total biomass `M`, total ribosomal biomass `M_Rb`, 
+        total metabolic biomass `M_Mb`, uncharged-tRNA concentration `TAA`,
+        and the charged-tRNA concentration `TAA_star`. Details of the 
+        shift and time are also provided as columns.
+    """
+    cols = ['M', 'M_Rb', 'M_Mb', 'TAA', 'TAA_star']
+
+    # Set the timespans
+    preshift_time = np.arange(0, shift_time, dt)
+    postshift_time = np.arange(shift_time - dt, total_time, dt)
+
+    # Equilibrate
+    preshift_out = equilibrate_FPM(args[0])
+    eq_phiRb_preshift = preshift_out[1] / preshift_out[0]
+    eq_phiMb_preshift = preshift_out[2] / preshift_out[0]
+    eq_TAA_preshift = preshift_out[-2]
+    eq_TAA_star_preshift = preshift_out[-1]
+
+    # Pack the params
+    M0 = 1
+    init_params = [M0,
+                   M0 * eq_phiRb_preshift,
+                   M0 * eq_phiMb_preshift,
+                   eq_TAA_preshift,
+                   eq_TAA_star_preshift]
+    init_args = (args[0],)
+    shift_args = (args[1],)
+
+    # Integrate the shifts
+    preshift_out = scipy.integrate.odeint(self_replicator_FPM,
+                                          init_params,
+                                          preshift_time,
+                                          args=init_args)
+    shift_params = preshift_out[-1]
+    postshift_out = scipy.integrate.odeint(self_replicator_FPM,
+                                           shift_params,
+                                           postshift_time,
+                                           args=shift_args)
+    postshift_out = postshift_out[1:]
+
+    # Form dataframes
+    preshift_df = pd.DataFrame(preshift_out, columns=cols)
+    preshift_df['time'] = preshift_time
+    postshift_df = pd.DataFrame(postshift_out, columns=cols)
+    postshift_df['time'] = postshift_time[1:]
+    df = pd.concat([preshift_df, postshift_df], sort=False)
+    df['shifted_time'] = df['time'].values - shift_time
+    return df
