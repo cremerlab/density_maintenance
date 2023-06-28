@@ -28,7 +28,7 @@ wt_data = wt_data[(wt_data['strain'] == 'wildtype') &
 model = pd.read_csv('../../data/mcmc/literature_model_params.csv')
 model = model[(model['volume_scale'] == 'linear_width')
               & (model['model'] == 'const_phi_mem')]
-
+richa = pd.read_csv('../../data/literature/rna_protein_measurements.csv')
 # %%
 width_popt = scipy.stats.linregress(
     size_data['growth_rate_hr'], size_data['width_um'])
@@ -548,3 +548,27 @@ ax.set_title('mass spectrometry\nconfirmation', fontsize=6)
 plt.savefig('../../figures/FigSX_MS_periplasm_validation_plots.pdf')
 
 # %%
+consts = size.fluxparity.load_constants()
+nu_range = np.linspace(0, 25, 500)
+opt = size.fluxparity.phiRb_optimal_allocation(
+    consts['gamma_max'], nu_range, consts['Kd_cpc'], consts['phi_O'])
+lam = size.fluxparity.steady_state_growth_rate(
+    consts['gamma_max'], opt, nu_range, consts['Kd_cpc'], consts['phi_O'])
+fig, ax = plt.subplots(1, 1, figsize=(1.5, 1.5))
+ax.set_xlim([-0.1, 2])
+ax.set_ylim([0, 0.6])
+ax.set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+ax.set_ylabel('RNA / protein', fontsize=6)
+for g, d in phiRb_data.groupby('source'):
+    _style = size.viz.style_point(g, alpha=0.45)
+    ax.plot(d['growth_rate_hr'], d['mass_fraction'] / 0.4558, **_style)
+
+ax.plot(richa['growth_rate_hr'], richa['rna_protein_ratio'], 'o', ms=4, color='w',
+        markeredgecolor=cor['primary_blue'], markeredgewidth=1)
+
+ax.plot(lam_range, (phiRb_popt[1] + phiRb_popt[0] *
+        lam_range) / 0.4558, '-', color=cor['primary_red'], lw=1)
+ax.plot(lam, opt/00.4558, '-', color=cor['primary_blue'], lw=1)
+
+plt.savefig('../../figures/FigXG_RNA-P_with_richa_data.pdf',
+            bbox_inches='tight')
