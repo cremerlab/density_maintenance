@@ -13,7 +13,7 @@ cor, pal = size.viz.matplotlib_style()
 mp.cpu_count()
 ROOT = '../../../../data/images'
 # Load images, convert to greyscale,and filter.
-dirs = np.sort(glob.glob(f'{ROOT}/*'))
+dirs = np.sort(glob.glob(f'{ROOT}/wildtype/2023*'))
 
 # %%
 size_df = pd.DataFrame([])
@@ -119,6 +119,8 @@ for direc in tqdm.tqdm(dirs):
             d, cells, splines, fname=fname, suptitle=suptitle)
         plt.close()
     print('done!')
+
+# %%
 
 # %%
 # Save the huge size dataframe
