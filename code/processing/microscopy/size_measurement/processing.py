@@ -13,7 +13,7 @@ cor, pal = size.viz.matplotlib_style()
 mp.cpu_count()
 ROOT = '../../../../data/images'
 # Load images, convert to greyscale,and filter.
-dirs = np.sort(glob.glob(f'{ROOT}/wildtype/2023*'))
+dirs = np.sort(glob.glob(f'{ROOT}/wildtype/2023-07-18*'))
 
 # %%
 size_df = pd.DataFrame([])
@@ -67,6 +67,8 @@ for direc in tqdm.tqdm(dirs):
             continue
         anatomy = size.image.assign_anatomy(
             objs, cap_radius=0.75, sept_radius=0.3)
+        if len(anatomy) == 0:
+            continue
         biometrics = size.image.measure_biometrics(anatomy, ip_dist=ip_dist)
 
         if len(biometrics) == 0:
@@ -119,6 +121,7 @@ for direc in tqdm.tqdm(dirs):
             d, cells, splines, fname=fname, suptitle=suptitle)
         plt.close()
     print('done!')
+
 
 # %%
 
