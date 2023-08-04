@@ -16,6 +16,7 @@
 
     // Variable for ppc simulation
     vector<lower=0>[N_ppc] phiRb; // Allocation towards ribosomes
+    vector<lower=0>[N_ppc] w_range;
     vector<lower=0>[N_ppc] lam;
 
 
@@ -81,6 +82,7 @@ generated quantities {
    // Vector PPC declaration
    vector<lower=0>[N_ppc] kappa; // Scaling constant for width
    vector<lower=0>[N_ppc] width_rep; // Average cell width
+   vector[N_ppc] rib_rep; // Average cell width
    vector<lower=0>[N_ppc] ell_rep; // Average cell length
    vector<lower=0>[N_ppc] vol_rep; // Average cell volume
    vector<lower=0>[N_ppc] rho_peri; // Average periplasmic protein density 
@@ -108,6 +110,7 @@ generated quantities {
    for (i in 1:N_ppc) { 
         kappa[i] = (SA_prefactor * alpha_mu_0[i] / (3 * alpha_mu_0[i] - 1)) * (rho_mem_mu / rho_biomass_mu);
         width_rep[i] = kappa[i] * (1 + phiRb[i] / beta_rp) / phi_mem_mu;
+        rib_rep[i] = (w_range[i] * phi_mem_mu / kappa[i]) - 1; 
         rho_peri[i] = m_peri_mu / (pi() * alpha_mu_0[i] * width_rep[i]^2 * delta);
         ell_rep[i] = alpha_mu_0[i] * width_rep[i];
         vol_rep[i] = (pi() / 12) * width_rep[i]^3 * (3 * alpha_mu_0[i]  - 1);
