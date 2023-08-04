@@ -3,6 +3,7 @@ data {
     int<lower=0> N_phiRb;
     int<lower=0> N_ms;
     int<lower=0> N_biomass;
+    int<lower=0> N_dna;
     int<lower=0> N_size;
     int<lower=0> N_ppc;
 
@@ -10,6 +11,8 @@ data {
     vector<lower=0>[N_prot] prot_per_cell_lam;
     vector<lower=0>[N_phiRb] phiRb;
     vector<lower=0>[N_phiRb] phiRb_lam;
+    vector<lower=0>[N_dna] dna_to_protein;
+    vector<lower=0>[N_dna] dna_lam;
     vector<lower=0>[N_ms] phi_mem;
     vector<lower=0>[N_ms] rho_mem;
     vector<lower=0>[N_ms] m_peri;
@@ -39,6 +42,8 @@ parameters {
     real<lower=0> rho_biomass_centered_sigma;
     real<lower=0> m_peri_mu;
     real<lower=0> m_peri_sigma;
+    real<lower=0> dna_mu;
+    real<lower=0> dna_sigma;
 
     // Relationships
     real<lower=0> prot_per_cell_slope;
@@ -56,6 +61,7 @@ parameters {
     real<lower=0> vol_slope;
     real vol_intercept;
     real<lower=0> vol_sigma;
+
 
 }
 
@@ -91,6 +97,11 @@ model {
     m_peri_mu ~ normal(0, 10);
     m_peri_sigma ~ std_normal();
     m_peri ~ normal(m_peri_mu, m_peri_sigma);
+
+    // DNA to protein ratio
+    dna_mu ~ std_normal();
+    dna_sigma ~ std_normal();
+    dna_to_protein ~ normal(dna_mu, dna_sigma);
 
     // Protein per cell
     prot_per_cell_slope ~ std_normal();
@@ -137,6 +148,7 @@ generated quantities {
     real rho_mem_rep = normal_rng(rho_mem_mu, rho_mem_sigma);
     real rho_biomass_rep = mean(rho_biomass) + sd(rho_biomass) * normal_rng(rho_biomass_centered_mu, rho_biomass_centered_sigma);
     real phi_mem_rep = normal_rng(phi_mem_mu, phi_mem_sigma);
+    real dna_to_protein_rep = normal_rng(dna_mu, dna_sigma);
 
     for (i in 1:N_ppc) {
         phiRb_sim[i] = phiRb_intercept + phiRb_slope * lam_range[i];
@@ -147,7 +159,7 @@ generated quantities {
         prot_per_cell_rep[i] = exp(normal_rng(log(prot_per_cell_sim[i]), prot_per_cell_sigma));
         phi_peri_sim[i] = m_peri_mu / prot_per_cell_sim[i]; 
         phi_peri_rep[i] = normal_rng(phi_peri_sim[i], phi_mem_sigma);
-        width_pred_sim[i] = 0.0245 * alpha_mu + ((24 * alpha_mu / (3 * alpha_mu - 1)) * (1/(kappa * phi_mem_mu)) * (1 + (phiRb_range[i]/0.4558) - phi_mem_mu - phi_peri_sim[i]));
+        width_pred_sim[i] = 0.0245 * alpha_mu + ((24 * alpha_mu / (3 * alpha_mu - 1)) * (1/(kappa * phi_mem_mu)) * (1 + (phiRb_range[i]/0.4558) - phi_mem_mu - phi_peri_sim[i] - dna_mu));
         width_pred_rep[i] = normal_rng(width_pred_sim[i], width_sigma);
         rho_peri_sim[i] = m_peri_mu / (pi() * alpha_mu * width_pred_sim[i]^2 * 0.0245);
         rho_peri_rep[i] = normal_rng(rho_peri_sim[i], rho_mem_sigma);
