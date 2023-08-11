@@ -1,5 +1,4 @@
 # %%
-
 import scipy.stats
 import numpy as np
 import pandas as pd
@@ -13,7 +12,6 @@ model = cmdstanpy.CmdStanModel(stan_file='./width_scaling_periplasm.stan')
 
 # %%
 ms_data = pd.read_csv(
-
     '../../data/literature/collated_mass_fractions_empirics.csv')
 phiRb_data = pd.read_csv(
     '../../data/literature/Chure2023/chure2023_collated_mass_fractions.csv')

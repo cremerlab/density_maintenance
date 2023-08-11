@@ -159,7 +159,7 @@ generated quantities {
         prot_per_cell_rep[i] = exp(normal_rng(log(prot_per_cell_sim[i]), prot_per_cell_sigma));
         phi_peri_sim[i] = m_peri_mu / prot_per_cell_sim[i]; 
         phi_peri_rep[i] = normal_rng(phi_peri_sim[i], phi_mem_sigma);
-        width_pred_sim[i] = 0.0245 * alpha_mu + ((24 * alpha_mu / (3 * alpha_mu - 1)) * (1/(kappa * phi_mem_mu)) * (1 + (phiRb_range[i]/0.4558) - phi_mem_mu - phi_peri_sim[i] - dna_mu));
+        width_pred_sim[i] = (24 * alpha_mu / (kappa * phi_mem_mu * (3 * alpha_mu - 1))) * (1 + dna_mu + (phiRb_range[i]/0.4558) - phi_mem_mu - phi_peri_sim[i]);
         width_pred_rep[i] = normal_rng(width_pred_sim[i], width_sigma);
         rho_peri_sim[i] = m_peri_mu / (pi() * alpha_mu * width_pred_sim[i]^2 * 0.0245);
         rho_peri_rep[i] = normal_rng(rho_peri_sim[i], rho_mem_sigma);
