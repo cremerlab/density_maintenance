@@ -57,4 +57,6 @@ for i, f in enumerate(tqdm.tqdm(files)):
     counts = pd.concat([counts, _df], sort=False)
 
 # %%
-counts.to_csv('../../../data/summaries/flow_cytometry_counts.csv', index=False)
+counts = counts[counts['strain'] == 'wildtype']
+counts.to_csv(
+    '../../../data/summaries/summarized_cell_counts.csv', index=False)

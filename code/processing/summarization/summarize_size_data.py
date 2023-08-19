@@ -31,11 +31,6 @@ data = data[(data['width_median'] >= 0.25) & (data['width_median'] <= 1.8) &
 data.loc[data['inducer'].str.lower() == 'noind', 'inducer'] = 'none'
 
 # %%
-# Drop ATC induction samples
-data = data[(data['inducer'] != 'atc') & (
-    data['inducer_conc'].isin([0, 2, 4, 5, 6, 10, 20, 30, 50, 100]))]
-
-# %%
 data = data.groupby(['date', 'run_no', 'carbon_source', 'strain',
                      'overexpression', 'inducer', 'inducer_conc', 'temperature_C'])[
     ['width_median', 'length', 'volume',

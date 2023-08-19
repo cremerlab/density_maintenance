@@ -93,8 +93,10 @@ def lit_mapper():
         'Zhu & Dai 2019': {'m': '.'}
     }
     # Set colors rooted in blue
-    cmap = sns.color_palette(f"light:{colors['black']}",
-                             n_colors=len(mapper)).as_hex()
+    # cmap = sns.color_palette('bone_r',
+    #  n_colors=len(mapper)).as_hex()
+    cmap = sns.cubehelix_palette(
+        start=0.5, rot=-0.5, n_colors=len(mapper)).as_hex()
     rng.shuffle(cmap)
     counter = 0
     for k, _ in mapper.items():
