@@ -15,3 +15,4 @@
 *.netcdf
 *.fcs
 *.tmp
+*.hpp

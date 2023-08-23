@@ -58,5 +58,9 @@ for i, f in enumerate(tqdm.tqdm(files)):
 
 # %%
 counts = counts[counts['strain'] == 'wildtype']
-counts.to_csv(
-    '../../../data/summaries/summarized_cell_counts.csv', index=False)
+# counts = counts[['date', 'strain', 'run_no',
+#  'carbon_source', 'cells_per_biomass']]
+counts = counts.groupby(
+    ['date', 'strain', 'carbon_source', 'run_no']).mean().reset_index()
+# counts.to_csv(
+# '../../../data/summaries/summarized_cell_counts.csv', index=False)

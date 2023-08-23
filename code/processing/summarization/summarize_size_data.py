@@ -5,6 +5,7 @@ import pandas as pd
 # Load the data
 data = pd.read_csv(
     '../../processing/microscopy/size_measurement/output/compiled_size_measurements.csv')
+data.loc[data['overexpression'] == 'mesh1', 'overexpression'] = 'meshI'
 # %%
 data['delta'] = 0.0246
 data.loc[data['strain'] == 'lpp14', 'delta'] = 0.0276

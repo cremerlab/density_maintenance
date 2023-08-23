@@ -17,3 +17,9 @@ wildtype,none,3,0,acetate,309.69085300950206
 wildtype,none,1,0,LB,271.0693308160269
 wildtype,none,2,0,LB,252.69884300721313
 wildtype,none,3,0,LB,239.78722329151609
+wildtype,relA,1,1,glucose,218.4253368598626
+wildtype,relA,2,1,glucose,177.9949112985691
+wildtype,relA,3,1,glucose,219.66539726358099
+wildtype,meshI,1,100,glucose,203.28457620786412
+wildtype,meshI,2,100,glucose,201.5318910631705
+wildtype,meshI,3,100,glucose,202.6266744236713
