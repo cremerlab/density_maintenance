@@ -85,6 +85,7 @@ data_dict = {
     'lengths': sizes['length'].values,
     'volumes': sizes['volume'].values,
     'surface_areas': sizes['surface_area'].values,
+    'surface_to_volumes': sizes['surface_to_volume'].values,
     'aspect_ratios': sizes['aspect_ratio'].values,
 
     'N_flow': len(flow),
@@ -147,10 +148,10 @@ plt.savefig('../../../figures/mcmc/wildtype_protein_flow_growth_ppcs.pdf',
             bbox_inches='tight')
 
 # %% Plot PPC for size params
-fig, ax = plt.subplots(5, 1, figsize=(3, 6), sharex=True)
+fig, ax = plt.subplots(6, 1, figsize=(3, 6), sharex=True)
 # Plot PPC distributions for non-size parameters
-units = ['[µm]', '[µm]', '', '[µm$^2$]', '[µm$^3$]']
-for i, q in enumerate(['width', 'length', 'aspect_ratio', 'surface_area', 'volume']):
+units = ['[µm]', '[µm]', '', '[µm$^2$]', '[µm$^3$]', '[µm$^{-1}$]']
+for i, q in enumerate(['width', 'length', 'aspect_ratio', 'surface_area', 'volume', 'surface_to_volume']):
     ppc = samples.posterior[f'{q}_ppc'].to_dataframe().reset_index()
     for g, d in ppc.groupby(f'{q}_ppc_dim_0'):
         ax[i].plot(1 + np.ones_like(d[::3]) * g, d[f'{q}_ppc'].values[::3] / mod,
@@ -159,11 +160,11 @@ for i, q in enumerate(['width', 'length', 'aspect_ratio', 'surface_area', 'volum
     ax[i].set_title(q, fontsize=6)
     ax[i].set_ylabel(f"{q.replace('_', ' ')} {units[i]}", fontsize=6)
 for g, d in sizes.groupby(['carbon_source']):
-    for i, v in enumerate(['width_median', 'length', 'aspect_ratio', 'surface_area', 'volume']):
+    for i, v in enumerate(['width_median', 'length', 'aspect_ratio', 'surface_area', 'volume', 'surface_to_volume']):
         ax[i].plot(np.ones_like(d) * mapper[g], d[v], '_',
                    markeredgecolor=cor['primary_red'], markeredgewidth=0.5)
-ax[4].set_xticks(list(mapper.values()))
-ax[4].set_xticklabels(mapper.keys(), fontsize=6)
+ax[5].set_xticks(list(mapper.values()))
+ax[5].set_xticklabels(mapper.keys(), fontsize=6)
 plt.savefig('../../../figures/mcmc/wildtype_size_ppcs.pdf',
             bbox_inches='tight')
 

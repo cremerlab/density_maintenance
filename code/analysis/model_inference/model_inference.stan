@@ -79,7 +79,7 @@ transformed parameters {
     // Undoing log transforms
     real<lower=0> rho_bio = exp(log_rho_bio);
     real<lower=0> kappa = exp(log_kappa);
-    real<lower=1> alpha_mu= 1 + alpha_zeroed;
+    real<lower=1> alpha_mu = 1 + alpha_zeroed;
 
 }
 

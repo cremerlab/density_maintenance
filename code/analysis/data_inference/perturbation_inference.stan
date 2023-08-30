@@ -3,8 +3,12 @@ data {
     int<lower=1> J_pert;
 
     // Literature data for biomass density
-    int<lower=0> N_drymass;
-    vector<lower=0>[N_drymass] drymass_density;
+    int<lower=0> N_drymass_density;
+    vector<lower=0>[N_drymass_density] drymass_density;
+
+    // Literature data for total biomass
+    int<lower=0> N_drymass_total;
+    vector<lower=0>[N_drymass_total] total_drymass;
 
     // Perturbation sizes
     int<lower=1> N_sizes;
@@ -76,6 +80,15 @@ parameters {
     real<lower=0> drymass_density_mu;
     real<lower=0> drymass_density_sigma;
 
+    // Total biomass parameters
+    real<lower=0> total_drymass_mu;
+    real<lower=0> total_drymass_sigma;
+
+
+}
+
+transformed parameters {
+    vector[J_pert] aspect_ratio_mu = 1 + aspect_ratio_zeroed_mu;
 }
 
 model {
@@ -84,6 +97,11 @@ model {
     drymass_density_mu ~ normal(300, 100);
     drymass_density_sigma ~ normal(0, 10);
     drymass_density ~ normal(drymass_density_mu, drymass_density_sigma);
+
+    // Total drymass density
+    total_drymass_mu ~ normal(500, 100);
+    total_drymass_sigma ~ normal(0, 10);
+    total_drymass ~ normal(total_drymass_mu, total_drymass_sigma);
 
     // Total protein inference model
     prot_per_biomass_mu ~ normal(0, 300);
@@ -129,10 +147,11 @@ model {
 }
 
 generated quantities {
-    vector<lower=0>[J_pert] N_cells = ((rna_per_biomass_mu + prot_per_biomass_mu) ./ 0.8) ./ (volume_mu .* drymass_density_mu./1E9);
+    vector<lower=0>[J_pert] N_cells = total_drymass_mu ./ (volume_mu .* drymass_density_mu./1E9);
     vector<lower=0>[J_pert] phi_mem_mu = mem_per_biomass_mu ./ prot_per_biomass_mu; 
     vector<lower=0>[J_pert] rho_mem_mu = (1E9 .* mem_per_biomass_mu ./ (N_cells .* 2 .* surface_area_mu));
     vector<lower=0>[J_pert] phi_Rb_mu = 0.4558 .* rna_per_biomass_mu ./ prot_per_biomass_mu;
+    vector<lower=0>[J_pert] surface_to_volume_mu = surface_area_mu ./ volume_mu;
 
     // PPCs
     vector<lower=0>[J_pert] width_ppc;
@@ -144,6 +163,7 @@ generated quantities {
     vector<lower=0>[J_pert] rna_per_biomass_ppc;
     vector<lower=0>[J_pert] mem_per_biomass_ppc;
     vector<lower=0>[J_pert] growth_rates_ppc;
+    real<lower=0> total_drymass_ppc = normal_rng(total_drymass_mu, total_drymass_sigma);
     real<lower=0> drymass_density_ppc = normal_rng(drymass_density_mu, drymass_density_sigma); 
     
     for (i in 1:J_pert) {

@@ -24,8 +24,11 @@ growth = pd.read_csv(
     '../../../data/summaries/summarized_growth_measurements.csv')
 density = pd.read_csv(
     '../../../data/literature/collated_drymass_densities.csv')
-
+biomass = pd.read_csv(
+    '../../../data/literature/Basan2015/Basan2015_drymass_protein_cellcount.csv')
+biomass
 mapper = {1: 1, 100: 2}
+
 # Total protein
 prot = prot[prot['overexpression'].isin(['relA', 'meshI'])].copy()
 prot['idx'] = [mapper[i]
@@ -59,8 +62,11 @@ growth['idx'] = [mapper[i]
 data_dict = {
     'J_pert': len(mapper),
 
-    'N_drymass': len(density),
+    'N_drymass_density': len(density),
     'drymass_density': density['drymass_density_fg_fL'].values,
+
+    'N_drymass_total': len(biomass),
+    'total_drymass': biomass['dry_mass_ug'].values,
 
     'N_sizes': len(sizes),
     'size_idx': sizes['idx'].values,
@@ -131,6 +137,7 @@ ax[3].set_title('growth rates', fontsize=6)
 ax[3].set_ylabel('growth rate\n[hr$^{-1}$]', fontsize=6)
 ax[3].set_xticks([1, 2])
 ax[3].set_xticklabels(['relA, 1', 'meshI, 100'], fontsize=6)
+plt.savefig('../../../figures/mcmc/perturbation_protein_rna_growth_ppcs.pdf')
 
 # %%
 # %% Plot PPC for size params
@@ -152,3 +159,66 @@ for g, d in sizes.groupby(['idx']):
                    markeredgecolor=cor['primary_red'], markeredgewidth=0.5)
 ax[4].set_xticks(list(mapper.values()))
 ax[4].set_xticklabels(mapper.keys(), fontsize=6)
+plt.savefig('../../../figures/mcmc/perturbation_size_ppcs.pdf')
+
+# %%
+fig, ax = plt.subplots(2, 1, figsize=(3, 3), sharex=True)
+ax[0].set_ylim([100, 400])
+ax[1].set_ylim([450, 550])
+
+# Plot the ppcs
+density_ppc = samples.posterior.drymass_density_ppc.to_dataframe().reset_index()
+for v in density_ppc['drymass_density_ppc'].values[::3]:
+    ax[0].hlines(v, 0, 2.5, color='k', linewidth=0.1, alpha=0.25)
+
+
+biomass_ppc = samples.posterior.total_drymass_ppc.to_dataframe().reset_index()
+for v in biomass_ppc['total_drymass_ppc'].values[::3]:
+    ax[1].hlines(v, 0, 2.5, color='k', linewidth=0.1, alpha=0.25)
+
+
+for g, d in density.groupby('source'):
+    fmt = size.viz.style_point(g)
+    ax[0].plot(d['growth_rate_hr'], d['drymass_density_fg_fL'], **fmt)
+
+fmt = size.viz.style_point('Basan et al. 2015')
+ax[1].plot(biomass['growth_rate_hr'], biomass['dry_mass_ug'], **fmt)
+ax[0].set_ylabel('drymass density [fg/fL]', fontsize=6)
+ax[1].set_ylabel('total drymass [µg/OD$_{600}$mL]', fontsize=6)
+ax[1].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+plt.savefig('../../../figures/mcmc/perturbation_literature_ppcs.pdf')
+
+# %%
+
+quantities = ['prot_per_biomass',  'mem_per_biomass', 'rna_per_biomass',
+              'growth_rate', 'width', 'length', 'volume',
+              'surface_area', 'aspect_ratio', 'surface_to_volume',
+              'phi_mem', 'rho_mem', 'phi_Rb']
+units = ['ug/OD600/mL',  'ug/OD600/mL', 'ug/OD600/mL',
+         'hr^-1', 'um', 'um', 'fL', 'um^2', 'dimensionless', 'um^-1',
+         'dimensionless', 'fg/um^2', 'dimensionless']
+post_summ = pd.DataFrame([])
+mapper = {0: ['relA', 1], 1: ['meshI', 100]}
+for i, q in enumerate(quantities):
+    post = samples.posterior[f'{q}_mu'].to_dataframe().reset_index()
+    post.dropna(inplace=True)
+    for g, d in post.groupby(f'{q}_mu_dim_0'):
+
+        mean_val = np.mean(d[f'{q}_mu'].values)
+        median_val = np.median(d[f'{q}_mu'].values)
+        perc = np.percentile(d[f'{q}_mu'].values, (2.5, 97.5))
+
+        _df = pd.DataFrame({'strain': 'wildtype',
+                            'overexpression': mapper[g][0],
+                            'inducer_conc': mapper[g][1],
+                            'carbon_source': 'glucose',
+                            'quantity': q,
+                            'mean_value': mean_val,
+                            'median_value': median_val,
+                            '2.5%': perc[0],
+                            '97.5%': perc[1],
+                            'unit': units[i]},
+                           index=[0])
+        post_summ = pd.concat([post_summ, _df], sort=False)
+post_summ.to_csv('../../../data/mcmc/perturbation_posterior_parameter_summaries.csv',
+                 index=False)
