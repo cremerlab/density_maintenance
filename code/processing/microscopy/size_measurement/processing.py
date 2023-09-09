@@ -13,7 +13,7 @@ cor, pal = size.viz.matplotlib_style()
 mp.cpu_count()
 ROOT = '../../../../data/images'
 # Load images, convert to greyscale,and filter.
-dirs = np.sort(glob.glob(f'{ROOT}/wildtype/2023-07-18*'))
+dirs = np.sort(glob.glob(f'{ROOT}/wildtype/2023-09-05*'))
 
 # %%
 size_df = pd.DataFrame([])
@@ -38,11 +38,12 @@ for direc in tqdm.tqdm(dirs):
     sizes = []
     splines = []
     cells = []
+
+    # Get date info
+    date, run_no = direc.split('/')[:-1].split('_r')
     for i, f in enumerate(tqdm.tqdm(files)):
         # Parse file information
-        date, fname = f.split('/')[-2:]
-        date = date[:-3]
-        run_no = date[-1]
+        _, fname = f.split('/')[-2:]
         strain, carbon, over_expression, inducer, inducer_conc, temp, suffix = fname.split(
             '_')
         temp = float(temp[:-1])
@@ -100,7 +101,7 @@ for direc in tqdm.tqdm(dirs):
     cell_splines = pd.concat(splines, sort=False)
 
     # Save size measurements
-    cell_sizes.to_csv(f'{direc}/{date}_sizes.csv', index=False)
+    cell_sizes.to_csv(f'{direc}/{date}_{run_no}_sizes.csv', index=False)
     # Generate the gallerires
     print('Generating cell galleries...')
     for g, d in cell_sizes.groupby(['carbon_source', 'overexpression', 'inducer', 'inducer_conc', 'temperature_C']):

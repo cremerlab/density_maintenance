@@ -64,7 +64,8 @@ samples = az.from_cmdstanpy(_samples)
 
 # %%
 # Summaries the parameter percentiles
-pars = ['rho_mem_mu', 'phi_mem_mu', 'm_peri', 'drymass_mu', 'alpha_mu']
+pars = ['rho_mem_mu', 'phi_mem_mu', 'm_peri',
+        'drymass_mu', 'alpha_mu', 'kappa']
 full_post = samples.posterior[pars].to_dataframe().reset_index()
 full_post['idx'] = 1
 full_post[pars].to_csv(
@@ -95,7 +96,7 @@ wide_df.to_csv(
 # %%
 # Summarize the predicted growth-rate dependencies
 pars = ['pred_lam_prot', 'volume_pred', 'length_pred', 'aspect_ratio_pred',
-        'm_peri_pred', 'rho_mem_pred', 'phi_mem_pred', 'phi_peri_pred']
+        'm_peri_pred', 'rho_peri_pred', 'rho_mem_pred', 'phi_mem_pred', 'phi_peri_pred']
 lam_par_percs = pd.DataFrame([])
 for i, p in enumerate(tqdm.tqdm(pars)):
     post = samples.posterior[p].to_dataframe().reset_index()
@@ -127,23 +128,23 @@ theo_par_percs.to_csv(
 
 # %%
 # Summarize the empirical caluclations for the mass spectrometry data
-pars = ['ms_m_peri', 'ms_rho_mem']
+pars = ['ms_m_peri', 'ms_rho_peri', 'ms_rho_mem', 'ms_kappa']
 ms_par_percs = pd.DataFrame([])
 for i, p in enumerate(tqdm.tqdm(pars)):
     post = samples.posterior[p].to_dataframe().reset_index()
-    for j, lam in enumerate(mem_data):
+    for j in range(len(mem_data)):
         post.loc[post[f'{p}_dim_0'] == j,
-                 'source'] = mem_data['dataset_name'].values[i]
+                 'source'] = mem_data['dataset_name'].values[j]
         post.loc[post[f'{p}_dim_0'] == j,
-                 'growth_rate_hr'] = mem_data['growth_rate_hr'].values[i]
+                 'growth_rate_hr'] = mem_data['growth_rate_hr'].values[j]
     percs = size.viz.compute_percentiles(post, p, ['source', 'growth_rate_hr'],
                                          lower_bounds=lowers,
                                          upper_bounds=uppers,
                                          interval_labels=labels)
-    ms_par_percs = pd.concat([theo_par_percs, percs], sort=False)
+    ms_par_percs = pd.concat([ms_par_percs, percs], sort=False)
 ms_par_percs.to_csv(
     '../../../data/mcmc/mass_spec_empirical_summaries_longform.csv', index=False)
-
+# %%
 ms_par_wide = pd.DataFrame([])
 for g, d in ms_par_percs.groupby(['quantity', 'source', 'growth_rate_hr']):
     med = d[d['interval'] == 'median']['lower'].values[0]
@@ -242,10 +243,10 @@ for i, p in enumerate(['SAV_theory',  'width_theory']):
                   'median': cor['blue']}
     for g, d in percs.groupby('interval', sort=False):
         if g != 'median':
-            ax[i].fill_between(pred_phiRb, d['lower'],
+            ax[i].fill_between(phiRb_range, d['lower'],
                                d['upper'], color=int_colors[g], alpha=0.5)
         else:
-            ax[i].plot(pred_phiRb, d['lower'],
+            ax[i].plot(phiRb_range, d['lower'],
                        color=int_colors[g], linewidth=1, alpha=0.5)
 
 for g, d in wt.groupby('carbon_source'):

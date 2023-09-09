@@ -170,13 +170,13 @@ plt.savefig('../../../figures/mcmc/wildtype_size_ppcs.pdf',
 
 # %%
 # Summarize the posteriors with mean and 95th percentile
-quantities = ['prot_per_biomass', 'peri_per_biomass', 'mem_per_biomass', 'rna_per_biomass',
-              'cells_per_biomass', 'growth_rate', 'width', 'length', 'volume',
+quantities = ['prot_per_biomass', 'peri_per_biomass', 'prot_per_cell', 'mem_per_biomass', 'rna_per_biomass',
+              'cells_per_biomass', 'growth_rate', 'width', 'length', 'volume', 'drymass', 'drymass_density',
               'surface_area', 'aspect_ratio', 'surface_to_volume', 'm_peri',
-              'rho_peri', 'phi_peri', 'phi_mem', 'rho_mem', 'phi_Rb']
-units = ['ug/OD600/mL', 'ug/OD600/mL', 'ug/OD600/mL', 'ug/OD600/mL',
-         'cells/OD600/mL',  'hr^-1', 'um', 'um', 'fL', 'um^2', 'dimensionless', 'um^-1',
-         'fg/cell', 'fg/fL', 'dimensionless', 'dimensionless', 'fg/um^2', 'dimensionless']
+              'rho_peri', 'phi_peri', 'phi_mem', 'rho_mem', 'phi_Rb', 'kappa']
+units = ['ug/OD600/mL', 'ug/OD600/mL', 'fg/cell', 'ug/OD600/mL', 'ug/OD600/mL',
+         'cells/OD600/mL',  'hr^-1', 'um', 'um', 'fL', 'ug/OD600/mL', 'fg/fL', 'um^2', 'dimensionless', 'um^-1',
+         'fg/cell', 'fg/fL', 'dimensionless', 'dimensionless', 'fg/um^2', 'dimensionless', 'um^-1']
 post_summ = pd.DataFrame([])
 rev_mapper = {v: k for k, v in mapper.items()}
 for i, q in enumerate(quantities):

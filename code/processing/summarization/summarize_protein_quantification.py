@@ -11,7 +11,6 @@ biuret_cal = pd.read_csv(
 bca_cal = pd.read_csv(
     '../../../data/protein_quantification/bca_calibration_curve.csv')
 
-
 # %%
 # Compute the calibration curves
 brad_popt = scipy.stats.linregress(
@@ -51,6 +50,7 @@ tot_prot['protein_conc_ug_ml'] = 0.2 * (
     tot_prot['adjusted_od555nm'] - biuret_popt[1]) / (biuret_popt[0] * tot_prot['culture_volume_mL'])
 tot_prot['ug_prot_per_biomass'] = tot_prot['protein_conc_ug_ml'].values / \
     tot_prot['adjusted_od600nm']
+tot_prot = tot_prot[tot_prot['valid'] == True]
 tot_prot = tot_prot[['strain', 'overexpression', 'replicate', 'inducer_conc', 'carbon_source',
                      'ug_prot_per_biomass']]
 tot_prot.to_csv(
@@ -63,7 +63,6 @@ mem_prot = mem_prot[mem_prot['fraction'] == 'membrane']
 mem_prot['conv_factor'] = (mem_prot['od600nm'].values * mem_prot['culture_volume_mL'] /
                            (mem_prot['dilution_factor'].values * mem_prot['extraction_volume']))
 # mem_prot['protein_conc_ug_ml'] = mem_prot['']
-
 mem_prot['protein_conc_ug_ml'] = (
     mem_prot['od562nm'] - bca_popt[1]) / (bca_popt[0])
 mem_prot['ug_prot_per_biomass'] = mem_prot['protein_conc_ug_ml'] / \

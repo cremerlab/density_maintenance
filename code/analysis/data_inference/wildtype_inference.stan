@@ -94,6 +94,7 @@ parameters {
 
 transformed parameters {
     vector<lower=0>[J_size] aspect_ratio_mu = aspect_ratio_zeroed_mu + 1;
+    
 }
 
 model {
@@ -163,6 +164,10 @@ generated quantities {
     vector<lower=0>[J_prot] phi_Rb_mu = 0.4558 .* (rna_per_biomass_mu ./ prot_per_biomass_mu);
     vector<lower=0>[J_mem] rho_mem_mu = 1E9 * mem_per_biomass_mu ./ (N_cells .* 2 .* surface_area_mu);
     vector<lower=0>[J_peri] rho_peri_mu;
+    vector<lower=0>[J_size] prot_per_cell_mu = 1E9 .* prot_per_biomass_mu ./ N_cells;
+    vector<lower=0>[J_size] drymass_mu = (prot_per_biomass_mu + rna_per_biomass_mu) / 0.75;
+    vector<lower=0>[J_size] drymass_density_mu = 1E9 .* drymass_mu ./ (N_cells .* volume_mu);
+    vector<lower=0>[J_size] kappa_mu = drymass_density_mu ./ rho_mem_mu;
 
     //PPCs
     vector<lower=0>[J_prot] prot_per_biomass_ppc;
@@ -177,6 +182,7 @@ generated quantities {
     vector<lower=0>[J_size] surface_to_volume_ppc;
     vector<lower=0>[J_size] volume_ppc;
     vector<lower=0>[J_size] aspect_ratio_ppc; 
+
 
     for (i in 1:J_peri) {
         m_peri_mu[i] = 1E9 * peri_per_biomass_mu[i] / N_cells[i];

@@ -129,6 +129,7 @@ generated quantities {
     vector[N_pred] length_pred = alpha_mu * width_pred;
     vector[N_pred] aspect_ratio_pred;
     vector[N_pred] m_peri_pred;
+    vector[N_pred] rho_peri_pred;
     vector[N_pred] rho_mem_pred;
     vector[N_pred] phi_mem_pred;
     vector[N_pred] phi_peri_pred;
@@ -137,13 +138,16 @@ generated quantities {
         m_peri_pred[i] = m_peri;
         rho_mem_pred[i] = rho_mem_mu;
         phi_mem_pred[i] = phi_mem_mu;
-        phi_peri_pred[i] = m_peri ./ pred_phiRb_prot[i];
+        phi_peri_pred[i] = m_peri / pred_phiRb_prot[i];
+        rho_peri_pred[i] = phi_peri_pred[i] * pred_lam_prot[i] / (0.0246 * width_pred[i]^2 * aspect_ratio_pred[i]);
     } 
 
     // Empirical calculations from data
     vector[N_size] size_phiRb = phiRb_intercept + phiRb_slope .* size_lam;
     vector[N_ms] ms_m_peri = ms_total_prot .* phi_peri;
     vector[N_ms] ms_rho_mem = phi_mem .* ms_total_prot ./ (2 .* ms_surface_area);
+    vector[N_ms] ms_rho_peri = phi_peri .* ms_total_prot ./ (ms_surface_area .* 0.0246);
+    vector[N_ms] ms_kappa = drymass_mu ./ ms_rho_mem;
 
     // // Modeled data posterior predictive checks
     vector[N_phiRb]  phiRb_ppc;

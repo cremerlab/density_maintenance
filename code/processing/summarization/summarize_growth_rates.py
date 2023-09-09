@@ -23,7 +23,7 @@ summarized['inducer_conc'] = summarized['inducer_conc'].values.astype(float)
 # Restrict to only wildtype, relA, and mesh for now.
 summarized = summarized[(summarized['strain'] == 'wildtype') &
                         summarized['overexpression'].isin(['none', 'relA', 'meshI']) &
-                        summarized['inducer_conc'].isin([0.0, 1.0, 100])]
+                        summarized['inducer_conc'].isin([0.0, 1.0, 2.0, 10.0, 100])]
 # %%
 summarized.to_csv(
     '../../../data/summaries/summarized_growth_measurements.csv', index=False)

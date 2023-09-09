@@ -7,7 +7,7 @@ data = pd.read_csv(
 
 # Filter on OD bounds
 data = data[data['od_600nm'] <= 0.6]
-
+data = data[data['valid'] == True]
 # convert clock time to elapsed time
 # data['clock_time'] = pd.to_datetime(data['clock_time'].values)
 processed = []

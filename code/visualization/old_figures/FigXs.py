@@ -10,15 +10,15 @@ mapper = size.viz.lit_mapper()
 # %%
 # Add our data with 95%
 size_data = pd.read_csv(
-    '../../data/literature/collated_literature_size_data.csv')
+    '../../../data/literature/collated_literature_size_data.csv')
 size_data = size_data[~size_data['source'].isin(
     ['Si et al. 2017', 'Taher-Araghi et al. 2015'])]
-wt_data = pd.read_csv('../../data/mcmc/perturbation_parameter_percentiles.csv')
+wt_data = pd.read_csv('../../data/mcmc/wildtype_parameter_percentiles.csv')
 ms_data = pd.read_csv(
-    '../../data/literature/collated_mass_fractions_empirics.csv')
+    '../../../data/literature/collated_mass_fractions_empirics.csv')
 phiRb_data = pd.read_csv(
-    '../../data/literature/Chure2023/chure2023_collated_mass_fractions.csv')
-_wt_data = pd.read_csv('../../data/mcmc/growth_parameter_percentiles.csv')
+    '../../../data/literature/Chure2023/chure2023_collated_mass_fractions.csv')
+_wt_data = pd.read_csv('../../../data/mcmc/growth_parameter_percentiles.csv')
 wt_data = pd.concat([wt_data, _wt_data])
 _data = pd.concat([wt_data, _wt_data])
 wt_data = wt_data[(wt_data['strain'] == 'wildtype') &
@@ -28,7 +28,7 @@ wt_data = wt_data[(wt_data['strain'] == 'wildtype') &
 model = pd.read_csv('../../data/mcmc/literature_model_params.csv')
 model = model[(model['volume_scale'] == 'linear_width')
               & (model['model'] == 'const_phi_mem')]
-richa = pd.read_csv('../../data/literature/rna_protein_measurements.csv')
+richa = pd.read_csv('../../../data/literature/rna_protein_measurements.csv')
 # %%
 width_popt = scipy.stats.linregress(
     size_data['growth_rate_hr'], size_data['width_um'])

@@ -149,24 +149,3 @@ plt.tight_layout()
 
 
 # plt.savefig('./perturbation_assessment.pdf', bbox_inches='tight')
-
-# %%
-
-const = size.fluxparity.load_constants()
-phiO = 0.75
-est_nu = size.fluxparity.estimate_nu_FPM(
-    0.4558 * 0.26, 0.91, const, phi_O=phiO)
-# %%
-phiRb_range = np.linspace(0, 1 - phiO - 0.001, 300)
-lam = size.fluxparity.steady_state_growth_rate(
-    const['gamma_max'], phiRb_range, est_nu, const['Kd_cpc'], phiO)
-
-plt.plot(phiRb_range, lam, 'k-', lw=1)
-
-for g, d in buke.groupby(['inducer_conc']):
-    plt.plot(d['phiRb'], np.log(2) * d['lam'],
-             'X', color=d['color'].values[0])
-
-plt.axline([0, 0.415], slope=0, color=cor['primary_gold'], linewidth=2)
-plt.axline([0, np.log(2) * 0.25], slope=0,
-           color=cor['primary_gold'], linewidth=2)

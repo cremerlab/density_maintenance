@@ -16,8 +16,8 @@ ROOT = '../../../../data/images/'
 strains = np.sort(glob.glob(f'{ROOT}/*/'))
 
 # %%
-size_df = pd.DataFrame([])
-biom = []
+# size_df = pd.DataFrame([])
+# biom = []
 for s in tqdm.tqdm(strains, desc='Strains...'):
     dirs = glob.glob(f'{s}/*/')
     for direc in tqdm.tqdm(dirs, desc='Directories...'):
@@ -89,8 +89,8 @@ for s in tqdm.tqdm(strains, desc='Strains...'):
                 d['inducer_conc'] = inducer_conc
                 d['image'] = suffix
                 d['strain'] = strain
-            size_df = pd.concat([size_df, biometrics])
-            biom.append(biometrics)
+            # size_df = pd.concat([size_df, biometrics])
+            # biom.append(biometrics)
 
             sizes.append(biometrics)
             splines.append(anatomy)
