@@ -16,3 +16,4 @@
 *.fcs
 *.tmp
 *.hpp
+*.mat*

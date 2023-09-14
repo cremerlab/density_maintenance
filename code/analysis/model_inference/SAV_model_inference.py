@@ -28,7 +28,7 @@ density_data = pd.read_csv(
 
 
 N_pred = 300
-phiRb_range = np.linspace(0.05, 0.30, N_pred)
+phiRb_range = np.linspace(0.05, 0.45, N_pred)
 lam_range = np.linspace(0, 2.5, N_pred)
 data_dict = {
     'N_pred': N_pred,
@@ -201,6 +201,8 @@ size_par_wide.to_csv(
 wt = pd.read_csv(
     '../../../data/mcmc/wildtype_posterior_parameter_summaries.csv')
 # %%
+mata = pd.read_csv(
+    '../../../data/literature/matamorous2023/matamorous2023_size_phi.csv')
 fig, ax = plt.subplots(1, 2, figsize=(4.25, 2))
 ax[0].set_ylabel('surface to volume [µm$^{-1}$]', fontsize=6)
 ax[1].set_ylabel('average width [µm]', fontsize=6)
@@ -228,6 +230,7 @@ ax[0].plot([], [], 'o', markeredgecolor=cor['dark_blue'], markerfacecolor='w',
            ms=4, markeredgewidth=1, label='this study')
 ax[0].fill_between([], [], [], color=cor['pale_blue'], label='prediction')
 ax[0].legend(fontsize=4)
+
 lowers = np.array([2.5, 12.5, 62.5, 50])
 uppers = 100 - lowers
 labels = ['95%', '75%', '25%', 'median']
@@ -260,3 +263,10 @@ for g, d in wt.groupby('carbon_source'):
                      linewidth=1, color=cor['blue'])
         ax[i].plot(phiRb['median_value'], p['median_value'], 'o', markeredgecolor=cor['blue'],
                    markerfacecolor='w', markeredgewidth=1, ms=4)
+
+ax[0].plot(mata['phiRb'], mata['surface_to_volume'], 'X', color=cor['primary_red'],
+           label='Corynebacterium glutamicum')
+ax[1].plot(mata['phiRb'], mata['width_um'], 'X', color=cor['primary_red'],
+           label='Corynebacterium glutamicum')
+ax[0].legend(fontsize=4)
+# %%

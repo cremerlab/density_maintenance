@@ -1,0 +1,4 @@
+growth_rate_hr,width_um,length_um,surface_area_um2,volume_um3,surface_to_volume,phiRb
+0.30,0.89,1.73,4.85,0.90,5.41,0.25004
+0.40,0.92,2.09,6.03,1.18,5.10,0.2632
+0.47,1.02,2.26,7.22,1.56,4.63,0.31584

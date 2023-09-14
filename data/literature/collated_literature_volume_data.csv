@@ -1,0 +1,48 @@
+growth_rate_hr,volume_um3,source,notes
+0.821,0.615,Taheri-Araghi et al. 2015,Dimensions digitized from Fig. S1A.  SA and Vol computed
+0.826,0.664,Taheri-Araghi et al. 2015,Dimensions digitized from Fig. S1A.  SA and Vol computed
+1.104,0.861,Taheri-Araghi et al. 2015,Dimensions digitized from Fig. S1A.  SA and Vol computed
+1.383,1.178,Taheri-Araghi et al. 2015,Dimensions digitized from Fig. S1A.  SA and Vol computed
+1.562,1.524,Taheri-Araghi et al. 2015,Dimensions digitized from Fig. S1A.  SA and Vol computed
+1.851,2.389,Taheri-Araghi et al. 2015,Dimensions digitized from Fig. S1A.  SA and Vol computed
+2.429,4.017,Taheri-Araghi et al. 2015,Dimensions digitized from Fig. S1A.  SA and Vol computed
+0.187,0.531,Zheng et al. 2020,Digitized from Fig. 1D
+0.310,0.582,Zheng et al. 2020,Digitized from Fig. 1D
+0.393,0.731,Zheng et al. 2020,Digitized from Fig. 1D
+0.393,0.701,Zheng et al. 2020,Digitized from Fig. 1D
+0.426,0.794,Zheng et al. 2020,Digitized from Fig. 1D
+0.487,0.810,Zheng et al. 2020,Digitized from Fig. 1D
+0.448,0.957,Zheng et al. 2020,Digitized from Fig. 1D
+0.504,0.987,Zheng et al. 2020,Digitized from Fig. 1D
+0.570,1.061,Zheng et al. 2020,Digitized from Fig. 1D
+0.743,1.276,Zheng et al. 2020,Digitized from Fig. 1D
+0.754,1.317,Zheng et al. 2020,Digitized from Fig. 1D
+0.854,1.302,Zheng et al. 2020,Digitized from Fig. 1D
+1.132,1.791,Zheng et al. 2020,Digitized from Fig. 1D
+1.132,1.517,Zheng et al. 2020,Digitized from Fig. 1D
+1.349,2.365,Zheng et al. 2020,Digitized from Fig. 1D
+1.710,2.961,Zheng et al. 2020,Digitized from Fig. 1D
+0.402025364724768,0.538,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+0.575312159864755,0.557,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+0.700078652365545,0.622,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+0.88722839111673,0.892,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+1.09517254528471,1.063,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+1.2199390377855,1.250,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+1.38629436111989,1.233,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+1.66355323334387,1.552,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+0.672352765143147,0.574,Pierucci 1978,Dimensions taken from Table 2. SA and vol calculated. Corresponds to size of E. Coli B/R F
+1.07715071859015,0.750,Pierucci 1978,Dimensions taken from Table 2. SA and vol calculated. Corresponds to size of E. Coli B/R F
+1.2615278686191,0.878,Pierucci 1978,Dimensions taken from Table 2. SA and vol calculated. Corresponds to size of E. Coli B/R F
+1.66355323334387,1.575,Pierucci 1978,Dimensions taken from Table 2. SA and vol calculated. Corresponds to size of E. Coli B/R F
+0.831776616671934,1.805,Grossman et al. 1982,Dimensions taken from table 1 using only unstarved samples. SA and vol calculated.
+0.693147180559945,0.997,Grossman et al. 1982,Dimensions taken from table 1 using only unstarved samples. SA and vol calculated.
+0.693147180559945,0.938,Grossman et al. 1982,Dimensions taken from table 1 using only unstarved samples. SA and vol calculated.
+0.815467271246994,1.742,Zaritsky & Woldringh 1978,Dimensions taken from Table 1 only considering Rep + strain. SA and vol calculated.
+0.729628611115732,0.869,Zaritsky & Woldringh 1978,Dimensions taken from Table 1 only considering Rep + strain. SA and vol calculated.
+1.34157518818054,1.858,Zaritsky & Woldringh 1978,Dimensions taken from Table 1 only considering Rep + strain. SA and vol calculated.
+1.84839248149319,1.679,Rueba & Woldringh 1980,Dimensions taken from Table 1. SA and vol calculated.
+0.693147180559945,0.735,Rueba & Woldringh 1980,Dimensions taken from Table 1. SA and vol calculated.
+0.381548906730245,0.337,Rueba & Woldringh 1980,Dimensions taken from Table 1. SA and vol calculated.
+0.332710646668774,0.426,Rueba & Woldringh 1980,Dimensions taken from Table 1. SA and vol calculated.
+0.214375416668024,0.332,Rueba & Woldringh 1980,Dimensions taken from Table 1. SA and vol calculated.
+1.00506341181192,0.868,Zaritsky et al. 1993,Dimensions digitized from Fig. 2. Only the preshift condition was considered and doubling time was taken from text (paragraph 1 of results). SA and vol calculated.

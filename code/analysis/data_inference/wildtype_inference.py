@@ -18,12 +18,14 @@ cor, pal = size.viz.matplotlib_style()
 model = cmdstanpy.CmdStanModel(stan_file='./wildtype_inference.stan')
 
 # Load the datasets
-prot = pd.read_csv('../../../data/summaries/summarized_total_protein.csv')
+# prot = pd.read_csv('../../../data/summaries/summarized_total_protein.csv')
+# rna = pd.read_csv('../../../data/summaries/summarized_total_rna.csv')
+phi = pd.read_csv(
+    '../../../data/summaries/merged_rna_protein_measurements.csv')
 mem = pd.read_csv('../../../data/summaries/summarized_membrane_protein.csv')
 peri = pd.read_csv(
     '../../../data/summaries/summarized_periplasmic_protein.csv')
 peri = peri[peri['ug_prot_per_biomass'] <= 50]
-rna = pd.read_csv('../../../data/summaries/summarized_total_rna.csv')
 sizes = pd.read_csv('../../../data/summaries/summarized_size_measurements.csv')
 flow = pd.read_csv('../../../data/summaries/summarized_cell_counts.csv')
 flow = flow[flow['cells_per_biomass'].values > 1E6]
@@ -32,12 +34,11 @@ growth = pd.read_csv(
 
 # %%
 # Restrict to wildtype
-prot = prot[(prot['strain'] == 'wildtype') &
-            (prot['overexpression'] == 'none')]
+phi = phi[(phi['strain'] == 'wildtype') &
+          (phi['overexpression'] == 'none')]
 mem = mem[(mem['strain'] == 'wildtype') & (mem['overexpression'] == 'none')]
 peri = peri[(peri['strain'] == 'wildtype') &
             (peri['overexpression'] == 'none')]
-rna = rna[(rna['strain'] == 'wildtype') & (rna['overexpression'] == 'none')]
 sizes = sizes[(sizes['strain'] == 'wildtype') &
               (sizes['overexpression'] == 'none')]
 sizes = sizes[sizes['carbon_source'] != 'ezMOPS']
@@ -48,15 +49,17 @@ growth = growth[(growth['strain'] == 'wildtype') &
 mapper = {'acetate': 1, 'sorbitol': 2, 'glycerol': 3,
           'glucose': 4, 'glucoseCAA': 5, 'LB': 6}
 
-for d in [prot, mem, peri, rna, sizes, growth, flow]:
+for d in [phi, mem, peri, sizes, growth, flow]:
     d['idx'] = [mapper[k] for k in d['carbon_source'].values]
     d['idx'] = d['idx'].values.astype(int)
 
 data_dict = {
-    'N_prot': len(prot),
-    'J_prot': prot['idx'].max(),
-    'prot_idx': prot['idx'].values,
-    'prot_per_biomass': prot['ug_prot_per_biomass'].values,
+    'N_phi': len(phi),
+    'J_phi': phi['idx'].max(),
+    'phi_idx': phi['idx'].values,
+    'prot_per_biomass': phi['ug_prot_per_biomass'].values,
+    'rna_per_biomass': phi['ug_rna_per_biomass'].values,
+    'phiRb': phi['phiRb'].values,
 
     'N_peri': len(peri),
     'J_peri': peri['idx'].max(),
@@ -67,11 +70,6 @@ data_dict = {
     'J_mem': mem['idx'].max(),
     'mem_idx': mem['idx'].values,
     'mem_per_biomass': mem['ug_prot_per_biomass'].values,
-
-    'N_rna': len(rna),
-    'J_rna': rna['idx'].max(),
-    'rna_idx': rna['idx'].values,
-    'rna_per_biomass': rna['ug_rna_per_biomass'].values,
 
     'N_growth': len(growth),
     'J_growth': growth['idx'].max(),
@@ -94,15 +92,17 @@ data_dict = {
     'cells_per_biomass': flow['cells_per_biomass'].values,
 }
 
-_samples = model.sample(
-    data=data_dict, adapt_delta=0.99)
+_samples = model.sample(data=data_dict)
 samples = az.from_cmdstanpy(_samples)
 
-fig, ax = plt.subplots(6, 1, figsize=(3, 8), sharex=True)
+# %%
+fig, ax = plt.subplots(7, 1, figsize=(3, 8), sharex=True)
 # Plot PPC distributions for non-size parameters
-for i, q in enumerate(['prot', 'mem', 'peri', 'rna', 'cells', 'growth_rates']):
-    if q != 'growth_rates':
+for i, q in enumerate(['prot', 'mem', 'peri', 'rna', 'phiRb', 'cells', 'growth_rates']):
+    if (q != 'growth_rates') & (q != 'phiRb'):
         n = f'{q}_per_biomass'
+    elif q == 'phiRb':
+        n = q
     else:
         n = 'growth_rates'
     if q == 'cells':
@@ -116,34 +116,40 @@ for i, q in enumerate(['prot', 'mem', 'peri', 'rna', 'cells', 'growth_rates']):
                    '_', markeredgecolor=cor['primary_black'], markeredgewidth=0.1,
                    alpha=0.75)
 
-
 titles = ['total protein', 'membrane protein',  'periplasmic protein']
-for i, d in enumerate([prot, mem, peri]):
+for i, d in enumerate([phi, mem, peri]):
     ax[i].plot(d['idx'],
                d['ug_prot_per_biomass'], '_',
                markeredgecolor=cor['primary_red'], markeredgewidth=1)
     ax[i].set_title(titles[i], fontsize=6)
     ax[i].set_ylabel('protein\n[µg / OD$_{600nm}$]', fontsize=6)
 
-ax[3].plot(rna['idx'],
-           rna['ug_rna_per_biomass'], '_',
+ax[3].plot(phi['idx'],
+           phi['ug_rna_per_biomass'], '_',
            markeredgecolor=cor['primary_red'], markeredgewidth=0.5)
 ax[3].set_title('total RNA', fontsize=6)
 ax[3].set_ylabel('RNA\n[µg / OD$_{600nm}$]', fontsize=6)
 
-ax[4].plot(flow['idx'],
+ax[4].plot(phi['idx'],
+           phi['phiRb'], '_',
+           markeredgecolor=cor['primary_red'],
+           markeredgewidth=0.5)
+ax[4].set_title('ribosomal allocation', fontsize=6)
+ax[4].set_ylabel('$\phi_{Rb}$', fontsize=6)
+
+ax[5].plot(flow['idx'],
            flow['cells_per_biomass'] / 1E9, '_',
            markeredgecolor=cor['primary_red'], markeredgewidth=0.5)
-ax[4].set_title('flow cytometry', fontsize=6)
-ax[4].set_ylabel('cells per biomass\n' + r'[$\times 10^9$]', fontsize=6)
+ax[5].set_title('flow cytometry', fontsize=6)
+ax[5].set_ylabel('cells per biomass\n' + r'[$\times 10^9$]', fontsize=6)
 
-ax[5].plot(growth['idx'],
+ax[6].plot(growth['idx'],
            growth['growth_rate_hr'], '_',
            markeredgecolor=cor['primary_red'], markeredgewidth=0.5)
-ax[5].set_title('growth rates', fontsize=6)
-ax[5].set_ylabel('growth rate\n[hr$^{-1}$]', fontsize=6)
-ax[5].set_xticks(list(mapper.values()))
-ax[5].set_xticklabels(mapper.keys(), fontsize=6)
+ax[6].set_title('growth rates', fontsize=6)
+ax[6].set_ylabel('growth rate\n[hr$^{-1}$]', fontsize=6)
+ax[6].set_xticks(list(mapper.values()))
+ax[6].set_xticklabels(mapper.keys(), fontsize=6)
 plt.savefig('../../../figures/mcmc/wildtype_protein_flow_growth_ppcs.pdf',
             bbox_inches='tight')
 
@@ -171,12 +177,12 @@ plt.savefig('../../../figures/mcmc/wildtype_size_ppcs.pdf',
 # %%
 # Summarize the posteriors with mean and 95th percentile
 quantities = ['prot_per_biomass', 'peri_per_biomass', 'prot_per_cell', 'mem_per_biomass', 'rna_per_biomass',
-              'cells_per_biomass', 'growth_rate', 'width', 'length', 'volume', 'drymass', 'drymass_density',
+              'cells_per_biomass', 'growth_rate', 'width', 'length', 'volume',
               'surface_area', 'aspect_ratio', 'surface_to_volume', 'm_peri',
-              'rho_peri', 'phi_peri', 'phi_mem', 'rho_mem', 'phi_Rb', 'kappa']
+              'rho_peri', 'phi_peri', 'phi_mem', 'rho_mem', 'phiRb']
 units = ['ug/OD600/mL', 'ug/OD600/mL', 'fg/cell', 'ug/OD600/mL', 'ug/OD600/mL',
-         'cells/OD600/mL',  'hr^-1', 'um', 'um', 'fL', 'ug/OD600/mL', 'fg/fL', 'um^2', 'dimensionless', 'um^-1',
-         'fg/cell', 'fg/fL', 'dimensionless', 'dimensionless', 'fg/um^2', 'dimensionless', 'um^-1']
+         'cells/OD600/mL',  'hr^-1', 'um', 'um', 'fL', 'um^2', 'dimensionless', 'um^-1',
+         'fg/cell', 'fg/fL', 'dimensionless', 'dimensionless', 'fg/um^2', 'dimensionless']
 post_summ = pd.DataFrame([])
 rev_mapper = {v: k for k, v in mapper.items()}
 for i, q in enumerate(quantities):

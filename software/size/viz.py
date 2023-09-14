@@ -90,13 +90,14 @@ def lit_mapper():
         'Watson et al. 1976': {'m': '^'},
         'Woldringh et al. 1981': {'m': 'v'},
         'Poole 1977': {'m': '>'},
-        'Zhu & Dai 2019': {'m': '.'}
+        'Zhu & Dai 2019': {'m': '.'},
+        'Yao et al. 2012': {'m': '<'},
+        'Zheng et al. 2020': {'m': 'h'},
+        'Martinez-Salas et al. 1981': {'m': '8'}
     }
     # Set colors rooted in blue
-    # cmap = sns.color_palette('bone_r',
-    #  n_colors=len(mapper)).as_hex()
-    cmap = sns.cubehelix_palette(
-        start=0.5, rot=-0.5, n_colors=len(mapper)).as_hex()
+    cmap = sns.color_palette(
+        f"light:{colors['primary_black']}", n_colors=len(mapper)).as_hex()
     rng.shuffle(cmap)
     counter = 0
     for k, _ in mapper.items():

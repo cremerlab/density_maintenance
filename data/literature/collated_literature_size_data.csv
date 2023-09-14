@@ -1,84 +1,32 @@
 growth_rate_hr,length_um,width_um,surface_area_um2,volume_um3,surface_to_volume,source,notes
-0.8205904503555910,2.9085596729535900,0.5353912156775380,4.8921424271257300,0.6146250720629830,7.9595555884261300,Taheri-Araghi et al. 2015, Dimensions digitized from Fig. S1A.  SA and Vol computed
-0.8260100654073010,3.1296034041767800,0.5354242179483320,5.2642582838356100,0.6644679651645520,7.9225162984824200,Taheri-Araghi et al. 2015, Dimensions digitized from Fig. S1A.  SA and Vol computed
-1.104303586247510,3.0081136106809800,0.6256181658046600,5.9122590950871400,0.8605984680131090,6.8699391351892100,Taheri-Araghi et al. 2015, Dimensions digitized from Fig. S1A.  SA and Vol computed
-1.3829497532726000,3.3747186545344400,0.690534668351375,7.32104256900962,1.17765488804529,6.2166281848168,Taheri-Araghi et al. 2015, Dimensions digitized from Fig. S1A.  SA and Vol computed
-1.5619826532342300,4.105323379864460,0.708091984879568,9.132442022056030,1.523704760453900,5.993577141109370,Taheri-Araghi et al. 2015, Dimensions digitized from Fig. S1A.  SA and Vol computed
-1.8511896454799400,4.719645266108710,0.827406378588596,12.268122252411100,2.389386090999140,5.134424402412540,Taheri-Araghi et al. 2015, Dimensions digitized from Fig. S1A.  SA and Vol computed
-2.429362345739600,5.611726836649620,0.9837982131587070,17.344126193564,4.0165005033863,4.31821835424674,Taheri-Araghi et al. 2015, Dimensions digitized from Fig. S1A.  SA and Vol computed
-0.402025364724768,1.67,0.69,3.62005721473152,0.538456414454676,6.72302737520129,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
-0.575312159864755,1.68,0.70,3.6945129606216,0.556742578093671,6.63594470046084,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
-0.700078652365545,1.94,0.68,4.14438902861566,0.622228029760199,6.660563057908,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
-0.88722839111673,2.27,0.75,5.34856149273662,0.892408663160351,5.99339933993399,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
-1.09517254528471,2.54,0.77,6.14432691189092,1.06326287062889,5.77874680064463,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
-1.2199390377855,2.64,0.82,6.80091977649118,1.24984074932865,5.44142906217795,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
-1.38629436111989,2.72,0.80,6.83610561421139,1.23317983628911,5.54347826086958,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
-1.66355323334387,3.08,0.84,8.12792851336751,1.55169544346107,5.23809523809524,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
-0.672352765143147,2.05,0.63,4.05736691211122,0.573573137136503,7.07384403036577,Pierucci 1978,Dimensions taken from Table 2. SA and vol calculated. Corresponds to size of E. Coli B/R F
-1.07715071859015,2.35,0.67,4.94643763307713,0.749788734267784,6.59710850138024,Pierucci 1978,Dimensions taken from Table 2. SA and vol calculated. Corresponds to size of E. Coli B/R F
-1.2615278686191,2.34,0.73,5.36646857086208,0.877536101738869,6.11538210248927,Pierucci 1978,Dimensions taken from Table 2. SA and vol calculated. Corresponds to size of E. Coli B/R F
-1.66355323334387,2.94,0.87,8.03556568935197,1.57533985517015,5.10084580351334,Pierucci 1978,Dimensions taken from Table 2. SA and vol calculated. Corresponds to size of E. Coli B/R F
-0.831776616671934,2.72,0.98,8.37422937740895,1.80528270806374,4.63873571712807,Grossman et al. 1982,Dimensions taken from table 1 using only unstarved samples. SA and vol calculated.
-0.693147180559945,2.45,0.76,5.8496455209842,0.996509000928478,5.87013816787797,Grossman et al. 1982,Dimensions taken from table 1 using only unstarved samples. SA and vol calculated.
-0.693147180559945,2.27,0.77,5.4911897992096,0.937533976437739,5.85705685043433,Grossman et al. 1982,Dimensions taken from table 1 using only unstarved samples. SA and vol calculated.
-0.815467271246994,2.68,0.97,8.16688426227203,1.74153220094015,4.68948220300676,Zaritsky & Woldringh 1978,Dimensions taken from Table 1 only considering Rep + strain. SA and vol calculated.
-0.729628611115732,2.62,0.68,5.59706147163558,0.869182345073586,6.43945600524333,Zaritsky & Woldringh 1978,Dimensions taken from Table 1 only considering Rep + strain. SA and vol calculated.
-1.34157518818054,2.79,0.98,8.58974263344521,1.85808345579262,4.62290464223578,Zaritsky & Woldringh 1978,Dimensions taken from Table 1 only considering Rep + strain. SA and vol calculated.
-1.84839248149319,2.64,0.96,7.96205242125797,1.67926923793804,4.74137931034484,Rueba & Woldringh 1980,Dimensions taken from Table 1. SA and vol calculated.
-0.693147180559945,2.00,0.73,4.5867252742411,0.735232950105539,6.23846533752697,Rueba & Woldringh 1980,Dimensions taken from Table 1. SA and vol calculated.
-0.381548906730245,1.51,0.57,2.70396879694474,0.336832139539937,8.02764486975014,Rueba & Woldringh 1980,Dimensions taken from Table 1. SA and vol calculated.
-0.332710646668774,1.66,0.61,3.18117672102502,0.425705963114278,7.47270885696063,Rueba & Woldringh 1980,Dimensions taken from Table 1. SA and vol calculated.
-0.214375416668024,1.68,0.53,2.79727409875635,0.331662910627843,8.43408777140943,Rueba & Woldringh 1980,Dimensions taken from Table 1. SA and vol calculated.
-1.00506341181192,2.42,0.711363636363636,5.40825175315483,0.867566600265329,6.2338173824359,Zaritsky et al. 1993,Dimensions digitized from Fig. 2. Only the preshift condition was considered and doubling time was taken from text (paragraph 1 of results). SA and vol calculated.
-2.0023,4.303,1.0809,14.6119014893382,3.61788408272,4.03879758313115,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-1.9522,4.2086,1.0006,13.2296,3.0471,4.3417,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-0.75155,2.7009,0.69872,5.92872835533093,0.946324780613769,6.26500380924788,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-1.0344,2.8449,0.70242,6.2778906491336,1.01169724884943,6.20530564481938,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-0.56926,2.4865,0.59055,4.61312274213234,0.627151303751894,7.35567751280212,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-0.75501,2.3497,0.56215,4.14967901511337,0.536677770757524,7.73216116116766,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-1.8144,3.7332,1.0037,11.7716,2.6891,4.3776,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-1.8154,3.9132,1.004,12.3428550935157,2.83310306489392,4.35665586842244,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-1.4587,2.922,0.88847,8.15591803045985,1.62796186939602,5.0098950004804,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-1.2686,2.3728,0.70302,5.24057193447279,0.830092276713274,6.31324020411644,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-0.88083,2.5736,0.72957,5.89872144566654,0.974218004478347,6.05482696742508,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-0.65611,2.3783,0.6259,4.6765,0.6676,7.0053,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-0.59741,2.4229,0.59149,4.50228278543797,0.611587323415991,7.36163522862228,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-2.1133,4.1452,1.1473,14.9407,3.8900,3.8408,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-1.8779,4.1946,1.0489,13.8221,3.3224,4.1603,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-1.4313,2.9609,0.97687,9.08678777677025,1.97510251964178,4.60066638891145,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-1.2541,3.1271,0.76763,7.54125422172401,1.32880341156667,5.67522189970359,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-1.0632,3.0158,0.70278,6.65842946133392,1.07898145028121,6.17103237465163,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-0.75406,2.4389,0.58318,4.46834284367392,0.59953704655526,7.45298871745713,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-0.78904,2.5285,0.56388,4.47919037983246,0.58449302264184,7.66337698880826,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-1.8088,4.2164,0.96547,12.7888195896295,2.85120015493871,4.48541627899302,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-1.5663,3.6637,0.79141,9.10901276665296,1.67247127031242,5.4464390081579,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-1.1517,3.104,0.75998,7.41094770345253,1.29312843353977,5.73102215621849,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-1.1026,2.9743,0.69354,6.48046482856945,1.03628143106491,6.25357613704412,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-0.62786,2.5961,0.57831,4.71663198714829,0.63128387061368,7.47149136340706,Si et al. 2017,Dimensions taken from SI data table. Data correspond to NCM3722. SA and vol calculated.
-1.7854,4.7505,0.91737,13.6909545513887,2.93780103080339,4.6602729074694,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-1.0818,2.6105,0.83267,6.82883293717407,1.2703983094018,5.3753479413788,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.83287,2.8949,0.81908,7.44920216091217,1.38151063032484,5.39207009877341,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.73618,2.5391,0.74507,5.9432877177672,0.998758450125071,5.95067577853578,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.69244,2.7419,0.75812,6.53039480778104,1.12363282634808,5.81185833543639,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.31271,2.2441,0.67452,4.7553984268211,0.721558897582465,6.5904508180188,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-1.7662,4.8191,0.98167,14.8621393878683,3.39976378103087,4.37152118355759,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-1.0637,2.7888,0.93224,8.16760969371485,1.69143766559368,4.82879733605086,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.80028,3.0319,0.80649,7.68181302916917,1.41149629470433,5.4423189476231,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.82842,2.9779,0.89043,8.33028319914943,1.66955542639991,4.98952180168834,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.70978,2.7537,0.83331,7.20896788507241,1.35033470773349,5.3386525901956,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.66856,2.8628,0.8529,7.6708,1.4732,5.2070,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.4499,2.5424,0.70192,5.60636500925266,0.893266810659184,6.27624909193196,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-1.6541,5.1331,1.0049,16.2051,3.8055,4.2584,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-1.4993,5.0939,0.85385,13.6641263868527,2.75380643638548,4.96190516744801,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.72045,2.7276,0.73099,6.26385924705072,1.04244528982727,6.00881341992405,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-1.0654,3.2073,0.79462,8.00661505225276,1.45919896407307,5.48699337745132,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.82866,2.6302,0.79764,6.59091287786347,1.18143541976585,5.57873309670175,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.75346,2.963,0.76129,7.08649768011782,1.23321010948494,5.7463830580156,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.41312,2.4695,0.65682,5.09571665978183,0.762558583670835,6.68239367951491,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-1.7479,4.9925,0.99168,15.5539071040393,3.60080555778613,4.31956317952426,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-1.4982,5.0218,0.86968,13.7204630253875,2.81089754847323,4.88116795037226,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-1.3375,4.5603,0.9083,13.0129,2.7587,4.7170,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-1.0379,3.2322,0.78224,7.94306503738353,1.42803494567116,5.56223435670223,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.79254,2.6726,0.78249,6.56995859937728,1.15980068849522,5.66473072877845,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.75655,2.909,0.77384,7.07204098178787,1.24683991183103,5.67197193054425,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
-0.34007,2.6633,0.66014,5.52339383196176,0.836239117380879,6.6050412102954,Si et al. 2017,Dimensions taken from SI data table. Data correspond to MG1655. SA and vol calculated.
+0.8205904503555910,2.9085596729535900,0.5353912156775380,4.89,0.615,7.960,Taheri-Araghi et al. 2015,Dimensions digitized from Fig. S1A.  SA and Vol computed
+0.8260100654073010,3.1296034041767800,0.5354242179483320,5.26,0.664,7.923,Taheri-Araghi et al. 2015,Dimensions digitized from Fig. S1A.  SA and Vol computed
+1.104303586247510,3.0081136106809800,0.6256181658046600,5.91,0.861,6.870,Taheri-Araghi et al. 2015,Dimensions digitized from Fig. S1A.  SA and Vol computed
+1.3829497532726000,3.3747186545344400,0.690534668351375,7.32,1.178,6.217,Taheri-Araghi et al. 2015,Dimensions digitized from Fig. S1A.  SA and Vol computed
+1.5619826532342300,4.105323379864460,0.708091984879568,9.13,1.524,5.994,Taheri-Araghi et al. 2015,Dimensions digitized from Fig. S1A.  SA and Vol computed
+1.8511896454799400,4.719645266108710,0.827406378588596,12.27,2.389,5.134,Taheri-Araghi et al. 2015,Dimensions digitized from Fig. S1A.  SA and Vol computed
+2.429362345739600,5.611726836649620,0.9837982131587070,17.34,4.017,4.318,Taheri-Araghi et al. 2015,Dimensions digitized from Fig. S1A.  SA and Vol computed
+0.402025364724768,1.67,0.69,3.62,0.538,6.723,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+0.575312159864755,1.68,0.70,3.69,0.557,6.636,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+0.700078652365545,1.94,0.68,4.14,0.622,6.661,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+0.88722839111673,2.27,0.75,5.35,0.892,5.993,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+1.09517254528471,2.54,0.77,6.14,1.063,5.779,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+1.2199390377855,2.64,0.82,6.80,1.250,5.441,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+1.38629436111989,2.72,0.80,6.84,1.233,5.543,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+1.66355323334387,3.08,0.84,8.13,1.552,5.238,Pierucci 1978,Dimensions taken from Table 1. SA and vol calculated. Corresponds to size of E. Coli B/R A
+0.672352765143147,2.05,0.63,4.06,0.574,7.074,Pierucci 1978,Dimensions taken from Table 2. SA and vol calculated. Corresponds to size of E. Coli B/R F
+1.07715071859015,2.35,0.67,4.95,0.750,6.597,Pierucci 1978,Dimensions taken from Table 2. SA and vol calculated. Corresponds to size of E. Coli B/R F
+1.2615278686191,2.34,0.73,5.37,0.878,6.115,Pierucci 1978,Dimensions taken from Table 2. SA and vol calculated. Corresponds to size of E. Coli B/R F
+1.66355323334387,2.94,0.87,8.04,1.575,5.101,Pierucci 1978,Dimensions taken from Table 2. SA and vol calculated. Corresponds to size of E. Coli B/R F
+0.831776616671934,2.72,0.98,8.37,1.805,4.639,Grossman et al. 1982,Dimensions taken from table 1 using only unstarved samples. SA and vol calculated.
+0.693147180559945,2.45,0.76,5.85,0.997,5.870,Grossman et al. 1982,Dimensions taken from table 1 using only unstarved samples. SA and vol calculated.
+0.693147180559945,2.27,0.77,5.49,0.938,5.857,Grossman et al. 1982,Dimensions taken from table 1 using only unstarved samples. SA and vol calculated.
+0.815467271246994,2.68,0.97,8.17,1.742,4.689,Zaritsky & Woldringh 1978,Dimensions taken from Table 1 only considering Rep + strain. SA and vol calculated.
+0.729628611115732,2.62,0.68,5.60,0.869,6.439,Zaritsky & Woldringh 1978,Dimensions taken from Table 1 only considering Rep + strain. SA and vol calculated.
+1.34157518818054,2.79,0.98,8.59,1.858,4.623,Zaritsky & Woldringh 1978,Dimensions taken from Table 1 only considering Rep + strain. SA and vol calculated.
+1.84839248149319,2.64,0.96,7.96,1.679,4.741,Rueba & Woldringh 1980,Dimensions taken from Table 1. SA and vol calculated.
+0.693147180559945,2.00,0.73,4.59,0.735,6.238,Rueba & Woldringh 1980,Dimensions taken from Table 1. SA and vol calculated.
+0.381548906730245,1.51,0.57,2.70,0.337,8.028,Rueba & Woldringh 1980,Dimensions taken from Table 1. SA and vol calculated.
+0.332710646668774,1.66,0.61,3.18,0.426,7.473,Rueba & Woldringh 1980,Dimensions taken from Table 1. SA and vol calculated.
+0.214375416668024,1.68,0.53,2.80,0.332,8.434,Rueba & Woldringh 1980,Dimensions taken from Table 1. SA and vol calculated.
+1.00506341181192,2.42,0.711363636363636,5.41,0.868,6.234,Zaritsky et al. 1993,Dimensions digitized from Fig. 2. Only the preshift condition was considered and doubling time was taken from text (paragraph 1 of results). SA and vol calculated.

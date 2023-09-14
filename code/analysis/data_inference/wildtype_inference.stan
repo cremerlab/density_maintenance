@@ -1,9 +1,11 @@
 data {
-    // Total protein measurements
-    int<lower=1>N_prot;
-    int<lower=1>J_prot;
-    array[N_prot] int<lower=1, upper=J_prot> prot_idx;
-    vector<lower=0>[N_prot] prot_per_biomass;
+    // Total protein and RNA measurements
+    int<lower=1>N_phi;
+    int<lower=1>J_phi;
+    array[N_phi] int<lower=1, upper=J_phi> phi_idx;
+    vector<lower=0>[N_phi] prot_per_biomass;
+    vector<lower=0>[N_phi] rna_per_biomass;
+    vector<lower=0>[N_phi] phiRb;
 
     // Periplasmic protein measurements
     int<lower=1>N_peri;
@@ -16,12 +18,6 @@ data {
     int<lower=1>J_mem;
     array[N_mem] int<lower=1, upper=J_mem> mem_idx;
     vector<lower=0>[N_mem] mem_per_biomass;
-
-    // Total RNA measurements
-    int<lower=1>N_rna;
-    int<lower=1>J_rna;
-    array[N_rna] int<lower=1, upper=J_rna> rna_idx;
-    vector<lower=0>[N_rna] rna_per_biomass;
 
     // Growth rate measurement
     int<lower=1> N_growth;
@@ -53,8 +49,16 @@ transformed data {
 
 parameters {
     // Total protein parameters
-    vector<lower=0>[J_prot] prot_per_biomass_mu;
-    vector<lower=0>[J_prot] prot_per_biomass_sigma;
+    vector<lower=0>[J_phi] prot_per_biomass_mu;
+    vector<lower=0>[J_phi] prot_per_biomass_sigma;
+
+    // RNA parameters
+    vector<lower=0>[J_phi] rna_per_biomass_mu;
+    vector<lower=0>[J_phi] rna_per_biomass_sigma;
+
+    // phiRb prameters
+    vector<lower=0>[J_phi] phiRb_mu;
+    vector<lower=0>[J_phi] phiRb_sigma;
 
     // Membrane protein parameters
     vector<lower=0>[J_mem] mem_per_biomass_mu;
@@ -63,10 +67,6 @@ parameters {
     // Periplasmic protein parameters
     vector<lower=0>[J_peri] peri_per_biomass_mu;
     vector<lower=0>[J_peri] peri_per_biomass_sigma;
-
-    // RNA parameters
-    vector<lower=0>[J_rna] rna_per_biomass_mu;
-    vector<lower=0>[J_rna] rna_per_biomass_sigma;
 
     // Growth parameters
     vector<lower=0>[J_growth] growth_rate_mu;
@@ -101,7 +101,17 @@ model {
     // Total protein inference model
     prot_per_biomass_mu ~ normal(0, 300);
     prot_per_biomass_sigma ~ std_normal();
-    prot_per_biomass ~ normal(prot_per_biomass_mu[prot_idx], prot_per_biomass_sigma[prot_idx]);
+    prot_per_biomass ~ normal(prot_per_biomass_mu[phi_idx], prot_per_biomass_sigma[phi_idx]);
+
+    // RNA inference model
+    rna_per_biomass_mu ~ normal(0, 200);
+    rna_per_biomass_sigma ~ std_normal();
+    rna_per_biomass ~ normal(rna_per_biomass_mu[phi_idx], rna_per_biomass_sigma[phi_idx]);
+
+    // PhiRB inference model
+    phiRb_mu ~ beta(2.5, 8.5);
+    phiRb_sigma ~ normal(0, 0.01);
+    phiRb ~ normal(phiRb_mu[phi_idx], phiRb_sigma[phi_idx]);
 
     // Membrane protein inference model
     mem_per_biomass_mu ~ normal(0, 20);
@@ -112,12 +122,6 @@ model {
     peri_per_biomass_mu ~ normal(0, 100);
     peri_per_biomass_sigma ~ normal(0, 10);
     peri_per_biomass ~ normal(peri_per_biomass_mu[peri_idx], peri_per_biomass_sigma[peri_idx]);
-
-    // RNA inference model
-    rna_per_biomass_mu ~ normal(0, 200);
-    rna_per_biomass_sigma ~ std_normal();
-    rna_per_biomass ~ normal(rna_per_biomass_mu[rna_idx], rna_per_biomass_sigma[rna_idx]);
-
     // Growth rate inference model
     growth_rate_mu ~ std_normal();
     growth_rates_sigma ~ std_normal();
@@ -161,19 +165,16 @@ generated quantities {
     vector<lower=0>[J_mem] phi_mem_mu = mem_per_biomass_mu ./ prot_per_biomass_mu;
     vector<lower=0>[J_peri] m_peri_mu ; 
     vector<lower=0>[J_peri] phi_peri_mu;
-    vector<lower=0>[J_prot] phi_Rb_mu = 0.4558 .* (rna_per_biomass_mu ./ prot_per_biomass_mu);
     vector<lower=0>[J_mem] rho_mem_mu = 1E9 * mem_per_biomass_mu ./ (N_cells .* 2 .* surface_area_mu);
     vector<lower=0>[J_peri] rho_peri_mu;
     vector<lower=0>[J_size] prot_per_cell_mu = 1E9 .* prot_per_biomass_mu ./ N_cells;
-    vector<lower=0>[J_size] drymass_mu = (prot_per_biomass_mu + rna_per_biomass_mu) / 0.75;
-    vector<lower=0>[J_size] drymass_density_mu = 1E9 .* drymass_mu ./ (N_cells .* volume_mu);
-    vector<lower=0>[J_size] kappa_mu = drymass_density_mu ./ rho_mem_mu;
 
     //PPCs
-    vector<lower=0>[J_prot] prot_per_biomass_ppc;
+    vector<lower=0>[J_phi] prot_per_biomass_ppc;
+    vector<lower=0>[J_phi] rna_per_biomass_ppc;
+    vector<lower=0>[J_phi] phiRb_ppc;
     vector<lower=0>[J_mem] mem_per_biomass_ppc;
     vector<lower=0>[J_peri] peri_per_biomass_ppc;
-    vector<lower=0>[J_rna] rna_per_biomass_ppc;
     vector<lower=0>[J_flow] cells_per_biomass_ppc;
     vector<lower=0>[J_growth] growth_rates_ppc;
     vector<lower=0>[J_size] width_ppc;
@@ -190,16 +191,14 @@ generated quantities {
         rho_peri_mu[i] = 1E9 * peri_per_biomass_mu[i] / (N_cells[i] * surface_area_mu[i] * 0.0246);
         peri_per_biomass_ppc[i] = normal_rng(peri_per_biomass_mu[i], peri_per_biomass_sigma[i]);
     }
-    for (i in 1:J_prot) {
+    for (i in 1:J_phi) {
         prot_per_biomass_ppc[i] =  normal_rng(prot_per_biomass_mu[i], prot_per_biomass_sigma[i]);
+        rna_per_biomass_ppc[i] = normal_rng(rna_per_biomass_mu[i], rna_per_biomass_sigma[i]);
+        phiRb_ppc[i] = normal_rng(phiRb_mu[i], phiRb_sigma[i]);
     }
 
     for (i in 1:J_mem) {
         mem_per_biomass_ppc[i] = normal_rng(mem_per_biomass_mu[i], mem_per_biomass_sigma[i]);
-    }
-
-    for (i in 1:J_rna) {
-        rna_per_biomass_ppc[i] = normal_rng(rna_per_biomass_mu[i], rna_per_biomass_sigma[i]);
     }
 
     for (i in 1:J_flow) {
