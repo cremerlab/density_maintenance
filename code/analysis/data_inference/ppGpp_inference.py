@@ -66,7 +66,7 @@ data_dict = {'J_cond': len(mapper),
              'aspect_ratios': size_data['aspect_ratio'].values,
              }
 
-_samples = model.sample(data=data_dict, adapt_delta=0.95)
+_samples = model.sample(data=data_dict, adapt_delta=0.99)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
@@ -140,6 +140,8 @@ ax[3].plot(growth['idx'],
            markeredgecolor=cor['primary_red'], markeredgewidth=1)
 ax[3].set_title('growth rates', fontsize=6)
 ax[3].set_ylabel('growth rate\n[hr$^{-1}$]', fontsize=6)
+ax[3].set_xticks(ticks)
+ax[3].set_xticklabels(labels)
 # ax[2].set_xticks([1, 2])
 # ax[2].set_xticklabels(['relA, 1', 'meshI, 100'], fontsize=6)
 
@@ -169,11 +171,18 @@ for i, p in enumerate(pars):
             'unit': units[i]},
             index=[0])
         par_df = pd.concat([par_df, _df], sort=False)
-
         _post_df = d.copy()
-        d['']
+        _post_df['strain'] = 'wildtype'
+        _post_df['overexpression'] = oe
+        _post_df['inducer_conc'] = c
+        _post_df['quantity'] = p
+        _post_df['unit'] = units[i]
+        _post_df.rename(columns={f'{p}_mu': 'value'}, inplace=True)
+        _post_df.drop(columns=[f'{p}_mu_dim_0'], inplace=True)
+        post_df = pd.concat([_post_df, post_df], sort=False)
 
 par_df.to_csv(
     '../../../data/mcmc/ppGpp_perturbation_parameter_summaries.csv', index=False)
-
+post_df.to_csv(
+    '../../../data/mcmc/ppGpp_perturbation_samples.csv', index=False)
 # %%
