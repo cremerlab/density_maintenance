@@ -27,8 +27,6 @@ ax[0].set_ylabel(
     r'$\rho_{dry} \approx \rho_{cyt}$ [fg / fL]' + '\ndrymass density', fontsize=6)
 ax[1].set_ylabel(r'$\rho_{mem}$  [fg / µm$^2$]' +
                  '\nmembrane density', fontsize=6)
-# ax[2].set_ylabel(r'$m_{peri}$ [fg / cell]' +
-#  '\nperiplasmic protein', fontsize=6)
 
 # Limits
 ax[0].set_ylim([100, 450])
@@ -136,5 +134,3 @@ ax[0].plot([], [], 'o', markerfacecolor='w', color=cor['primary_blue'],
 ax[0].legend(fontsize=6)
 plt.savefig('../../figures/Fig2.1_pred_data.pdf')
 # plt.tight_layout()
-# %%
-phi

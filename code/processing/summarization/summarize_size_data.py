@@ -9,8 +9,9 @@ data.loc[data['overexpression'] == 'mesh1', 'overexpression'] = 'meshI'
 # %%
 data['delta'] = 0.0246
 data.loc[data['strain'] == 'lpp14', 'delta'] = 0.0276
-data.loc[data['strain'] == 'lpp21', 'delta'] = 0.0285
 data = data[~data['date'].str.contains('2023-07')]
+data = data[data['strain'].isin(['wildtype', 'lpp14'])]
+
 # %%
 # Recompute dimensions
 data['surface_area'] = np.pi * data['length'] * data['width_median']

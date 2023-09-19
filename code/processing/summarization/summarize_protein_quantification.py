@@ -32,7 +32,7 @@ peri_data['ug_prot_per_biomass'] = np.round(
     peri_data['protein_conc_ug_mL'] / peri_data['conv_factor'], decimals=3)
 peri_data['inducer_conc'] = peri_data['inducer_conc'].values.astype(float)
 peri_data['temperature'] = peri_data['temperature'].values.astype(float)
-peri_data = peri_data[(peri_data['strain'] == 'wildtype') &
+peri_data = peri_data[peri_data['strain'].isin(['wildtype', 'lpp14']) &
                       peri_data['overexpression'].isin(['none', 'relA', 'meshI']) &
                       peri_data['inducer_conc'].isin([0, 1, 100]) &
                       (peri_data['temperature'] == 37.0)]
