@@ -29,6 +29,7 @@ peri = peri[peri['ug_prot_per_biomass'] <= 50]
 sizes = pd.read_csv('../../../data/summaries/summarized_size_measurements.csv')
 flow = pd.read_csv('../../../data/summaries/summarized_cell_counts.csv')
 flow = flow[flow['cells_per_biomass'].values > 1E6]
+flow = flow[flow['strain'] == 'wildtype']
 growth = pd.read_csv(
     '../../../data/summaries/summarized_growth_measurements.csv')
 

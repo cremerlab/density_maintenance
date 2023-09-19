@@ -123,6 +123,7 @@ generated quantities {
     vector[N_pred] pred_phiRb_prot = exp(log_prot_intercept + log_prot_slope .* pred_lam);
     vector[N_pred] pred_lam_prot = exp(log_prot_intercept + log_prot_slope .* pred_lam_range);
     vector[N_pred] SAV_theory = (phi_mem_mu .* kappa) ./ (2 * (1 + (pred_phiRb_range / 0.4558) - phi_mem_mu - m_peri ./ pred_phiRb_prot)); 
+    vector[N_pred] SAV_pred = (phi_mem_mu .* kappa) ./ (2 * (1 + (pred_phiRb/0.4558) - phi_mem_mu - m_peri ./ pred_lam_prot));
     vector[N_pred] width_theory = (24 * alpha_mu / (3 * alpha_mu - 1)) .* (1 + (pred_phiRb_range/0.4558) - phi_mem_mu - m_peri ./pred_phiRb_prot) / (kappa * phi_mem_mu);
     vector[N_pred] width_pred = (24 * alpha_mu / (3 * alpha_mu - 1)) .* (1 + (pred_phiRb/0.4558) - phi_mem_mu - m_peri ./pred_lam_prot) / (kappa * phi_mem_mu);
     vector[N_pred] volume_pred = (pi() / 12) * width_pred^3 * (3 * alpha_mu  - 1);
@@ -139,7 +140,7 @@ generated quantities {
         rho_mem_pred[i] = rho_mem_mu;
         phi_mem_pred[i] = phi_mem_mu;
         phi_peri_pred[i] = m_peri / pred_phiRb_prot[i];
-        rho_peri_pred[i] = phi_peri_pred[i] * pred_lam_prot[i] / (0.0246 * width_pred[i]^2 * aspect_ratio_pred[i]);
+        rho_peri_pred[i] = m_peri / (0.0246 * SAV_pred[i] * volume_pred[i]);
     } 
 
     // Empirical calculations from data

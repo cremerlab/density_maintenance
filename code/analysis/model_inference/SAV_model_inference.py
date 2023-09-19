@@ -11,7 +11,8 @@ model = cmdstanpy.CmdStanModel(stan_file='./SAV_model_inference.stan')
 
 size_data = pd.read_csv(
     '../../../data/literature/collated_literature_size_data.csv')
-size_data = size_data[size_data['source'] != 'Si et al. 2017']
+size_data = size_data[(size_data['source'] != 'Si et al. 2017') &
+                      (size_data['source'] != 'Taheri-Araghi et al. 2015')]
 prot_data = pd.read_csv(
     '../../../data/literature/collated_protein_per_cell.csv')
 ms_data = pd.read_csv(
@@ -65,7 +66,7 @@ samples = az.from_cmdstanpy(_samples)
 # %%
 # Summaries the parameter percentiles
 pars = ['rho_mem_mu', 'phi_mem_mu', 'm_peri',
-        'drymass_mu', 'alpha_mu', 'kappa']
+        'drymass_mu', 'alpha_mu', 'kappa', 'log_prot_intercept', 'log_prot_slope']
 full_post = samples.posterior[pars].to_dataframe().reset_index()
 full_post['idx'] = 1
 full_post[pars].to_csv(
@@ -201,8 +202,8 @@ size_par_wide.to_csv(
 wt = pd.read_csv(
     '../../../data/mcmc/wildtype_posterior_parameter_summaries.csv')
 # %%
-mata = pd.read_csv(
-    '../../../data/literature/matamorous2023/matamorous2023_size_phi.csv')
+# mata = pd.read_csv(
+# '../../../data/literature/matamouros2023/matamorous2023_size_phi.csv')
 fig, ax = plt.subplots(1, 2, figsize=(4.25, 2))
 ax[0].set_ylabel('surface to volume [µm$^{-1}$]', fontsize=6)
 ax[1].set_ylabel('average width [µm]', fontsize=6)
@@ -264,9 +265,9 @@ for g, d in wt.groupby('carbon_source'):
         ax[i].plot(phiRb['median_value'], p['median_value'], 'o', markeredgecolor=cor['blue'],
                    markerfacecolor='w', markeredgewidth=1, ms=4)
 
-ax[0].plot(mata['phiRb'], mata['surface_to_volume'], 'X', color=cor['primary_red'],
-           label='Corynebacterium glutamicum')
-ax[1].plot(mata['phiRb'], mata['width_um'], 'X', color=cor['primary_red'],
-           label='Corynebacterium glutamicum')
-ax[0].legend(fontsize=4)
+# ax[0].plot(mata['phiRb'], mata['surface_to_volume'], 'X', color=cor['primary_red'],
+#            label='Corynebacterium glutamicum')
+# ax[1].plot(mata['phiRb'], mata['width_um'], 'X', color=cor['primary_red'],
+#            label='Corynebacterium glutamicum')
+# ax[0].legend(fontsize=4)
 # %%
