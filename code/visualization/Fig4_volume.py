@@ -4,8 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import size.viz
 cor, pal = size.viz.matplotlib_style()
-
-
 size_data = pd.read_csv(
     '../../data/literature/collated_literature_size_data.csv')
 size_data = size_data[size_data['source'] != 'Taheri-Araghi et al. 2015']
@@ -22,7 +20,7 @@ posts = pd.read_csv('../../data/mcmc/theory_parameter_posterior_samples.csv')
 pars = pd.read_csv('../../data/mcmc/theory_parameter_summaries_wide.csv')
 
 # %%
-fig, ax = plt.subplots(2, 2, figsize=(3, 3))
+fig, ax = plt.subplots(2, 2, figsize=(3.5, 3))
 ax = ax.ravel()
 ax[0].set_ylim([0, 6])
 ax[2].set_ylim([1, 4.5])
@@ -34,7 +32,7 @@ ax[1].set_xlabel('aspect ratio\n'+r'$\alpha$', fontsize=6)
 ax[0].set_ylabel('$\ell/w$\naspect ratio', fontsize=6)
 ax[2].set_ylabel('$\ell$ [µm]\naverage length', fontsize=6)
 ax[3].set_ylabel('$V$ [µm$^3$]\naverage volume', fontsize=6)
-
+ax[0].set_xlim([0, 2.1])
 for g, d in size_data.groupby('source'):
     fmt = size.viz.style_point(g)
     ax[0].plot(d['growth_rate_hr'], d['length_um'] / d['width_um'], **fmt)
@@ -80,25 +78,7 @@ ax[1].set_yticks([])
 ax[1].spines['bottom'].set_visible(True)
 ax[1].spines['bottom'].set_linewidth(0.2)
 ax[1].spines['bottom'].set_color(cor['primary_black'])
-plt.tight_layout()
-# for g, d in pert_data.groupby(['overexpression', 'inducer_conc']):
-#     lam = d[d['quantity'] == 'growth_rate']
-#     alpha = d[d['quantity'] == 'aspect_ratio']
-#     ell = d[d['quantity'] == 'length']
-#     vol = d[d['quantity'] == 'volume']
-#     if g[0] == 'meshI':
-#         m = 's'
-#     else:
-#         m = 'D'
-#     for i, q in enumerate([alpha, ell, vol]):
-#         if i > 0:
-#             i += 1
-#         ax[i].hlines(q['median_value'], lam['2.5%'], lam['97.5%'],
-#                      lw=1, color=cor['primary_blue'])
-#         ax[i].vlines(lam['median_value'], q['2.5%'], q['97.5%'],
-#                      lw=1, color=cor['primary_blue'])
-#         ax[i].plot(lam['median_value'], q['median_value'], m, markerfacecolor='w',
-#                    markeredgecolor=cor['primary_blue'], markeredgewidth=1, ms=4)
-
+# plt.tight_layout()
+plt.savefig('../../figures/Fig4_aspect_ratio_volume_pred.pdf')
 
 # %%

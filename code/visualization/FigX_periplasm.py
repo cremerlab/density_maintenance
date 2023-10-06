@@ -22,8 +22,8 @@ ax[0].set_ylim([0, 30])
 ax[0].set_ylabel('periplasmic protein\nmass [fg/cell]\n', fontsize=6)
 ax[1].set_ylabel('total protein\nmass [fg/cell]', fontsize=6)
 ax[1].set_xlabel('growth rate\n$\lambda$ [hr$^{-1}$]', fontsize=6)
-# ax[1].set_ylim([80, 1000])
-# ax[1].set_yscale('log')
+ax[1].set_ylim([80, 1000])
+ax[1].set_yscale('log')
 ax[1].set_yticks([100, 250, 500, 1000])
 ax[1].set_yticklabels([100, 250, 500, 1000])
 
@@ -67,8 +67,10 @@ for g, d in wt_data.groupby('carbon_source'):
                      _d['97.5%'], lw=1, color=cor['primary_blue'])
         ax[i].plot(lam['median_value'], _d['median_value'], 'o', markerfacecolor='w',
                    markeredgecolor=cor['primary_blue'], markeredgewidth=1, ms=4)
-plt.savefig('../../figures/Figx_periplasm_protein_trends.pdf')
+ax[0].legend()
+ax[1].legend()
 
+plt.savefig('../../figures/Figx_periplasm_protein_trends.pdf')
 # %%
 fig = plt.figure(figsize=(2, 2))
 gs = fig.add_gridspec(2, 2)

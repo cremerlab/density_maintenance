@@ -7,6 +7,7 @@ cor, pal = size.viz.matplotlib_style()
 
 size_emp = pd.read_csv(
     '../../data/mcmc/size_data_empirical_summaries_wide.csv')
+size_emp = size_emp[size_emp['source'] != 'Taheri-Araghi et al. 2015']
 ms_emp = pd.read_csv('../../data/mcmc/mass_spec_empirical_summaries_wide.csv')
 ms_data = pd.read_csv(
     '../../data/literature/collated_mass_fractions_empirics.csv')
@@ -19,6 +20,7 @@ drymass = pd.read_csv('../../data/literature/collated_drymass_densities.csv')
 pred = pd.read_csv('../../data/mcmc/theory_phiRb_prediction_summaries.csv')
 
 # %%
+#
 fig, ax = plt.subplots(2, 1, figsize=(2, 2), sharex=True)
 
 # Labels
@@ -32,7 +34,7 @@ ax[1].set_ylabel(r'$\rho_{mem}$  [fg / µm$^2$]' +
 ax[0].set_ylim([100, 450])
 ax[1].set_ylim([0, 6])
 ax[0].set_xlim([0, 2.2])
-# ax[2].set_ylim([0, 25])
+
 for g, d in drymass.groupby('source'):
     fmt = size.viz.style_point(g)
     ax[0].plot(d['growth_rate_hr'], d['drymass_density_fg_fL'], **fmt)
