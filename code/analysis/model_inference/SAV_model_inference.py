@@ -97,7 +97,7 @@ wide_df.to_csv(
 # %%
 # Summarize the predicted growth-rate dependencies
 pars = ['pred_lam_prot', 'volume_pred', 'length_pred', 'aspect_ratio_pred',
-        'm_peri_pred', 'rho_peri_pred', 'rho_mem_pred', 'phi_mem_pred', 'phi_peri_pred']
+        'm_peri_pred', 'rho_peri_pred', 'rho_mem_pred', 'phi_mem_pred', 'phi_Rb_pred', 'phi_peri_pred']
 lam_par_percs = pd.DataFrame([])
 for i, p in enumerate(tqdm.tqdm(pars)):
     post = samples.posterior[p].to_dataframe().reset_index()
@@ -155,7 +155,9 @@ for g, d in ms_par_percs.groupby(['quantity', 'source', 'growth_rate_hr']):
                         'growth_rate_hr': g[2],
                         'median_value': med,
                         '97.5%': perc['lower'].values[0],
-                        '2.5%': perc['upper'].values[0]}, index=[0])
+                        '2.5%': perc['upper'].values[0]},
+
+                       index=[0])
     ms_par_wide = pd.concat([ms_par_wide, _df], sort=False)
 ms_par_wide.to_csv(
     '../../../data/mcmc/mass_spec_empirical_summaries_wide.csv', index=False)

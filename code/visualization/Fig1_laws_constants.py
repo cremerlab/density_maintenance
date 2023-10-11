@@ -12,9 +12,13 @@ peri_width = pd.read_csv(
 size_data = pd.read_csv(
     '../../data/literature/collated_literature_size_data.csv')
 size_data = size_data[size_data['source'] != 'Si et al. 2017']
+size_data = size_data[size_data['source'] != 'Taheri-Araghi et al. 2015']
+size_data = size_data[size_data['source'] != 'Basan et al. 2015']
 prot_data = pd.read_csv('../../data/literature/collated_protein_per_cell.csv')
 vol_data = pd.read_csv(
     '../../data/literature/collated_literature_volume_data.csv')
+vol_data = vol_data[~vol_data['source'].isin(
+    ['Basan et al. 2015', 'Taheri-Araghi et al. 2015', 'Si et al. 2017'])]
 phiRb_data = pd.read_csv(
     '../../data/literature/Chure2023/chure2023_collated_mass_fractions.csv')
 phiRb_data = phiRb_data[phiRb_data['source'] != 'Si et al. 2017']
@@ -38,12 +42,12 @@ fig, ax = plt.subplots(1, 3, figsize=(6, 2))
 ax[-1].axis('off')
 for a in ax:
     a.set_xlabel('growth rate [hr$^{-1}$]\n$\lambda$', fontsize=6)
-ax[0].set_ylabel('$\phi_{Rb}$\nribosomal protein mass fraction', fontsize=6)
+ax[0].set_ylabel('$r$\nRNA-to-protein', fontsize=6)
 ax[1].set_ylabel('$V$\naverage cell volume [µm$^3$]', fontsize=6)
 
 
 # force limits
-ax[0].set_ylim([0, 0.3])
+ax[0].set_ylim([0, 0.7])
 
 # Plot the phiRb data
 labels = []
@@ -51,9 +55,10 @@ for g, d in phiRb_data.groupby('source'):
     if g not in labels:
         labels.append(g)
     fmt = size.viz.style_point(g, alpha=1)
-    ax[0].plot(d['growth_rate_hr'], d['mass_fraction'], **fmt)
+    # Convert mass fraction to ribosomal allocation with 0.4558.
+    ax[0].plot(d['growth_rate_hr'], d['mass_fraction'] / 0.4558, **fmt)
 
-ax[0].plot(lam_range, phiRb_fit, '--', color=cor['light_blue'], lw=2)
+ax[0].plot(lam_range, phiRb_fit / 0.4558, '--', color=cor['light_blue'], lw=2)
 
 # Plot the size data
 for g, d in vol_data.groupby('source'):
