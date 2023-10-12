@@ -133,6 +133,7 @@ generated quantities {
     vector[N_pred] rho_mem_pred;
     vector[N_pred] phi_mem_pred;
     vector[N_pred] phi_peri_pred;
+    vector[N_pred] phi_peri_phiRb_pred;
     for (i in 1:N_pred) {
         aspect_ratio_pred[i] = alpha_mu;
         m_peri_pred[i] = m_peri;

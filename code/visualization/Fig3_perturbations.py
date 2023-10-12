@@ -54,6 +54,8 @@ plt.subplots_adjust(hspace=-0.25)
 plt.savefig('../../figures/Fig3_perturbation_joyplot.pdf')
 
 # %%
+
+# %%
 fig, ax = plt.subplots(2, 1, figsize=(1.75, 3.5), sharex=True)
 ax[0].set_xlim([0.07, 0.18])
 ax[0].set_ylim([3.5, 9])

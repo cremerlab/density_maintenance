@@ -16,6 +16,7 @@ model = cmdstanpy.CmdStanModel(stan_file='./perturbation_inference.stan')
 # Load the datasets
 prot = pd.read_csv('../../../data/summaries/summarized_total_protein.csv')
 prot = prot[prot['ug_prot_per_biomass'] > 200]
+prot = prot[prot['inducer_conc'] != 10]
 mem = pd.read_csv('../../../data/summaries/summarized_membrane_protein.csv')
 rna = pd.read_csv('../../../data/summaries/summarized_total_rna.csv')
 rna = rna[rna['ug_rna_per_biomass'] < 100]
@@ -27,7 +28,7 @@ density = pd.read_csv(
 biomass = pd.read_csv(
     '../../../data/literature/Basan2015/Basan2015_drymass_protein_cellcount.csv')
 biomass
-mapper = {1: 1, 100: 2}
+mapper = {0: 1, 1: 1, 2: 2, 100: 3}
 
 # Total protein
 prot = prot[prot['overexpression'].isin(['relA', 'meshI'])].copy()
