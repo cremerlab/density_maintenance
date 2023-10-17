@@ -65,7 +65,7 @@ def lit_mapper():
         'Pierucci 1978': {'m': 'v'},
         'Grossman et al. 1982': {'m': 'X'},
         'Zaritsky & Woldringh 1978': {'m': '<'},
-        'Rueba & Woldringh 1980': {'m': 's'},
+        'Trueba & Woldringh 1980': {'m': 's'},
         'Zaritsky et al. 1993': {'m': '>'},
         'Si et al. 2017': {'m': '^'},
         'Caglar et al. 2017': {'m': 'h'},

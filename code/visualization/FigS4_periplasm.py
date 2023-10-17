@@ -13,7 +13,7 @@ prot_data = pd.read_csv('../../data/literature/collated_protein_per_cell.csv')
 wt_data = pd.read_csv(
     '../../data/mcmc/wildtype_posterior_parameter_summaries.csv')
 pred = pd.read_csv(
-    '../../data/mcmc/theory_growth_rate_prediction_summaries.csv')
+    '../../data/mcmc/theory_phiRb_prediction_summaries.csv')
 pars = pd.read_csv('../../data/mcmc/theory_parameter_summaries_wide.csv')
 posts = pd.read_csv('../../data/mcmc/theory_parameter_posterior_samples.csv')
 

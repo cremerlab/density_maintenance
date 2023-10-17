@@ -97,7 +97,8 @@ wide_df.to_csv(
 # %%
 # Summarize the predicted growth-rate dependencies
 pars = ['pred_lam_prot', 'volume_pred', 'length_pred', 'aspect_ratio_pred', 'width_pred',
-        'm_peri_pred', 'rho_peri_pred', 'rho_mem_pred', 'phi_mem_pred', 'phi_Rb_pred', 'phi_peri_pred']
+        'm_peri_pred', 'rho_peri_pred', 'rho_mem_pred', 'phi_mem_pred', 'phi_Rb_pred', 'phi_peri_lam_pred',
+        'SA_fit']
 lam_par_percs = pd.DataFrame([])
 for i, p in enumerate(tqdm.tqdm(pars)):
     post = samples.posterior[p].to_dataframe().reset_index()
