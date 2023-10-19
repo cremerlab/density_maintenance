@@ -58,58 +58,82 @@ plt.subplots_adjust(hspace=-0.25)
 plt.savefig('../../figures/Fig3.2_perturbation_joyplot.pdf')
 
 # %%
+fig, ax = plt.subplots(1, 1, figsize=(1.75, 1))
+ax.set_ylim([5.5, 8.5])
+ax.set_xlim([0.19, 0.325])
+ax.set_xlabel('RNA-to-protein\n$M_{RNA}/M_{prot}^{(tot)}$', fontsize=6)
+ax.set_ylabel('$S_A/V$ [µm$^{-1}$]\nsurface-to-volume', fontsize=6)
 
-# %%
-fig, ax = plt.subplots(1, 2, figsize=(4.5, 1.75))
-ax[0].set_xlim([0.1, 0.75])
-ax[0].set_ylim([3.5, 9])
-ax[1].set_ylim([0.4, 1.1])
-axes = {'SAV_theory': ax[0], 'width_theory': ax[1]}
-cred_colors = {'95%': cor['pale_black'], '75%': cor['light_black'],
-               '25%': cor['primary_black'], 'median': cor['black']}
-for g, d in pred.groupby(['quantity', 'interval'], sort=False):
-    axes[g[0]].fill_between(d['phiRb']/0.4558, d['lower'],
-                            d['upper'], color=cred_colors[g[1]], alpha=0.45)
-
-for g, d in emp.groupby('source'):
-    fmt = size.viz.style_point(g, alpha=0.45)
-    # ax[0].hlines(d['surface_to_volume'], d['2.5%'],
-    #  d['97.5%'], lw=1, color=fmt['color'], alpha=0.45)
-    ax[0].plot(d['median_value']/0.4558, d['surface_to_volume'], **fmt, ms=4)
-    # ax[1].hlines(d['width'], d['2.5%'], d['97.5%'],
-    #  lw=1, color=fmt['color'], alpha=0.45)
-    ax[1].plot(d['median_value']/0.4558, d['width'], **fmt, ms=4)
-
-for g, d in wt_data.groupby(['carbon_source']):
-    phi = d[d['quantity'] == 'phiRb']
-    sav = d[d['quantity'] == 'surface_to_volume']
-    w = d[d['quantity'] == 'width']
-    for i, _d in enumerate([sav, w]):
-        ax[i].hlines(_d['median_value']/0.4558, phi['2.5%'], phi['97.5%'],
-                     lw=1, color=cor['primary_black'], alpha=0.75)
-        ax[i].vlines(phi['median_value'] / 0.4558, _d['2.5%'], _d['97.5%'],
-                     lw=1, color=cor['primary_black'], alpha=0.75)
-        ax[i].plot(phi['median_value'] / 0.4558, _d['median_value'], 'o', markerfacecolor='w',
-                   markeredgecolor=cor['primary_black'], markeredgewidth=1, ms=4, alpha=0.75)
+# ax[1].set_xlim([0.2, 0.3])
 
 colors = {'meshI': {'m': 's', 100: 'dark_', 0: ''},
           'relA': {'m': 'D', 0: 'primary_', 1: 'light_', 2: 'pale_'}}
 for g, d in params.groupby(['overexpression', 'inducer_conc']):
-    phi = d[d['quantity'] == 'phiRb']
     sav = d[d['quantity'] == 'surface_to_volume']
-    w = d[d['quantity'] == 'width']
-    for i, (_d, _c) in enumerate(zip([sav, w], ['red', 'blue'])):
-        _cor = cor[f'{colors[g[0]][g[1]]}{_c}']
-        ax[i].hlines(_d['median_value'], phi['2.5%']/0.4558,
-                     phi['97.5%']/0.4558, lw=1, color=_cor)
-        ax[i].vlines(phi['median_value'] / 0.4558, _d['2.5%'],
-                     _d['97.5%'], lw=1, color=_cor)
-        ax[i].plot(phi['median_value'] / 0.4558, _d['median_value'], colors[g[0]]['m'], markerfacecolor='w',
-                   markeredgecolor=_cor, markeredgewidth=1, ms=4)
+    phi = d[d['quantity'] == 'phiRb']
+    m = colors[g[0]]['m']
+    sav_c = cor[f'{colors[g[0]][g[1]]}red']
+    ax.hlines(sav['median_value'], phi['2.5%']/0.4558,
+              phi['97.5%']/0.4558, lw=1, color=sav_c)
+    ax.vlines(phi['median_value']/0.4558, sav['2.5%'],
+              sav['97.5%'], lw=1, color=sav_c)
+    ax.plot(phi['median_value']/0.4558, sav['median_value'], marker=m, markerfacecolor='w', markeredgecolor=sav_c,
+            markeredgewidth=1, ms=4)
 
-ax[0].set_ylabel('$S_A/V$ [µm$^{-1}$]\naverage surface-to-volume', fontsize=6)
-ax[1].set_ylabel('$w$ [µm]\naverage width', fontsize=6)
-ax[0].set_xlabel('RNA-to-protein\n$M_{RNA} / M_{prot}^{(tot)}$', fontsize=6)
-ax[1].set_xlabel('ribosomal protein\nallocation $\phi_{Rb}$', fontsize=6)
-plt.tight_layout()
-plt.savefig('../../figures/Fig3.2_theory_comparison.pdf')
+plt.savefig('../../figures/Fig3.2_sav_points.pdf', bbox_inches='tight')
+# %%
+# fig, ax = plt.subplots(1, 2, figsize=(4.5, 1.75))
+# ax[0].set_xlim([0.1, 0.75])
+# ax[0].set_ylim([5.5,89])
+# ax[1].set_ylim([0.4, 1.1])
+# ax[0].set_xlabel('RNA-to-protein\n$M_{RNA} / M_{prot}^{(tot)}', fontsize=6)
+# ax[1].set_xlabel('growth rate\n$\lambda$ [hr$^{-1}$]', fontsize=6)
+# axes = {'SAV_theory': ax[0], 'width_theory': ax[1]}
+# cred_colors = {'95%': cor['pale_black'], '75%': cor['light_black'],
+#                '25%': cor['primary_black'], 'median': cor['black']}
+# for g, d in pred.groupby(['quantity', 'interval'], sort=False):
+#     axes[g[0]].fill_between(d['phiRb']/0.4558, d['lower'],
+#                             d['upper'], color=cred_colors[g[1]], alpha=0.45)
+
+# for g, d in emp.groupby('source'):
+#     fmt = size.viz.style_point(g, alpha=0.45)
+#     # ax[0].hlines(d['surface_to_volume'], d['2.5%'],
+#     #  d['97.5%'], lw=1, color=fmt['color'], alpha=0.45)
+#     ax[0].plot(d['median_value']/0.4558, d['surface_to_volume'], **fmt, ms=4)
+#     # ax[1].hlines(d['width'], d['2.5%'], d['97.5%'],
+#     #  lw=1, color=fmt['color'], alpha=0.45)
+#     ax[1].plot(d['median_value']/0.4558, d['width'], **fmt, ms=4)
+
+# for g, d in wt_data.groupby(['carbon_source']):
+#     phi = d[d['quantity'] == 'phiRb']
+#     sav = d[d['quantity'] == 'surface_to_volume']
+#     w = d[d['quantity'] == 'width']
+#     for i, _d in enumerate([sav, w]):
+#         ax[i].hlines(_d['median_value']/0.4558, phi['2.5%'], phi['97.5%'],
+#                      lw=1, color=cor['primary_black'], alpha=0.75)
+#         ax[i].vlines(phi['median_value'] / 0.4558, _d['2.5%'], _d['97.5%'],
+#                      lw=1, color=cor['primary_black'], alpha=0.75)
+#         ax[i].plot(phi['median_value'] / 0.4558, _d['median_value'], 'o', markerfacecolor='w',
+#                    markeredgecolor=cor['primary_black'], markeredgewidth=1, ms=4, alpha=0.75)
+
+# colors = {'meshI': {'m': 's', 100: 'dark_', 0: ''},
+#           'relA': {'m': 'D', 0: 'primary_', 1: 'light_', 2: 'pale_'}}
+# for g, d in params.groupby(['overexpression', 'inducer_conc']):
+#     phi = d[d['quantity'] == 'phiRb']
+#     sav = d[d['quantity'] == 'surface_to_volume']
+#     w = d[d['quantity'] == 'width']
+#     for i, (_d, _c) in enumerate(zip([sav, w], ['red', 'blue'])):
+#         _cor = cor[f'{colors[g[0]][g[1]]}{_c}']
+#         ax[i].hlines(_d['median_value'], phi['2.5%']/0.4558,
+#                      phi['97.5%']/0.4558, lw=1, color=_cor)
+#         ax[i].vlines(phi['median_value'] / 0.4558, _d['2.5%'],
+#                      _d['97.5%'], lw=1, color=_cor)
+#         ax[i].plot(phi['median_value'] / 0.4558, _d['median_value'], colors[g[0]]['m'], markerfacecolor='w',
+#                    markeredgecolor=_cor, markeredgewidth=1, ms=4)
+
+# ax[0].set_ylabel('$S_A/V$ [µm$^{-1}$]\naverage surface-to-volume', fontsize=6)
+# ax[1].set_ylabel('$w$ [µm]\naverage width', fontsize=6)
+# ax[0].set_xlabel('RNA-to-protein\n$M_{RNA} / M_{prot}^{(tot)}$', fontsize=6)
+# ax[1].set_xlabel('ribosomal protein\nallocation $\phi_{Rb}$', fontsize=6)
+# plt.tight_layout()
+# plt.savefig('../../figures/Fig3.2_theory_comparison.pdf')
