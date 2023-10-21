@@ -267,10 +267,3 @@ for g, d in wt.groupby('carbon_source'):
                      linewidth=1, color=cor['blue'])
         ax[i].plot(phiRb['median_value'], p['median_value'], 'o', markeredgecolor=cor['blue'],
                    markerfacecolor='w', markeredgewidth=1, ms=4)
-
-# ax[0].plot(mata['phiRb'], mata['surface_to_volume'], 'X', color=cor['primary_red'],
-#            label='Corynebacterium glutamicum')
-# ax[1].plot(mata['phiRb'], mata['width_um'], 'X', color=cor['primary_red'],
-#            label='Corynebacterium glutamicum')
-# ax[0].legend(fontsize=4)
-# %%

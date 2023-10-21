@@ -142,7 +142,7 @@ generated quantities {
         phi_mem_pred[i] = phi_mem_mu;
         phi_peri_pred[i] = m_peri / pred_phiRb_prot[i];
         phi_peri_lam_pred[i] = m_peri / pred_lam_prot[i];
-        rho_peri_pred[i] = m_peri / (0.0246 * SAV_pred[i] * volume_pred[i]);
+        rho_peri_pred[i] = m_peri / (0.0246 * SA_fit[i]);
     } 
 
 
