@@ -79,7 +79,7 @@ plt.savefig('../../figures/Fig4.1_width_pred.pdf')
 # %%
 fig, ax = plt.subplots(1, 1, figsize=(1.5, 1.5))
 ax.set_ylim([1, 6])
-ax.set_xlim([0.1, 0.55])
+ax.set_xlim([0.1, 0.7])
 ax.set_xlabel('RNA-to-protein\n$M_{RNA}/M_{prot}^{(cyt)}$', fontsize=6)
 ax.set_ylabel(r'$\alpha$'+'\naspect ratio', fontsize=6)
 for g, d in size_emp.groupby('source'):
