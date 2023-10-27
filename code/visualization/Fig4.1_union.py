@@ -21,8 +21,6 @@ size_emp = pd.read_csv(
     '../../data/mcmc/size_data_empirical_summaries_wide.csv')
 wt_data = pd.read_csv(
     '../../data/mcmc/wildtype_posterior_parameter_summaries.csv')
-
-
 params = pd.read_csv('../../data/mcmc/theory_parameter_summaries_wide.csv')
 
 # %%

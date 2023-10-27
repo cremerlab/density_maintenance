@@ -16,6 +16,9 @@ data {
     vector<lower=0>[N_ms] phi_rib;
     vector<lower=0>[N_ms] phi_cyt;
 
+    int<lower=1> N_pred;
+    vector<lower=0>[N_pred] pred_lam;
+
 }
 
 parameters {
@@ -57,15 +60,29 @@ model {
 
     // DNA to protein ratio 
     theta_dna_mu ~ normal(0, 0.1);
-    theta_dna_sigma ~ normal(0, 1);
+    theta_dna_sigma ~ normal(0, 0.1);
     dna_protein_ratio ~ normal(theta_dna_mu, theta_dna_sigma); 
 }
 
 generated quantities {
     vector[N_ms] M_prot_tot = exp(log_prot_intercept + log_prot_slope .* ms_lam);
-    vector[N_ms] V_cyt = exp(log_V_0 + k_V .* ms_lam) - 0.0246 .* (SA_0 + k_SA .* ms_lam);
+    vector[N_ms] SA = SA_0 + k_SA .* ms_lam;
+    vector[N_ms] V_tot = exp(log_V_0 + k_V .* ms_lam);
+    vector[N_ms] V_cyt = V_tot - 0.0246 * SA;
     vector[N_ms] M_RNA = phi_rib .* M_prot_tot / 0.4558;
     vector[N_ms] M_DNA = theta_dna_mu .* M_prot_tot;
     vector[N_ms] M_prot_cyt = phi_cyt .* M_prot_tot;
     vector[N_ms] rho_cyt = (M_RNA + M_DNA + M_prot_cyt) ./ V_cyt;
+
+    // Draw fits
+    vector[N_pred] M_prot_pred;
+    vector[N_pred] DNA_pred;
+    vector[N_pred] SA_pred;
+    vector[N_pred] vol_pred;
+    for (i in 1:N_pred) {
+        M_prot_pred[i] = exp(log_prot_intercept + log_prot_slope .* pred_lam[i]);
+        vol_pred[i] = exp(log_V_0 + k_V .* pred_lam[i]);
+        SA_pred[i] = SA_0 + k_SA * pred_lam[i];
+        DNA_pred[i] = theta_dna_mu;
+    }
 }
