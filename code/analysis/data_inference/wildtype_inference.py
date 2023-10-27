@@ -1,12 +1,3 @@
-"""
-Wildtype Inference
-==================
-
-This script executes a bayesian inferential model to estimate size and protein 
-load parameters from measurements of wildtype E. coli.  This generates figures 
-illustrating the posterior predictive checks of the size, growth, and protein 
-inference as well as CSV files of the summarized posteriors for each parameter. 
-"""
 # %%
 import numpy as np
 import pandas as pd
@@ -113,7 +104,7 @@ for i, q in enumerate(['prot', 'mem', 'peri', 'rna', 'phiRb', 'cells', 'growth_r
     ppc = samples.posterior[f'{n}_ppc'].to_dataframe().reset_index()
 
     for g, d in ppc.groupby(f'{n}_ppc_dim_0'):
-        ax[i].plot(1 + np.ones_like(d[::3]) * g, d[f'{n}_ppc'].values[::3] / mod,
+        ax[i].plot(1 + np.ones_like(d[::10]) * g, d[f'{n}_ppc'].values[::10] / mod,
                    '_', markeredgecolor=cor['primary_black'], markeredgewidth=0.1,
                    alpha=0.75)
 
@@ -135,8 +126,8 @@ ax[4].plot(phi['idx'],
            phi['phiRb'], '_',
            markeredgecolor=cor['primary_red'],
            markeredgewidth=0.5)
-ax[4].set_title('ribosomal allocation', fontsize=6)
-ax[4].set_ylabel('$\phi_{Rb}$', fontsize=6)
+ax[4].set_title('ribosomal proteome fraction', fontsize=6)
+ax[4].set_ylabel('$\phi_{rib}$', fontsize=6)
 
 ax[5].plot(flow['idx'],
            flow['cells_per_biomass'] / 1E9, '_',
@@ -161,7 +152,7 @@ units = ['[µm]', '[µm]', '', '[µm$^2$]', '[µm$^3$]', '[µm$^{-1}$]']
 for i, q in enumerate(['width', 'length', 'aspect_ratio', 'surface_area', 'volume', 'surface_to_volume']):
     ppc = samples.posterior[f'{q}_ppc'].to_dataframe().reset_index()
     for g, d in ppc.groupby(f'{q}_ppc_dim_0'):
-        ax[i].plot(1 + np.ones_like(d[::3]) * g, d[f'{q}_ppc'].values[::3] / mod,
+        ax[i].plot(1 + np.ones_like(d[::10]) * g, d[f'{q}_ppc'].values[::10] / mod,
                    '_', markeredgecolor=cor['primary_black'], markeredgewidth=0.1,
                    alpha=0.75)
     ax[i].set_title(q, fontsize=6)

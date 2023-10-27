@@ -153,7 +153,6 @@ model {
     surface_to_volume_sigma ~ std_normal();
     surface_to_volumes ~ normal(surface_to_volume_mu[size_idx], surface_to_volume_sigma[size_idx]);
 
-
     aspect_ratio_zeroed_mu ~ std_normal();
     alpha_zeroed_sigma ~ normal(0, 0.1);
     aspect_ratio_zeroed ~ normal(aspect_ratio_zeroed_mu[size_idx], alpha_zeroed_sigma[size_idx]);

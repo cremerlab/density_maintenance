@@ -132,6 +132,7 @@ generated quantities {
     vector[N_pred] m_peri_pred;
     vector[N_pred] rho_peri_pred;
     vector[N_pred] rho_mem_pred;
+    vector[N_pred] rho_dry_pred;
     vector[N_pred] phi_mem_pred;
     vector[N_pred] phi_peri_pred;
     vector[N_pred] phi_peri_lam_pred;
@@ -139,6 +140,7 @@ generated quantities {
         aspect_ratio_pred[i] = alpha_mu;
         m_peri_pred[i] = m_peri;
         rho_mem_pred[i] = rho_mem_mu;
+        rho_dry_pred[i] = drymass_mu;
         phi_mem_pred[i] = phi_mem_mu;
         phi_peri_pred[i] = m_peri / pred_phiRb_prot[i];
         phi_peri_lam_pred[i] = m_peri / pred_lam_prot[i];
