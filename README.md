@@ -1,4 +1,8 @@
-# `density_maintenance`
+# Stringent Control of Cytoplasmic and Membrane Densities Defines Cell Geometry in *Escherichia coli* 
+
+[![DOI](https://zenodo.org/badge/438837626.svg)](https://zenodo.org/doi/10.5281/zenodo.10048570)
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Welcome to the research repository for our recent preprint "Stringent Control 
 of Cytoplasmic and Membrane Densities Defines Regulation of Cell Geometry in *Escherichia coli*!"
