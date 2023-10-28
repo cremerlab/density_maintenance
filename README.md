@@ -28,7 +28,6 @@ measurements.
 * `visualization`: This directory houses Python scripts used in generating all 
 of the figures in this work. 
 
-
 ## `data`
 This is where all of the (small) datasets used in this work live. It is broken 
 down in to groups of literature data and our own measurements. Further documentation 
@@ -39,6 +38,10 @@ of each file and subdirectory will be refined after the review processes has com
 This directory houses all of the figures used in the manuscript, usually separated 
 by figure panel. As of now, this houses many different versions used in different 
 stages of the manuscript.
+
+## `protocols`
+This directory houses markdown files with media recipes and detailed step-by-step
+guides for the various experimental protocols performed in this work.
 
 ## `software`
 This project required the development of an independent software package, primarily 

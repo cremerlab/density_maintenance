@@ -17,23 +17,23 @@ ax[1, 0].set_ylim([0, 0.15])
 ax[0, 1].set_ylim([0, 7])
 ax[1, 1].set_ylim([0, 7])
 for g, d in ms_data[ms_data['localization'] == 'inner membrane'].groupby('dataset_name'):
-    fmt = size.viz.style_point(g)
+    fmt = size.viz.style_point(g, alpha=0.45)
     fmt['color'] = cor['pale_blue']
     ax[0, 0].plot(d['growth_rate_hr'], d['mass_frac'], **fmt, ms=4)
 
 for g, d in ms_data[ms_data['localization'] == 'outer membrane'].groupby('dataset_name'):
-    fmt = size.viz.style_point(g, alpha=0.75)
+    fmt = size.viz.style_point(g, alpha=0.45)
     fmt['color'] = cor['blue']
     ax[1, 0].plot(d['growth_rate_hr'], d['mass_frac'], **fmt, ms=4)
 
 axes = {'ms_rho_mem_inner': [ax[0, 1], cor['pale_blue']],
         'ms_rho_mem_outer': [ax[1, 1], cor['dark_blue']]}
 for g, d in densities.groupby(['quantity', 'source']):
-    fmt = size.viz.style_point(g[1], alpha=0.75)
+    fmt = size.viz.style_point(g[1], alpha=0.45)
     _axes = axes[g[0]]
     fmt['color'] = _axes[1]
     _axes[0].vlines(d['growth_rate_hr'], d['2.5%'],
-                    d['97.5%'], lw=0.5, color=fmt['color'])
+                    d['97.5%'], lw=0.5, color=fmt['color'], alpha=0.45)
     _axes[0].plot(d['growth_rate_hr'], d['median_value'], **fmt, ms=4)
 
 for a in ax.ravel():
