@@ -2,14 +2,13 @@
 import numpy as np
 import pandas as pd
 import scipy.stats
-
-
 brad_cal = pd.read_csv(
     '../../../data/protein_quantification/bradford_calibration_curve.csv')
 biuret_cal = pd.read_csv(
     '../../../data/protein_quantification/biuret_calibration_curve.csv')
 bca_cal = pd.read_csv(
     '../../../data/protein_quantification/bca_calibration_curve.csv')
+comparison = pd.read_csv('../../../data/protein_quantification/biuret_bradford_bca_comparison.csv')
 
 # %%
 # Compute the calibration curves
@@ -19,7 +18,26 @@ biuret_popt = scipy.stats.linregress(
     biuret_cal['protein_conc_ug_ml'], biuret_cal['od_555nm'])
 bca_popt = scipy.stats.linregress(
     bca_cal['protein_conc_ug_ml'], bca_cal['od_562nm'])
-
+popts = {'bradford':brad_popt, 'biuret':biuret_popt, 'BCA':bca_popt}
+comp_quant = pd.DataFrame([])
+for g, d in comparison.groupby('method'):
+    popt = popts[g]
+    d['conc'] = d['dilution_factor'] * (d['od'])/(popt[0])
+    if g == 'BCA':
+        _d = d[d['dilution_factor'] <= 160]
+        _d['dilution_factor'] = _d['dilution_factor'] / 10 
+    else:
+        _d = d[d['dilution_factor'] <= 16]
+    comp_quant = pd.concat([comp_quant, _d])
+#%%    
+frac = pd.DataFrame([])
+for g, d in comp_quant.groupby('dilution_factor'):
+    biuret = d[d['method'] == 'biuret']
+    for _g, _d in d[d['method']!= 'biuret'].groupby('method'):
+        _d['relative_conc'] = biuret['conc'].values / _d['conc']
+        frac = pd.concat([frac, _d])
+frac = frac.groupby('method')['relative_conc'].mean().reset_index()
+frac
 # %%
 # Periplasmic protein processing
 peri_data = pd.read_csv(

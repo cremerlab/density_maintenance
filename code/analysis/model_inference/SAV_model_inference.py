@@ -114,7 +114,7 @@ lam_par_percs.to_csv(
 
 # %%
 # Summarize theory prediction
-pars = ['SAV_theory', 'width_theory', 'phi_peri_pred', 'phi_mem_pred']
+pars = ['SAV_theory', 'SAV_theory_simple', 'width_theory', 'width_theory_simple', 'phi_peri_pred', 'phi_mem_pred']
 theo_par_percs = pd.DataFrame([])
 for i, p in enumerate(tqdm.tqdm(pars)):
     post = samples.posterior[p].to_dataframe().reset_index()
@@ -200,70 +200,3 @@ for g, d in percs.groupby(['quantity', 'source', 'growth_rate_hr', 'width', 'sur
     size_par_wide = pd.concat([size_par_wide, _df], sort=False)
 size_par_wide.to_csv(
     '../../../data/mcmc/size_data_empirical_summaries_wide.csv', index=False)
-
-# %%
-wt = pd.read_csv(
-    '../../../data/mcmc/wildtype_posterior_parameter_summaries.csv')
-# %%
-# mata = pd.read_csv(
-# '../../../data/literature/matamouros2023/matamorous2023_size_phi.csv')
-fig, ax = plt.subplots(1, 2, figsize=(4.25, 2))
-ax[0].set_ylabel('surface to volume [µm$^{-1}$]', fontsize=6)
-ax[1].set_ylabel('average width [µm]', fontsize=6)
-for a in ax:
-    a.set_xlabel('ribosomal allocation', fontsize=6)
-labels = []
-for g, d in samples.posterior.size_phiRb.to_dataframe().reset_index().groupby('size_phiRb_dim_0'):
-    src = size_data['source'].values[g]
-    if src not in labels:
-        labels.append(src)
-        lab = src
-    else:
-        lab = '__nolegend__'
-    fmt = size.viz.style_point(size_data['source'].values[g])
-    fmt['label'] = lab
-    med = np.median(d['size_phiRb'].values)
-    perc = np.percentile(d['size_phiRb'].values, (2.5, 97.5))
-    ax[0].hlines(size_data['surface_to_volume'].values[g], perc[0],
-                 perc[1], linewidth=1, color=cor['primary_black'])
-    ax[1].hlines(size_data['width_um'].values[g], perc[0],
-                 perc[1], linewidth=1, color=cor['primary_black'])
-    ax[0].plot(med, size_data['surface_to_volume'].values[g], ms=4, **fmt)
-    ax[1].plot(med, size_data['width_um'].values[g], ms=4, **fmt)
-ax[0].plot([], [], 'o', markeredgecolor=cor['dark_blue'], markerfacecolor='w',
-           ms=4, markeredgewidth=1, label='this study')
-ax[0].fill_between([], [], [], color=cor['pale_blue'], label='prediction')
-ax[0].legend(fontsize=4)
-
-lowers = np.array([2.5, 12.5, 62.5, 50])
-uppers = 100 - lowers
-labels = ['95%', '75%', '25%', 'median']
-
-for i, p in enumerate(['SAV_theory',  'width_theory']):
-    theory_post = samples.posterior[p].to_dataframe().reset_index()
-    percs = size.viz.compute_percentiles(theory_post, p, f'{p}_dim_0',
-                                         lower_bounds=lowers, upper_bounds=uppers,
-                                         interval_labels=labels)
-    int_colors = {'95%': cor['pale_blue'],
-                  '75%': cor['light_blue'],
-                  '25%': cor['primary_blue'],
-                  'median': cor['blue']}
-    for g, d in percs.groupby('interval', sort=False):
-        if g != 'median':
-            ax[i].fill_between(phiRb_range, d['lower'],
-                               d['upper'], color=int_colors[g], alpha=0.5)
-        else:
-            ax[i].plot(phiRb_range, d['lower'],
-                       color=int_colors[g], linewidth=1, alpha=0.5)
-
-for g, d in wt.groupby('carbon_source'):
-    phiRb = d[d['quantity'] == 'phi_Rb']
-    sav = d[d['quantity'] == 'surface_to_volume']
-    width = d[d['quantity'] == 'width']
-    for i, p in enumerate([sav, width]):
-        ax[i].vlines(phiRb['median_value'], p['2.5%'], p['97.5%'],
-                     linewidth=1, color=cor['blue'])
-        ax[i].hlines(p['median_value'], phiRb['2.5%'], phiRb['97.5%'],
-                     linewidth=1, color=cor['blue'])
-        ax[i].plot(phiRb['median_value'], p['median_value'], 'o', markeredgecolor=cor['blue'],
-                   markerfacecolor='w', markeredgewidth=1, ms=4)

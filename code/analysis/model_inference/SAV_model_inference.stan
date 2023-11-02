@@ -123,8 +123,10 @@ generated quantities {
     vector[N_pred] pred_lam_prot = exp(log_prot_intercept + log_prot_slope .* pred_lam_range);
     vector[N_pred] SA_fit = surface_area_intercept + surface_area_slope .* pred_lam_range;
     vector[N_pred] SAV_theory = (phi_mem_mu .* kappa) ./ (2 * (1 + (pred_phiRb_range / 0.4558) - phi_mem_mu - m_peri ./ pred_phiRb_prot)); 
+    vector[N_pred] SAV_theory_simple = (phi_mem_mu .* kappa) ./ (2 * (1 + (pred_phiRb_range / 0.4558))); 
     vector[N_pred] SAV_pred = (phi_mem_mu .* kappa) ./ (2 * (1 + (phi_Rb_pred/0.4558) - phi_mem_mu - m_peri ./ pred_lam_prot));
     vector[N_pred] width_theory = (24 * alpha_mu / (3 * alpha_mu - 1)) .* (1 + (pred_phiRb_range/0.4558) - phi_mem_mu - m_peri ./pred_phiRb_prot) / (kappa * phi_mem_mu);
+    vector[N_pred] width_theory_simple = (24 * alpha_mu / (3 * alpha_mu - 1)) .* (1 + (pred_phiRb_range/0.4558)) / (kappa * phi_mem_mu);
     vector[N_pred] width_pred = (24 * alpha_mu / (3 * alpha_mu - 1)) .* (1 + (phi_Rb_pred/0.4558) - phi_mem_mu - m_peri ./pred_lam_prot) / (kappa * phi_mem_mu);
     vector[N_pred] volume_pred = (pi() / 12) * width_pred^3 * (3 * alpha_mu  - 1);
     vector[N_pred] length_pred = alpha_mu * width_pred;
