@@ -8,7 +8,6 @@ biuret_cal = pd.read_csv(
     '../../../data/protein_quantification/biuret_calibration_curve.csv')
 bca_cal = pd.read_csv(
     '../../../data/protein_quantification/bca_calibration_curve.csv')
-comparison = pd.read_csv('../../../data/protein_quantification/biuret_bradford_bca_comparison.csv')
 
 # %%
 # Compute the calibration curves
@@ -29,15 +28,6 @@ for g, d in comparison.groupby('method'):
     else:
         _d = d[d['dilution_factor'] <= 16]
     comp_quant = pd.concat([comp_quant, _d])
-#%%    
-frac = pd.DataFrame([])
-for g, d in comp_quant.groupby('dilution_factor'):
-    biuret = d[d['method'] == 'biuret']
-    for _g, _d in d[d['method']!= 'biuret'].groupby('method'):
-        _d['relative_conc'] = biuret['conc'].values / _d['conc']
-        frac = pd.concat([frac, _d])
-frac = frac.groupby('method')['relative_conc'].mean().reset_index()
-frac
 # %%
 # Periplasmic protein processing
 peri_data = pd.read_csv(
