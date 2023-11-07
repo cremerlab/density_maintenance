@@ -47,3 +47,4 @@ for i, q in enumerate(['SAV_theory_simple', 'width_theory_simple', 'SAV_theory',
     for g, _d in d.groupby('interval', sort=False):
         ax[i].fill_between(_d['phiRb']/0.4558, _d['lower'], _d['upper'], color=cor[f'{inter_colors[g]}{c[i]}'], alpha=0.75)
 plt.tight_layout()
+plt.savefig('../../figures/FigAX_simple_model_plots.pdf', bbox_inches='tight')

@@ -58,7 +58,7 @@ for s in tqdm.tqdm(strains, desc='Strains...'):
             objs, cell_df = size.image.contour_segmentation(filt_ims[i], filter=False,
                                                             area_bounds=(
                                                                 0.5, 15),
-                                                            ecc_bounds=0.8,
+                                                            ecc_bound=0.8,
                                                             solidity_bound=0.9,
                                                             perim_bounds=(
                                                                 0.1, 200),
