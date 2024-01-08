@@ -125,7 +125,7 @@ for s in tqdm.tqdm(strains, desc='Strains...'):
         print('done!')
 
 # %%
-# Save the huge size dataframe
+# dfkSave the huge size dataframe
 size_df = pd.concat([pd.read_csv(f)
                     for f in glob.glob(f'{ROOT}/*/*/*sizes.csv')], sort=False)
 size_df.to_csv('./output/compiled_size_measurements.csv')
