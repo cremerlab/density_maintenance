@@ -74,7 +74,7 @@ model {
     rna_per_biomass ~ normal(rna_per_biomass_mu[phi_idx], rna_per_biomass_sigma[phi_idx]);
 
     // Ribosomal allocation
-    phiRb_mu  ~ normal(0.15, 0.1);
+    phiRb_mu  ~ normal(0.15, 0.5);
     phiRb_sigma ~ normal(0, 0.01);
     phiRb ~ normal(phiRb_mu[phi_idx], phiRb_sigma[phi_idx]);
     
@@ -122,7 +122,7 @@ generated quantities {
     vector<lower=0>[J_cond] growth_rates_ppc;
 
     for (i in 1:J_cond) {
-        width_ppc[i] = normal_rng(width_mu[i], width_sigma[i])
+        width_ppc[i] = normal_rng(width_mu[i], width_sigma[i]);
         length_ppc[i] = normal_rng(length_mu[i], length_sigma[i]);
         volume_ppc[i] = normal_rng(volume_mu[i], volume_sigma[i]);
         surface_area_ppc[i] = normal_rng(surface_area_mu[i], surface_area_sigma[i]);

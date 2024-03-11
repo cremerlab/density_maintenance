@@ -6,39 +6,35 @@ import arviz as az
 import matplotlib.pyplot as plt
 import size.viz
 cor, pal = size.viz.matplotlib_style()
-model = cmdstanpy.CmdStanModel(stan_file='ppGpp_inference.stan')
-
-oe = ['relA', 'meshI']
-rna = pd.read_csv('../../../data/summaries/summarized_total_rna.csv')
+model = cmdstanpy.CmdStanModel(stan_file='./temperature_effects.stan')
 phi_data = pd.read_csv(
     '../../../data/summaries/merged_rna_protein_measurements.csv')
-phi_data = phi_data[phi_data['overexpression'].isin(oe) &
-                    (phi_data['inducer_conc'] != 10) & 
-                    (phi_data['temperature'] == 37)]
+phi_data = phi_data[
+                    (phi_data['overexpression'] == 'none') &
+                    (phi_data['inducer_conc'] == 0) &
+                    (phi_data['temperature'] != 37)]  
+
 growth = pd.read_csv(
     '../../../data/summaries/summarized_growth_measurements.csv')
-growth = growth[growth['overexpression'].isin(
-    oe) & (growth['inducer_conc'] != 10) & 
-    (growth['temperature']==37)]
+growth = growth[(growth['overexpression'] == 'none') & 
+                (growth['inducer_conc'] == 0) &
+                (growth['temperature'] != 37) & 
+                (growth['carbon_source'] != 'glucose')] 
 
 size_data = pd.read_csv(
     '../../../data/summaries/summarized_size_measurements.csv')
-size_data = size_data[size_data['overexpression'].isin(oe) &
-                      (size_data['inducer_conc'] != 10) & 
-                      (size_data['temperature']==37)]
-
-# Assign the mapper
-mapper = {1: ['relA', 0],
-          2: ['relA', 1],
-          3: ['relA', 2],
-          4: ['meshI', 0],
-          5: ['meshI', 100]}
-for d in [phi_data, growth, size_data]:
-    for v, k in mapper.items():
-        d.loc[(d['overexpression'] == k[0]) & (
-            d['inducer_conc'] == k[1]), 'idx'] = v
-    d.dropna(inplace=True)
-
+size_data = size_data[(size_data['overexpression'] == 'none') &
+                      (size_data['inducer_conc'] == 0) & 
+                      (size_data['temperature'] != 37) & 
+                      (size_data['carbon_source'] != 'glucose')]
+mapper = {'glycerol': {25:1, 30:2, 42:3},
+          'glucoseCAA': {25:4, 30:5, 42:6}}
+_mapper = [['glycerol', 25], ['glycerol', 30], ['glycerol', 42],
+           ['glucoseCAA', 25], ['gucoseCAA', 30], ['glucoseCAA', 42]]
+for k, v in mapper.items():
+    for _k, _v in v.items():
+        for d in [phi_data, growth, size_data]:
+            d.loc[(d['carbon_source']==k) & (d['temperature']==_k), 'idx'] = _v
 # %%
 size_vals = size_data.groupby('idx')[
     ['width_median', 'length', 'volume', 'surface_area', 'aspect_ratio']].agg((np.mean, np.std))
@@ -47,8 +43,7 @@ phi_vals = phi_data.groupby('idx')[
     ['ug_prot_per_biomass', 'ug_rna_per_biomass', 'phiRb']].agg((np.mean, np.std))
 
 # %%
-data_dict = {'J_cond': len(mapper),
-
+data_dict = {'J_cond': 6,
              'N_growth': len(growth),
              'growth_idx': growth['idx'].values.astype(int),
              'growth_rates': growth['growth_rate_hr'].values,
@@ -69,7 +64,7 @@ data_dict = {'J_cond': len(mapper),
              'aspect_ratios': size_data['aspect_ratio'].values,
              }
 
-_samples = model.sample(data=data_dict, adapt_delta=0.99)
+_samples = model.sample(data=data_dict, adapt_delta=0.999)
 samples = az.from_cmdstanpy(_samples)
 
 # %%
@@ -77,8 +72,8 @@ fig, ax = plt.subplots(6, 1, figsize=(3, 6), sharex=True)
 # ax[0].set_xlim([0, 8])
 # Plot PPC distributions for non-size parameters
 units = ['[µm]', '[µm]', '', '[µm$^{2}$]', '[µm$^3$]', 'µm$^{-1}$']
-labels = [f'{v[0]},{v[1]}' for _, v in mapper.items()]
-ticks = [k for k in mapper.keys()]
+labels = [f'{k}\n{_k}' for k, v in mapper.items() for _k, _ in v.items()]
+ticks = np.arange(0, 6) + 1
 
 for i, q in enumerate(['width', 'length', 'aspect_ratio', 'surface_area', 'volume', 'surface_to_volume']):
     ppc = samples.posterior[f'{q}_ppc'].to_dataframe().reset_index()
@@ -121,8 +116,8 @@ for i, q in enumerate(['prot', 'rna', 'phiRb', 'growth_rates']):
 ax[0].plot(phi_data['idx'],
            phi_data['ug_prot_per_biomass'], '_',
            markeredgecolor=cor['primary_red'], markeredgewidth=1)
-ax[0].set_title('total RNA', fontsize=6)
-ax[0].set_ylabel('RNA\n[µg / OD$_{600nm}$]', fontsize=6)
+ax[0].set_title('total protein', fontsize=6)
+ax[0].set_ylabel('prot\n[µg / OD$_{600nm}$]', fontsize=6)
 
 
 ax[1].plot(phi_data['idx'],
@@ -160,12 +155,13 @@ for i, p in enumerate(pars):
         med_val = np.median(d[f'{p}_mu'].values)
         mean_val = np.mean(d[f'{p}_mu'].values)
         percs = np.percentile(d[f'{p}_mu'].values, (2.5, 97.5))
-        oe, c = mapper[g+1]
+        c, t = _mapper[g]
         _df = pd.DataFrame({
             'strain': 'wildtype',
-            'carbon_source': 'glucose',
-            'overexpression': oe,
-            'inducer_conc': c,
+            'carbon_source': c,
+            'temperature': t,   
+            'overexpression': 'none',
+            'inducer': 0,
             'quantity': p,
             'median_value': med_val,
             'mean_value': mean_val,
@@ -176,8 +172,10 @@ for i, p in enumerate(pars):
         par_df = pd.concat([par_df, _df], sort=False)
         _post_df = d.copy()
         _post_df['strain'] = 'wildtype'
-        _post_df['overexpression'] = oe
-        _post_df['inducer_conc'] = c
+        _post_df['overexpression'] = 'none'
+        _post_df['inducer_conc'] = 0
+        _post_df['carbon_source'] = c
+        _post_df['temperature'] = t
         _post_df['quantity'] = p
         _post_df['unit'] = units[i]
         _post_df.rename(columns={f'{p}_mu': 'value'}, inplace=True)
@@ -185,7 +183,7 @@ for i, p in enumerate(pars):
         post_df = pd.concat([_post_df, post_df], sort=False)
 
 par_df.to_csv(
-    '../../../data/mcmc/ppGpp_perturbation_parameter_summaries.csv', index=False)
+    '../../../data/mcmc/temperature_perturbation_parameter_summaries.csv', index=False)
 post_df.to_csv(
-    '../../../data/mcmc/ppGpp_perturbation_samples.csv', index=False)
+    '../../../data/mcmc/temperature_perturbation_samples.csv', index=False)
 # %%
