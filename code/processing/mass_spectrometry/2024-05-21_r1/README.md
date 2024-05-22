@@ -1,21 +1,23 @@
 ---
-status: Accepted
-reason: >
-    Mass spec. and total RNA/Protein quantification still needs to be completed
-    but the rest of the data and analysis seems okay. 
+status: rejected
+reason: Experiment in progress
 ---
 
-# 2024-05-17 MS Sample Preparation for Wildtype in Glucose + CAA
+# 2024-05-21 MS Sample Preparation for Wildtype in Varied Growth Media 
 This experiment was run to gather samples for total proteome quantification of 
 wildtype *E. coli* grown in fast growth media. As part of the sample preparation,
 growth rates, total RNA, total Protein, and cell size measurements were acquired.
+
 
 ## Materials & Equipment
 ### Media
 
 | **Label** | **Buffer Base** | **Carbon Source & Concentration** |
 |:--:|:--:|:--:|
-| glucoseCAA| N-C- | 10mM glucose + 0.1% (w/v) casamino acids|
+| glucose+acetate | N-C- | 10mM glucose + 30mM acetate|
+| glucose | N-C-| 10mM glucose |
+| sorbitol | N-C-| 10mM sorbitol |
+| glycerol | N-C- | 20mM glycerol |
 
 
 ### Strains
@@ -25,36 +27,44 @@ growth rates, total RNA, total Protein, and cell size measurements were acquired
 
 
 ## Results
+* The second replicate of growth in glucose+acetate was dropped due to timing. I
+had to leave before it would be ready for harvest, so I will repeat this run 
+tomorrow. 
 
-### Residual Optical Densities
-|**Label**| **Use**| **Residual OD**|
-|:--:|:--:|:--:|
-|glucose+CAA 1A | Total Protein | 0.051 |
-|glucose+CAA 1B | Total RNA | 0.035 |
-|gluose+CAA 1M| Mass Spec.| 0.037 |
-|glucose+CAA 2A | Total Protein | 0.016 |
-|glucose+CAA 2B | Total RNA | 0.017 |
-|glucose+CAA 2M | Mass Spec.| 0.058 |
-
-### Total OD For Mass Spec 
-|**Label** | **Harvest OD in 25mm Tube (in cuvette)** | **Residual OD in cuvette (in 25mm tube)** | **Net OD Units** |
+### Harvest & Residual Optical Densities
+|**Label**| **Use**| **Harvest OD 25mm tube (cuvette)**| **Residual Cuvette OD**|
 |:--:|:--:|:--:|:--:|
-|glucose+CAA 1M | 0.405 (0.49 • 0.405 = 0.198) | 0.037 (0.037/0.49 = 0.075) | 12 • (0.198 - 0.037) = 1.932 |
-|glucose+CAA 2M | 0.4 (0.49 • 0.4 = 0.196) | 0.058 (0.058/0.49 = 0.118) | 12 • (0.196 - 0.058) = 1.656 | 
+|glycerol 2A | Total Protein | 0.417 (0.204) |0.005|
+|glycerol 2B | Total RNA | 0.417 (0.204) | 0.006 |
+|glycerol 2M | Mass Spec. | 0.417 (0.204) | 0.138 |
+|glucose+acetate 1A | Total Protein | 0.424 (0.208) | 0.025 |
+|glucose+acetate 1B | Total RNA | 0.424 (0.208) | 0.024 |
+|glucose+acetate 1M | Mass Spec. | 0.424 (0.208) | 0.038 |
+|glucose 1A | Total Protein | 0.388 (0.190) | 0.026 |
+|glucose 1B | Total RNA | 0.388 (0.190) | 0.027 |
+|glucose 1M | Mass Spec. | 0.388 (0.190) | 0.049 |
+|sorbitol 1A | Total Protein | 0.432 (0.212) | 0.004 |
+|sorbitol 1B | Total RNA | 0.432 (0.212) | 0.017 |
+|sorbitol 1M | Mass Spec | 0.432 (0.212) | 0.148 |
+|glucose 2A | Total Protein | 0.444 (0.218) | 0.007 |
+|glucose 2B | Total Protein | 0.444 (0.218) | 0.009 |
+|glucose 2M | Total Protein | 0.444 (0.218) | 0.040 |
+|sorbitol 2A| Total Protein | 0.407 (0.199) | 0.004 |
+|sorbitol 2B| Total Protein | 0.407 (0.199) | 0.004 |
+|sorbitol 2M| Total Protein | 0.407 (0.199) | 0.162 |
+
 
 ### Growth Rate Estimation
 |**Label** | **Growth Rate [inv. hr]** |
 |:--:|:--:|
-| glucose+CAA rep 1 | 1.13 |
-| glucose+CAA rep 2 | 0.96 |
+| | |
 
 ![](viz/2024-05-17_r1_growth_curves.png)
 
 ### Cell Segmentation
 |**Label**| **Average Width [µm]** | **Average Length [µm]** | **Average SA/V [µm^-1]** | **Average Volume [fL]**|
 |:--:|:--:|:--:|:--:|:--:|
-|glucose+CAA 1 | 0.824 | 3.238 | 5.367 | 1.603 |
-|glucose+CAA 2 | 0.872 | 3.074 | 5.113 | 1.666 |
+| | | | |
 
 ![](./viz/2024-05-17_r1_size_cdfs.png)
 
@@ -62,7 +72,8 @@ growth rates, total RNA, total Protein, and cell size measurements were acquired
 ## Cell Husbandry & Growth Measurements
 1. Precultures were inoculated by adding a single colony from a recently struck 
 wildtype *E. coli* agar plate to 3 mL of growth medium in 16 mm glass test tubes.
-These samples were incubated at 37° C in a waterbath with rapid (250 rpm) agitation.
+For glucose and glucose+acetate sample, 10 mL of growth medium was used in a 25 mm 
+glass test tube. These samples were incubated at 37° C in a waterbath with rapid (250 rpm) agitation.
 2. Once precultures reached a cuvette-corrected OD$_{600nm}$ of ≈ 0.3, samples 
 were diluted into 15 mL of prewarmed media in 25 mm diameter glass tubes to a final
 OD of ≈ 0.02.
