@@ -12,7 +12,7 @@ import glob
 cor, pal = size.viz.matplotlib_style()
 
 IP_DIST = 0.032
-DATE = "2024-05-21"
+DATE = "2024-05-22"
 CARBON_SOURCES = ['glucose', 'glucose+acetate',
                   'glycerol', 'sorbitol']
 size_df = pd.DataFrame([])
@@ -110,4 +110,4 @@ ax[1,1].set_xlabel('volume [µm$^3$]', fontsize=6)
 leg = ax[0, 0].legend(title='replicate')
 leg.get_title().set_fontsize(6)
 plt.tight_layout()
-plt.savefig('./viz/2024-05-21_r1_size_cdfs.png')
+plt.savefig(f'./viz/{DATE}_r1_size_cdfs.png')
