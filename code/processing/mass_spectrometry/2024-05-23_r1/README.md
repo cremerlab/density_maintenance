@@ -3,10 +3,10 @@ status: rejected
 reason: Experiment in progress
 ---
 
-# 2024-05-21 MS Sample Preparation for Wildtype in Varied Growth Media 
+# 2024-05-23 MS Sample Preparation for ppGpp Perturbations
 This experiment was run to gather samples for total proteome quantification of 
-wildtype *E. coli* grown in fast growth media. As part of the sample preparation,
-growth rates, total RNA, total Protein, and cell size measurements were acquired.
+*E. coli* grown in glucose media under various ppGpp perturbations. As part of the sample preparation,
+growth rates, total RNA, total protein, and cell size measurements were acquired.
 
 
 ## Materials & Equipment
@@ -14,18 +14,13 @@ growth rates, total RNA, total Protein, and cell size measurements were acquired
 
 | **Label** | **Buffer Base** | **Carbon Source & Concentration** |
 |:--:|:--:|:--:|
-| glucose+acetate | N-C- | 10mM glucose + 30mM acetate|
-| glucose | N-C-| 10mM glucose |
-| sorbitol | N-C-| 10mM sorbitol |
-| glycerol | N-C- | 20mM glycerol |
-| acetate | N-C- | 30mM acetate | 
-
+| glucose | N-C- | 10mM glucose |
 
 ### Strains
 |**Label**|**Strain Identifier**|**Description**|
 |:--:|:--:|:--:|
-|WT | GE046 | Wildtype NCM3722 *E. coli*|
-
+|meshI | GE463 | Wildtype NCM3722 *E. coli* with pMeshI|
+|relA | GE462 | Wildtype NCM3722 *E. coli* with pRelA|
 
 ## Results
 * The second replicate of growth in glucose+acetate was dropped due to timing. I
@@ -35,58 +30,58 @@ tomorrow.
 ### Harvest & Residual Optical Densities
 |**Label**| **Use**| **Harvest OD 25mm tube (cuvette)**| **Residual Cuvette OD**| **Net OD Units**|
 |:--:|:--:|:--:|:--:|:--:|
-|glucose 1A | Total Protein | 0.465 (0.223) | 0.039 | 0.276 |
-|glucose 1B | Total RNA | 0.465 (0.223) | 0.039 | 0.276 |
-|glucose 1M | Mass Spec| 0.465 (0.223) | 0.028 | 2.35 |
-|glucose 2A | Total Protein | 0.409 (0.200) | 0.053 | 0.225 |
-|glucose 2B | Total RNA | 0.409 (0.200) | 0.053 | 0.225 |
-|glucose 2M | Mass Spec | 0.409 (0.200) | 0.026 | 2.08 |
-|glucose+acetate 1A | Total Protein | 0.416 (0.204) | 0.040 | 0.248 |
-|glucose+acetate 1B | Total RNA | 0.416 (0.204) | 0.069 | 0.202 | 
-|glucose+acetate 1M | Mass Spec | 0.416 (0.204) | 0.034 | 2.04| 
-|glucose+acetate 2A | Total Protein | 0.352 (0.172) | 0.020 | 0.228 |
-|glucose+acetate 2B | Total RNA | 0.352 (0.172) | 0.025 | 0.228 |
-|glucose+acetate 2M | Mass Spec | 0.352 (0.172) | 0.020 | 1.8 |
-|glycerol 1A | Total Protein | 0.416 (0.204) | 0.009 | 0.292 |
-|glycerol 1B | Total RNA | 0.416 (0.204) | 0.009 | 0.292 |
-|glycerol 1M | Mass Spec | 0.416 (0.204) | 0.116 | 1.05 |
-|glycerol 2A | Total Protein | 0.482 (0.237) | 0.009 | 0.342 |
-|glycerol 2B | Total RNA| 0.482 (0.237) | 0.010 | 0.340 |
-|glycerol 2M | Mass Spec | 0.482 (0.237) | 0.036 | 2.41 |
-|sorbitol 1A | Total Protein | 0.391 (0.192) | 0.015 | 0.266 |
-|sorbitol 1B | Total RNA | 0.391 (0.192) | 0.014 | 0.267 | 
-|sorbitol 1M | Mass Spec | 0.391 (0.192) | 0.118 |0.888 | 
-|sorbitol 2A | Total Protein | 0.413 (0.202) | 0.013 | 0.284 |
-|sorbitol 2B | Total RNA | 0.413 (0.202) | 0.021 | 0.272 |
-|sorbitol 2M | Mass Spec | 0.413 (0.202) | 0.125 | 0.924 |
+|meshI 0 µM IPTG 1A | Total Protein | 0.440 (0.216) | 0 | 0.324 |
+|meshI 0 µM IPTG 1A | Total RNA | 0.440 (0.216) | 0 | 0.324 |
+|meshI 0 µM IPTG 1M | Mass Spec | 0.440 (0.216) | 0.013 | 2.44 |
+|meshI 0 µM IPTG 2A | Total Protein | 0.470 (0.230) | 0.003| 0.340|
+|meshI 0 µM IPTG 2B | Total RNA | 0.470 (0.230) | 0| 0.345|
+|meshI 0 µM IPTG 2M | Mass Spec | 0.470 (0.230) | 0.019| 2.53 |
+|meshI 100 µM IPTG 1A | Total Protein | 0.467 (0.229) | 0.006 | 0.335 | 
+|meshI 100 µM IPTG 1B | Total RNA | 0.467 (0.229) | 0.008 | 0.332 | 
+|meshI 100 µM IPTG 1M | Mass Spec| 0.467 (0.229) | 0.004 | 2.70 | 
+|meshI 100 µM IPTG 2A | Total Protein | 0.500 (0.245) | 0.006 | 0.359 | 
+|meshI 100 µM IPTG 2B | Total RNA | 0.500 (0.245) | 0.006 | 0.359 | 
+|meshI 100 µM IPTG 2M | Mass Spec | 0.500 (0.245) | 0.004 | 2.90 | 
+|relA  0 ng/mL dox 1A | Total Protein | 0.404 (0.198) | 0.017| 0.272 |
+|relA  0 ng/mL dox 1B | Total RNA | 0.404 (0.198) | 0.085| 0.170|
+|relA  0 ng/mL dox 1M | Mass Spec | 0.404 (0.198) | 0.016| 2.18|
+|relA  0 ng/mL dox 2A | Total Protein | 0.413 (0.202) | 0.034| 0.252|
+|relA  0 ng/mL dox 2B | Total RNA | 0.413 (0.202) | 0.037| 0.248|
+|relA  0 ng/mL dox 2M | Mass Spec | 0.413 (0.202) | 0.008| 2.33|
+|relA  2 ng/mL dox 1A | Total Protein | 0.441 (0.216) | 0.033| 0.275|
+|relA  2 ng/mL dox 1B | Total RNA | 0.441 (0.216) | 0.021| 0.293 |
+|relA  2 ng/mL dox 1M | Mass Spec | 0.441 (0.216) | 0.014| 2.43 |
+|relA  2 ng/mL dox 2A | Total Protein | 0.412 (0.202) | 0.016| 0.279|
+|relA  2 ng/mL dox 2B | Total RNA | 0.412 (0.202) | 0.056| 0.219|
+|relA  2 ng/mL dox 2M | Mass Spec  | 0.412 (0.202) | 0.016| 2.23 |
 
 ### Growth Rate Estimation
 |**Label** | **Growth Rate [inv. hr]** |
 |:--:|:--:|
-|glucose 1 | 0.86 |
-|glucose 2 | 0.88 |
-|glucose+acetate 1 | 0.85 |
-|glucose+acetate 2 | 0.70 |
-|glycerol 1| 0.67 |
-|glycerol 2 | 0.63 |
-|sorbitol 1 | 0.62 |
-|sorbitol 2 | 0.61 |
+| meshI 0µM IPTG 1 | 0.89 |
+| meshI 0µM IPTG 2 | 0.82 | 
+| meshI 100µM IPTG 1 | 0.72 |
+| meshI 100µM IPTG 2 | 0.67 |
+| relA 0 ng/mL dox 1 | 0.83 | 
+| relA 0 ng/mL dox 2 | 0.77 |
+| relA 2 ng/mL dox 1 | 0.60 |
+| relA 2 ng/mL dox 2 | 0.48 |
 
-![](viz/2024-05-22_r1_growth_curves.png)
+![](viz/2024-05-23_r1_growth_curves.png)
 
 ### Cell Segmentation
 |**Label**| **Average Width [µm]** | **Average Length [µm]** | **Average SA/V [µm^-1]** | **Average Volume [fL]**|
 |:--:|:--:|:--:|:--:|:--:|
-| glucose 1 | 0.66 | 2.63 | 6.67 | 0.835|
-| glucose 2 | 0.70 | 2.37 | 6.42 | 0.818|
-| glucose+acetate 1 | 0.66 | 2.53 | 6.70 | 0.800 |
-| glucose+acetate 2 | 0.66 | 2.43 | 6.72 | 0.760 |
-| glycerol 1 | 0.59 | 2.42 |  7.43 | 0.615 | 
-| glycerol 2 | 0.60 | 2.27 | 7.36 | 0.588 | 
-| sorbitol 1 | 0.605 | 2.32 | 7.35 | 0.617 |
-| sorbitol 2 | 0.620 | 2.31 | 7.18 | 0.642 |
+| meshI 0µM IPTG 1 | 0.66 | 2.66 | 6.72 | 0.84 |
+| meshI 0µM IPTG 2 | 0.71 | 2.39 | 6.30 | 0.86 | 
+| meshI 100µM IPTG 1 | 0.75 | 2.39 | 6.03 | 0.95 |
+| meshI 100µM IPTG 2 | 0.75 | 2.51 | 6.01 | 1.00 |
+| relA 0 ng/mL dox 1 | 0.69 | 2.40 | 6.51 | 0.81 | 
+| relA 0 ng/mL dox 2 | 0.65 |  2.47 |  6.89 | 0.75 |
+| relA 2 ng/mL dox 1 | 0.66 | 2.17 | 6.78 | 0.67 |
+| relA 2 ng/mL dox 2 | 0.61 | 2.15 | 27.32 | 0.58 |
 
-![](./viz/2024-05-22_r1_size_cdfs.png)
+![](./viz/2024-05-23_r1_size_cdfs.png)
 
 # Protocol
 ## Cell Husbandry & Growth Measurements

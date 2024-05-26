@@ -3,10 +3,10 @@ status: rejected
 reason: Experiment in progress
 ---
 
-# 2024-05-21 MS Sample Preparation for Wildtype in Varied Growth Media 
+# 2024-05-24 MS Sample Preparation for Fast Growth 
 This experiment was run to gather samples for total proteome quantification of 
-wildtype *E. coli* grown in fast growth media. As part of the sample preparation,
-growth rates, total RNA, total Protein, and cell size measurements were acquired.
+*E. coli* grown in fast growth media. As part of the sample preparation,
+growth rates, total RNA, total protein, and cell size measurements were acquired.
 
 
 ## Materials & Equipment
@@ -14,79 +14,52 @@ growth rates, total RNA, total Protein, and cell size measurements were acquired
 
 | **Label** | **Buffer Base** | **Carbon Source & Concentration** |
 |:--:|:--:|:--:|
-| glucose+acetate | N-C- | 10mM glucose + 30mM acetate|
-| glucose | N-C-| 10mM glucose |
-| sorbitol | N-C-| 10mM sorbitol |
-| glycerol | N-C- | 20mM glycerol |
-| acetate | N-C- | 30mM acetate | 
-
+| glucoseCAA | N-C- | 10mM glucose + 0.1% (w/v) CAA|
+| LB | -- | Rich Undefined | 
 
 ### Strains
 |**Label**|**Strain Identifier**|**Description**|
 |:--:|:--:|:--:|
-|WT | GE046 | Wildtype NCM3722 *E. coli*|
-
+|wildtype | GE046 | Wildtype NCM3722 *E. coli*|
 
 ## Results
-* The second replicate of growth in glucose+acetate was dropped due to timing. I
-had to leave before it would be ready for harvest, so I will repeat this run 
-tomorrow. 
 
 ### Harvest & Residual Optical Densities
 |**Label**| **Use**| **Harvest OD 25mm tube (cuvette)**| **Residual Cuvette OD**| **Net OD Units**|
 |:--:|:--:|:--:|:--:|:--:|
-|glucose 1A | Total Protein | 0.465 (0.223) | 0.039 | 0.276 |
-|glucose 1B | Total RNA | 0.465 (0.223) | 0.039 | 0.276 |
-|glucose 1M | Mass Spec| 0.465 (0.223) | 0.028 | 2.35 |
-|glucose 2A | Total Protein | 0.409 (0.200) | 0.053 | 0.225 |
-|glucose 2B | Total RNA | 0.409 (0.200) | 0.053 | 0.225 |
-|glucose 2M | Mass Spec | 0.409 (0.200) | 0.026 | 2.08 |
-|glucose+acetate 1A | Total Protein | 0.416 (0.204) | 0.040 | 0.248 |
-|glucose+acetate 1B | Total RNA | 0.416 (0.204) | 0.069 | 0.202 | 
-|glucose+acetate 1M | Mass Spec | 0.416 (0.204) | 0.034 | 2.04| 
-|glucose+acetate 2A | Total Protein | 0.352 (0.172) | 0.020 | 0.228 |
-|glucose+acetate 2B | Total RNA | 0.352 (0.172) | 0.025 | 0.228 |
-|glucose+acetate 2M | Mass Spec | 0.352 (0.172) | 0.020 | 1.8 |
-|glycerol 1A | Total Protein | 0.416 (0.204) | 0.009 | 0.292 |
-|glycerol 1B | Total RNA | 0.416 (0.204) | 0.009 | 0.292 |
-|glycerol 1M | Mass Spec | 0.416 (0.204) | 0.116 | 1.05 |
-|glycerol 2A | Total Protein | 0.482 (0.237) | 0.009 | 0.342 |
-|glycerol 2B | Total RNA| 0.482 (0.237) | 0.010 | 0.340 |
-|glycerol 2M | Mass Spec | 0.482 (0.237) | 0.036 | 2.41 |
-|sorbitol 1A | Total Protein | 0.391 (0.192) | 0.015 | 0.266 |
-|sorbitol 1B | Total RNA | 0.391 (0.192) | 0.014 | 0.267 | 
-|sorbitol 1M | Mass Spec | 0.391 (0.192) | 0.118 |0.888 | 
-|sorbitol 2A | Total Protein | 0.413 (0.202) | 0.013 | 0.284 |
-|sorbitol 2B | Total RNA | 0.413 (0.202) | 0.021 | 0.272 |
-|sorbitol 2M | Mass Spec | 0.413 (0.202) | 0.125 | 0.924 |
+|LB 1A | Total Protein |0.445 (0.218) | 0.018 | 0.300 |
+|LB 1B | Total RNA |0.445 (0.218) | 0.021 | 0.296 |
+|LB 1M | Mass Spec |0.445 (0.218) | 0.020 | 2.38 |
+|LB 2A | Total Protein | 0.500 (0.245) | 0.014 | 0.347 |
+|LB 2B | Total RNA | 0.500 (0.245) | 0.046 | 0.299 |
+|LB 2M | Mass Spec | 0.500 (0.245) | 0.030 | 2.58 | 
+|glucoseCAA 1A | Total Protein |0.412 (0.202) | 0.026 | 0.264 |
+|glucoseCAA 1B | Total RNA |0.412 (0.202) | 0.043 | 0.239|
+|glucoseCAA 1M | Mass Spec |0.412 (0.202) | 0.030 | 2.06 |
+|glucoseCAA 2A | Total Protein | 0.453 (0.222) | 0.031 | 0.287 |
+|glucoseCAA 2B | Total RNA | 0.453 (0.222) | 0.036 | 0.279 |
+|glucoseCAA 2M | Mass Spec| 0.453 (0.222) | 0.023 | 2.39|
 
 ### Growth Rate Estimation
 |**Label** | **Growth Rate [inv. hr]** |
 |:--:|:--:|
-|glucose 1 | 0.86 |
-|glucose 2 | 0.88 |
-|glucose+acetate 1 | 0.85 |
-|glucose+acetate 2 | 0.70 |
-|glycerol 1| 0.67 |
-|glycerol 2 | 0.63 |
-|sorbitol 1 | 0.62 |
-|sorbitol 2 | 0.61 |
+| LB 1 | 2.27 | 
+| LB 2 | 2.27 | 
+| glucoseCAA 1 | 1.48 |
+| glucoseCAA | 1.30|
 
-![](viz/2024-05-22_r1_growth_curves.png)
+![](viz/2024-05-24_r1_growth_curves.png)
 
 ### Cell Segmentation
 |**Label**| **Average Width [µm]** | **Average Length [µm]** | **Average SA/V [µm^-1]** | **Average Volume [fL]**|
 |:--:|:--:|:--:|:--:|:--:|
-| glucose 1 | 0.66 | 2.63 | 6.67 | 0.835|
-| glucose 2 | 0.70 | 2.37 | 6.42 | 0.818|
-| glucose+acetate 1 | 0.66 | 2.53 | 6.70 | 0.800 |
-| glucose+acetate 2 | 0.66 | 2.43 | 6.72 | 0.760 |
-| glycerol 1 | 0.59 | 2.42 |  7.43 | 0.615 | 
-| glycerol 2 | 0.60 | 2.27 | 7.36 | 0.588 | 
-| sorbitol 1 | 0.605 | 2.32 | 7.35 | 0.617 |
-| sorbitol 2 | 0.620 | 2.31 | 7.18 | 0.642 |
+| LB 1 | 0.92 | 3.85  | 4.77 | 2.37 |
+| LB 2 | 0.92 | 4.21 | 4.73 | 2.69 |
+| glucoseCAA 1 | 0.87 | 3.18 | 5.17 | 1.77 | 
+| glucoseCAA 2 | 0.86  | 3.34 | 5.17 | 1.83 |
 
-![](./viz/2024-05-22_r1_size_cdfs.png)
+
+![](./viz/2024-05-24_r1_size_cdfs.png)
 
 # Protocol
 ## Cell Husbandry & Growth Measurements
