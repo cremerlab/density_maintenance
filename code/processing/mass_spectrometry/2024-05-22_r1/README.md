@@ -1,9 +1,9 @@
 ---
-status: rejected
+status: Rejected 
 reason: Experiment in progress
 ---
 
-# 2024-05-21 MS Sample Preparation for Wildtype in Varied Growth Media 
+# 2024-05-22 MS Sample Preparation for Wildtype in Varied Growth Media 
 This experiment was run to gather samples for total proteome quantification of 
 wildtype *E. coli* grown in fast growth media. As part of the sample preparation,
 growth rates, total RNA, total Protein, and cell size measurements were acquired.

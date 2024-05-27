@@ -26,6 +26,8 @@ growth rates, total RNA, total protein, and cell size measurements were acquired
 
 ## Results
 
+
+
 ### Harvest & Residual Optical Densities
 |**Label**| **Use**| **Harvest OD 25mm tube (cuvette)**| **Residual Cuvette OD**| **Net OD Units**|
 |:--:|:--:|:--:|:--:|:--:|
@@ -47,7 +49,9 @@ growth rates, total RNA, total protein, and cell size measurements were acquired
 | relA 4 ng/mL dox 2A | Total Protein | 0.400 (0.196) | 0.012 | 0.276 |
 | relA 4 ng/mL dox 2B | Total RNA | 0.400 (0.196) | 0.026 | 0.255 |
 | relA 4 ng/mL dox 2M | Mass Spec | 0.400 (0.196) | 0.042 | 1.85|
-| acetate 1A | Total Protein | | | |
+| acetate 1A | Total Protein | 0.405 (0.198) | 0.014 |0.276 |
+| acetate 1B | Total RNA | 0.405 (0.198) | 0.014 |0.276 |
+| acetate 1M | Mass Spec | 0.405 (0.198) | 0.068 | 1.56|
 | acetate 2A | Total Protein | 0.410 (0.200) | 0.033 | 0.250 | 
 | acetate 2B | Total RNA | 0.410 (0.200) | 0.011 | 0.284 | 
 | acetate 2M | Mass Spec | 0.410 (0.200) | 0.078 | 1.46 | 
@@ -59,16 +63,32 @@ growth rates, total RNA, total protein, and cell size measurements were acquired
 ### Growth Rate Estimation
 |**Label** | **Growth Rate [inv. hr]** |
 |:--:|:--:|
+| lacZ 0 ng/mL ctc 1 | 0.60 |
+| lacZ 0 ng/mL ctc 2 | 0.57 |
+| lacZ 5 ng/mL ctc 1 | 0.39 |
+| lacZ 5 ng/mL ctc 2 | 0.40 |
+| relA 4 ng/mL dox 1 | 0.43 |
+| relA 4 ng/mL dox 2 | 0.41 |
+| acetate 1 | 0.35 |
+| acetate 2 | 0.39 |
 
 
-![](viz/2024-05-24_r1_growth_curves.png)
+![](viz/2024-05-25_r1_growth_curves.png)
 
 ### Cell Segmentation
 |**Label**| **Average Width [µm]** | **Average Length [µm]** | **Average SA/V [µm^-1]** | **Average Volume [fL]**|
 |:--:|:--:|:--:|:--:|:--:|
+| lacZ 0 ng/mL ctc, 1 | 0.74 | 2.63 | 6.03 | 1.03 |
+| lacZ 0 ng/mL ctc, 2 | 0.72 | 2.47 | 6.22 | 0.945 |
+| lacZ 5 ng/mL ctc, 1 | 0.73 | 2.68 | 6.21 | 1.05 |
+| lacZ 5 ng/mL ctc, 2 | 0.740 | 2.65 | 6.09 | 1.07 |
+| relA 4 ng/mL ctc, 1 | 0.650 2.1 | 7.05 | 0.606 |
+| relA 4 ng/mL ctc, 2 | 0.64 | 1.97 | 7.07 | 0.58 |
+| acetate 1 | 0.59 | 2.04 | 7.50 | 0.52 |
+| acetate 2 | 0.51 | 2.06 | 7. 36 | 0.54 |
 
 
-![](./viz/2024-05-24_r1_size_cdfs.png)
+![](./viz/2024-05-25_r1_size_cdfs.png)
 
 # Protocol
 ## Cell Husbandry & Growth Measurements

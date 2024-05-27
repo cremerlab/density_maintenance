@@ -1,6 +1,8 @@
 ---
-status: rejected
-reason: Experiment in progress
+status: Rejected
+reason: >
+    In future experiments I changed how I harvested samples for mass spec. To 
+    remain consistent, this data was not used. 
 ---
 
 # 2024-05-21 MS Sample Preparation for Wildtype in Varied Growth Media 

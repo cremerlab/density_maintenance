@@ -157,4 +157,4 @@ date,clock_time,od_600nm,replicate,carbon_source,strain,inducer_conc
 2024-05-25,20:12,0.421,1,glucose,lacZ,5
 2024-05-25,20:12,0.411,2,glucose,lacZ,5
 2024-05-25,20:13,0.325,1,acetate,wildtype,0
-2024-05-25,20:53,0.405,2,acetate,wildtype,0
+2024-05-25,20:53,0.405,1,acetate,wildtype,0

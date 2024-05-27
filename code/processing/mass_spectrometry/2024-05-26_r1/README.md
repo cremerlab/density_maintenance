@@ -3,10 +3,11 @@ status: rejected
 reason: Experiment in progress
 ---
 
-# 2024-05-23 MS Sample Preparation for ppGpp Perturbations
+# 2024-05-26 MS Sample Preparation for LacZ, RelA OE
 This experiment was run to gather samples for total proteome quantification of 
-*E. coli* grown in glucose media under various ppGpp perturbations. As part of the sample preparation,
-growth rates, total RNA, total protein, and cell size measurements were acquired.
+*E. coli* grown in glucose medium overexpressing either lacZ or RelA. We grew 
+a replacement replicate for pRelA + 2ng/mL dox (labeled as rep. 2) and added a
+new lacZ inducer conc. 
 
 
 ## Materials & Equipment
@@ -14,74 +15,46 @@ growth rates, total RNA, total protein, and cell size measurements were acquired
 
 | **Label** | **Buffer Base** | **Carbon Source & Concentration** |
 |:--:|:--:|:--:|
-| glucose | N-C- | 10mM glucose |
+| glucose | N-C- | 10mM glucose|
+
 
 ### Strains
 |**Label**|**Strain Identifier**|**Description**|
 |:--:|:--:|:--:|
-|meshI | GE463 | Wildtype NCM3722 *E. coli* with pMeshI|
 |relA | GE462 | Wildtype NCM3722 *E. coli* with pRelA|
+|lacZ | GE246 | Wildtype NCM3722 *E. coli* with pZA31-tetR + pZE11-lacZ|
 
 ## Results
-* The second replicate of pRelA + 2 ng/mL dox had a surprisingly slow growth 
-rate, comparable to an induction level of 4 ng/mL as can be seen in the experiments 
-from 2024-05-25. This replicate is dropped from this analysis.
+* The sample LacZ + 3 ng/mL ctc rep 1, had a very high growth rate and remarkably filamentous cell morphologies. This sample was dropped from the analysis and the sample will be recollected. 
 
 ### Harvest & Residual Optical Densities
 |**Label**| **Use**| **Harvest OD 25mm tube (cuvette)**| **Residual Cuvette OD**| **Net OD Units**|
 |:--:|:--:|:--:|:--:|:--:|
-|meshI 0 µM IPTG 1A | Total Protein | 0.440 (0.216) | 0 | 0.324 |
-|meshI 0 µM IPTG 1A | Total RNA | 0.440 (0.216) | 0 | 0.324 |
-|meshI 0 µM IPTG 1M | Mass Spec | 0.440 (0.216) | 0.013 | 2.44 |
-|meshI 0 µM IPTG 2A | Total Protein | 0.470 (0.230) | 0.003| 0.340|
-|meshI 0 µM IPTG 2B | Total RNA | 0.470 (0.230) | 0| 0.345|
-|meshI 0 µM IPTG 2M | Mass Spec | 0.470 (0.230) | 0.019| 2.53 |
-|meshI 100 µM IPTG 1A | Total Protein | 0.467 (0.229) | 0.006 | 0.335 | 
-|meshI 100 µM IPTG 1B | Total RNA | 0.467 (0.229) | 0.008 | 0.332 | 
-|meshI 100 µM IPTG 1M | Mass Spec| 0.467 (0.229) | 0.004 | 2.70 | 
-|meshI 100 µM IPTG 2A | Total Protein | 0.500 (0.245) | 0.006 | 0.359 | 
-|meshI 100 µM IPTG 2B | Total RNA | 0.500 (0.245) | 0.006 | 0.359 | 
-|meshI 100 µM IPTG 2M | Mass Spec | 0.500 (0.245) | 0.004 | 2.90 | 
-|relA  0 ng/mL dox 1A | Total Protein | 0.404 (0.198) | 0.017| 0.272 |
-|relA  0 ng/mL dox 1B | Total RNA | 0.404 (0.198) | 0.085| 0.170|
-|relA  0 ng/mL dox 1M | Mass Spec | 0.404 (0.198) | 0.016| 2.18|
-|relA  0 ng/mL dox 2A | Total Protein | 0.413 (0.202) | 0.034| 0.252|
-|relA  0 ng/mL dox 2B | Total RNA | 0.413 (0.202) | 0.037| 0.248|
-|relA  0 ng/mL dox 2M | Mass Spec | 0.413 (0.202) | 0.008| 2.33|
-|relA  2 ng/mL dox 1A | Total Protein | 0.441 (0.216) | 0.033| 0.275|
-|relA  2 ng/mL dox 1B | Total RNA | 0.441 (0.216) | 0.021| 0.293 |
-|relA  2 ng/mL dox 1M | Mass Spec | 0.441 (0.216) | 0.014| 2.43 |
-|relA  2 ng/mL dox 2A | Total Protein | 0.412 (0.202) | 0.016| 0.279|
-|relA  2 ng/mL dox 2B | Total RNA | 0.412 (0.202) | 0.056| 0.219|
-|relA  2 ng/mL dox 2M | Mass Spec  | 0.412 (0.202) | 0.016| 2.23 |
+| relA + 2 ng/mL dox 2A | Total Protein | 0.422 (0.207) | 0.022 | 0.278 |
+| relA + 2 ng/mL dox 2B | Total RNA | 0.422 (0.207) | 0.036 | 0.256 |
+| relA + 2 ng/mL dox 2M | Mass Spec | 0.422 (0.207) | 0.037 | 2.04 |
+| lacZ + 3 ng/mL ctc 1A | Total Protein | 0.396 (0.194) | 0.011 | 0.275 |
+| lacZ + 3 ng/mL ctc 1B | Total RNA | 0.396 (0.194) | 0.011 | 0.275 |
+| lacZ + 3 ng/mL ctc 1M | Mass Spec | 0.396 (0.194) | 0.010 | 2.21 |
+| lacZ + 3 ng/mL ctc 2A | Total Protein | 0.421 (0.206) | 0.013| 0.289|
+| lacZ + 3 ng/mL ctc 2B | Total RNA | 0.421 (0.206) | 0.028| 0.267|
+| lacZ + 3 ng/mL ctc 2M | Mass Spec  | 0.421 (0.206) | 0.024 | 2.18|
 
 ### Growth Rate Estimation
 |**Label** | **Growth Rate [inv. hr]** |
 |:--:|:--:|
-| meshI 0µM IPTG 1 | 0.89 |
-| meshI 0µM IPTG 2 | 0.82 | 
-| meshI 100µM IPTG 1 | 0.72 |
-| meshI 100µM IPTG 2 | 0.67 |
-| relA 0 ng/mL dox 1 | 0.83 | 
-| relA 0 ng/mL dox 2 | 0.77 |
-| relA 2 ng/mL dox 1 | 0.60 |
-| relA 2 ng/mL dox 2 | 0.48 |
+| lacZ + 3ng/mL ctc 1 | 0.62 |
+| lacZ + 3ng/mL ctc 2 | 0.46 |
+| relA + 2ng/mL dox 2 | 0.57 |
 
-![](viz/2024-05-23_r1_growth_curves.png)
+![](viz/2024-05-26_r1_growth_curves.png)
 
 ### Cell Segmentation
 |**Label**| **Average Width [µm]** | **Average Length [µm]** | **Average SA/V [µm^-1]** | **Average Volume [fL]**|
 |:--:|:--:|:--:|:--:|:--:|
-| meshI 0µM IPTG 1 | 0.66 | 2.66 | 6.72 | 0.84 |
-| meshI 0µM IPTG 2 | 0.71 | 2.39 | 6.30 | 0.86 | 
-| meshI 100µM IPTG 1 | 0.75 | 2.39 | 6.03 | 0.95 |
-| meshI 100µM IPTG 2 | 0.75 | 2.51 | 6.01 | 1.00 |
-| relA 0 ng/mL dox 1 | 0.69 | 2.40 | 6.51 | 0.81 | 
-| relA 0 ng/mL dox 2 | 0.65 |  2.47 |  6.89 | 0.75 |
-| relA 2 ng/mL dox 1 | 0.66 | 2.17 | 6.78 | 0.67 |
-| relA 2 ng/mL dox 2 | 0.61 | 2.15 | 27.32 | 0.58 |
 
-![](./viz/2024-05-23_r1_size_cdfs.png)
+
+![](./viz/2024-05-24_r1_size_cdfs.png)
 
 # Protocol
 ## Cell Husbandry & Growth Measurements

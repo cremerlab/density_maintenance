@@ -17,6 +17,7 @@ date,od_600nm,replicate,carbon_source,strain,inducer_conc,elapsed_time_hr,temper
 2024-05-25,0.264,1,acetate,wildtype,0,5.216666666666667,37
 2024-05-25,0.281,1,acetate,wildtype,0,5.4,37
 2024-05-25,0.325,1,acetate,wildtype,0,5.783333333333333,37
+2024-05-25,0.405,1,acetate,wildtype,0,6.45,37
 2024-05-25,0.041,1,glucose,lacZ,0,0.0,37
 2024-05-25,0.058,1,glucose,lacZ,0,0.4666666666666667,37
 2024-05-25,0.091,1,glucose,lacZ,0,1.2333333333333334,37
@@ -76,7 +77,6 @@ date,od_600nm,replicate,carbon_source,strain,inducer_conc,elapsed_time_hr,temper
 2024-05-25,0.354,2,acetate,wildtype,0,4.933333333333334,37
 2024-05-25,0.384,2,acetate,wildtype,0,5.216666666666667,37
 2024-05-25,0.41,2,acetate,wildtype,0,5.4,37
-2024-05-25,0.405,2,acetate,wildtype,0,6.45,37
 2024-05-25,0.047,2,glucose,lacZ,0,0.0,37
 2024-05-25,0.08,2,glucose,lacZ,0,0.7666666666666667,37
 2024-05-25,0.099,2,glucose,lacZ,0,1.2,37

@@ -9,7 +9,7 @@ import skimage.color
 import size.viz
 import size.image
 import glob
-
+#%%
 cor, pal = size.viz.matplotlib_style()
 
 IP_DIST = 0.032
@@ -97,7 +97,7 @@ for i in range(1, 3):
                         d["temperature_C"] = temp_C
                         d["carbon_source"] = carbon
                         d["inducer"] = ind
-                        d["inducer_conc"] = ind_conc
+                        d["inducer_conc"] = inducer
                         d["image"] = suff
                         sizes.append(biometrics)
                         splines.append(anatomy)
@@ -144,3 +144,4 @@ leg = ax[0, 0].legend(title="replicate")
 leg.get_title().set_fontsize(6)
 plt.tight_layout()
 plt.savefig(f"./viz/{DATE}_r1_size_cdfs.png")
+#%%

@@ -1,8 +1,8 @@
 ---
-status: Accepted
+status: Rejected
 reason: >
-    Mass spec. and total RNA/Protein quantification still needs to be completed
-    but the rest of the data and analysis seems okay. 
+    In further experiments, I changed the way I harvested the samples for mass 
+    spec. For consistency, this data was not used.  
 ---
 
 # 2024-05-17 MS Sample Preparation for Wildtype in Glucose + CAA
