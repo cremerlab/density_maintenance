@@ -52,9 +52,12 @@ new lacZ inducer conc.
 ### Cell Segmentation
 |**Label**| **Average Width [µm]** | **Average Length [µm]** | **Average SA/V [µm^-1]** | **Average Volume [fL]**|
 |:--:|:--:|:--:|:--:|:--:|
+| relA + 2 ng/mL 2 | 0.623 | 2.16| 7.23| 0.60|
+| lacZ + 3 ng/mL 1 | 0.632 | 2.89 | 7.07 | 0.88 |
+| lacZ + 3 ng/mL 2 | 0.81, 2.70 | 5.57 | 1.28 |
 
 
-![](./viz/2024-05-24_r1_size_cdfs.png)
+![](./viz/2024-05-26_r1_size_cdfs.png)
 
 # Protocol
 ## Cell Husbandry & Growth Measurements
