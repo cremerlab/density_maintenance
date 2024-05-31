@@ -31,7 +31,7 @@ from 2024-05-25. This replicate is dropped from this analysis.
 |**Label**| **Use**| **Harvest OD 25mm tube (cuvette)**| **Residual Cuvette OD**| **Net OD Units**|
 |:--:|:--:|:--:|:--:|:--:|
 |meshI 0 µM IPTG 1A | Total Protein | 0.440 (0.216) | 0 | 0.324 |
-|meshI 0 µM IPTG 1A | Total RNA | 0.440 (0.216) | 0 | 0.324 |
+|meshI 0 µM IPTG 1B | Total RNA | 0.440 (0.216) | 0 | 0.324 |
 |meshI 0 µM IPTG 1M | Mass Spec | 0.440 (0.216) | 0.013 | 2.44 |
 |meshI 0 µM IPTG 2A | Total Protein | 0.470 (0.230) | 0.003| 0.340|
 |meshI 0 µM IPTG 2B | Total RNA | 0.470 (0.230) | 0| 0.345|

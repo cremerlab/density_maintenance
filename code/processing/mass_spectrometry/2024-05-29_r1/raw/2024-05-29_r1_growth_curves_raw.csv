@@ -1,0 +1,16 @@
+date,clock_time,od_600nm,replicate,carbon_source,strain,inducer_conc
+2024-05-29,11:08,0.022,1,glucose,lacZ,3
+2024-05-29,11:38,0.025,1,glucose,lacZ,3
+2024-05-29,12:26,0.038,1,glucose,lacZ,3
+2024-05-29,13:01,0.045,1,glucose,lacZ,3
+2024-05-29,13:34,0.058,1,glucose,lacZ,3
+2024-05-29,14:05,0.073,1,glucose,lacZ,3
+2024-05-29,15:27,0.136,1,glucose,lacZ,3
+2024-05-29,15:51,0.157,1,glucose,lacZ,3
+2024-05-29,16:13,0.191,1,glucose,lacZ,3
+2024-05-29,16:27,0.215,1,glucose,lacZ,3
+2024-05-29,16:47,0.249,1,glucose,lacZ,3
+2024-05-29,17:12,0.306,1,glucose,lacZ,3
+2024-05-29,17:24,0.335,1,glucose,lacZ,3
+2024-05-29,17:37,0.370,1,glucose,lacZ,3
+2024-05-29,17:57,0.434,1,glucose,lacZ,3

@@ -1,0 +1,2 @@
+date,strain,carbon_source,replicate,inducer_conc,growth_rate_hr,od_init,growth_rate_std
+2024-05-29,lacZ,glucose,1,3,0.4582804565480496,0.044610395598887256,0.0028474554673091805

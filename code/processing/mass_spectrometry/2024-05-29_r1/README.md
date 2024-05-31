@@ -3,12 +3,9 @@ status: rejected
 reason: Experiment in progress
 ---
 
-# 2024-05-26 MS Sample Preparation for LacZ, RelA OE
+# 2024-05-29 MS Sample Preparation for LacZ OE
 This experiment was run to gather samples for total proteome quantification of 
-*E. coli* grown in glucose medium overexpressing either lacZ or RelA. We grew 
-a replacement replicate for pRelA + 2ng/mL dox (labeled as rep. 2) and added a
-new lacZ inducer conc. 
-
+*E. coli* grown in glucose medium overexpressing lacZ at a mild induction level.
 
 ## Materials & Equipment
 ### Media
@@ -21,43 +18,33 @@ new lacZ inducer conc.
 ### Strains
 |**Label**|**Strain Identifier**|**Description**|
 |:--:|:--:|:--:|
-|relA | GE462 | Wildtype NCM3722 *E. coli* with pRelA|
 |lacZ | GE246 | Wildtype NCM3722 *E. coli* with pZA31-tetR + pZE11-lacZ|
 
 ## Results
-* The sample LacZ + 3 ng/mL ctc rep 1, had a very high growth rate and remarkably filamentous cell morphologies. This sample was dropped from the analysis and the sample will be recollected. 
-
 ### Harvest & Residual Optical Densities
 |**Label**| **Use**| **Harvest OD 25mm tube (cuvette)**| **Residual Cuvette OD**| **Net OD Units**|
 |:--:|:--:|:--:|:--:|:--:|
-| relA + 2 ng/mL dox 2A | Total Protein | 0.422 (0.207) | 0.022 | 0.278 |
-| relA + 2 ng/mL dox 2B | Total RNA | 0.422 (0.207) | 0.036 | 0.256 |
-| relA + 2 ng/mL dox 2M | Mass Spec | 0.422 (0.207) | 0.037 | 2.04 |
-| lacZ + 3 ng/mL ctc 1A | Total Protein | 0.396 (0.194) | 0.011 | 0.275 |
-| lacZ + 3 ng/mL ctc 1B | Total RNA | 0.396 (0.194) | 0.011 | 0.275 |
-| lacZ + 3 ng/mL ctc 1M | Mass Spec | 0.396 (0.194) | 0.010 | 2.21 |
-| lacZ + 3 ng/mL ctc 2A | Total Protein | 0.421 (0.206) | 0.013| 0.289|
-| lacZ + 3 ng/mL ctc 2B | Total RNA | 0.421 (0.206) | 0.028| 0.267|
-| lacZ + 3 ng/mL ctc 2M | Mass Spec  | 0.421 (0.206) | 0.024 | 2.18|
+| lacZ + 3 ng/mL ctc 1A | Total Protein | 0.415 (0.203) | 0.005 | 0.297 | 
+| lacZ + 3 ng/mL ctc 1B | Total RNA | 0.415 (0.203) | 0.007 | 0.294 | 
+| lacZ + 3 ng/mL ctc 1M | Mass Spec | 0.415 (0.203) | 0.009 | 2.33 | 
+
+
 
 ### Growth Rate Estimation
 |**Label** | **Growth Rate [inv. hr]** |
 |:--:|:--:|
-| lacZ + 3ng/mL ctc 1 | 0.62 |
-| lacZ + 3ng/mL ctc 2 | 0.46 |
-| relA + 2ng/mL dox 2 | 0.57 |
+| lacZ + 3 ng/mL ctc, rep 1 | 0.46 |
 
-![](viz/2024-05-26_r1_growth_curves.png)
+
+
+![](viz/2024-05-29_r1_growth_curves.png)
 
 ### Cell Segmentation
 |**Label**| **Average Width [µm]** | **Average Length [µm]** | **Average SA/V [µm^-1]** | **Average Volume [fL]**|
 |:--:|:--:|:--:|:--:|:--:|
-| relA + 2 ng/mL 2 | 0.623 | 2.16| 7.23| 0.60|
-| lacZ + 3 ng/mL 1 | 0.632 | 2.89 | 7.07 | 0.88 |
-| lacZ + 3 ng/mL 2 | 0.81 | 2.70 | 5.57 | 1.28 |
+| lacZ + 3 ng/mL ctc, rep 1| 0.78 | 2.9 | 5.75 | 1.29|
 
-
-![](./viz/2024-05-26_r1_size_cdfs.png)
+![](./viz/2024-05-29_r1_size_cdfs.png)
 
 # Protocol
 ## Cell Husbandry & Growth Measurements
