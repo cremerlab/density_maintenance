@@ -28,14 +28,10 @@ This experiment was run to gather samples for total proteome quantification of
 | lacZ + 3 ng/mL ctc 1B | Total RNA | 0.415 (0.203) | 0.007 | 0.294 | 
 | lacZ + 3 ng/mL ctc 1M | Mass Spec | 0.415 (0.203) | 0.009 | 2.33 | 
 
-
-
 ### Growth Rate Estimation
 |**Label** | **Growth Rate [inv. hr]** |
 |:--:|:--:|
 | lacZ + 3 ng/mL ctc, rep 1 | 0.46 |
-
-
 
 ![](viz/2024-05-29_r1_growth_curves.png)
 
@@ -92,8 +88,3 @@ from the culture were transferred into clean 1.7 mL eppendorf tubes.
 in the quartz cuvette. 
 4. The samples were then transferred to the -80° C freezer until total RNA 
 and protein could be quantified. 
-
-## Quantification of Total RNA
-
-
-## Quantification of Total Protein
