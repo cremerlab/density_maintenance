@@ -1,4 +1,4 @@
-strain,carbon_source,replicate,inducer_conc,od_555nm,collection_date,harvest_od_600nm,residual_od_600nm,negative_control_od_555nm
+strain,carbon_source,replicate,inducer_conc,od_555nm,date_collected,harvest_od_600nm,residual_od_600nm,negative_control_od_555nm
 wildtype,LB,1,0,0.135,2024-05-24,0.218,0.018,0.032
 wildtype,LB,2,0,0.146,2024-05-24,0.245,0.014,0.032
 wildtype,glucose,1,0,0.096,2024-05-22,0.223,0.039,0.032
