@@ -3,11 +3,8 @@ This script collates all growth curves, cell size measurements, total protein,
 and total RNA measurements into single dataframes.
 """
 # %%
-import numpy as np
 import pandas as pd
-import size.viz
 import glob
-
 
 # Load the total protein and total RNA data and merge
 tot_prot = pd.read_csv('./2024-05-29_r2/raw/2024-05-29_r2_biuret.csv')
@@ -23,7 +20,7 @@ tot_RNA['od_260nm_per_od_600nm'] = tot_RNA['od_260nm'] / \
 tot_prot['net_od_600nm'] = 1.5 * \
     (tot_prot['harvest_od_600nm'] - tot_prot['residual_od_600nm'])
 tot_prot['od_555nm_per_od_600nm'] = tot_prot['od_555nm'] * \
-    (1.5 / 0.4) / tot_prot['net_od_600nm']
+    (0.4/1.5) / tot_prot['net_od_600nm']
 
 # Merge the total protein and total RNA data
 merged = pd.merge(tot_prot, tot_RNA, on=[
@@ -42,6 +39,8 @@ size_data = pd.concat([pd.read_csv(f)
                       for f in glob.glob('./*_r1/processed/*sizes.csv')])
 growth_data = pd.concat([pd.read_csv(f) for f in glob.glob(
     './*_r1/processed/*growth_curves_processed.csv')])
+growth_data.loc[growth_data['strain'].isnull(), 'strain'] = 'wildtype'
+growth_data.loc[growth_data['inducer_conc'].isnull(), 'inducer_conc'] = 0
 valid_sizes = pd.DataFrame()
 valid_growth = pd.DataFrame()
 
@@ -60,5 +59,10 @@ valid_sizes = valid_sizes[['date', 'strain', 'carbon_source', 'replicate', 'indu
                            'cell_id', 'image']]
 valid_growth = valid_growth[['date', 'strain', 'carbon_source', 'replicate', 'inducer_conc',
                              'elapsed_time_hr', 'od_600nm']]
-valid_sizes.to_csv('./collated_size_measurements.csv', index=False)
+valid_sizes.to_csv('./collated_single_cell_size_measurements.csv', index=False)
 valid_growth.to_csv('./collated_growth_curves.csv', index=False)
+
+# %%
+grouped_sizes = valid_sizes.groupby(['date', 'strain', 'carbon_source', 'inducer_conc', 'replicate'])[
+    ['width_median', 'width_var', 'length', 'volume', 'surface_area', 'surface_to_volume']].mean().reset_index()
+grouped_sizes.to_csv('./aggregated_size_measurements.csv', index=False)

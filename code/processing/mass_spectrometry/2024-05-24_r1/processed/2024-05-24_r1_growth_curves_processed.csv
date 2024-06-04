@@ -1,6 +1,6 @@
 date,od_600nm,replicate,carbon_source,strain,inducer_conc,elapsed_time_hr,temperature_C
 2024-05-24,0.059,1,LB,wildtype,0,0.0,37
-2024-05-24,0.081,1,LB,wildtype,0,0.13333333333333333,37
+2024-05-24,0.081,1,LB,wildtype,0,0.13333333333333336,37
 2024-05-24,0.127,1,LB,wildtype,0,0.35,37
 2024-05-24,0.207,1,LB,wildtype,0,0.55,37
 2024-05-24,0.283,1,LB,wildtype,0,0.7,37
