@@ -11,7 +11,10 @@ import glob
 # Load the total protein and total RNA data and merge
 tot_prot = pd.read_csv('./2024-05-29_r2/raw/2024-05-29_r2_biuret.csv')
 tot_RNA = pd.read_csv('./2024-05-30_r1/raw/2024-05-30_r1_total_RNA.csv')
+biuret_cal = pd.read_csv('./2024-05-28_r2/raw/2024-05-28_biuret_calibration.csv')
+biuret_popt = scipy.stats.linregress(biuret_cal['nominal_BSA_conc_ug_mL'], biuret_cal['od_555nm'])
 
+#%%
 # Apply transformations to total RNA to account for cell loss
 tot_RNA['net_od_600nm'] = 1.5 * (tot_RNA['harvest_od_600nm'] -
                                  tot_RNA['residual_od_600nm']) - 1.2 * tot_RNA['wash_od600nm']
@@ -29,6 +32,8 @@ merged = pd.merge(tot_prot, tot_RNA, on=[
                   'strain', 'carbon_source', 'replicate', 'inducer_conc', 'date_collected'])
 merged = merged[['strain', 'carbon_source', 'replicate', 'inducer_conc',
                  'date_collected', 'od_555nm_per_od_600nm', 'od_260nm_per_od_600nm']]
+merged['ug_protein_per_od_600nm'] = (merged['od_555nm_per_od_600nm'] - biuret_popt[1]) / biuret_popt[0]
+merged['ug_RNA_per_od_600nm'] = merged['od_260nm_per_od_600nm'] * 31 # Empirical conversion factor 
 merged.to_csv('./collated_protein_RNA_measurements.csv', index=False)
 
 

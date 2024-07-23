@@ -180,17 +180,33 @@ for i in range(len(uniprot)):
 files = ['replicate1_intensities.csv',
          'replicate2_intensities.csv']
 
+standard = pd.read_csv('../../../../data/literature/compiled_mass_fractions.csv')
+standard = standard[(standard['strain']=='NCM3722') & 
+                    (standard['growth_rate_hr'] >= 0.90) & 
+                    (standard['growth_rate_hr'] <= 1.2)]
+standard = standard.groupby('gene_name')['mass_frac'].mean().reset_index()
+std_map = standard.set_index(['gene_name'])['mass_frac'].to_dict()
+
+#%%
 df = pd.DataFrame([])
+unmapped = []
 for mapper, file in zip([MAPPER_REP1, MAPPER_REP2], files):
     raw_df = pd.read_csv(f'./raw/{file}')
+    std_norm = raw_df['Normalized_proportion_1']
     for j in range(16):
         raw_df[f'mass_frac_{j+1}'] = raw_df['Intensity'].values * raw_df[f'Normalized_proportion_{j+1}'].values / raw_df[f'Normalized_proportion_{j+1}'].sum()
         raw_df[f'mass_frac_{j+1}'] /= raw_df[f'mass_frac_{j+1}'].sum()
-    for g, d in tqdm.tqdm(raw_df.groupby('Protein')):
+        raw_df[f'relative_norm_prop_{j+1}'] = raw_df[f'Normalized_proportion_{j+1}'].values / std_norm.values
+    for g, d in tqdm.tqdm(raw_df.groupby('Protein')):  
         for j in range(16):
             _mapper = mapper[j+1]
             _df_dict = {k:v for k, v in _mapper.items()}
             gene_names = uniprot_mapper[g]['gene_names'].split()
+            try:
+                _std = std_map[gene_names[0]]
+            except KeyError:
+                unmapped.append(gene_names[0])
+                _std = 0
             _df_dict['entry'] = g
             _df_dict['name'] = gene_names[0] 
             _df_dict['synonyms'] = ' '.join(gene_names[1:])
@@ -198,5 +214,7 @@ for mapper, file in zip([MAPPER_REP1, MAPPER_REP2], files):
             _df_dict['norm_intensity'] = d[f'Normalized_proportion_{j+1}'].values[0]
             _df_dict['common_intensity'] = d['Intensity'].values[0]
             _df_dict['mass_frac'] = d[f'mass_frac_{j+1}'].values[0]
+            _df_dict['rel_mass_frac'] = _std * d[f'relative_norm_prop_{j+1}'].values[0]
             df = pd.concat([df, pd.DataFrame(_df_dict, index=[0])])
 df.to_csv('../processed_mass_fractions.csv', index=False)
+
