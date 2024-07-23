@@ -3,6 +3,8 @@ This script collates all growth curves, cell size measurements, total protein,
 and total RNA measurements into single dataframes.
 """
 # %%
+import scipy.stats
+import numpy as np
 import pandas as pd
 import glob
 
@@ -16,7 +18,7 @@ tot_RNA['net_od_600nm'] = 1.5 * (tot_RNA['harvest_od_600nm'] -
 tot_RNA['od_260nm_per_od_600nm'] = tot_RNA['od_260nm'] / \
     tot_RNA['net_od_600nm']
 
-# Tranform total protein optical density measurements to account for
+# Transform total protein optical density measurements to account for
 tot_prot['net_od_600nm'] = 1.5 * \
     (tot_prot['harvest_od_600nm'] - tot_prot['residual_od_600nm'])
 tot_prot['od_555nm_per_od_600nm'] = tot_prot['od_555nm'] * \
@@ -61,6 +63,21 @@ valid_growth = valid_growth[['date', 'strain', 'carbon_source', 'replicate', 'in
                              'elapsed_time_hr', 'od_600nm']]
 valid_sizes.to_csv('./collated_single_cell_size_measurements.csv', index=False)
 valid_growth.to_csv('./collated_growth_curves.csv', index=False)
+
+# %%
+# Infer growth rates
+growth_rates = pd.DataFrame([]) 
+keys = ['date', 'strain', 'carbon_source', 'inducer_conc', 'replicate']
+for g, d in valid_growth.groupby(keys):
+    d['elapsed_time_hr'] -= d['elapsed_time_hr'].min()
+    popt = scipy.stats.linregress(d['elapsed_time_hr'].values,
+                                  np.log(d['od_600nm']))
+    _df_dict = {k:v for k, v in zip(keys, g)} 
+    _df_dict['growth_rate_hr'] = popt[0]
+    _df_dict['od_init'] = np.exp(popt[1])
+    _df_dict['growth_rate_hr_std'] = popt[-2]
+    growth_rates = pd.concat([growth_rates, pd.DataFrame(_df_dict, index=[0])])
+growth_rates.to_csv('./collated_growth_rates.csv', index=False)
 
 # %%
 grouped_sizes = valid_sizes.groupby(['date', 'strain', 'carbon_source', 'inducer_conc', 'replicate'])[
