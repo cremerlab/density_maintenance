@@ -181,9 +181,8 @@ files = ['replicate1_intensities.csv',
          'replicate2_intensities.csv']
 
 standard = pd.read_csv('../../../../data/literature/compiled_mass_fractions.csv')
-standard = standard[(standard['strain']=='NCM3722') & 
-                    (standard['growth_rate_hr'] >= 0.90) & 
-                    (standard['growth_rate_hr'] <= 1.2)]
+standard = standard[(standard['growth_rate_hr'] >= 0.75) & 
+                    (standard['growth_rate_hr'] <= 0.95)]
 standard = standard.groupby('gene_name')['mass_frac'].mean().reset_index()
 std_map = standard.set_index(['gene_name'])['mass_frac'].to_dict()
 
@@ -205,7 +204,8 @@ for mapper, file in zip([MAPPER_REP1, MAPPER_REP2], files):
             try:
                 _std = std_map[gene_names[0]]
             except KeyError:
-                unmapped.append(gene_names[0])
+                if gene_names[0] not in unmapped:
+                    unmapped.append(gene_names[0])
                 _std = 0
             _df_dict['entry'] = g
             _df_dict['name'] = gene_names[0] 

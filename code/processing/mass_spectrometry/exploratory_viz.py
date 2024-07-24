@@ -11,9 +11,9 @@ mapper = size.viz.lit_mapper()
 lit_data = pd.read_csv('../../../data/literature/collated_mass_fractions_empirics.csv')
 
 # Load our data set and compute the theory.
-data = pd.read_csv('./total_collated_data.csv')
-rel_data = pd.read_csv('./total_collated_data_relative.csv')
-def theory(phi_mem, phi_peri, phi_rib, kappa=110, beta=0.4558):
+data = pd.read_csv('./total_collated_data_relative.csv')
+# rel_data = pd.read_csv('./total_collated_data_relative.csv')
+def theory(phi_mem, phi_peri, phi_rib, kappa=106, beta=0.4558):
     numer = phi_mem * kappa
     denom = 2 * (1 + phi_rib/beta - phi_mem - phi_peri)
     return numer / denom
@@ -22,16 +22,21 @@ def theory(phi_mem, phi_peri, phi_rib, kappa=110, beta=0.4558):
 prot_per_cell = pd.read_csv('../../../data/literature/collated_protein_per_cell.csv')
 drymass_density = 287
 popt = scipy.stats.linregress(prot_per_cell['growth_rate_hr'], np.log(prot_per_cell['fg_protein_per_cell']))
+
+
+# Do calculations on the data
+
+data['calc_SAV'] = 12 * data['length'] / (data['width_median'] * (3 * data['length'] - data['width_median']))
 data['prot_per_cell'] = np.exp(popt[0] * data['growth_rate_hr'] + popt[1]) 
 data['membrane_mass'] = data['phi_mem'] * data['prot_per_cell']
 data['membrane_density'] = data['membrane_mass'] / (2 * data['surface_area'])
 data['kappa'] = drymass_density / data['membrane_density']
-data['pred_SAV'] = theory(data['phi_mem'], data['phi_peri'], data['phi_rib'], data['kappa'])
+data['pred_SAV'] = theory(data['phi_mem'], data['phi_peri'], data['phi_rib'])
 
 #%%
 fig, ax = plt.subplots(1, 3, figsize=(6,2))
 wt_data = data[data['strain']=='wildtype']
-wt_rel_data = rel_data[rel_data['strain']=='wildtype']
+# wt_rel_data = rel_data[rel_data['strain']=='wildtype']
 
 
 for g, d in lit_data.groupby('dataset_name'):
@@ -140,23 +145,24 @@ plt.tight_layout()
 
 
 #%%
+key = 'surface_to_volume'
 plt.plot([4, 10], [4,10], 'k:')
-plt.plot(wt_data['pred_SAV'], wt_data['surface_to_volume'], 'o', alpha=0.5, label='wildtype')
+plt.plot(wt_data['pred_SAV'], wt_data[key], 'o', alpha=0.5, label='wildtype')
 relA.sort_values('inducer_conc', inplace=True)
-plt.plot(relA['pred_SAV'], relA['surface_to_volume'], '-', lw=0.75, color=cor['red'])
+plt.plot(relA['pred_SAV'], relA[key], '-', lw=0.75, color=cor['red'])
 for g, d in relA.groupby('inducer_conc', sort='ascending'):
-    plt.plot(d['pred_SAV'], d['surface_to_volume'], 'o', color=d.color.values[0], 
+    plt.plot(d['pred_SAV'], d[key], 'o', color=d.color.values[0], 
     label=f'relA {g} ng/mL DOX') 
 meshI.sort_values('inducer_conc', inplace=True)
-plt.plot(meshI['pred_SAV'], meshI['surface_to_volume'], '-', lw=0.75, color=cor['green'])
+plt.plot(meshI['pred_SAV'], meshI[key], '-', lw=0.75, color=cor['green'])
 for g, d in meshI.groupby('inducer_conc', sort='ascending'):
-    plt.plot(d['pred_SAV'], d['surface_to_volume'], '-o', color=d.color.values[0],
+    plt.plot(d['pred_SAV'], d[key], '-o', color=d.color.values[0],
     label=f'meshI {g} mM IPTG')  
 
 lacZ.sort_values('inducer_conc', inplace=True)
-plt.plot(lacZ['pred_SAV'], lacZ['surface_to_volume'], '-', lw=0.75, color=cor['blue'])
+plt.plot(lacZ['pred_SAV'], lacZ[key], '-', lw=0.75, color=cor['blue'])
 for g, d in lacZ.groupby('inducer_conc', sort='ascending'):
-    plt.plot(d['pred_SAV'], d['surface_to_volume'], '-o', color=d.color.values[0],
+    plt.plot(d['pred_SAV'], d[key], '-o', color=d.color.values[0],
     label=f'lacZ {g} ng/mL CTC') 
 
 plt.legend()
@@ -175,7 +181,7 @@ for g, d in kappa.groupby('source'):
     plt.plot(d['growth_rate_hr'], d['median_value'], **style)
 
 ax.plot(wt_data['growth_rate_hr'], wt_data['membrane_density'],'o',
-        markerfacecolor='w', markeredgecolor=cor['primary_black'], markeredgewidth=1,
+        markerfacecolor='w', markeredgecolor=cor['black'], markeredgewidth=1,
         label='wildtype')
 
 for g, d in relA.groupby('color'):
@@ -192,3 +198,76 @@ for g, d in lacZ.groupby('color'):
     ax.plot(d['growth_rate_hr'], d['membrane_density'],'o',
               markerfacecolor=g, markeredgewidth=1,
              markeredgecolor='k', label='lacZ')
+ax.set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+ax.set_ylabel('membrane density [fg/µm$^2$]', fontsize=6)
+
+
+#%%
+fig, ax = plt.subplots(1,1, figsize=(3, 2))
+
+
+ax.plot(wt_data['growth_rate_hr'], wt_data['length'] / wt_data['width_median'],'o',
+        markerfacecolor='w', markeredgecolor=cor['black'], markeredgewidth=1,
+        label='wildtype')
+for g, d in relA.groupby('color'):
+    ax.plot(d['growth_rate_hr'], d['length'] / d['width_median'],'o',
+              markerfacecolor=g, markeredgewidth=1,
+             markeredgecolor='k', label='relA')
+
+for g, d in meshI.groupby('color'):
+    ax.plot(d['growth_rate_hr'], d['length'] / d['width_median'],'o',
+              markerfacecolor=g, markeredgewidth=1,
+             markeredgecolor='k', label='meshI')
+
+for g, d in lacZ.groupby('color'):
+    ax.plot(d['growth_rate_hr'], d['length'] / d['width_median'],'o',
+              markerfacecolor=g, markeredgewidth=1,
+             markeredgecolor='k', label='lacZ')
+ax.set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+ax.set_ylabel('aspect ratio', fontsize=6)
+
+ax.set_ylim([1, 5])
+
+
+#%%
+
+
+fig, ax = plt.subplots(1,1, figsize=(3, 2))
+
+
+ax.plot(wt_data['growth_rate_hr'], wt_data['width_median'],'o',
+        markerfacecolor='w', markeredgecolor=cor['black'], markeredgewidth=1,
+        label='wildtype')
+for g, d in relA.groupby('color'):
+    ax.plot(d['growth_rate_hr'],  d['width_median'],'o',
+              markerfacecolor=g, markeredgewidth=1,
+             markeredgecolor='k', label='relA')
+
+for g, d in meshI.groupby('color'):
+    ax.plot(d['growth_rate_hr'], d['width_median'],'o',
+              markerfacecolor=g, markeredgewidth=1,
+             markeredgecolor='k', label='meshI')
+
+for g, d in lacZ.groupby('color'):
+    ax.plot(d['growth_rate_hr'], d['width_median'],'o',
+              markerfacecolor=g, markeredgewidth=1,
+             markeredgecolor='k', label='lacZ')
+ax.set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+ax.set_ylabel('width [µm]', fontsize=6)
+
+# ax.set_ylim([1, 5])
+
+#%%
+lacZ['relative_growth_rate'] = lacZ['growth_rate_hr'] / lacZ[lacZ['inducer_conc']==0]['growth_rate_hr'].mean()
+for g, d in lacZ.groupby('color'):
+    plt.plot(d['phiX-lacZ'], d['relative_growth_rate'], 'o', color=g)
+
+plt.xlabel('phiX-lacZ')
+plt.ylabel('relative growth rate')  
+
+#%%
+
+for g, d in relA.groupby('color'):
+    plt.plot(d['RNA_to_protein'], d['surface_to_volume'], 'o', color=g)
+for g, d in meshI.groupby('color'):
+    plt.plot(d['RNA_to_protein'], d['surface_to_volume'], 'o', color=g)
