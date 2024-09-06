@@ -1,6 +1,6 @@
 ---
-status: rejected
-reason: Experiment in progress
+status: Accepted
+reason: All looks good.
 ---
 
 # 2024-05-25 MS Sample Preparation for LacZ, RelA OE + acetate Growth
@@ -23,9 +23,6 @@ growth rates, total RNA, total protein, and cell size measurements were acquired
 |wildtype | GE046 | Wildtype NCM3722 *E. coli*|
 |relA | GE462 | Wildtype NCM3722 *E. coli* with pRelA|
 |lacZ | GE246 | Wildtype NCM3722 *E. coli* with pZA31-tetR + pZE11-lacZ|
-
-## Results
-
 
 
 ### Harvest & Residual Optical Densities
@@ -55,10 +52,6 @@ growth rates, total RNA, total protein, and cell size measurements were acquired
 | acetate 2A | Total Protein | 0.410 (0.200) | 0.033 | 0.250 | 
 | acetate 2B | Total RNA | 0.410 (0.200) | 0.011 | 0.284 | 
 | acetate 2M | Mass Spec | 0.410 (0.200) | 0.078 | 1.46 | 
-
-
-
-
 
 ### Growth Rate Estimation
 |**Label** | **Growth Rate [inv. hr]** |
@@ -136,8 +129,3 @@ from the culture were transferred into clean 1.7 mL eppendorf tubes.
 in the quartz cuvette. 
 4. The samples were then transferred to the -80° C freezer until total RNA 
 and protein could be quantified. 
-
-## Quantification of Total RNA
-
-
-## Quantification of Total Protein

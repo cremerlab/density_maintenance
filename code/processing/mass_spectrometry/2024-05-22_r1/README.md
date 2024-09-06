@@ -1,6 +1,6 @@
 ---
-status: Rejected 
-reason: Experiment in progress
+status: Accepted
+reason: All looks good, save for the second replicate of glucose+acetate
 ---
 
 # 2024-05-22 MS Sample Preparation for Wildtype in Varied Growth Media 
@@ -135,7 +135,3 @@ in the quartz cuvette.
 4. The samples were then transferred to the -80° C freezer until total RNA 
 and protein could be quantified. 
 
-## Quantification of Total RNA
-
-
-## Quantification of Total Protein

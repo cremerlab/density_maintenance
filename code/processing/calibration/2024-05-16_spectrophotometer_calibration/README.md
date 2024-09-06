@@ -5,7 +5,7 @@ reason: >
     and in line with previous determination from previous years.
 ---
 
-# 2024-05-17 Spectrophotometer Calibration
+# 2024-05-16 Spectrophotometer Calibration
 This experiment was performed to recalibration the spectrophotometer used for 
 measurement of growth curves and total biomass concentration. The goal was to 
 determine the appropriate calibration factor to convert the optical density 

@@ -45,6 +45,8 @@ for g, d in ms_data.groupby(['name', 'synonyms']):
         d['sector'] = 'phiX-relA'
     else:
         d['sector'] = 'unassigned_sector'
+    d['cog_category'] = lcz['COG_functionname'].values[0]
+    d['cog_letter'] = lcz['COG_function'].values[0]
     filt = pd.concat([filt, d])
 filt.to_csv('./mass_spec_sector_assignments.csv', index=False) 
 

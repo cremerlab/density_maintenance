@@ -1,6 +1,6 @@
 ---
-status: rejected
-reason: Experiment in progress
+status: Accepted 
+reason: All looks good except for the first replicate of lacZ + 3 ng/mL ctc.
 ---
 
 # 2024-05-26 MS Sample Preparation for LacZ, RelA OE
@@ -106,7 +106,3 @@ in the quartz cuvette.
 4. The samples were then transferred to the -80° C freezer until total RNA 
 and protein could be quantified. 
 
-## Quantification of Total RNA
-
-
-## Quantification of Total Protein

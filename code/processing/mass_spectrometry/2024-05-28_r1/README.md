@@ -1,6 +1,6 @@
 ---
-status: rejected
-reason: Experiment in progress
+status: Accepted
+reason: All looks good except for the first replicate of lacZ + 3 ng/mL ctc.
 ---
 
 # 2024-05-28 MS Sample Preparation for LacZ OE
@@ -98,8 +98,3 @@ from the culture were transferred into clean 1.7 mL eppendorf tubes.
 in the quartz cuvette. 
 4. The samples were then transferred to the -80° C freezer until total RNA 
 and protein could be quantified. 
-
-## Quantification of Total RNA
-
-
-## Quantification of Total Protein

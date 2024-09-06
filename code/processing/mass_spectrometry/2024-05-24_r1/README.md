@@ -1,6 +1,6 @@
 ---
-status: rejected
-reason: Experiment in progress
+status: Accepted
+reason: All looks good.
 ---
 
 # 2024-05-24 MS Sample Preparation for Fast Growth 
@@ -107,8 +107,3 @@ from the culture were transferred into clean 1.7 mL eppendorf tubes.
 in the quartz cuvette. 
 4. The samples were then transferred to the -80° C freezer until total RNA 
 and protein could be quantified. 
-
-## Quantification of Total RNA
-
-
-## Quantification of Total Protein

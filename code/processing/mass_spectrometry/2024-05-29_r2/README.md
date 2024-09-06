@@ -1,6 +1,10 @@
 ---
 status: Rejected
-reason: Analysis is ongoing
+reason: > 
+    Resulting protien per OD was remarkably high for LB and glucoseCAA samples,
+    likely because I did not wash the cell pellet before freezing, keeping free 
+    amino acids around. We will ultimately just use the estimation of the ribosome 
+    content from the mass spec analysis.
 ---
 
 # 2024-05-29 Quantification of Total Protein

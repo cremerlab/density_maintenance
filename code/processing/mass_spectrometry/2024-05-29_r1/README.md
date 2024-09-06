@@ -1,6 +1,6 @@
 ---
-status: rejected
-reason: Experiment in progress
+status: Accepted
+reason: All looks good
 ---
 
 # 2024-05-29 MS Sample Preparation for LacZ OE

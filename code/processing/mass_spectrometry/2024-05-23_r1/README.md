@@ -1,6 +1,6 @@
 ---
-status: rejected
-reason: Experiment in progress
+status: Accepted
+reason: All looks good except for the second replicate of pRelA + 2 ng/mL dox.
 ---
 
 # 2024-05-23 MS Sample Preparation for ppGpp Perturbations

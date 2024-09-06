@@ -12,12 +12,9 @@ import multiprocessing as mp
 cor, pal = size.viz.matplotlib_style()
 mp.cpu_count()
 ROOT = '../../../../data/images/'
-# Load images, convert to greyscale,and filter.
-strains = np.sort(glob.glob(f'{ROOT}/*/'))
+strains = np.sort(glob.glob(f'{ROOT}/wildtype/'))
 
 # %%
-# size_df = pd.DataFrame([])
-# biom = []
 for s in tqdm.tqdm(strains, desc='Strains...'):
     dirs = glob.glob(f'{s}/*/')
     for direc in tqdm.tqdm(dirs, desc='Directories...'):
@@ -89,12 +86,11 @@ for s in tqdm.tqdm(strains, desc='Strains...'):
                 d['inducer_conc'] = inducer_conc
                 d['image'] = suffix
                 d['strain'] = strain
-            # size_df = pd.concat([size_df, biometrics])
-            # biom.append(biometrics)
 
             sizes.append(biometrics)
             splines.append(anatomy)
             cells.append(cell_df)
+
         # Form dataframes for plot generation
         cell_sizes = pd.concat(sizes, sort=False)
         cell_images = pd.concat(cells, sort=False)
@@ -102,6 +98,7 @@ for s in tqdm.tqdm(strains, desc='Strains...'):
 
         # Save size measurements
         cell_sizes.to_csv(f'{direc}/{date}_r{run_no}_sizes.csv', index=False)
+
         # Generate the gallerires
         print('Generating cell galleries...')
         for g, d in cell_sizes.groupby(['carbon_source', 'temperature_C', 'inducer', 'inducer_conc', 'run_no', 'overexpression']):
@@ -125,7 +122,7 @@ for s in tqdm.tqdm(strains, desc='Strains...'):
         print('done!')
 
 # %%
-# dfkSave the huge size dataframe
+# Save the huge size dataframe
 size_df = pd.concat([pd.read_csv(f)
                     for f in glob.glob(f'{ROOT}/*/*/*sizes.csv')], sort=False)
 size_df.to_csv('./output/compiled_size_measurements.csv')

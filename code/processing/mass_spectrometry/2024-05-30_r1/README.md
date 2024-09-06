@@ -1,6 +1,6 @@
 ---
-status: rejected
-reason: Data still be analyzed
+status: Accepted
+reason: All looks good.
 ---
 
 # 2024-05-30 Total RNA Quantification
