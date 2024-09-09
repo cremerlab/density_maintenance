@@ -586,15 +586,22 @@ def compute_percentiles(df,
 
 
 def style_point(source, alpha=0.75):
-    mapper = lit_mapper()
     cor, _ = matplotlib_style()
-    style = {'marker': mapper[source]['m'],
-             'color': mapper[source]['c'],
-             'markeredgecolor': cor['primary_black'],
+    style = {'markeredgecolor': cor['primary_black'],
              'markeredgewidth': 0.25,
-             'alpha': alpha,
-             'label': source,
-             'linestyle': 'none'}
+             'markersize': 4, 
+              'label': source,
+              'linestyle': 'none'}  
+    if source != 'This Study':
+        mapper = lit_mapper()
+        style['marker'] = mapper[source]['m']
+        style['color'] = mapper[source]['c']
+        style['alpha'] = alpha
+    else:
+        style['marker'] = 'o'
+        style['color'] = 'w'
+        style['alpha'] = 1.0
+        style['markeredgewidth'] = 0.75
     return style
 
 

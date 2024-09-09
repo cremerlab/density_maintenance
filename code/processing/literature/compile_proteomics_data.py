@@ -1,16 +1,19 @@
 # %%
-import size.viz
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tqdm
 babu = pd.read_csv(
     '../../../data/literature/Babu2018/Babu2018_minimal_classification.csv')
-files = ['Mori2021', 'Soufi2015', 'Caglar2017',
-         'Belliveau2021']  # , 'Balakrishnan2022']
+files = ['Mori2021', 'Soufi2015', 'Caglar2017', 'Belliveau2021']  
 dfs = [pd.read_csv(
     f'../../../data/literature/{f}/{f}_processed.csv') for f in files]
 data = pd.concat(dfs, sort=False)
+
+# Exclude valgepea et al. which is not well designed to measure membrane proteins
+data = data[data['dataset_name'] != 'Valgepea et al. 2013']
+
+
+#%%
 # %%
 dfs = []
 for g, d in data.groupby(['dataset_name', 'condition', 'growth_rate_hr']):

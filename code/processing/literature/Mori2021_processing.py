@@ -34,8 +34,8 @@ table9_valid_idx = ['A1-1',
                     'F8']
 
 # Load the sample idx csv to make a LUT
-table8_keys = pd.read_csv('../../data/source/Mori2021/Mori2021_table8_idx.csv')
-table9_keys = pd.read_csv('../../data/source/Mori2021/Mori2021_table9_idx.csv')
+table8_keys = pd.read_csv('../../../data/literature/Mori2021/Mori2021_table8_idx.csv')
+table9_keys = pd.read_csv('../../../data/literature/Mori2021/Mori2021_table9_idx.csv')
 
 #%%
 table8_dict = {} 
@@ -52,8 +52,8 @@ for g, d in table9_keys.groupby(['Sample ID', 'Strain', 'Growth rate (1/h)', 'Ca
                          'growth_rate_hr':g[2]}
 
 # Load and melt the tables
-table8 = pd.read_csv('../../data/source/Mori2021/Mori2021_table8.csv')
-table9 = pd.read_csv('../../data/source/Mori2021/Mori2021_table9.csv')
+table8 = pd.read_csv('../../../data/literature/Mori2021/Mori2021_table8.csv')
+table9 = pd.read_csv('../../../data/literature/Mori2021/Mori2021_table9.csv')
 table8_melted = table8.melt(['Gene name', 'Gene locus', 'Protein ID'], var_name='idx', value_name='mass_frac')
 table9_melted = table9.melt(['Gene name', 'Gene locus', 'Protein ID'], var_name='idx', value_name='mass_frac')
 
@@ -78,7 +78,7 @@ merged = merged[merged['mass_frac'] > 0]
 
 # %%
 # Load the master gene list and make a LUT
-gene_list = pd.read_csv('../../data/source/Belliveau2021/ecoli_genelist_master.csv')
+gene_list = pd.read_csv('../../../data/literature/Belliveau2021/ecoli_genelist_master.csv')
 gene_dict = {}
 
 for g, d in gene_list.groupby(['b_number', 
@@ -100,7 +100,6 @@ for g, d in gene_list.groupby(['b_number',
                        'cog_desc': g[5]}
 
 
-# %%
 # Load the master gene list for consistent annotation
 unmapped = []
 for v in ['go_terms', 'cog_class', 'cog_letter', 'cog_desc']:
@@ -112,7 +111,11 @@ for v in ['go_terms', 'cog_class', 'cog_letter', 'cog_desc']:
             info.append(gene_dict[merged['b_number'].values[i]][v])
     merged[v] = info
 
+# Deal with the case where there are replicates by computing the mean for each gene
+merged = merged.groupby(['gene_name', 'b_number', 'condition', 'strain', 'growth_rate_hr',
+'dataset_name', 'go_terms', 'cog_class', 'cog_letter', 'cog_desc']).mean().reset_index()
+merged
 # %%
-merged.to_csv('../../data/source/Mori2021/Mori2021_processed.csv', index=False)
+merged.to_csv('../../../data/literature/Mori2021/Mori2021_processed.csv', index=False)
 
 
