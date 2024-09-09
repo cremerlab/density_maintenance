@@ -83,12 +83,16 @@ generated quantities {
     vector[N_obs_lit] lit_prot_ppc;
     vector[N_obs_lit] lit_volume_ppc;
     vector[N_obs_lit] lit_sa_ppc;
+    vector[N_obs_lit] lit_kappa_ppc;
+    real lit_kappa_ppc_mean;
 
     // Define the quantities to calculate for the observed data
     vector[N_obs] rho_peri;
     vector[N_obs] rho_cyto;
     vector[N_obs] sigma_mem;
     vector[N_obs] prot_ppc;
+    vector[N_obs] kappa_ppc;
+    real kappa_ppc_mean;
 
     // Define the quantities to calculate for the fits
     vector[N_pred] fit_prot;
@@ -106,7 +110,9 @@ generated quantities {
         lit_rho_peri_ppc[i] = lit_phi_peri[i] * lit_prot_ppc[i] / (DELTA_PERI * lit_sa_ppc[i]);
         lit_sigma_mem_ppc[i] = lit_phi_mem[i] * lit_prot_ppc[i] / (2 * lit_sa_ppc[i]);
         lit_rho_cyto_ppc[i] = lit_prot_ppc[i] * (BETA_RIB * lit_phi_rib[i] + lit_phi_cyto[i]) / (lit_volume_ppc[i] - DELTA_PERI *lit_sa_ppc[i]);
+        lit_kappa_ppc[i] = lit_rho_cyto_ppc[i] /lit_sigma_mem_ppc[i];
     }
+    lit_kappa_ppc_mean = mean(lit_kappa_ppc);
 
     // Calculate the quantiteis for the observed data
     for (i in 1:N_obs) {
@@ -114,7 +120,9 @@ generated quantities {
         rho_peri_ppc[i] = obs_phi_peri[i] * prot_ppc[i] / (DELTA_PERI * obs_sa[i]);
         rho_cyto_ppc[i] = prot_ppc[i] * (BETA_RIB * obs_phi_rib[i] + obs_phi_cyto[i]) / (obs_volume[i] - DELTA_PERI * obs_sa[i]);
         sigma_mem_ppc[i] = obs_phi_mem[i] * prot_ppc[i] / (2 * obs_sa[i]);
+        kappa_ppc[i] = rho_cyto_ppc[i] / sigma_mem_ppc[i];
     }
+    kappa_ppc_mean = mean(kappa_ppc);
 
     // Calculate the continuous PPCs for the fits
     for (i in 1:N_pred) {
