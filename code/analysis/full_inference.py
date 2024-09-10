@@ -93,7 +93,7 @@ pars = ['m_peri_ppc', 'm_peri',
         'rho_cyto_ppc', 'rho_cyto',
         'rho_peri_ppc', 'rho_peri',
         'sigma_mem_ppc', 'sigma_mem',
-        'kappa_ppc', 'kappa']
+        'kappa_ppc', 'kappa_mu']
 quantity = ['m_peri_ppc', 'm_peri', 'rho_cyt_ppc', 'rho_cyt', 'rho_peri_ppc', 
         'rho_peri', 'sigma_mem_ppc', 'sigma_mem', 'kappa_ppc', 'kappa']
 ms_densities = pd.DataFrame([])
@@ -158,7 +158,7 @@ preds.to_csv('./output/phi_rib_scaling_fits_summary.csv', index=False)
 
 #%%
 # Save full distribution of mean densites
-pars = ['lit_kappa_ppc_mean', 'lit_kappa_mean', 'kappa_ppc_mean', 'kappa_mean', 'weighted_kappa_ppc', 'weighted_kappa']
+pars = ['lit_kappa_ppc', 'lit_kappa_mu', 'kappa_ppc', 'kappa_mu', 'weighted_kappa']
 dist = samples.posterior[pars].to_dataframe().reset_index()
 dist
 #%%
