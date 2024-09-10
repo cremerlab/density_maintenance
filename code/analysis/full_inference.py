@@ -12,9 +12,11 @@ model = cmdstanpy.CmdStanModel(stan_file='./full_inference.stan')
 #%%
 # Load the literature size data
 lit_size_data = pd.read_csv('../../data/literature/full_literature_size_data.csv')
+lit_size_data = lit_size_data[lit_size_data['source'] != 'Basan et al. 2015']
 lit_prot_data = pd.read_csv('../../data/literature/collated_protein_per_cell.csv')
 lit_prot_data = lit_prot_data[lit_prot_data['source'] != 'Valgepea et al. 2013']
 lit_ms_data = pd.read_csv('../../data/collated/literature_mass_spec_aggregated.csv')
+lit_ms_data = lit_ms_data[lit_ms_data['source'] != 'This Study']
 
 # Merge the literature protein data and ours
 prot_data = pd.read_csv('../../data/bulk_protein_per_cell.csv')
@@ -39,7 +41,7 @@ size_data = pd.concat([lit_size_data, size_data], sort=False)
 
 #%%
 # Set the prediction range of growth rates and ribosome content
-N_pred = 200
+N_pred = 75
 lam_range = np.linspace(0.005, 3, N_pred)
 phi_rib_range = np.linspace(0, 0.45, N_pred)
 
@@ -78,7 +80,7 @@ data_dict = {
     'pred_phi_rib': phi_rib_range
 }
 
-_samples = model.sample(data=data_dict)
+_samples = model.sample(data=data_dict, iter_sampling=4000)
 samples = az.from_cmdstanpy(_samples)
 
 #%%
@@ -87,24 +89,28 @@ growth_rates = lit_ms_data['growth_rate_hr'].values
 condition = lit_ms_data['condition'].values
 
 # Generate a summary dataframe from literature mass spec data
-pars = ['lit_m_peri_ppc', 'lit_rho_cyto_ppc', 'lit_rho_peri_ppc', 
-        'lit_sigma_mem_ppc', 'lit_kappa_ppc']
-quantity = ['m_peri', 'rho_cyt', 'rho_peri', 'sigma_mem', 'kappa']
+pars = ['m_peri_ppc', 'm_peri',
+        'rho_cyto_ppc', 'rho_cyto',
+        'rho_peri_ppc', 'rho_peri',
+        'sigma_mem_ppc', 'sigma_mem',
+        'kappa_ppc', 'kappa']
+quantity = ['m_peri_ppc', 'm_peri', 'rho_cyt_ppc', 'rho_cyt', 'rho_peri_ppc', 
+        'rho_peri', 'sigma_mem_ppc', 'sigma_mem', 'kappa_ppc', 'kappa']
 ms_densities = pd.DataFrame([])
 for (p, q) in zip(pars, quantity): 
-    _d = samples.posterior[p].to_dataframe().reset_index()
+    _d = samples.posterior[f'lit_{p}'].to_dataframe().reset_index()
     for i in range(len(sources)):
-        _d.loc[_d[f'{p}_dim_0']==i, 'source'] = sources[i]
-        _d.loc[_d[f'{p}_dim_0']==i, 'growth_rate_hr'] = growth_rates[i]
-        _d.loc[_d[f'{p}_dim_0']==i, 'condition'] = condition[i]
-    _d.rename(columns={p: q}, inplace=True)
+        _d.loc[_d[f'lit_{p}_dim_0']==i, 'source'] = sources[i]
+        _d.loc[_d[f'lit_{p}_dim_0']==i, 'growth_rate_hr'] = growth_rates[i]
+        _d.loc[_d[f'lit_{p}_dim_0']==i, 'condition'] = condition[i]
+    _d.rename(columns={f'lit_{p}': q}, inplace=True)
     percs = size.viz.compute_percentiles(_d, q, ['source', 'growth_rate_hr', 'condition'])
     percs['replicate'] = 0
     ms_densities = pd.concat([ms_densities, percs])
 
 # Generate a summary dataframe from our mass spec data
 growth_rates = data['growth_rate_hr'].values
-condition = data['carbon_source'].values
+ondition = data['carbon_source'].values
 replicate = data['replicate'].values
 for (p, q) in zip(pars, quantity): 
     _d = samples.posterior[p].to_dataframe().reset_index()
@@ -122,6 +128,7 @@ ms_densities.to_csv('./output/mass_spec_densities_summary.csv', index=False)
 #%%
 # Generate a summary dataframe of the fits
 pars = ['fit_prot', 'fit_volume', 'fit_sa']
+
 quantity = ['protein_per_cell', 'volume_um3', 'surface_area_um2']
 fits = pd.DataFrame([])
 for (p, q) in zip(pars, quantity):
@@ -133,6 +140,27 @@ for (p, q) in zip(pars, quantity):
     fits = pd.concat([fits, percs])
 fits.to_csv('./output/size_relation_fits_summary.csv', index=False)
 
+# Generate a dataframe of the phi_rib scaling fits and SAV predictions
+pars = ['phi_mem_ppc', 'phi_mem', 'phi_peri_ppc', 'phi_peri', 'sav_ppc', 'sav']
+preds = pd.DataFrame([])
+for p in pars:
+    if 'sav' in p:
+        prefix = 'theory_'
+    else:
+        prefix='fit_'
+    _d = samples.posterior[f'{prefix}{p}'].to_dataframe().reset_index()
+    for i, phi_rib in enumerate(phi_rib_range):
+        _d.loc[_d[f'{prefix}{p}_dim_0']==i, 'phi_rib'] = phi_rib
+    _d.rename(columns={f'{prefix}{p}': p}, inplace=True)
+    percs = size.viz.compute_percentiles(_d, p, ['phi_rib'])
+    preds = pd.concat([preds, percs])
+preds.to_csv('./output/phi_rib_scaling_fits_summary.csv', index=False)
+
+#%%
+# Save full distribution of mean densites
+pars = ['lit_kappa_ppc_mean', 'lit_kappa_mean', 'kappa_ppc_mean', 'kappa_mean', 'weighted_kappa_ppc', 'weighted_kappa']
+dist = samples.posterior[pars].to_dataframe().reset_index()
+dist
 #%%
 cor, pal = size.viz.matplotlib_style()
 # Generate a diagnostic plot of the fits
@@ -150,6 +178,9 @@ for g, d in lit_prot_data.groupby('source'):
 # Plot the medians
 axes = {'volume_um3':ax[0], 'surface_area_um2':ax[1], 'protein_per_cell':ax[2]}
 for (q, a) in axes.items():
-    meds = fits[(fits['quantity']==q) & (fits['interval']=='median')]
-    a.plot(meds['growth_rate_hr'], meds['lower'], color=cor['primary_black'], alpha=1, label='Median')
+    _fits = fits[fits['quantity']==q]
+    meds = _fits[_fits['interval']=='median']
+    perc = _fits[_fits['interval']=='95%']
+    a.fill_between(perc['growth_rate_hr'], perc['lower'], perc['upper'], color=cor['primary_black'], alpha=0.2)
+    a.plot(meds['growth_rate_hr'], meds['lower'], color=cor['primary_black'], alpha=1)
 

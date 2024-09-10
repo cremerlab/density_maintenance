@@ -82,7 +82,7 @@ ribo_prots = ['rrsa', 'rpsa', 'rpsb', 'rpsc', 'rpd', 'rpse', 'rpsf', 'rpsg', 'rp
               'rpmb', 'rpmc', 'rpmd', 'rpme', 'rpmf', 'rmpg', 'rpmh', 'rpmi', 'rpmj']
 # Aggregate and the literature data by type and localization.
 agged = pd.DataFrame([])
-for g, d in data[data['source']!='This Study'].groupby(['source', 'condition', 'growth_rate_hr', 'strain']):
+for g, d in data.groupby(['source', 'condition', 'growth_rate_hr', 'strain', 'replicate']):
     d = d[d['mass_frac'] > 0]
     phi_cyt = d[d['localization']=='cytoplasm']['mass_frac'].values.sum()
     phi_rib = d[d['gene_name'].str.lower().isin(ribo_prots)]['mass_frac'].values.sum()
@@ -92,6 +92,7 @@ for g, d in data[data['source']!='This Study'].groupby(['source', 'condition', '
                         'condition':g[1],
                         'growth_rate_hr':g[2],
                         'strain':g[3],
+                        'replicate': g[4],
                         'phi_cyt': phi_cyt,
                         'phi_rib': phi_rib,
                         'phi_mem': phi_mem,
