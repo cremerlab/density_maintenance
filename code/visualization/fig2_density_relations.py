@@ -21,7 +21,7 @@ fig, ax = plt.subplots(1, 3, figsize=(6, 2))
 for g, d in lit_size_data.groupby('source'):
     fmt = size.viz.style_point(g)
     ax[0].plot(d['growth_rate_hr'], d['volume_um3'], **fmt)
-    ax[1].plot(d['growth_rate_hr'], d['surface_to_volume'], **fmt)
+    ax[1].plot(d['growth_rate_hr'], d['surface_area_um2'], **fmt)
 
 for g, d in lit_prot_data.groupby('source'):
     fmt = size.viz.style_point(g)
@@ -38,7 +38,7 @@ fmt = size.viz.style_point('This Study')
 ax[0].errorbar(data['growth_rate_hr'], data['volume'], 
                 xerr=data['growth_rate_hr_std'],
                     **fmt)
-ax[1].errorbar(data['growth_rate_hr'], data['surface_to_volume'], 
+ax[1].errorbar(data['growth_rate_hr'], data['surface_area'], 
                 xerr=data['growth_rate_hr_std'],
                 **fmt)
 
@@ -46,17 +46,17 @@ ax[1].errorbar(data['growth_rate_hr'], data['surface_to_volume'],
 lam_range = np.linspace(0, 2.5, 200)
 vol_popt = scipy.stats.linregress(data['growth_rate_hr'], np.log(data['volume']))
 vol_fit = np.exp(vol_popt.intercept + vol_popt.slope * lam_range)
-sav_popt = scipy.stats.linregress(data['growth_rate_hr'], np.log(data['surface_to_volume']))
-sav_fit = np.exp(sav_popt.intercept + sav_popt.slope * lam_range)
+sa_popt = scipy.stats.linregress(data['growth_rate_hr'], np.log(data['surface_area']))
+sa_fit = np.exp(sa_popt.intercept + sa_popt.slope * lam_range)
 prot_fit = scipy.stats.linregress(prot_data['mean_growth_rate_hr'], np.log(prot_data['fg_prot_per_cell']))
 prot_fit = np.exp(prot_fit.intercept + prot_fit.slope * lam_range)
 
 # Plot the fits
 ax[0].plot(lam_range, vol_fit, '--', lw=1, color=cor['primary_black'], zorder=10)
-ax[1].plot(lam_range, sav_fit, '--', lw=1, color=cor['primary_black'], zorder=10)
+ax[1].plot(lam_range, sa_fit, '--', lw=1, color=cor['primary_black'], zorder=10)
 ax[2].plot(lam_range, prot_fit, '--', lw=1, color=cor['primary_black'], zorder=10)
 ax[0].set_ylim([-0.5, 7])
-ax[1].set_ylim([1, 10])
+# ax[1].set_ylim([1, 10])
 ax[2].set_ylim([50, 1000])
 
 # Add labels
@@ -67,4 +67,4 @@ ax[1].set_ylabel('surface area [µm$^{2}$]', fontsize=6)
 ax[2].set_ylabel('protein [fg/cell]', fontsize=6)
 ax[0].legend()
 ax[2].legend()
-plt.savefig('../../figures/fig2_size_relations.pdf', bbox_inches='tight')
+# plt.savefig('../../figures/fig2_size_relations.pdf', bbox_inches='tight')

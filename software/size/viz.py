@@ -549,10 +549,10 @@ def diagnostic_growth_viz(samples,
 def compute_percentiles(df,
                         quantity,
                         groupby,
-                        lower_bounds=[5, 10, 15, 20, 25, 30, 35, 40, 45, ],
-                        upper_bounds=[95, 90, 85, 80, 75, 70, 65, 60, 55],
-                        interval_labels=['90%', '80%', '70%', '60%',
-                                         '50%', '40%', '30%', '20%', '10%']):
+                        lower_bounds=[2.5, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+                        upper_bounds=[97.5, 95, 90, 85, 80, 75, 70, 65, 60, 55, 50],
+                        interval_labels=['95%', '90%', '80%', '70%', '60%',
+                                         '50%', '40%', '30%', '20%', '10%', 'median']):
 
     # Allow flexibility in what quantities are being supplied
     if type(quantity) != str:
