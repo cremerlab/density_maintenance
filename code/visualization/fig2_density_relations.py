@@ -10,7 +10,7 @@ cor, pal = size.viz.matplotlib_style()
 lit_size_data = pd.read_csv('../../data/literature/full_literature_size_data.csv')
 lit_size_data = lit_size_data[lit_size_data['source'] != 'Basan et al. 2015']
 lit_prot_data = pd.read_csv('../../data/literature/collated_protein_per_cell.csv')
-lit_prot_data = lit_prot_data[lit_prot_data['source'] != 'Valgepea et al. 2013']
+
 
 # Load our coalesced data
 data = pd.read_csv('../processing/mass_spectrometry/total_collated_data.csv')

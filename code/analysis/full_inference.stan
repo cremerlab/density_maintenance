@@ -43,6 +43,7 @@ transformed data {
     vector[N_size] log_volume = log(volume);
     vector[N_size] log_sa = log(sa);
     vector[N_obs] log_obs_phi_peri = log(obs_phi_peri);
+    vector[N_obs] obs_kappa = 2 .* obs_sa .* (BETA_RIB .* obs_phi_rib + obs_phi_cyto) ./ (obs_phi_mem .* (obs_volume - DELTA_PERI .* obs_sa));
 }
 
 parameters {   
@@ -66,8 +67,6 @@ parameters {
     real<lower=0> phi_peri_sigma; // sigma for periplasmic linear fit on log scale
 
     // Parameters for theory estimation
-    real<lower=0> lit_kappa_mu;
-    real<lower=0> lit_kappa_sigma;
     real<lower=0> kappa_mu;
     real<lower=0> kappa_sigma;
 }
@@ -76,8 +75,6 @@ transformed parameters {
     vector[N_obs_lit] lit_prot_per_cell_val = exp(beta_0_prot + beta_1_prot * lit_growth_rate_hr);
     vector[N_obs_lit] lit_volume_val = exp(beta_0_vol + beta_1_vol * lit_growth_rate_hr);
     vector[N_obs_lit] lit_sa_val = exp(beta_0_sa + beta_1_sa * lit_growth_rate_hr);
-    vector[N_obs] obs_kappa = 2 .* obs_sa .* (BETA_RIB .* obs_phi_rib + obs_phi_cyto) ./ (obs_volume - DELTA_PERI .* obs_sa);
-    vector[N_obs_lit] lit_kappa = 2 .* lit_sa_val .* (BETA_RIB .* lit_phi_rib + lit_phi_cyto) ./ (lit_volume_val - DELTA_PERI .* lit_sa_val);
 }
 
 model {
@@ -93,8 +90,6 @@ model {
    sa_sigma ~ normal(0, 1);
 
    // Define priors for theory inference parameters. Quantiles set using distribution-explorer.github.io
-   lit_kappa_mu ~ normal(175, 63.78); // Quantiles [2.5, 97.5] = [50, 300]
-   lit_kappa_sigma ~ normal(0, 50);
    kappa_mu ~ normal(175, 63.78); // Quantiles [2.5, 97.5] = [50, 300]
    kappa_sigma ~ normal(0, 50);
 
@@ -110,16 +105,12 @@ model {
    log_volume ~ normal(beta_0_vol + beta_1_vol * vol_growth_rate_hr, vol_sigma);
    log_sa ~ normal(beta_0_sa + beta_1_sa * sa_growth_rate_hr, sa_sigma);
 
-
    // Define the likelihoods for kappa
    obs_kappa ~ normal(kappa_mu, kappa_sigma);
-   lit_kappa ~ normal(lit_kappa_mu, lit_kappa_sigma);
 
    // Define the likelihoods for phi_rib dependence
    obs_phi_mem ~ normal(beta_0_phi_mem + beta_1_phi_mem * obs_phi_rib, phi_mem_sigma);
    log_obs_phi_peri ~ normal(beta_0_phi_peri + beta_1_phi_peri * obs_phi_rib, phi_peri_sigma);
-
-
 }
 
 generated quantities {
@@ -138,15 +129,18 @@ generated quantities {
     vector[N_obs_lit] lit_sa;
     vector[N_obs_lit] lit_m_peri_ppc;
     vector[N_obs_lit] lit_m_peri;
-    real lit_kappa_ppc;
 
     // Define the quantities to calculate for the observed data
     vector[N_obs] rho_peri_ppc;
     vector[N_obs] rho_peri;
     vector[N_obs] rho_cyto_ppc;
     vector[N_obs] rho_cyto;
+    real mean_rho_cyto_ppc;
+    real mean_rho_cyto;
     vector[N_obs] sigma_mem_ppc;
     vector[N_obs] sigma_mem;
+    real mean_sigma_mem_ppc;
+    real mean_sigma_mem;
     vector[N_obs] prot_ppc;
     vector[N_obs] prot;
     vector[N_obs] m_peri_ppc;
@@ -154,7 +148,6 @@ generated quantities {
     vector[N_obs] pred_sav_ppc;
     vector[N_obs] pred_sav;
     real kappa_ppc;
-    real weighted_kappa;
 
     // Define the quantities to calculate for the fits
     vector[N_pred] fit_prot;
@@ -171,7 +164,6 @@ generated quantities {
 
     // Compute the constant ppcs
     kappa_ppc = normal_rng(kappa_mu, kappa_sigma);
-    lit_kappa_ppc = normal_rng(lit_kappa_mu, lit_kappa_sigma);
 
     // Calculate the quantites for the literature data
     for (i in 1:N_obs_lit) {
@@ -213,8 +205,11 @@ generated quantities {
         pred_sav[i] = kappa_mu * obs_phi_mem[i] / (2 * (1 + BETA_RIB * obs_phi_rib[i] - obs_phi_mem[i] - obs_phi_peri[i]));
 
     }
-    weighted_kappa = ((kappa_mu/kappa_sigma^2)) + (lit_kappa_mu/lit_kappa_sigma^2)/(1/kappa_sigma^2 + 1/lit_kappa_sigma^2);
 
+    mean_rho_cyto = mean(rho_cyto);
+    mean_rho_cyto_ppc = mean(rho_cyto_ppc);
+    mean_sigma_mem = mean(sigma_mem);
+    mean_sigma_mem_ppc = mean(sigma_mem_ppc);
     // Calculate the continuous PPCs for the fits and for the predictions given our MS data
     for (i in 1:N_pred) {
         fit_prot[i] = exp(normal_rng(beta_0_prot + beta_1_prot * pred_growth_rate_hr[i], prot_sigma));

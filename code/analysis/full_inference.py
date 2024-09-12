@@ -12,9 +12,7 @@ model = cmdstanpy.CmdStanModel(stan_file='./full_inference.stan')
 #%%
 # Load the literature size data
 lit_size_data = pd.read_csv('../../data/literature/full_literature_size_data.csv')
-lit_size_data = lit_size_data[lit_size_data['source'] != 'Basan et al. 2015']
 lit_prot_data = pd.read_csv('../../data/literature/collated_protein_per_cell.csv')
-lit_prot_data = lit_prot_data[lit_prot_data['source'] != 'Valgepea et al. 2013']
 lit_ms_data = pd.read_csv('../../data/collated/literature_mass_spec_aggregated.csv')
 lit_ms_data = lit_ms_data[lit_ms_data['source'] != 'This Study']
 
@@ -92,10 +90,9 @@ condition = lit_ms_data['condition'].values
 pars = ['m_peri_ppc', 'm_peri',
         'rho_cyto_ppc', 'rho_cyto',
         'rho_peri_ppc', 'rho_peri',
-        'sigma_mem_ppc', 'sigma_mem',
-        'kappa_ppc', 'kappa_mu']
+        'sigma_mem_ppc', 'sigma_mem'] 
 quantity = ['m_peri_ppc', 'm_peri', 'rho_cyt_ppc', 'rho_cyt', 'rho_peri_ppc', 
-        'rho_peri', 'sigma_mem_ppc', 'sigma_mem', 'kappa_ppc', 'kappa']
+        'rho_peri', 'sigma_mem_ppc', 'sigma_mem']
 ms_densities = pd.DataFrame([])
 for (p, q) in zip(pars, quantity): 
     _d = samples.posterior[f'lit_{p}'].to_dataframe().reset_index()
@@ -108,6 +105,7 @@ for (p, q) in zip(pars, quantity):
     percs['replicate'] = 0
     ms_densities = pd.concat([ms_densities, percs])
 
+# %%
 # Generate a summary dataframe from our mass spec data
 growth_rates = data['growth_rate_hr'].values
 ondition = data['carbon_source'].values
@@ -124,6 +122,26 @@ for (p, q) in zip(pars, quantity):
     ms_densities = pd.concat([ms_densities, percs])
 
 ms_densities.to_csv('./output/mass_spec_densities_summary.csv', index=False)
+
+#%%
+# Generate a wide dataframe with measured/predicted values for each quantity
+pars = ['pred_sav_ppc', 'pred_sav']
+parnames = ['sav_ppc', 'sav']
+carbon_sources = data['carbon_source'].values
+growth_rates = data['growth_rate_hr'].values
+replicates = data['replicate'].values
+pred_sav = pd.DataFrame([])
+for (p, n) in zip(pars, parnames):
+    _d = samples.posterior[p].to_dataframe().reset_index()
+    for i in range(len(carbon_sources)):
+        _d.loc[_d[f'{p}_dim_0']==i, 'condition'] = carbon_sources[i]
+        _d.loc[_d[f'{p}_dim_0']==i, 'growth_rate_hr'] = growth_rates[i]
+        _d.loc[_d[f'{p}_dim_0']==i, 'replicate'] = replicates[i]
+    _d.rename(columns={p: n}, inplace=True)
+    percs = size.viz.compute_percentiles(_d, n, ['growth_rate_hr', 'condition', 'replicate'])
+    percs['source'] = 'This Study'
+    pred_sav = pd.concat([pred_sav, percs])
+pred_sav.to_csv('./output/predicted_sav_summary.csv', index=False)
 
 #%%
 # Generate a summary dataframe of the fits
@@ -158,9 +176,16 @@ preds.to_csv('./output/phi_rib_scaling_fits_summary.csv', index=False)
 
 #%%
 # Save full distribution of mean densites
-pars = ['lit_kappa_ppc', 'lit_kappa_mu', 'kappa_ppc', 'kappa_mu', 'weighted_kappa']
+pars = ['kappa_ppc', 'kappa_mu', 'mean_rho_cyto_ppc', 'mean_rho_cyto',
+        'mean_sigma_mem_ppc', 'mean_sigma_mem']
+
+names = ['kappa_ppc', 'kappa', 'rho_cyto_ppc', 'rho_cyto', 
+            'sigma_mem_ppc', 'sigma_mem']
+mapper = {p: n for p, n in zip(pars, names)}
 dist = samples.posterior[pars].to_dataframe().reset_index()
-dist
+dist = dist[pars]
+dist.rename(columns=mapper, inplace=True)
+dist.to_csv('./output/kappa_density_samples.csv', index=False)
 #%%
 cor, pal = size.viz.matplotlib_style()
 # Generate a diagnostic plot of the fits

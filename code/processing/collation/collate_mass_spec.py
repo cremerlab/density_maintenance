@@ -9,9 +9,6 @@ dfs = [pd.read_csv(
     f'../../../data/literature/{f}/{f}_processed.csv') for f in files]
 lit_data = pd.concat(dfs, sort=False)
 
-# Exclude valgepea et al. which is not well designed to measure membrane proteins
-lit_data = lit_data[lit_data['dataset_name'] != 'Valgepea et al. 2013']
-
 # Restrict and simplify the columns
 lit_data = lit_data[['gene_name', 'dataset_name', 'strain', 'condition', 
              'growth_rate_hr', 'cog_class', 'cog_letter', 'mass_frac']]
