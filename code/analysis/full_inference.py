@@ -66,6 +66,7 @@ data_dict = {
 
     'obs_growth_rate_hr': data['growth_rate_hr'].values.astype(float),
     'obs_sa': data['surface_area'].values.astype(float),
+    'obs_sav': data['surface_to_volume'].values.astype(float),
     'obs_volume': data['volume'].values.astype(float),
     'obs_phi_peri': data['phi_peri'].values.astype(float),
     'obs_phi_cyto': data['phi_cyto'].values.astype(float),
@@ -146,7 +147,6 @@ pred_sav.to_csv('./output/predicted_sav_summary.csv', index=False)
 #%%
 # Generate a summary dataframe of the fits
 pars = ['fit_prot', 'fit_volume', 'fit_sa']
-
 quantity = ['protein_per_cell', 'volume_um3', 'surface_area_um2']
 fits = pd.DataFrame([])
 for (p, q) in zip(pars, quantity):
@@ -175,13 +175,15 @@ for p in pars:
 preds.to_csv('./output/phi_rib_scaling_fits_summary.csv', index=False)
 
 #%%
-# Save full distribution of mean densites
-pars = ['kappa_ppc', 'kappa_mu', 'mean_rho_cyto_ppc', 'mean_rho_cyto',
-        'mean_sigma_mem_ppc', 'mean_sigma_mem']
+# Scaling 
+pars = ['beta_0_phi_mem', 'beta_1_phi_mem', 'phi_mem_sigma',
+        'beta_0_phi_peri', 'beta_1_phi_peri', 'phi_peri_sigma']
+dist = samples.posterior[pars].to_dataframe().reset_index()
+dist.to_csv('./output/phi_rib_scaling_fits_samples.csv', index=False)
 
-names = ['kappa_ppc', 'kappa', 'rho_cyto_ppc', 'rho_cyto', 
-            'sigma_mem_ppc', 'sigma_mem']
-mapper = {p: n for p, n in zip(pars, names)}
+#%%
+# Save full distribution of mean densites
+pars = ['kappa', 'sav_sigma']
 dist = samples.posterior[pars].to_dataframe().reset_index()
 dist = dist[pars]
 dist.rename(columns=mapper, inplace=True)

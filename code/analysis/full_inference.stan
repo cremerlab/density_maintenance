@@ -76,7 +76,7 @@ transformed parameters {
     vector[N_obs_lit] lit_prot_per_cell_val = exp(beta_0_prot + beta_1_prot * lit_growth_rate_hr);
     vector[N_obs_lit] lit_volume_val = exp(beta_0_vol + beta_1_vol * lit_growth_rate_hr);
     vector[N_obs_lit] lit_sa_val = exp(beta_0_sa + beta_1_sa * lit_growth_rate_hr);
-    vector[N_obs] sav_mu = kappa * obs_phi_mem / (2 * (1 + BETA_RIB * obs_phi_rib - obs_phi_mem - obs_phi_peri));
+    vector[N_obs] sav_mu = kappa .* obs_phi_mem ./ (2 * (1 + BETA_RIB .* obs_phi_rib - obs_phi_mem - obs_phi_peri));
 }
 
 model {
@@ -96,6 +96,7 @@ model {
    sav_sigma ~ normal(0, 1);
 
    // Define the priors for phi_rib dependence.    beta_0_phi_mem ~ beta(1.797, 17.74); // Quantiles [2.5, 97.5] = [0.01, 0.25]
+   beta_0_phi_mem ~ normal(0, 1);
    beta_1_phi_mem ~ normal(0, 1);
    phi_mem_sigma ~ normal(0, 0.1);
    beta_0_phi_peri ~ normal(0, 1);
@@ -203,9 +204,8 @@ generated quantities {
         sigma_mem[i] = obs_phi_mem[i] * prot[i] / (2 * obs_sa[i]);
         m_peri_ppc[i] = obs_phi_peri[i] * prot_ppc[i];
         m_peri[i] = obs_phi_peri[i] * prot[i];
-        pred_sav_ppc[i] = kappa_ppc * obs_phi_mem[i] / (2 * (1 + BETA_RIB * obs_phi_rib[i] - obs_phi_mem[i] - obs_phi_peri[i]));
-        pred_sav[i] = kappa_mu * obs_phi_mem[i] / (2 * (1 + BETA_RIB * obs_phi_rib[i] - obs_phi_mem[i] - obs_phi_peri[i]));
-
+        pred_sav[i] = kappa * obs_phi_mem[i] / (2 * (1 + BETA_RIB * obs_phi_rib[i] - obs_phi_mem[i] - obs_phi_peri[i]));
+        pred_sav_ppc[i] = normal_rng(pred_sav[i], sav_sigma);
     }
 
     mean_rho_cyto = mean(rho_cyto);
@@ -221,8 +221,8 @@ generated quantities {
         fit_phi_mem_ppc[i] = normal_rng(fit_phi_mem[i], phi_mem_sigma);
         fit_phi_peri[i] = exp(normal_rng(beta_0_phi_peri + beta_1_phi_peri * pred_phi_rib[i], phi_peri_sigma));
         fit_phi_peri_ppc[i] = exp(normal_rng(log(fit_phi_peri[i]), phi_peri_sigma));
-        theory_sav[i] = kappa .* fit_phi_mem[i] / (2 * (1 + BETA_RIB * pred_phi_rib[i] - fit_phi_mem - fit_phi_peri));
+        theory_sav[i] = kappa * fit_phi_mem[i] / (2 * (1 + BETA_RIB * pred_phi_rib[i] - fit_phi_mem[i] - fit_phi_peri[i]));
         theory_sav_ppc[i] = normal_rng(theory_sav[i], sav_sigma);
-        theory_sav[i] = fit_phi_mem[i] * kappa / (2 * (1 + BETA_RIB * pred_phi_rib[i] - fit_phi_mem[i] - fit_phi_peri[i]));
+    
     }
 }
