@@ -24,6 +24,7 @@ data {
     // Our mass spec measurements for for calculation and test of theory
     vector<lower=0>[N_obs] obs_growth_rate_hr;
     vector<lower=0>[N_obs] obs_sa;
+    vector<lower=0>[N_obs] obs_sav;
     vector<lower=0>[N_obs] obs_volume;
     vector<lower=0, upper=1>[N_obs] obs_phi_peri;
     vector<lower=0, upper=1>[N_obs] obs_phi_cyto;
@@ -67,14 +68,15 @@ parameters {
     real<lower=0> phi_peri_sigma; // sigma for periplasmic linear fit on log scale
 
     // Parameters for theory estimation
-    real<lower=0> kappa_mu;
-    real<lower=0> kappa_sigma;
+    real<lower=0> kappa;
+    real<lower=0> sav_sigma;
 }
 
 transformed parameters {
     vector[N_obs_lit] lit_prot_per_cell_val = exp(beta_0_prot + beta_1_prot * lit_growth_rate_hr);
     vector[N_obs_lit] lit_volume_val = exp(beta_0_vol + beta_1_vol * lit_growth_rate_hr);
     vector[N_obs_lit] lit_sa_val = exp(beta_0_sa + beta_1_sa * lit_growth_rate_hr);
+    vector[N_obs] sav_mu = kappa * obs_phi_mem / (2 * (1 + BETA_RIB * obs_phi_rib - obs_phi_mem - obs_phi_peri));
 }
 
 model {
@@ -90,8 +92,8 @@ model {
    sa_sigma ~ normal(0, 1);
 
    // Define priors for theory inference parameters. Quantiles set using distribution-explorer.github.io
-   kappa_mu ~ normal(175, 63.78); // Quantiles [2.5, 97.5] = [50, 300]
-   kappa_sigma ~ normal(0, 50);
+   kappa ~ normal(175, 63.78); // Quantiles [2.5, 97.5] = [50, 300]
+   sav_sigma ~ normal(0, 1);
 
    // Define the priors for phi_rib dependence.    beta_0_phi_mem ~ beta(1.797, 17.74); // Quantiles [2.5, 97.5] = [0.01, 0.25]
    beta_1_phi_mem ~ normal(0, 1);
@@ -106,7 +108,7 @@ model {
    log_sa ~ normal(beta_0_sa + beta_1_sa * sa_growth_rate_hr, sa_sigma);
 
    // Define the likelihoods for kappa
-   obs_kappa ~ normal(kappa_mu, kappa_sigma);
+    obs_sav ~ normal(sav_mu, sav_sigma);
 
    // Define the likelihoods for phi_rib dependence
    obs_phi_mem ~ normal(beta_0_phi_mem + beta_1_phi_mem * obs_phi_rib, phi_mem_sigma);
@@ -163,7 +165,7 @@ generated quantities {
     vector[N_pred] theory_sav;
 
     // Compute the constant ppcs
-    kappa_ppc = normal_rng(kappa_mu, kappa_sigma);
+    // kappa_ppc = normal_rng(kappa_mu, kappa_sigma);
 
     // Calculate the quantites for the literature data
     for (i in 1:N_obs_lit) {
@@ -219,7 +221,8 @@ generated quantities {
         fit_phi_mem_ppc[i] = normal_rng(fit_phi_mem[i], phi_mem_sigma);
         fit_phi_peri[i] = exp(normal_rng(beta_0_phi_peri + beta_1_phi_peri * pred_phi_rib[i], phi_peri_sigma));
         fit_phi_peri_ppc[i] = exp(normal_rng(log(fit_phi_peri[i]), phi_peri_sigma));
-        theory_sav_ppc[i] = fit_phi_mem_ppc[i] * kappa_ppc / (2 * (1 + BETA_RIB * pred_phi_rib[i] - fit_phi_mem_ppc[i] - fit_phi_peri_ppc[i]));
-        theory_sav[i] = fit_phi_mem[i] * kappa_mu / (2 * (1 + BETA_RIB * pred_phi_rib[i] - fit_phi_mem[i] - fit_phi_peri[i]));
+        theory_sav[i] = kappa .* fit_phi_mem[i] / (2 * (1 + BETA_RIB * pred_phi_rib[i] - fit_phi_mem - fit_phi_peri));
+        theory_sav_ppc[i] = normal_rng(theory_sav[i], sav_sigma);
+        theory_sav[i] = fit_phi_mem[i] * kappa / (2 * (1 + BETA_RIB * pred_phi_rib[i] - fit_phi_mem[i] - fit_phi_peri[i]));
     }
 }
