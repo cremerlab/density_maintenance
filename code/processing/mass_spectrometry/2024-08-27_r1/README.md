@@ -3,7 +3,7 @@ status: Accepted
 reason: All looks good.
 ---
 
-# 2024-05-25 MS Sample Preparation for LacZ, RelA OE + acetate Growth
+# 2024-08-27 MS Sample Preparation for LacZ, RelA OE + acetate Growth
 This experiment was run to gather samples for total proteome quantification of 
 *E. coli* grown in glucose medium overexpressing either lacZ or RelA. Additionally, wildtype cells were grown in acetate. As part of the sample preparation,
 growth rates, total RNA, total protein, and cell size measurements were acquired.
