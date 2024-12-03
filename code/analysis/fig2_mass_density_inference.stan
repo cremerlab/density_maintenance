@@ -3,6 +3,7 @@ data {
     int<lower=1> N_prot; // Number of protein per cell measurements
     int<lower=1> N_size; // Number of size measurement
     int<lower=1> N_ms; // Number of mass spec measurements
+    int<lower=1> N_obs; // Number of experimental measurements made for this work
     int<lower=1> N_fit; // Number of data points for fit generation
 
     // Input independent data for inference
@@ -19,6 +20,14 @@ data {
     vector<lower=0>[N_ms] phi_mem;
     vector<lower=0>[N_ms] phi_peri;
     vector<lower=0>[N_ms] ms_lam;
+
+    // Input experimental data for density calculations
+    vector<lower=0>[N_obs] obs_volume;
+    vector<lower=0>[N_obs] obs_surface_area;
+    vector<lower=0>[N_obs] obs_phi_cyto;
+    vector<lower=0>[N_obs] obs_phi_mem;
+    vector<lower=0>[N_obs] obs_phi_peri;
+    vector<lower=0>[N_obs] obs_lam;
 
     // Input dims for continuous generative fits
     vector<lower=0>[N_fit] fit_lam;
@@ -84,15 +93,24 @@ model {
 
 generated quantities {
     // Define empirical quantities to compute.
-    vector[N_ms] M_cyto;
-    vector[N_ms] M_peri;
-    vector[N_ms] M_mem;
-    vector[N_ms] rho_cyto;
-    vector[N_ms] rho_peri;
-    vector[N_ms] sigma_mem;
-    vector[N_ms] prot_per_cell_ms;
-    vector[N_ms] surface_area_ms;
-    vector[N_ms] volume_ms;
+    vector[N_ms] emp_M_cyto;
+    vector[N_ms] emp_M_peri;
+    vector[N_ms] emp_M_mem;
+    vector[N_ms] emp_rho_cyto;
+    vector[N_ms] emp_rho_peri;
+    vector[N_ms] emp_sigma_mem;
+    vector[N_ms] emp_prot_per_cell_ms;
+    vector[N_ms] emp_surface_area_ms;
+    vector[N_ms] emp_volume_ms;
+
+    // Define observed quantities for our mass spec data
+    vector[N_obs] obs_M_cyto;
+    vector[N_obs] obs_M_peri;
+    vector[N_obs] obs_M_mem;
+    vector[N_obs] obs_prot_per_cell;
+    vector[N_obs] obs_rho_cyto;
+    vector[N_obs] obs_rho_peri;
+    vector[N_obs] obs_sigma_mem;
 
     // Define posterior predictive checks on fit range.
     vector[N_fit] prot_per_cell_ppc;
@@ -101,16 +119,27 @@ generated quantities {
     
     // Compute empirical quantities
     for (i in 1:N_ms) {
-        prot_per_cell_ms[i] = prot_per_cell_beta_0 * exp(prot_per_cell_beta_1 * ms_lam[i]);   
-        surface_area_ms[i] = surface_area_beta_0 * exp(surface_area_beta_1 * ms_lam[i]); 
-        volume_ms[i] = volume_beta_0 * exp(volume_beta_1 * ms_lam[i]);
-        M_cyto[i] = phi_cyto[i] * prot_per_cell_ms[i];
-        M_peri[i] = phi_peri[i] * prot_per_cell_ms[i];
-        M_mem[i] = phi_mem[i] * prot_per_cell_ms[i];
-        rho_cyto[i] = M_cyto[i] / (volume[i] - surface_area[i] * W_PERI);
-        rho_peri[i] = M_peri[i] / (surface_area[i] * W_PERI);
-        sigma_mem[i] = M_mem[i] / (2 * surface_area[i]);
+        emp_prot_per_cell_ms[i] = prot_per_cell_beta_0 * exp(prot_per_cell_beta_1 * ms_lam[i]);   
+        emp_surface_area_ms[i] = surface_area_beta_0 * exp(surface_area_beta_1 * ms_lam[i]); 
+        emp_volume_ms[i] = volume_beta_0 * exp(volume_beta_1 * ms_lam[i]);
+        emp_M_cyto[i] = phi_cyto[i] * emp_prot_per_cell_ms[i];
+        emp_M_peri[i] = phi_peri[i] * emp_prot_per_cell_ms[i];
+        emp_M_mem[i] = phi_mem[i] * emp_prot_per_cell_ms[i];
+        emp_rho_cyto[i] = emp_M_cyto[i] / (emp_volume_ms[i] - emp_surface_area_ms[i] * W_PERI);
+        emp_rho_peri[i] = emp_M_peri[i] / (emp_surface_area_ms[i] * W_PERI);
+        emp_sigma_mem[i] = emp_M_mem[i] / (2 * emp_surface_area_ms[i]);
         }
+
+    // Compute observed quantities 
+    for (i in 1:N_obs) {
+        obs_prot_per_cell[i] = prot_per_cell_beta_0 * exp(prot_per_cell_beta_1 * obs_lam[i]);
+        obs_M_cyto[i] = obs_phi_cyto[i] * obs_prot_per_cell[i];
+        obs_M_peri[i] = obs_phi_peri[i] * obs_prot_per_cell[i];
+        obs_M_mem[i] = obs_phi_mem[i] * obs_prot_per_cell[i];
+        obs_rho_cyto[i] = obs_M_cyto[i] / (obs_volume[i] - obs_surface_area[i] * W_PERI);
+        obs_rho_peri[i] = obs_M_peri[i] / (obs_surface_area[i] * W_PERI);
+        obs_sigma_mem[i] = obs_M_mem[i] / (2 * obs_surface_area[i]);
+    }
 
     // Compute posterior predictive checks
     for (i in 1:N_fit) {
@@ -118,5 +147,6 @@ generated quantities {
         surface_area_ppc[i] = exp(normal_rng(log_surface_area_beta_0 + surface_area_beta_1 .* fit_lam[i], log_surface_area_sigma));
         volume_ppc[i] = exp(normal_rng(log_volume_beta_0 + volume_beta_1 * fit_lam[i], log_volume_sigma));
     }
+
 }
 

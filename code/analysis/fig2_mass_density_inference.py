@@ -49,7 +49,7 @@ ms_phi_mem = np.concatenate([lit_ms_data['phi_mem'].values,
 ms_source = np.concatenate([lit_ms_data['source'].values,
                             data['source'].values])
 # Set the details for the fit
-fit_lam = np.linspace(0, 2.5, 200)
+fit_lam = np.linspace(0, 2.5, 100)
 #%%
 # Set the data dictionary
 data_dict = {
@@ -58,25 +58,34 @@ data_dict = {
    'N_size': len(volume),
    'N_ms': len(ms_lam),
    'N_fit': len(fit_lam),
+   'N_obs': len(data),
 
-    # Independent data
-    'prot_per_cell': prot_per_cell,
-    'surface_area': surface_area,
-    'volume': volume,
+   # Independent data
+   'prot_per_cell': prot_per_cell,
+   'surface_area': surface_area,
+   'volume': volume,
 
-    # Dependent data
-    'prot_per_cell_lam': prot_per_cell_lam,
-    'size_lam': size_lam,
+   # Dependent data
+   'prot_per_cell_lam': prot_per_cell_lam,
+   'size_lam': size_lam,
 
-    # Generative modeling
-    'phi_cyto': ms_phi_cyto,
-    'phi_mem': ms_phi_mem,
-    'phi_peri': ms_phi_peri,
-    'ms_lam': ms_lam,
-    'fit_lam': fit_lam,
-    
-    # Constant for periplasm width
-    'W_PERI': 0.025
+   # Our experimental measurements for easy calculation of densities
+   'obs_volume': data['volume_fL'].values,
+   'obs_surface_area': data['surface_area_um2'].values,
+   'obs_phi_cyto': data['phi_cyto'].values,
+   'obs_phi_mem': data['phi_mem'].values,
+   'obs_phi_peri': data['phi_peri'].values,
+   'obs_lam': data['growth_rate_hr'].values,
+
+   # Generative modeling
+   'phi_cyto': ms_phi_cyto,
+   'phi_mem': ms_phi_mem,
+   'phi_peri': ms_phi_peri,
+   'ms_lam': ms_lam,
+   'fit_lam': fit_lam,
+   
+   # Constant for periplasm width
+   'W_PERI': 0.025
 }
 
 # Sample the model 
@@ -85,22 +94,41 @@ samples = az.from_cmdstanpy(_samples)
 
 #%%
 # Compute the mean and percentiles for each mass spec point. 
-quantities = ['M_cyto', 'M_peri', 'M_mem', 'rho_cyto', 
-              'rho_peri', 'sigma_mem']
+quantities = ['emp_M_cyto', 'emp_M_peri', 'emp_M_mem', 'emp_rho_cyto', 
+              'emp_rho_peri', 'emp_sigma_mem']
 dfs = [] 
 for q in quantities:
     post = samples.posterior[[q, f'{q}_dim_0']].to_dataframe().reset_index()
     for g, d in post.groupby([f'{q}_dim_0']):
         mean_val = np.mean(d[q])
         percs = np.percentile(d[q].values, (2.5, 97.5))
-        dfs.append(pd.DataFrame({'quantity':q,
+        dfs.append(pd.DataFrame({'quantity':q[4:],
                            'source':ms_source[g],
+                           'growth_rate_hr': ms_lam[g],
                            'mean_val':mean_val,
                            'lower':percs[0],
                            'upper':percs[1]},
                            index=[0])) 
-
-mass_densities = pd.concat(dfs, sort=False) 
+mass_densities = pd.concat(dfs, sort=False)
+mass_densities = mass_densities[mass_densities['source'] != 'This Study']
+# Compute the mean and percentiles for our experimental measurements
+quantities = ['obs_M_cyto', 'obs_M_peri', 'obs_M_mem', 'obs_rho_cyto', 
+              'obs_rho_peri', 'obs_sigma_mem']
+dfs = []
+for q in quantities:
+    post = samples.posterior[[q, f'{q}_dim_0']].to_dataframe().reset_index()
+    for g, d in post.groupby([f'{q}_dim_0']):
+         mean_val = np.mean(d[q])
+         percs = np.percentile(d[q].values, (2.5, 97.5))
+         dfs.append(pd.DataFrame({'quantity':q[4:],
+                           'source':'This Study',
+                           'growth_rate_hr':data['growth_rate_hr'].values[g],
+                           'mean_val':mean_val,
+                           'lower':percs[0],
+                           'upper':percs[1]},
+                           index=[0])) 
+_mass_densities = pd.concat(dfs, sort=False)
+mass_densities = pd.concat([mass_densities, _mass_densities], sort=False)
 mass_densities.to_csv('../../data/mcmc/fig2_empirical_quantities_summary.csv',
                       index=False)
 
