@@ -46,12 +46,12 @@ post = samples.posterior[pars].to_dataframe().reset_index()
 melted = post.melt(value_vars=pars)
 
 # Generate a tidy-longform with mean and percentiles
-percs = [(2.5, 97.5), (18, 62)]
+percs = [(2.5, 97.5), (16, 84)]
 labels = ['2sig_', '1sig_']
 dfs = []
 for g, d in melted.groupby('variable'):
     _df = {'quantity': g,
-           'median_value': d['value'].median()}
+           'mean_val': d['value'].mean()}
     for p, ell in zip(percs, labels):
         lower, upper = np.percentile(d['value'].values, p) 
         _df[f'{ell}lower'] = lower
@@ -59,6 +59,12 @@ for g, d in melted.groupby('variable'):
     dfs.append(pd.DataFrame(_df, index=[0]))
 param_df = pd.concat(dfs, sort=False)
 param_df.to_csv('../../data/mcmc/fig3_parameter_summaries.csv', index=False)
+
+#%% 
+# Save samples from the kappa inference
+par_samples = samples.posterior[pars].to_dataframe().reset_index()
+par_samples = par_samples[pars]
+par_samples.to_csv('../../data/mcmc/fig3_inference_samples.csv', index=False)
 
 #%%
 # Extract the ppcs for the theorya nd the trend fits
@@ -72,7 +78,7 @@ for q in quants:
     for g, d in post.groupby(f'{q}_dim_0'):
         _df = {'quantity': q,
                'phi_rib': phi_rib_range[g],
-               'median_val': np.percentile(d[q].values, [50, 50])[0]}
+               'mean_val': d[q].mean()}
         for p, ell in zip(percs, labels):
             lower, upper = np.percentile(d[q].values, p)
             _df[f'{ell}lower'] = lower
