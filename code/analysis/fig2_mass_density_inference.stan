@@ -19,6 +19,7 @@ data {
     vector<lower=0>[N_ms] phi_cyto;
     vector<lower=0>[N_ms] phi_mem;
     vector<lower=0>[N_ms] phi_peri;
+    vector<lower=0>[N_ms] phi_rib;
     vector<lower=0>[N_ms] ms_lam;
 
     // Input experimental data for density calculations
@@ -27,13 +28,16 @@ data {
     vector<lower=0>[N_obs] obs_phi_cyto;
     vector<lower=0>[N_obs] obs_phi_mem;
     vector<lower=0>[N_obs] obs_phi_peri;
+    vector<lower=0>[N_obs] obs_phi_rib;
     vector<lower=0>[N_obs] obs_lam;
 
     // Input dims for continuous generative fits
     vector<lower=0>[N_fit] fit_lam;
 
     // Constants for calculation
-    real<lower=0> W_PERI;
+    real<lower=0> BETA; // For conversion from mass frac to RNA/Protein
+    real<lower=0> rRNA_FRAC; // Fraction of all RNA that is ribosomal.
+    real<lower=0> W_PERI; // Width of the periplasm for calculation of peri volume.
 }
 
 transformed data {
@@ -102,6 +106,11 @@ generated quantities {
     vector[N_ms] emp_prot_per_cell_ms;
     vector[N_ms] emp_surface_area_ms;
     vector[N_ms] emp_volume_ms;
+    vector[N_ms] emp_rho_rib;
+    vector[N_ms] emp_rho_rrna;
+    vector[N_ms] emp_rho_rna;
+    vector[N_ms] emp_rho_biomass;
+
 
     // Define observed quantities for our mass spec data
     vector[N_obs] obs_M_cyto;
@@ -111,6 +120,10 @@ generated quantities {
     vector[N_obs] obs_rho_cyto;
     vector[N_obs] obs_rho_peri;
     vector[N_obs] obs_sigma_mem;
+    vector[N_obs] obs_rho_rib;
+    vector[N_obs] obs_rho_rrna;
+    vector[N_obs] obs_rho_rna;
+    vector[N_obs] obs_rho_biomass;
 
     // Define posterior predictive checks on fit range.
     vector[N_fit] prot_per_cell_ppc;
@@ -128,6 +141,10 @@ generated quantities {
         emp_rho_cyto[i] = emp_M_cyto[i] / (emp_volume_ms[i] - emp_surface_area_ms[i] * W_PERI);
         emp_rho_peri[i] = emp_M_peri[i] / (emp_surface_area_ms[i] * W_PERI);
         emp_sigma_mem[i] = emp_M_mem[i] / (2 * emp_surface_area_ms[i]);
+        emp_rho_rib = phi_rib[i] * emp_prot_per_cell_ms[i] / (emp_volume_ms[i] - emp_surface_area_ms[i] * W_PERI);
+        emp_rho_rrna = BETA * emp_rho_rib[i];
+        emp_rho_rna = emp_rho_rrna[i] / rRNA_FRAC;
+        emp_rho_biomass =  emp_rho_rna[i] + emp_rho_cyto[i];
         }
 
     // Compute observed quantities 
@@ -139,6 +156,10 @@ generated quantities {
         obs_rho_cyto[i] = obs_M_cyto[i] / (obs_volume[i] - obs_surface_area[i] * W_PERI);
         obs_rho_peri[i] = obs_M_peri[i] / (obs_surface_area[i] * W_PERI);
         obs_sigma_mem[i] = obs_M_mem[i] / (2 * obs_surface_area[i]);
+        obs_rho_rib[i] = obs_phi_rib[i] * obs_prot_per_cell[i] / (obs_volume[i] - obs_surface_area[i] * W_PERI);
+        obs_rho_rrna[i] = BETA * obs_rho_rib[i];
+        obs_rho_rna[i] = obs_rho_rrna[i] / rRNA_FRAC;
+        obs_rho_biomass[i] = obs_rho_rna[i] + obs_rho_cyto[i];
     }
 
     // Compute posterior predictive checks
