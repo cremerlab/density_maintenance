@@ -46,6 +46,7 @@ ms_phi_peri = np.concatenate([lit_ms_data['phi_peri'].values,
                               data['phi_peri'].values])
 ms_phi_mem = np.concatenate([lit_ms_data['phi_mem'].values,
                              data['phi_mem'].values])
+ms_phi_rib = np.concatenate([lit_ms_data['phi_rib'].values, data['phi_rib'].values])
 ms_source = np.concatenate([lit_ms_data['source'].values,
                             data['source'].values])
 # Set the details for the fit
@@ -75,17 +76,21 @@ data_dict = {
    'obs_phi_cyto': data['phi_cyto'].values,
    'obs_phi_mem': data['phi_mem'].values,
    'obs_phi_peri': data['phi_peri'].values,
+   'obs_phi_rib': data['phi_rib'].values,
    'obs_lam': data['growth_rate_hr'].values,
 
    # Generative modeling
    'phi_cyto': ms_phi_cyto,
    'phi_mem': ms_phi_mem,
    'phi_peri': ms_phi_peri,
+   'phi_rib': ms_phi_rib, 
    'ms_lam': ms_lam,
    'fit_lam': fit_lam,
    
    # Constant for periplasm width
-   'W_PERI': 0.025
+   'W_PERI': 0.025,
+   'BETA': 1/0.4558,
+   'rRNA_FRAC': 0.8
 }
 
 # Sample the model 
@@ -95,7 +100,8 @@ samples = az.from_cmdstanpy(_samples)
 #%%
 # Compute the mean and percentiles for each mass spec point. 
 quantities = ['emp_M_cyto', 'emp_M_peri', 'emp_M_mem', 'emp_rho_cyto', 
-              'emp_rho_peri', 'emp_sigma_mem']
+              'emp_rho_peri', 'emp_sigma_mem', 'emp_rho_rib', 
+              'emp_rho_rrna', 'emp_rho_rna', 'emp_rho_biomass']
 dfs = [] 
 for q in quantities:
     post = samples.posterior[[q, f'{q}_dim_0']].to_dataframe().reset_index()
@@ -113,7 +119,8 @@ mass_densities = pd.concat(dfs, sort=False)
 mass_densities = mass_densities[mass_densities['source'] != 'This Study']
 # Compute the mean and percentiles for our experimental measurements
 quantities = ['obs_M_cyto', 'obs_M_peri', 'obs_M_mem', 'obs_rho_cyto', 
-              'obs_rho_peri', 'obs_sigma_mem']
+              'obs_rho_peri', 'obs_sigma_mem', 'obs_rho_rib', 'obs_rho_rrna',
+              'obs_rho_rna', 'obs_rho_biomass']
 dfs = []
 for q in quantities:
     post = samples.posterior[[q, f'{q}_dim_0']].to_dataframe().reset_index()

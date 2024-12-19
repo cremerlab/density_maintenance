@@ -141,10 +141,10 @@ generated quantities {
         emp_rho_cyto[i] = emp_M_cyto[i] / (emp_volume_ms[i] - emp_surface_area_ms[i] * W_PERI);
         emp_rho_peri[i] = emp_M_peri[i] / (emp_surface_area_ms[i] * W_PERI);
         emp_sigma_mem[i] = emp_M_mem[i] / (2 * emp_surface_area_ms[i]);
-        emp_rho_rib = phi_rib[i] * emp_prot_per_cell_ms[i] / (emp_volume_ms[i] - emp_surface_area_ms[i] * W_PERI);
-        emp_rho_rrna = BETA * emp_rho_rib[i];
-        emp_rho_rna = emp_rho_rrna[i] / rRNA_FRAC;
-        emp_rho_biomass =  emp_rho_rna[i] + emp_rho_cyto[i];
+        emp_rho_rib[i] = phi_rib[i] * emp_prot_per_cell_ms[i] / (emp_volume_ms[i] - emp_surface_area_ms[i] * W_PERI);
+        emp_rho_rrna[i] = BETA * emp_rho_rib[i];
+        emp_rho_rna[i] = emp_rho_rrna[i] / rRNA_FRAC;
+        emp_rho_biomass[i] =  emp_rho_rna[i] + emp_rho_cyto[i];
         }
 
     // Compute observed quantities 
