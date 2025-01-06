@@ -7,9 +7,6 @@ size_data = pd.read_csv('./aggregated_size_measurements.csv')
 ms_data = pd.read_csv('./processed_mass_fractions.csv')
 ms_data = pd.concat([ms_data, pd.read_csv('./processed_mass_fractions_ppGpp_glucoseCAA.csv')])
 growth_data = pd.read_csv('./collated_growth_rates.csv')
-# RP_data = pd.read_csv('./collated_protein_RNA_measurements.csv')
-# RP_data.rename(columns={'date_collected': 'date'}, inplace=True)
-# RP_data['RNA_to_protein'] = RP_data['ug_RNA_per_od_600nm'] / RP_data['ug_protein_per_od_600nm']
 
 
 #%%

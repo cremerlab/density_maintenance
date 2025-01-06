@@ -1,7 +1,5 @@
 #%%
-import numpy as np 
 import pandas as pd 
-import tqdm
 
 # Load and colalted literature data
 files = ['Mori2021', 'Soufi2015', 'Caglar2017', 'Belliveau2021']  
@@ -19,9 +17,6 @@ lit_data['gene_name'] = [g.lower() for g in lit_data['gene_name'].values]
 #%%
 # Load the gene classification and define the ribosomal proteins. 
 gene_class = pd.read_csv('../../../data/literature/genes_classification_all.csv')
-
-#%%
-# Define the ribosomal proteins
 ribo_prots = ['rrsa', 'rpsa', 'rpsb', 'rpsc', 'rpd', 'rpse', 'rpsf', 'rpsg', 'rpsh', 'rpsi', 'rpsj', 'rpsk',
               'rpsl', 'rpsm', 'rpsn', 'rpso', 'rpsp', 'rpsq', 'rpsr', 'rpst', 'rpsu', 'rrla', 'rrfa', 'rpla', 'rplb', 'rplc', 'rpld', 'rple', 'rplf', 'rplj', 'rpll', 'rpli',
               'rplk', 'rplm', 'rpln', 'rplo', 'rplop', 'rplq', 'rplr', 'rpls', 'rplt', 'rplu', 'rplv', 'rplw', 'rplx', 'rply', 'rpma',
@@ -33,10 +28,13 @@ locs = {'membrane': ['IM', 'LPI', 'LPO', 'OM', 'MR'],
        'cytoplasm': ['CP'],       
 }
 filt = pd.DataFrame([])
+# Count which are not classified
+not_classified = []
 for g, d in lit_data.groupby('gene_name'):
     lcz = gene_class.loc[gene_class['gene'].str.lower()==g.lower()]
     if len(lcz) == 0:
         print(f'could not classify {g}')     
+        not_classified.append(g)
         continue
     if lcz['location'].values[0] in locs['membrane']:
         d['localization'] = 'phi_mem'
@@ -55,6 +53,7 @@ filt.rename(columns={'gene_name':'name'}, inplace=True)
 filt.to_csv('../../../data/collated/compiled_literature_mass_fractions.csv', index=False)
 
 #%%
+
 # Do two passes of computing the allocation. First based on localization, second 
 # on ribosomal content
 groups = ['source', 'condition', 'growth_rate_hr', 'localization']
@@ -78,3 +77,12 @@ for g, d in concat.groupby(groups[:-2]):
     _df.drop(columns=['allocation', 'mass_frac'], inplace=True)
     pivot = pd.concat([pivot, _df])
 pivot.to_csv('../../../data/collated/compiled_literature_allocation_assigments_wide.csv', index=False)
+
+#%%
+# Load our mass spec measurements, restricted to the wildtype NCM3722 strain
+data = pd.read_csv('../mass_spectrometry/mass_spectrometry_localization.csv')
+data = data[data['strain']=='wildtype']
+
+# Rename columns for the literature mass spec
+filt.rename(columns={'condition': 'carbon_source',
+             ''})
