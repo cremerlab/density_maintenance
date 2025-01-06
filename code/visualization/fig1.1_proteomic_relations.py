@@ -55,38 +55,6 @@ ax[1].set_ylim([-0.01, 0.18])
 plt.savefig('./plots/fig1_compartment_COG_trends.pdf', bbox_inches='tight')
 
 
-# #%%
-# # Bar plot of the cog letters
-# letters = data.groupby(['source', 'condition', 'growth_rate_hr', 'compartment', 'cog_letter', 'replicate']).sum(numeric_only=True).reset_index()
-
-# # Add marker information
-# letters['marker'] = [size.viz.style_point(s)['marker'] for s in letters.source.values]
-# letters.sort_values(by='growth_rate_hr', inplace=True)
-# cyto = letters[letters['compartment']=='cytoplasm']
-# cyto['category'] = 'other'
-# cyto.loc[cyto['cog_letter'].isin(['C', 'G', 'E', 'F', 'H', 'I', 'P', 'Q']), 'category'] = 'metabolism'
-# cyto.loc[cyto['cog_letter']=='J', 'category'] = 'translation'
-# cyto.loc[cyto['cog_letter'].isin(['A', 'K']), 'category'] = 'transcription'
-# cyto.loc[cyto['cog_letter'].isin(['O', 'T', 'D']), 'category'] = 'signaling'
-# cyto = cyto.groupby(['source', 'condition', 'growth_rate_hr', 'category', 'replicate']).sum(numeric_only=True).reset_index()
-# cyto['idx'] = cyto.groupby(['source', 'condition', 'growth_rate_hr', 'replicate']).ngroup() + 1
-
-# # fig, ax = plt.subplots(2, 1, figsize=(6, 2.5))
-# order = { 'metabolism':cor['primary_red'], 'translation':cor['primary_gold'], 'transcription':cor['dark_gold'], 
-#          'signaling':cor['dark_green'], 'other':cor['primary_black']}
-# fig, ax = plt.subplots(2, 1, figsize=(6, 2.5))
-# for g, d in cyto.groupby(['idx', 'source','growth_rate_hr']):
-#     d['frac'] = d['mass_frac'] / d['mass_frac'].sum()
-#     fmt = size.viz.style_point(g[1], alpha=0.5)
-#     for (o, c) in order.items():
-#         _d = d[d['category']==o]
-#         ax[0].plot(g[2], _d['frac'].values[0], **fmt)
-#         # bottom += _d['frac'].values[0]
-
-
-
-
-
 #%%
 # Map the ribosomal proteins
 ribo_prots = ['rrsa', 'rpsa', 'rpsb', 'rpsc', 'rpd', 'rpse', 'rpsf', 'rpsg', 'rpsh', 'rpsi', 'rpsj', 'rpsk',
