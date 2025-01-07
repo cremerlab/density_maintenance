@@ -22,4 +22,4 @@ metadata.rename(columns={'date_collected': 'date'}, inplace=True)
 # deemed valid
 groups = ['date', 'replicate', 'strain', 'carbon_source', 'inducer_conc']
 valid = agged.merge(metadata, on=groups, how='inner')
-valid.to_csv('../aggregated_growth_measurements.csv', index=False)
+valid.to_csv('../compiled_data/aggregated_growth_measurements.csv', index=False)

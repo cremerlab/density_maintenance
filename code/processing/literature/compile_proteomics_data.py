@@ -1,107 +1,81 @@
-# %%
-import numpy as np
-import pandas as pd
-import tqdm
-babu = pd.read_csv(
-    '../../../data/literature/Babu2018/Babu2018_minimal_classification.csv')
+#%%
+import pandas as pd 
+
+# Load and colalted literature data
 files = ['Mori2021', 'Soufi2015', 'Caglar2017', 'Belliveau2021']  
 dfs = [pd.read_csv(
     f'../../../data/literature/{f}/{f}_processed.csv') for f in files]
-data = pd.concat(dfs, sort=False)
+lit_data = pd.concat(dfs, sort=False)
 
-# Exclude valgepea et al. which is not well designed to measure membrane proteins
-data = data[data['dataset_name'] != 'Valgepea et al. 2013']
-
+# Restrict and simplify the columns
+lit_data = lit_data[['gene_name', 'dataset_name', 'strain', 'condition', 
+             'growth_rate_hr', 'cog_class', 'cog_letter', 'mass_frac']]
+lit_data['replicate'] = 0
+lit_data.rename(columns={'dataset_name': 'source'}, inplace=True)
+lit_data['gene_name'] = [g.lower() for g in lit_data['gene_name'].values]
 
 #%%
-# %%
-dfs = []
-for g, d in data.groupby(['dataset_name', 'condition', 'growth_rate_hr']):
-    if np.round(d['mass_frac'].sum(), decimals=3) <= 1.0:
-        dfs.append(d)
-data = pd.concat(dfs, sort=False)
-data = data[data['dataset_name'] != 'Valgepea et al. 2013']
-# data = data[data['dataset_name'] != 'Mori et al. 2021']
-data.drop(columns=['cog_desc', 'cog_category', 'gene_product', 'annotation', 'dataset'],
-          inplace=True)
-ribo_prots = ['rrsa', 'rpsa', 'rpsb', 'rpsc', 'rpd', 'rpse', 'rpsf', 'rpsg', 'rpsh', 'rpsi', 'rpsj', 'rpsk',
-              'rpsl', 'rpsm', 'rpsn', 'rpso', 'rpsp', 'rpsq', 'rpsr', 'rpst', 'rpsu', 'rrla', 'rrfa', 'rpla', 'rplb', 'rplc', 'rpld', 'rple', 'rplf', 'rplj', 'rpll', 'rpli',
-              'rplk', 'rplm', 'rpln', 'rplo', 'rplop', 'rplq', 'rplr', 'rpls', 'rplt', 'rplu', 'rplv', 'rplw', 'rplx', 'rply', 'rpma',
-              'rpmb', 'rpmc', 'rpmd', 'rpme', 'rpmf', 'rmpg', 'rpmh', 'rpmi', 'rpmj']
-# %%
-# babu = babu[babu['localization'] != 'EC']
-data['envelope'] = False
-data['periplasm'] = False
-data['membrane'] = False
-data['ribosomal'] = False
-data['metabolism'] = False
-data['inner membrane'] = False
-data['outer membrane'] = False
-for g, _ in tqdm.tqdm(babu.groupby(['name', 'b_number', 'localization'])):
-    _dict = {'periplasm': False, 'envelope': True, 'membrane': False}
-    if g[-1] == 'PE':
-        _dict['periplasm'] = True
-    else:
-        _dict['periplasm'] = False
-    if g[-1] in ['IM', 'OM', 'LPO', 'LPI', 'MR']:
-        _dict['membrane'] = True
-    else:
-        _dict['membrane'] = False
-    if g[-1] in ['IM', 'LPI']:
-        _dict['inner membrane'] = True
-    else:
-        _dict['inner membrane'] = False
-    if g[-1] in ['OM', 'LPO']:
-        _dict['outer membrane'] = True
-    else:
-        _dict['outer membrane'] = False
+# Load the gene classification and define the ribosomal proteins. 
+gene_class = pd.read_csv('../../../data/literature/genes_classification_all.csv')
+ribo_prots = ['rrsa', 'rpsa', 'rpsb', 'rpsc', 'rpd', 'rpse', 'rpsf', 'rpsg',
+'rpsh', 'rpsi', 'rpsj', 'rpsk', 'rpsl', 'rpsm', 'rpsn', 'rpso', 'rpsp', 'rpsq',
+'rpsr', 'rpst', 'rpsu', 'rrla', 'rrfa', 'rpla', 'rplb', 'rplc', 'rpld', 'rple',
+'rplf', 'rplj', 'rpll', 'rpli', 'rplk', 'rplm', 'rpln', 'rplo', 'rplop', 'rplq',
+'rplr', 'rpls', 'rplt', 'rplu', 'rplv', 'rplw', 'rplx', 'rply', 'rpma', 'rpmb',
+'rpmc', 'rpmd', 'rpme', 'rpmf', 'rmpg', 'rpmh', 'rpmi', 'rpmj']
 
-    if (len(data[data['gene_name'] == g[0]]) == 0) & (len(data[data['b_number'] == g[1]]) == 0):
+# Define the localization
+locs = {'membrane': ['IM', 'LPI', 'LPO', 'OM', 'MR'],
+       'periplasm': ['PE', 'EC'],
+       'cytoplasm': ['CP'],       
+}
+filt = pd.DataFrame([])
+# Count which are not classified
+not_classified = []
+for g, d in lit_data.groupby('gene_name'):
+    lcz = gene_class.loc[gene_class['gene'].str.lower()==g.lower()]
+    if len(lcz) == 0:
+        print(f'could not classify {g}')     
+        not_classified.append(g)
         continue
+    if lcz['location'].values[0] in locs['membrane']:
+        d['localization'] = 'phi_mem'
+    elif lcz['location'].values[0] in locs['periplasm']:
+        d['localization'] = 'phi_peri'
+    elif lcz['location'].values[0] in locs['cytoplasm']:
+        d['localization'] = 'phi_cyto'
+    else:
+        d['localization'] = 'unassigned_localization'
+    d['cog_category'] = lcz['COG_functionname'].values[0]
+    d['cog_letter'] = lcz['COG_function'].values[0]
+    filt = pd.concat([filt, d])
 
-    for k, v in _dict.items():
-        data.loc[data['gene_name'] == g[0], k] = v
-        data.loc[data['b_number'] == g[1], k] = v
+filt = filt[['gene_name', 'source', 'condition', 'growth_rate_hr', 'mass_frac', 'localization', 'cog_letter', 'cog_class']]
+filt.rename(columns={'gene_name':'name'}, inplace=True)
+filt.to_csv('./compiled_data/compiled_literature_mass_fractions.csv', index=False)
 
-data.loc[data['cog_letter'].isin(
-    ['C', 'E', 'F', 'G', 'H', 'I', 'P', 'Q']), 'metabolism'] = True
-data.loc[data['gene_name'].str.lower().isin(ribo_prots), 'ribosomal'] = True
-data.to_csv('../../../data/literature/collated_mass_fractions.csv', index=False)
+#%%
 
-# %%
-# Create aggregate summaries
-envelope = data[data['envelope'] == True].groupby(
-    ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
-envelope['localization'] = 'envelope'
+# Do two passes of computing the allocation. First based on localization, second 
+# on ribosomal content
+groups = ['source', 'condition', 'growth_rate_hr', 'localization']
+allocs = filt.groupby(groups)['mass_frac'].sum().reset_index()
+phi_rib = filt[filt['name'].str.lower().isin(ribo_prots)].groupby(groups)['mass_frac'].sum().reset_index()
+phi_rib['localization'] = 'phi_rib'
 
-membrane = data[data['membrane'] == True].groupby(
-    ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
-membrane['localization'] = 'membrane'
+# Concatenate and then pivot
+concat = pd.concat([allocs, phi_rib])
+concat.rename(columns={'localization':'allocation'}, inplace=True)
+concat.to_csv('./compiled_data/compiled_literature_allocation_assigments_long.csv', index=False)
 
-periplasm = data[data['periplasm'] == True].groupby(
-    ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
-periplasm['localization'] = 'periplasm'
-
-inner_mem = data[data['inner membrane'] == True].groupby(
-    ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
-inner_mem['localization'] = 'inner membrane'
-
-outer_mem = data[data['outer membrane'] == True].groupby(
-    ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
-outer_mem['localization'] = 'outer membrane'
-
-cytoplasm = data[data['envelope'] == False].groupby(
-    ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
-cytoplasm['localization'] = 'cytoplasm'
-
-ribosomal = data[data['ribosomal'] == True].groupby(
-    ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
-ribosomal['localization'] = 'ribosomal sector'
-
-metabolic = data[data['metabolism'] == True].groupby(
-    ['dataset_name', 'condition', 'growth_rate_hr'])['mass_frac'].sum().reset_index()
-metabolic['localization'] = 'metabolic sector'
-
-aggregated = pd.concat([envelope, membrane, periplasm, inner_mem, outer_mem,
-                        cytoplasm, ribosomal, metabolic, inner_mem, outer_mem], sort=False)
-aggregated.to_csv('../../../data/literature/summarized_mass_fractions.csv')
+# Generate a wide-format table
+groups[-1] = 'allocation'
+groups.append('mass_frac')
+pivot = pd.DataFrame([])
+for g, d in concat.groupby(groups[:-2]):     
+    _df = pd.DataFrame([d.values[0]], columns=groups)
+    for _g, _d in d.groupby('allocation'):
+        _df[_g] = _d['mass_frac'].values 
+    _df.drop(columns=['allocation', 'mass_frac'], inplace=True)
+    pivot = pd.concat([pivot, _df])
+pivot.to_csv('./compiled_data/compiled_literature_allocation_assigments_wide.csv', index=False)

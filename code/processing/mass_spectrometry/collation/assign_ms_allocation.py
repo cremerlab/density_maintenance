@@ -45,7 +45,7 @@ for g, d in ms_data.groupby(['name', 'synonyms']):
 
 filt = filt[['strain', 'carbon_source', 'date', 'inducer_conc', 'replicate',
 'name', 'mass_frac', 'localization', 'cog_category', 'cog_letter']]
-filt.to_csv('../mass_spectrometry_localization.csv', index=False) 
+filt.to_csv('../compiled_data/mass_spectrometry_localization.csv', index=False) 
 
 #%%
 # Do two passes of computing the allocation. First based on localization, second 
@@ -70,4 +70,4 @@ for g, d in concat.groupby(groups[:-2]):
         _df[_g] = _d['mass_frac'].values 
     _df.drop(columns=['allocation', 'mass_frac'], inplace=True)
     pivot = pd.concat([pivot, _df])
-pivot.to_csv('../mass_spectrometry_allocation_wide.csv', index=False)
+pivot.to_csv('../compiled_data/mass_spectrometry_allocation_wide.csv', index=False)
