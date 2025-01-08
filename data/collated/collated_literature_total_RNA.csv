@@ -1,0 +1,36 @@
+growth_rate_hr,fg_rna_per_cell,source,notes
+1.840,446.1,Basan et al. 2015,Computed from supplemental table by dividing RNA per OD by cells per OD
+1.270,145.0,Basan et al. 2015,Computed from supplemental table by dividing RNA per OD by cells per OD
+0.980,91.5,Basan et al. 2015,Computed from supplemental table by dividing RNA per OD by cells per OD
+0.700,52.1,Basan et al. 2015,Computed from supplemental table by dividing RNA per OD by cells per OD
+0.450,37.7,Basan et al. 2015,Computed from supplemental table by dividing RNA per OD by cells per OD
+0.420,34.1,Basan et al. 2015,Computed from supplemental table by dividing RNA per OD by cells per OD
+0.416,23.0,Bremer & Dennis 2008,From table 1
+0.693,44.0,Bremer & Dennis 2008,From table 1
+1.040,76.0,Bremer & Dennis 2008,From table 1
+1.386,128.0,Bremer & Dennis 2008,From table 1
+1.733,180.0,Bremer & Dennis 2008,From table 1
+2.079,214.0,Bremer & Dennis 2008,From table 1
+0.464,6.9,Dennis & Bremer 1974,From Table 1. Calculated assuming 324 Daltons per amino acid an 1.6E9 Daltons per fg
+0.693,10.7,Dennis & Bremer 1974,From Table 1. Calculated assuming 324 Daltons per amino acid an 1.6E9 Daltons per fg
+0.832,14.4,Dennis & Bremer 1974,From Table 1. Calculated assuming 324 Daltons per amino acid an 1.6E9 Daltons per fg
+1.040,21.1,Dennis & Bremer 1974,From Table 1. Calculated assuming 324 Daltons per amino acid an 1.6E9 Daltons per fg
+1.386,37.8,Dennis & Bremer 1974,From Table 1. Calculated assuming 324 Daltons per amino acid an 1.6E9 Daltons per fg
+1.664,53.3,Dennis & Bremer 1974,From Table 1. Calculated assuming 324 Daltons per amino acid an 1.6E9 Daltons per fg
+2.079,92.1,Dennis & Bremer 1974,From Table 1. Calculated assuming 324 Daltons per amino acid an 1.6E9 Daltons per fg
+0.729,34.3,Chohji et al. 1976,"Digitized from Fig. 1B, open circles on solid line (d)"
+0.874,44.9,Chohji et al. 1976,"Digitized from Fig. 1B, open circles on solid line (d)"
+1.106,63.9,Chohji et al. 1976,"Digitized from Fig. 1B, open circles on solid line (d)"
+1.109,71.2,Chohji et al. 1976,"Digitized from Fig. 1B, open circles on solid line (d)"
+1.395,132.6,Chohji et al. 1976,"Digitized from Fig. 1B, open circles on solid line (d)"
+1.540,149.2,Chohji et al. 1976,"Digitized from Fig. 1B, open circles on solid line (d)"
+0.416,20.0,Churchward et al. 1982,From Table 1
+0.693,36.0,Churchward et al. 1982,From Table 1
+1.040,81.0,Churchward et al. 1982,From Table 1
+1.386,162.0,Churchward et al. 1982,From Table 1
+1.733,222.0,Churchward et al. 1982,From Table 1
+0.416,20.0,Dennis & Bremer 1987,Taken from Table 2
+0.693,39.0,Dennis & Bremer 1987,Taken from Table 2
+1.040,77.0,Dennis & Bremer 1987,Taken from Table 2
+1.386,132.0,Dennis & Bremer 1987,Taken from Table 2
+1.733,211.0,Dennis & Bremer 1987,Taken from Table 2
