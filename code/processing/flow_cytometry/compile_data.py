@@ -65,22 +65,6 @@ for i, f in enumerate(tqdm.tqdm(files)):
 # Average across technical replicates
 counts = counts.groupby(
     ['date', 'strain', 'carbon_source', 'run_no']).mean().reset_index()
+counts.to_csv('./cells_per_biomass.csv', index=False)
 
 #%%
-# Load in the growth rate measurements from the mass spectrometry samples.
-growth_rates = pd.read_csv('../mass_spectrometry/compiled_data/aggregated_growth_measurements.csv')
-growth_rates = growth_rates[growth_rates['strain']=='wildtype']
-growth_rates = growth_rates.groupby('carbon_source')['growth_rate_hr'].mean().reset_index()
- 
-# Create a hashmap
-mapper = {g[0]:g[1] for g, _ in growth_rates.groupby(['carbon_source', 'growth_rate_hr'])}
-
-# Add in the growth rates. 
-for k, v in mapper.items():
-    counts.loc[counts['carbon_source']==k, 'growth_rate_hr'] = v
-counts.to_csv('../../../data/collated/experimental_cells_per_biomass.csv', index=False)
-
-
-
-
-
