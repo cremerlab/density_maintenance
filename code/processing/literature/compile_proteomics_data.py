@@ -55,7 +55,6 @@ filt.rename(columns={'gene_name':'name'}, inplace=True)
 filt.to_csv('./compiled_data/compiled_literature_mass_fractions.csv', index=False)
 
 #%%
-
 # Do two passes of computing the allocation. First based on localization, second 
 # on ribosomal content
 groups = ['source', 'condition', 'growth_rate_hr', 'localization']
@@ -78,4 +77,4 @@ for g, d in concat.groupby(groups[:-2]):
         _df[_g] = _d['mass_frac'].values 
     _df.drop(columns=['allocation', 'mass_frac'], inplace=True)
     pivot = pd.concat([pivot, _df])
-pivot.to_csv('./compiled_data/compiled_literature_allocation_assigments_wide.csv', index=False)
+pivot.to_csv('../../../data/collated/compiled_literature_allocation_assigments_wide.csv', index=False)
