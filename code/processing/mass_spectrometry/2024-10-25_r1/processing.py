@@ -70,17 +70,9 @@ for i in range(len(uniprot)):
 files = ['replicate1_intensities.csv',
          'replicate2_intensities.csv']
 
-standard = pd.read_csv('../../../../data/literature/compiled_mass_fractions.csv')
-standard = standard[(standard['growth_rate_hr'] >= 0.75) & 
-                    (standard['growth_rate_hr'] <= 0.95)]
-standard = standard.groupby('gene_name')['mass_frac'].mean().reset_index()
-std_map = standard.set_index(['gene_name'])['mass_frac'].to_dict()
-
-
 df = pd.DataFrame([])
 unmapped = []
 raw_df = pd.read_csv(f'./raw/all_replicate_intensities.csv')
-std_norm = raw_df['Normalized_proportion_1']
 for i in range(len(MAPPER)):
     raw_df[f'mass_frac_{i+1}'] = raw_df['Intensity'].values * raw_df[f'Normalized_proportion_{i+1}'].values / raw_df[f'Normalized_proportion_{i+1}'].sum()
     raw_df[f'mass_frac_{i+1}'] /= raw_df[f'mass_frac_{i+1}'].sum()
@@ -98,5 +90,5 @@ for g, d in tqdm.tqdm(raw_df.groupby('Protein')):
         _df_dict['common_intensity'] = d['Intensity'].values[0]
         _df_dict['mass_frac'] = d[f'mass_frac_{i+1}'].values[0]
         df = pd.concat([df, pd.DataFrame(_df_dict, index=[0])])
-df.to_csv('../processed_mass_fractions_ppGpp_glucoseCAA.csv', index=False)
+df.to_csv('../compiled_data/processed_mass_fractions_ppGpp_glucoseCAA.csv', index=False)
 

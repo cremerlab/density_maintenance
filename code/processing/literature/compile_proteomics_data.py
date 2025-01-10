@@ -52,6 +52,7 @@ for g, d in lit_data.groupby('gene_name'):
 
 filt = filt[['gene_name', 'source', 'condition', 'growth_rate_hr', 'mass_frac', 'localization', 'cog_letter', 'cog_class', 'strain']]
 filt.rename(columns={'gene_name':'name'}, inplace=True)
+filt['name'] = filt['name'].str.lower()
 filt.to_csv('./compiled_data/compiled_literature_mass_fractions.csv', index=False)
 
 #%%

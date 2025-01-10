@@ -5,6 +5,7 @@ import glob
 # Load all of the size measurements from the directory
 growth_data = pd.concat([pd.read_csv(f) for f in glob.glob('../2024-*/processed/*growth_rates.csv')])
 
+
 #%%
 # Compute the mean cell size quantities
 groups = ['date', 'replicate', 'strain', 'carbon_source', 'inducer_conc']
@@ -22,4 +23,4 @@ metadata.rename(columns={'date_collected': 'date'}, inplace=True)
 # deemed valid
 groups = ['date', 'replicate', 'strain', 'carbon_source', 'inducer_conc']
 valid = agged.merge(metadata, on=groups, how='inner')
-valid.to_csv('../compiled_data/aggregated_growth_measurements.csv', index=False)
+# valid.to_csv('../compiled_data/aggregated_growth_measurements.csv', index=False)

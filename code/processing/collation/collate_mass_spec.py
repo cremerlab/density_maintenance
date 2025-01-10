@@ -1,4 +1,5 @@
 #%%
+
 import pandas as pd 
 ################################################################################
 ## Merge individual gene copy numbers, only for wildtype
@@ -19,6 +20,7 @@ lit_data['replicate'] = 0
 lit_data.rename(columns={'condition':'carbon_source',
                          'cog_class':'cog_category'}, inplace=True)
 merged = pd.concat([exp_data, lit_data])
+merged['name'] = merged['name'].str.lower()
 merged.to_csv('../../../data/collated/merged_mass_spectrometry.csv', index=False)
 
 

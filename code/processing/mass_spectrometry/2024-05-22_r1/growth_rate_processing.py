@@ -24,9 +24,6 @@ for g, d in data.groupby(['replicate', 'carbon_source']):
     df = pd.concat([df, d])
 
 # Add important identifiers
-df['overexpression'] = None
-df['inducer'] = None
-df['inducer_conc'] = 0
 df['temperature_C'] = 37
 df.drop(columns=['clock_time'], inplace=True)
 df.to_csv(f'./processed/{DATE}_r1_growth_curves_processed.csv', index=False)
@@ -34,11 +31,13 @@ df.to_csv(f'./processed/{DATE}_r1_growth_curves_processed.csv', index=False)
 #%%
 # Compute the growth rates using standard scipy stats linregress
 stats_df = pd.DataFrame([])
-for g, d in df.groupby(['date', 'carbon_source', 'replicate']):
+for g, d in df.groupby(['date', 'carbon_source', 'replicate', 'strain', 'inducer_conc']):
     popt = scipy.stats.linregress(d['elapsed_time_hr'].values, np.log(d['od_600nm'].values))  
     _df = pd.DataFrame({'date': g[0],
                         'carbon_source': g[1],
                         'replicate': g[2],
+                        'strain': g[3],
+                        'inducer_conc': g[4],
                         'growth_rate_hr': popt[0],
                         'od_init': np.exp(popt[1]),
                         'growth_rate_std': popt[4]},

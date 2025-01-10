@@ -2,13 +2,13 @@
 import pandas as pd 
 
 # Load the mass spectrometry data from first data collection run.
-ms_data = pd.read_csv('../processed_mass_fractions.csv') 
+ms_data = pd.read_csv('../compiled_data/processed_mass_fractions.csv') 
 
 # Drop invalid lacZ measurements
 ms_data = ms_data[ms_data['strain']!='lacZ']
 
 # Load and collate the mass spectrometry data from the second collection run. 
-ms_data = pd.concat([ms_data, pd.read_csv('../processed_mass_fractions_ppGpp_glucoseCAA.csv')])
+ms_data = pd.concat([ms_data, pd.read_csv('../compiled_data/processed_mass_fractions_ppGpp_glucoseCAA.csv')])
 
 #%%
 # Load the gene classification and define the ribosomal proteins. 
@@ -59,7 +59,7 @@ phi_rib['localization'] = 'phi_rib'
 # Concatenate and then pivot
 concat = pd.concat([allocs, phi_rib])
 concat.rename(columns={'localization':'allocation'}, inplace=True)
-concat.to_csv('../mass_spectrometry_allocation_long.csv', index=False)
+concat.to_csv('../compiled_data/mass_spectrometry_allocation_long.csv', index=False)
 
 groups[-1] = 'allocation'
 groups.append('mass_frac')
