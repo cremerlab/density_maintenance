@@ -10,12 +10,12 @@ cor, pal = size.viz.matplotlib_style()
 data = pd.read_csv('../../data/collated/merged_mass_spectrometry.csv')
 
 # Define the types
-cog_class = {'info': [['J', 'A', 'K', 'L','B'], 'blue'],
-             'signaling': [['D', 'Y', 'V', 'T', 'M', 'N', 'Z', 'U', 'O'], 'green'],
-             'metabolism': [['C', 'G', 'E', 'F', 'H', 'I', 'P', 'Q'], 'purple'],
-             'other': [['R', 'S', 'X'], 'black']}
+cog_class = {'info': [['J', 'A', 'K', 'L','B'], 'firebrick'],
+             'signaling': [['D', 'Y', 'V', 'T', 'M', 'N', 'Z', 'U', 'O'], 'yellowgreen'],
+             'metabolism': [['C', 'G', 'E', 'F', 'H', 'I', 'P', 'Q'], 'dodgerblue'],
+             'other': [['R', 'S', 'X'], 'gray']}
 
-data['color'] = 'black' 
+data['color'] = 'gray' 
 data['class'] = 'other'
 for k, v in cog_class.items():
     data.loc[data['cog_letter'].isin(v[0]), 'class'] = k
@@ -38,22 +38,21 @@ ax[0].set_ylabel('composition of\ncytoplasmic proteome', fontsize=6)
 ax[1].set_ylabel('composition of\nenvelope proteome', fontsize=6)
 
 axes = {'cytoplasm': ax[0], 'envelope': ax[1]}
-for g, d in cog_data.groupby(['compartment' ,'source', 'strain', 'replicate', 'class', 'color']):
-    fmt = size.viz.style_point(g[1], alpha=0.5)
-    fmt['color'] = cor[f'primary_{g[-1]}']
-    if g[1] == 'This Study':
-        fmt['color'] = cor[f'pale_{g[-1]}'] 
-        fmt['markeredgewidth'] = 0.75 
-        fmt['markeredgecolor'] = cor[f'dark_{g[-1]}']
-        fmt['alpha'] = 1
+for g, d in cog_data.groupby(['compartment', 'source', 'strain', 'carbon_source', 'replicate']):
+    # Compute the total mass of the compartment
+    compartment_mass = d['mass_frac'].sum()
 
-    # if (g[1] == 'This Study') & (g[0] == 'envelope'):
-        # break
-    axes[g[0]].plot(d['growth_rate_hr'], d['mass_frac'], **fmt)
-# ax[0].set_ylim([-0.05, 0.6])
-# ax[1].set_ylim([-0.01, 0.18])
+    for _g, _d in d.groupby(['class', 'color']):
+        fmt = size.viz.style_point(g[1], alpha=0.4)
+        fmt['color'] = _g[-1]
+        if g[1] == 'This Study':
+            # fmt['color'] = cor[f'pale_{_g[-1]}'] 
+            fmt['markeredgewidth'] = 0.75 
+            # fmt['markeredgecolor'] = cor[f'dark_{_g[-1]}']
+            fmt['alpha'] = 0.75 
+        axes[g[0]].plot(_d['growth_rate_hr'], _d['mass_frac'] / compartment_mass, **fmt)
 
-# plt.savefig('./plots/fig1_compartment_COG_trends.pdf', bbox_inches='tight')
+plt.savefig('./plots/fig1_compartment_COG_trends.pdf', bbox_inches='tight')
 
 
 #%%
