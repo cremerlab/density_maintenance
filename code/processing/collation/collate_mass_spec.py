@@ -13,7 +13,8 @@ exp_data = pd.read_csv('../../../data/collated/experimental_mass_spectrometry.cs
 # Unify column names
 exp_data = exp_data[exp_data['strain']=='wildtype']
 exp_data['source'] = 'This Study'
-exp_data.drop(columns=['date', 'inducer_conc', 'strain'], inplace=True)
+exp_data['strain'] = 'NCM3722'
+exp_data.drop(columns=['date', 'inducer_conc'], inplace=True)
 lit_data['replicate'] = 0
 lit_data.rename(columns={'condition':'carbon_source',
                          'cog_class':'cog_category'}, inplace=True)

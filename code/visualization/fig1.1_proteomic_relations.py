@@ -7,7 +7,7 @@ import scipy.stats
 cor, pal = size.viz.matplotlib_style()
 
 # Load our data 
-data = pd.read_csv('../../data/collated/collated_mass_fractions.csv')
+data = pd.read_csv('../../data/collated/merged_mass_spectrometry.csv')
 
 # Define the types
 cog_class = {'info': [['J', 'A', 'K', 'L','B'], 'blue'],
@@ -21,14 +21,15 @@ for k, v in cog_class.items():
     data.loc[data['cog_letter'].isin(v[0]), 'class'] = k
     data.loc[data['cog_letter'].isin(v[0]), 'color'] = v[1]
 
-# Define the important localization
+#%%
+# # Define the important localization
 data['compartment'] = 'envelope'
-data.loc[data['localization']=='cytoplasm', 'compartment'] = 'cytoplasm'
+data.loc[data['localization']=='phi_cyto', 'compartment'] = 'cytoplasm'
 data.loc[data['replicate'].isnull(), 'replicate'] = 0
 
 # Group and sum for plotting
-cog_data = data.groupby(['source', 'condition', 'growth_rate_hr', 'compartment', 'color', 'class', 
-                    'replicate', 'strain'])[['mass_frac']].sum().reset_index()
+cog_data = data.groupby(['source', 'carbon_source', 'strain', 'growth_rate_hr', 'compartment', 'color', 'class', 
+                    'replicate',])[['mass_frac']].sum().reset_index()
 
 fig, ax = plt.subplots(2, 1, figsize=(3, 3))
 for a in ax:
@@ -37,7 +38,7 @@ ax[0].set_ylabel('composition of\ncytoplasmic proteome', fontsize=6)
 ax[1].set_ylabel('composition of\nenvelope proteome', fontsize=6)
 
 axes = {'cytoplasm': ax[0], 'envelope': ax[1]}
-for g, d in cog_data.groupby(['compartment','source', 'strain', 'replicate', 'class', 'color']):
+for g, d in cog_data.groupby(['compartment' ,'source', 'strain', 'replicate', 'class', 'color']):
     fmt = size.viz.style_point(g[1], alpha=0.5)
     fmt['color'] = cor[f'primary_{g[-1]}']
     if g[1] == 'This Study':
@@ -49,10 +50,10 @@ for g, d in cog_data.groupby(['compartment','source', 'strain', 'replicate', 'cl
     # if (g[1] == 'This Study') & (g[0] == 'envelope'):
         # break
     axes[g[0]].plot(d['growth_rate_hr'], d['mass_frac'], **fmt)
-ax[0].set_ylim([-0.05, 0.6])
-ax[1].set_ylim([-0.01, 0.18])
+# ax[0].set_ylim([-0.05, 0.6])
+# ax[1].set_ylim([-0.01, 0.18])
 
-plt.savefig('./plots/fig1_compartment_COG_trends.pdf', bbox_inches='tight')
+# plt.savefig('./plots/fig1_compartment_COG_trends.pdf', bbox_inches='tight')
 
 
 #%%

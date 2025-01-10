@@ -60,7 +60,6 @@ parameters {
     real<lower=0> log_prot_per_cell_sigma;
     real<lower=0> log_volume_sigma;
     real<lower=0> log_surface_area_sigma;
-
 }
 
 transformed parameters {

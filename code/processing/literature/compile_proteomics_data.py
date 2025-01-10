@@ -50,14 +50,14 @@ for g, d in lit_data.groupby('gene_name'):
     d['cog_letter'] = lcz['COG_function'].values[0]
     filt = pd.concat([filt, d])
 
-filt = filt[['gene_name', 'source', 'condition', 'growth_rate_hr', 'mass_frac', 'localization', 'cog_letter', 'cog_class']]
+filt = filt[['gene_name', 'source', 'condition', 'growth_rate_hr', 'mass_frac', 'localization', 'cog_letter', 'cog_class', 'strain']]
 filt.rename(columns={'gene_name':'name'}, inplace=True)
 filt.to_csv('./compiled_data/compiled_literature_mass_fractions.csv', index=False)
 
 #%%
 # Do two passes of computing the allocation. First based on localization, second 
 # on ribosomal content
-groups = ['source', 'condition', 'growth_rate_hr', 'localization']
+groups = ['source', 'strain', 'condition', 'growth_rate_hr', 'localization']
 allocs = filt.groupby(groups)['mass_frac'].sum().reset_index()
 phi_rib = filt[filt['name'].str.lower().isin(ribo_prots)].groupby(groups)['mass_frac'].sum().reset_index()
 phi_rib['localization'] = 'phi_rib'
