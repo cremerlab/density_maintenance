@@ -9,10 +9,13 @@ model = cmdstanpy.CmdStanModel(stan_file='fig2_mass_density_inference.stan')
 
 #%%
 # Load our measurements
-data = pd.read_csv('../../data/compiled_measurements.csv')
+data = pd.read_csv('../../data/collated/aggregated_experimental_data.csv')
+data
+#%%
 data = data[data['strain']=='wildtype']
 data['source'] = 'This Study'
 
+#%%
 # Load literature mass spec measurements
 lit_ms_data = pd.read_csv('../../data/collated/compiled_literature_allocation_assignments_wide.csv')
 
