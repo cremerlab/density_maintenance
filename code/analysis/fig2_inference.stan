@@ -1,7 +1,6 @@
 data { 
      // Input dimensions
-    int<lower=1> N_prot; // Number of protein per cell measurements from our experiments.
-    int<lower=1> N_RNA; // Number of rna per cell measurements from our experiments. 
+    int<lower=1> N_rp; // Number of protein per cell measurements from our experiments.
     int<lower=1> N_obs; // Number of mass spec measurements from our experiments.
     int<lower=1> N_fit; // Number of data points for fit generation   
 
@@ -31,7 +30,7 @@ data {
 transformed data {
     // Log transformations for easier inference
     vector[N_rp] log_prot_per_cell = log(prot_per_cell);
-    vector[N_rp] log_RNA_per_cell = log(rna_per_cell
+    vector[N_rp] log_rna_per_cell = log(rna_per_cell);
 
 }
 
@@ -82,6 +81,7 @@ generated quantities {
     vector[N_fit] rna_per_cell_ppc;
 
     // Empirical quantities from our measurements
+    vector[N_obs] tot_prot_per_cell;
     vector[N_obs] cyt_prot_per_cell;
     vector[N_obs] cyt_rna_per_cell;
     vector[N_obs] peri_prot_per_cell;
@@ -100,12 +100,11 @@ generated quantities {
 
     // Compute the empirical quantities. 
     for (i in 1:N_obs) {
-        prot_per_cell[i] = prot_per_cell_beta_0 * exp(prot_per_cell_beta_1 * lam[i]);
-        rna_per_cell[i] = rna_per_cell_beta_0 * exp(rna_per_cell_beta_1 * lam[i]);
-        cyt_prot_per_cell[i] = phi_cyto[i] * prot_per_cell[i];
-        cyt_rna_per_cell[i] = rna_per_cell[i];
-        peri_prot_per_cell[i] = phi_peri[i] * prot_per_cell[i];
-        mem_prot_per_cell[i] = phi_mem[i] * prot_per_cell[i];
+        tot_prot_per_cell[i] = prot_per_cell_beta_0 * exp(prot_per_cell_beta_1 * lam[i]);
+        cyt_rna_per_cell[i] = rna_per_cell_beta_0 * exp(rna_per_cell_beta_1 * lam[i]);
+        cyt_prot_per_cell[i] = phi_cyto[i] * tot_prot_per_cell[i];
+        peri_prot_per_cell[i] = phi_peri[i] * tot_prot_per_cell[i];
+        mem_prot_per_cell[i] = phi_mem[i] * tot_prot_per_cell[i];
         rho_cyt_prot[i] = cyt_prot_per_cell[i] / (volume[i] - W_PERI * surface_area[i]);
         rho_cyt_rna[i] = cyt_rna_per_cell[i] / (volume[i] - W_PERI * surface_area[i]);
         rho_cyt_tot[i] = (cyt_prot_per_cell[i] + cyt_rna_per_cell[i]) / (volume[i] - W_PERI * surface_area[i]);
