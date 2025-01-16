@@ -5,11 +5,11 @@ import cmdstanpy
 import arviz as az
 
 # Load the dataset
-data = pd.read_csv('../../data/compiled_measurements.csv')
+data = pd.read_csv('../../data/collated/aggregated_experimental_data.csv')
 data = data[data['strain']=='wildtype']
 
 # Load and compile the inferential model
-model = cmdstanpy.CmdStanModel(stan_file='fig3_kappa_inference.stan')
+model = cmdstanpy.CmdStanModel(stan_file='theory_inference.stan')
 
 #%%
 # Define the range of ribosomal allocation over which to draw the ppcs
@@ -25,7 +25,7 @@ data_dict = {
     'obs_phi_rib': data['phi_rib'].values,
     'obs_phi_mem': data['phi_mem'].values,
     'obs_phi_peri': data['phi_peri'].values,
-    'obs_sav': data['sav_inv_um'].values,
+    'obs_sav': data['surface_to_volume_inv_um'].values,
 
     # Define the ribosomal allocation range
     'phi_rib_range': phi_rib_range,
@@ -51,20 +51,20 @@ labels = ['2sig_', '1sig_']
 dfs = []
 for g, d in melted.groupby('variable'):
     _df = {'quantity': g,
-           'mean_val': d['value'].mean()}
+           'mean': d['value'].mean()}
     for p, ell in zip(percs, labels):
         lower, upper = np.percentile(d['value'].values, p) 
         _df[f'{ell}lower'] = lower
         _df[f'{ell}upper'] = upper
     dfs.append(pd.DataFrame(_df, index=[0]))
 param_df = pd.concat(dfs, sort=False)
-param_df.to_csv('../../data/mcmc/fig3_parameter_summaries.csv', index=False)
+param_df.to_csv('../../data/mcmc/theory_inference_parameter_summaries.csv', index=False)
 
 #%% 
 # Save samples from the kappa inference
 par_samples = samples.posterior[pars].to_dataframe().reset_index()
 par_samples = par_samples[pars]
-par_samples.to_csv('../../data/mcmc/fig3_inference_samples.csv', index=False)
+par_samples.to_csv('../../data/mcmc/theory_inference_parameter_samples.csv', index=False)
 
 #%%
 # Extract the ppcs for the theorya nd the trend fits
@@ -85,4 +85,4 @@ for q in quants:
             _df[f'{ell}upper'] = upper
         dfs.append(pd.DataFrame(_df, index=[0]))
 fit_df = pd.concat(dfs, sort=False)
-fit_df.to_csv('../../data/mcmc/fig3_fits.csv', index=False)
+fit_df.to_csv('../../data/mcmc/theory_inference_ppc_summaries.csv', index=False)

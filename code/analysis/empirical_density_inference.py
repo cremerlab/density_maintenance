@@ -11,7 +11,7 @@ rp_data = pd.read_csv('../../data/collated/experimental_rna_protein_per_cell.csv
 
 
 # Load and compile the inference model
-model = cmdstanpy.CmdStanModel(stan_file='./fig2_inference.stan')
+model = cmdstanpy.CmdStanModel(stan_file='./empirical_density_inference.stan')
 
 #%%
 # Define the data dictionary for sampling
@@ -55,8 +55,6 @@ mapper = {i:(ms_data.iloc[i]['carbon_source'],
 #%%
 # Summarize the various quantities.
 percs = [0.025, 0.975, 0.16, 0.84]  # Corresponding to 2 and 1 sigma (approx)
-
-
 quants = ['tot_prot_per_cell', 'cyt_prot_per_cell',
           'cyt_rna_per_cell', 'peri_prot_per_cell',
           'mem_prot_per_cell', 'rho_cyt_prot',
