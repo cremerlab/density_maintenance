@@ -7,7 +7,7 @@ data {
     // Input the independent data for inference
     vector<lower=0>[N_rp] prot_per_cell; // Protein per cell measurements
     vector<lower=0>[N_rp] rna_per_cell; // RNA per cell measurements 
-   vector<lower=0>[N_obs] surface_area; // Surface area measurements
+    vector<lower=0>[N_obs] surface_area; // Surface area measurements
     vector<lower=0>[N_obs] volume; // Volume measurements
 
     // Define the dependent data
@@ -23,7 +23,6 @@ data {
     vector<lower=0>[N_fit] fit_lam; // Growth rate measurements for fit generation
  
     // Constants
-    real<lower=0> BETA; // For conversion from mass frac to RNA
     real<lower=0> W_PERI; // Periplasmic width
 }
 
@@ -72,7 +71,7 @@ model {
 
     // Set likelihoods for inference
     log_prot_per_cell ~ normal(log_prot_per_cell_mu, log_prot_per_cell_sigma);
-    log_rna_per_cell ~ normal(log_prot_per_cell_mu, log_prot_per_cell_sigma);
+    log_rna_per_cell ~ normal(log_rna_per_cell_mu, log_rna_per_cell_sigma);
 }
 
 generated quantities {
