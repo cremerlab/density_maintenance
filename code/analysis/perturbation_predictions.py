@@ -30,4 +30,5 @@ data['predicted_SAV_2sig_upper'] = prediction(kappa['2sig_upper'].values[0])
 data['predicted_SAV_1sig_lower'] = prediction(kappa['1sig_lower'].values[0])
 data['predicted_SAV_1sig_upper'] = prediction(kappa['1sig_upper'].values[0])
 data.to_csv('../../data/mcmc/perturbation_predicted_SAV_summary.csv', index=False)
+fire
 
