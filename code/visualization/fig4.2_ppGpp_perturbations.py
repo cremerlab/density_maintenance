@@ -8,10 +8,14 @@ cor, pal = size.viz.matplotlib_style()
 BETA = 1/0.4558
 
 # Load the data, parameter samples, and wild-type predictions
-data = pd.read_csv('../../data/compiled_measurements.csv')
-par_samples = pd.read_csv('../../data/mcmc/fig3_inference_samples.csv')
-quants = pd.read_csv('../../data/mcmc/fig3_fits.csv')
+data = pd.read_csv('../../data/mcmc/perturbation_predicted_SAV_summary.csv')
+data
 
+
+
+# par_samples = pd.read_csv('../../data/mcmc/fig3_inference_samples.csv')
+# quants = pd.read_csv('../../data/mcmc/fig3_fits.csv')
+#%%
 # Extract dependent quantities
 phi_rib = data['phi_rib']
 phi_mem = data['phi_mem']
@@ -56,7 +60,7 @@ markers = {'glucose': 'D', 'glucoseCAA': 's'}
 #%% Plot the changes in the growth rate, ribosome content, and SAV
 fig, axes = plt.subplots(5, 3, figsize=(3.5, 1.5))
 
-# Set the columns
+# Set the columnsj
 cols = {'growth_rate_hr':0, 'phi_rib':1, 'sav_inv_um':2}
 rows = {('meshI', 100): 0, ('meshI', 0): 1, 
         ('relA', 0): 2, ('relA', 2): 3, ('relA', 4):4}

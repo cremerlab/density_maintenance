@@ -12,7 +12,7 @@ kappa = kappa[kappa['quantity']=='kappa']
 
 
 
-data = data[['replicate', 'strain', 'carbon_source', 'inducer_conc', 'surface_to_volume_inv_um', 'phi_mem', 'phi_peri', 'phi_rib']]
+data = data[['replicate', 'strain', 'carbon_source', 'inducer_conc', 'surface_to_volume_inv_um', 'phi_mem', 'phi_peri', 'phi_rib', 'growth_rate_hr']]
 data.rename(columns={'surface_to_volume_inv_um':'measured_SAV'}, inplace=True)
 
 # Define a function to compute the theory
