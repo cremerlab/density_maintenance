@@ -71,7 +71,7 @@ def prediction_helper(kappa: np.ndarray) -> np.ndarray:
 
 
 # Set the range of kappas 
-kappas = [70, 90, 150, 175]
+kappas = [70, 90, 175, 200]
 
 # Define the figure canvas 
 fig, ax = plt.subplots(1, 1, figsize=(2, 2.5))
@@ -89,6 +89,10 @@ ax.plot(theo['phi_rib'], theo['mean_val'], lw=1, color=cor['primary_green'])
 # Plot the wildtype data
 fmt = size.viz.style_point('This Study')
 ax.plot(data['phi_rib'], data['surface_to_volume_inv_um'], **fmt)
+
 # Set context
 ax.set_xlim([0.08, 0.35])
 ax.set_ylim([3, 10])
+ax.set_xlabel('ribosomal allocation\n$\phi_{rib}$', fontsize=6)
+ax.set_ylabel('$S_A/V$\nsurface-to-volume [µm$^{-1}$]', fontsize=6)
+plt.savefig('./plots/fig3_theory.pdf', bbox_inches='tight')
