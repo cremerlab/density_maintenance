@@ -13,7 +13,7 @@ model = cmdstanpy.CmdStanModel(stan_file='theory_inference.stan')
 
 #%%
 # Define the range of ribosomal allocation over which to draw the ppcs
-phi_rib_range = np.linspace(0, 0.45, 100)
+phi_rib_range = np.linspace(0, 0.45, 20)
 # Define the data dictionary
 data_dict = {
 

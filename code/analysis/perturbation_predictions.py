@@ -4,13 +4,10 @@ import pandas as pd
 
 # Load the experimental data and constrain to non-wildtype samples
 data = pd.read_csv('../../data/collated/aggregated_experimental_data.csv')
-data = data[data['strain']!='wildtype']
 
 # Load the parameter summaries for the density ratio from the mcmc. 
 kappa = pd.read_csv('../../data/mcmc/theory_inference_parameter_summaries.csv')
 kappa = kappa[kappa['quantity']=='kappa']
-
-
 
 data = data[['replicate', 'strain', 'carbon_source', 'inducer_conc', 'surface_to_volume_inv_um', 'phi_mem', 'phi_peri', 'phi_rib', 'growth_rate_hr']]
 data.rename(columns={'surface_to_volume_inv_um':'measured_SAV'}, inplace=True)
@@ -29,6 +26,6 @@ data['predicted_SAV_2sig_lower'] = prediction(kappa['2sig_lower'].values[0])
 data['predicted_SAV_2sig_upper'] = prediction(kappa['2sig_upper'].values[0])
 data['predicted_SAV_1sig_lower'] = prediction(kappa['1sig_lower'].values[0])
 data['predicted_SAV_1sig_upper'] = prediction(kappa['1sig_upper'].values[0])
-data.to_csv('../../data/mcmc/perturbation_predicted_SAV_summary.csv', index=False)
+data.to_csv('../../data/mcmc/predicted_SAV_summary.csv', index=False)
 
 

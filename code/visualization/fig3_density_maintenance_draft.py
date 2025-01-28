@@ -5,95 +5,90 @@ import matplotlib.pyplot as plt
 import size.viz 
 cor, pal = size.viz.matplotlib_style()
 
-# Load the literature mass spec data
-ms_data = pd.read_csv('../../data/collated/literature_mass_spec_aggregated.csv')
 
-# Load our mass spec data
-data = pd.read_csv('../processing/mass_spectrometry/total_collated_data.csv')
+# Load the experimental data and restrict to wildtype
+data = pd.read_csv('../../data/collated/aggregated_experimental_data.csv')
 data = data[data['strain']=='wildtype']
 
-# Load summaries from MCMC
-kappa_samples = pd.read_csv('../analysis/output/kappa_density_samples.csv')
-pred_sav_summary = pd.read_csv('../analysis/output/predicted_sav_summary.csv')
-phi_rib_preds = pd.read_csv('../analysis/output/phi_rib_scaling_fits_summary.csv')
-intervals = ['95%', '68%', 'median']
-preds = preds[preds['interval'].isin(intervals)]
+# Load the inference
+preds = pd.read_csv('../../data/mcmc/theory_inference_ppc_summaries.csv')
+pars = pd.read_csv('../../data/mcmc/theory_inference_parameter_summaries.csv')
 
-#%%
-fig, ax = plt.subplots(2, 1, figsize=(2, 2), sharex=True)
+#%% Plot the fit of phi_mem and phi_peri vs phi_rib
+fig, ax = plt.subplots(1, 2, figsize=(3, 1.5), sharex=True)
 
-# Plot the percentiles
-quantities = ['phi_mem_ppc', 'phi_peri_ppc']
-mapper = {'95%':'pale_', '68%':'primary_', 'median':''}
-for i, q in enumerate(quantities):
-    for g, d in preds[preds['quantity']==q].groupby('interval', sort=False):
-        if i == 0:
-            color = cor[f'{mapper[g]}blue']
-        else:
-            color = cor[f'{mapper[g]}purple']
+# Plot our data
+fmt = size.viz.style_point('This Study')
+fmt['markeredgecolor'] = cor['primary_blue']
+ax[0].plot(data['phi_rib'], data['phi_mem'], zorder=1000, **fmt)
+fmt['markeredgecolor'] = cor['primary_purple']
+ax[1].plot(data['phi_rib'], data['phi_peri'], zorder=1000, **fmt)
 
-        if g != 'median':
-            ax[i].fill_between(d['phi_rib'], d['lower'], d['upper'], color=color, alpha=0.5)
-        else:
-            ax[i].plot(d['phi_rib'], d['lower'], lw=1, color=color)
+# Plot the PPCs
+colors = ['blue', 'purple']
+for i, q in enumerate(['phi_mem_ppc', 'phi_peri_ppc']):
+    _pred = preds[preds['quantity']==q]
+    ax[i].fill_between(_pred['phi_rib'], _pred['2sig_lower'], _pred['2sig_upper'],
+                       color=cor[f'pale_{colors[i]}'], alpha=0.75)
+    ax[i].fill_between(_pred['phi_rib'], _pred['1sig_lower'], _pred['1sig_upper'],
+                       color=cor[f'light_{colors[i]}'], alpha=0.75) 
+    ax[i].plot(_pred['phi_rib'], _pred['mean_val'], lw=1, color=cor[f'{colors[i]}'])
 
-for g, d in ms_data.groupby('source'):
-    fmt = size.viz.style_point(g, alpha=0.25)
-    ax[0].plot(d['phi_rib'], d['phi_mem'], **fmt)
-    ax[1].plot(d['phi_rib'], d['phi_peri'], **fmt)
-
-# Set the axis limits and labels
-ax[0].set_ylim([0.05, 0.20])
-ax[0].set_xlim([0.05, 0.35])
+# Set context
+ax[0].set_xlim([0.1, 0.4])
+ax[0].set_ylim([0, 0.2])
 ax[1].set_ylim([0, 0.15])
-ax[1].set_xlabel('ribosomal proteome fraction\n$\phi_{rib}$', fontsize=6)
-ax[0].set_ylabel('$\phi_{mem}$\nmembrane\nproteome fraction', fontsize=6)
-ax[1].set_ylabel('$\phi_{peri}$\nperiplasmic\nproteome fraction', fontsize=6)
+for a in ax:
+    a.set_xlabel('ribosomal allocation\n$\phi_{rib}$',
+                 fontsize=6)
+    a.set_xticks([0.1, 0.2, 0.3, 0.4])
+ax[0].set_yticks([0, 0.05, 0.1, 0.15, 0.2])
+ax[1].set_yticks([0, 0.05, 0.1, 0.15])
+
+ax[0].set_ylabel('$\phi_{mem}$\nmembrane protein allocation', fontsize=6)
+ax[1].set_ylabel('$\phi_{peri}$\nperiplasmic protein allocation', fontsize=6)
+plt.savefig('./plots/fig3_allocation_trends.pdf', bbox_inches='tight')
 
 
+#%% Plot the SAV theory and estimated values of kappa. 
+# Set a helper function to compute the theory for different kappa values. 
+phi_rib_range = np.linspace(0.08, 0.4, 100)
+def prediction_helper(kappa: np.ndarray) -> np.ndarray:
+    # Extract the empirical parameters for fits
+    beta_0_phi_mem = pars[pars['quantity']=='beta_0_phi_mem']['mean'].values[0]
+    beta_1_phi_mem = pars[pars['quantity']=='beta_1_phi_mem']['mean'].values[0]
+    beta_0_phi_peri = pars[pars['quantity']=='beta_0_phi_peri']['mean'].values[0]
+    beta_1_phi_peri = pars[pars['quantity']=='beta_1_phi_peri']['mean'].values[0]
+    
+    # Compute the empirical allocation 
+    phi_mem = beta_0_phi_mem + beta_1_phi_mem * phi_rib_range
+    phi_peri = beta_0_phi_peri * np.exp(beta_1_phi_peri * phi_rib_range)
 
-#%%
-physical_maximum = 8
-fig, ax = plt.subplots(2, 1, figsize=(2, 4))
+    # Compute the theory
+    numer = kappa * phi_mem 
+    denom = 2 * (1 + (1/0.4558) * phi_rib_range - phi_mem - phi_peri)
+    return numer / denom
+
+
+# Set the range of kappas 
+kappas = [70, 90, 150, 175]
+
+# Define the figure canvas 
+fig, ax = plt.subplots(1, 1, figsize=(2, 2.5))
+for k in kappas:
+    ax.plot(phi_rib_range, prediction_helper(k), '-', lw=1, color=cor['pale_black'])
+
+# Plot the inference
+theo = preds[preds['quantity'] == 'theory_ppc']
+ax.fill_between(theo['phi_rib'], theo['2sig_lower'], theo['2sig_upper'],
+                color=cor['pale_green'], alpha=0.75)
+ax.fill_between(theo['phi_rib'], theo['1sig_lower'], theo['1sig_upper'],
+                color=cor['light_green'], alpha=0.75)
+ax.plot(theo['phi_rib'], theo['mean_val'], lw=1, color=cor['primary_green'])
+
+# Plot the wildtype data
 fmt = size.viz.style_point('This Study')
-
-for g, d in preds[preds['quantity']=='sav_ppc'].groupby('interval', sort=False):
-    idx_lower = np.where(d['lower'] <= 8)[0][0]
-    idx_upper = np.where(d['upper'] <= 8)[0][0]
-    if g == 'median':
-        ax[0].plot(d['phi_rib'].values[:idx_lower], d['lower'][:idx_lower], ':', lw=1, color=cor['red'])
-        ax[0].plot(d['phi_rib'].values[idx_lower:], d['lower'][idx_lower:], '-', lw=1, color=cor['green'])
-    else:
-        ax[0].plot(d['phi_rib'].values[:idx_lower], d['lower'][:idx_lower], ':', lw=1, color=cor[f'{mapper[g]}red'])
-        ax[0].plot(d['phi_rib'].values[:idx_upper], d['upper'][:idx_upper], ':', lw=1, color=cor[f'{mapper[g]}red'])
-
-        ax[0].fill_between(d['phi_rib'].values, d['lower'], d['upper'], color=cor[f'{mapper[g]}green'], alpha=0.5)
-
-fmt = size.viz.style_point('This Study')
-fmt['alpha'] = 0.95
-for g, d in pred_sav_summary[pred_sav_summary['quantity']=='sav_ppc'].groupby(['condition', 'replicate']):
-    _d = data[(data['carbon_source']==g[0]) & (data['replicate']==g[1])]    
-    for _g, __d in d[d['interval'].isin(['median', '68%', '95%'])].groupby('interval', sort=False):
-        if _g == 'median':
-            ax[1].plot(_d['surface_to_volume'], __d['lower'],zorder=1000,**fmt)
-        else:
-            if _g == '68%':
-                lw = 1
-            else:
-                lw = 0.5
-            ax[1].vlines(_d['surface_to_volume'], __d['lower'], __d['upper'], color=cor['primary_black'], lw=lw)
-
-ax[1].fill_betweenx([1, 11], 8, 11, color=cor['pale_red'], alpha=0.5)
-ax[1].plot([1, 8], [1, 8], '-',color=cor['primary_black'], lw=1)
-ax[1].plot([8, 11], [8, 11], ':',color=cor['primary_black'], lw=1)
-ax[0].plot(data['phi_rib'], data['surface_to_volume'], **fmt)
-ax[0].set_ylim([3, 10])
-ax[0].set_xlim([0.03, 0.4])
-ax[1].set_xlim([3, 11])
-ax[1].set_ylim([3, 11])
-ax[0].set_xlabel('ribosomal proteome fraction\n$\phi_{rib}$', fontsize=6)
-ax[0].set_ylabel('$S_A/V$\nsurface-to-volume[µm$^{-1}$]', fontsize=6)
-ax[1].set_xlabel('measured surface-to-volume [µm$^{-1}$]', fontsize=6)
-ax[1].set_ylabel('predicted surface-to-volume [µm$^{-1}$]', fontsize=6)
-plt.savefig('./plots/fig3_theory_test_wildtype.pdf', bbox_inches='tight')
-
+ax.plot(data['phi_rib'], data['surface_to_volume_inv_um'], **fmt)
+# Set context
+ax.set_xlim([0.08, 0.35])
+ax.set_ylim([3, 10])
