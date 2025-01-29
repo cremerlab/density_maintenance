@@ -59,7 +59,7 @@ quants = ['tot_prot_per_cell', 'cyt_prot_per_cell',
           'cyt_rna_per_cell', 'cyt_tot_per_cell','peri_prot_per_cell',
           'mem_prot_per_cell', 'rho_cyt_prot',
           'rho_cyt_rna', 'rho_cyt_tot', 
-          'rho_peri', 'sigma_mem']
+          'rho_peri', 'sigma_mem', 'empirical_kappa']
 
 # Apply the function to each group and each quantity
 quant_df = []
