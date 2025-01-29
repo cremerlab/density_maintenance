@@ -14,7 +14,7 @@ model = cmdstanpy.CmdStanModel(stan_file='./empirical_density_inference.stan')
 
 #%%
 # Define the data dictionary for sampling
-n_fit = 200
+n_fit = 30
 fit_lam = np.linspace(0, 3, n_fit)
 data_dict = {
         # Dimensional information
@@ -54,40 +54,32 @@ mapper = {i:(ms_data.iloc[i]['carbon_source'],
 
 #%%
 # Summarize the various quantities.
-percs = [0.025, 0.975, 0.16, 0.84]  # Corresponding to 2 and 1 sigma (approx)
+percs = [2.5, 97.5, 16, 84] # Corresponds to lower and upper bounds of approx 2 and 1 sigma
 quants = ['tot_prot_per_cell', 'cyt_prot_per_cell',
           'cyt_rna_per_cell', 'cyt_tot_per_cell','peri_prot_per_cell',
           'mem_prot_per_cell', 'rho_cyt_prot',
           'rho_cyt_rna', 'rho_cyt_tot', 
           'rho_peri', 'sigma_mem']
 
-# Group by 'carbon_source' and 'replicate' and compute the percentiles and mean for a specific column
-def compute_group_stats(group, quantiles):
-    percs = np.percentile(group, [q * 100 for q in quantiles]) 
-    quantiles_dict = {f'quantile_{q}': p for q, p in zip(quantiles, percs)}
-    mean_dict = {'median': group.median()}
-    return pd.Series({**mean_dict, **quantiles_dict})
-
 # Apply the function to each group and each quantity
 quant_df = []
 for i, q in enumerate(quants):
     # Extract the posterior distribution
     post = samples.posterior[q].to_dataframe().reset_index()
-
-    # Map conditions    
-    post[['carbon_source', 'replicate', 'growth_rate_hr']] = [mapper[v] for v in post[f'{q}_dim_0']]
-
-    # Group and compute the percentiles and mean
-    grouped = post.groupby(['carbon_source', 'replicate', 'growth_rate_hr'])[q].apply(lambda x: compute_group_stats(x, percs)).unstack()
-
-    # Flatten the hierarchical index and rename the columns
-    grouped.columns = ['sig2_lower', 'sig2_upper', 'sig1_lower', 'sig1_upper', 'median']
-    grouped = grouped.reset_index()
-
-    grouped['quantity'] = q
-    grouped['strain'] = 'wildtype'
-    grouped['replicate'] = grouped['replicate'].astype(int)
-    quant_df.append(grouped)
+    for g, d in post.groupby(f'{q}_dim_0'):
+        quants = np.percentile(d[q], percs)
+        _df = pd.DataFrame({'quantity': q,
+                            'carbon_source': mapper[g][0],
+                            'replicate': mapper[g][1],
+                            'growth_rate_hr': mapper[g][2],
+                            'mean': d[q].mean(),
+                            'median': d[q].median(),
+                            'sig2_lower': quants[0],
+                            'sig2_upper': quants[1],
+                            'sig1_lower': quants[2],
+                            'sig1_upper': quants[3]},
+                            index=[0])
+        quant_df.append(_df)
 quant_df = pd.concat(quant_df, sort=False)
 quant_df.to_csv('../../data/mcmc/empirical_densities_summary.csv', index=False)
 
@@ -95,14 +87,20 @@ quant_df.to_csv('../../data/mcmc/empirical_densities_summary.csv', index=False)
 # Summarize the posterior predictive checks
 quants = ['prot_per_cell_ppc', 'rna_per_cell_ppc']
 ppc_df = []
+dfs = []
 for i, q in enumerate(quants):
     post = samples.posterior[q].to_dataframe().reset_index()
-    grouped = post.groupby(f'{q}_dim_0')[q].apply(
-        lambda x: compute_group_stats(x, percs)).unstack().reset_index()
-    grouped.drop(columns=[f'{q}_dim_0'], inplace=True)
-    grouped.columns = ['sig2_lower', 'sig2_upper', 'sig1_lower', 'sig1_upper', 'median']
-    grouped['growth_rate_hr'] = fit_lam
-    grouped['quantity'] = q
-    ppc_df.append(grouped)
-ppc_df = pd.concat(ppc_df, sort=False)
+    for g, d in post.groupby(f'{q}_dim_0'):
+        quants = np.percentile(d[q], percs)
+        _df = pd.DataFrame({'quantity': q,
+                            'growth_rate_hr': fit_lam[g],
+                            'mean': d[q].mean(),
+                            'median': d[q].median(),
+                            'sig2_lower': quants[0],
+                            'sig2_upper': quants[1],
+                            'sig1_lower': quants[2],
+                            'sig1_upper': quants[3]},
+                            index=[0])
+        dfs.append(_df)
+ppc_df = pd.concat(dfs, sort=False)
 ppc_df.to_csv('../../data/mcmc/rna_protein_per_cell_ppc_summary.csv', index=False)
