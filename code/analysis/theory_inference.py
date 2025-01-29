@@ -47,11 +47,11 @@ melted = post.melt(value_vars=pars)
 
 # Generate a tidy-longform with mean and percentiles
 percs = [(2.5, 97.5), (16, 84)]
-labels = ['2sig_', '1sig_']
+labels = ['sig2_', 'sig1_']
 dfs = []
 for g, d in melted.groupby('variable'):
     _df = {'quantity': g,
-           'mean': d['value'].mean()}
+           'median': d['value'].median()}
     for p, ell in zip(percs, labels):
         lower, upper = np.percentile(d['value'].values, p) 
         _df[f'{ell}lower'] = lower
@@ -78,7 +78,7 @@ for q in quants:
     for g, d in post.groupby(f'{q}_dim_0'):
         _df = {'quantity': q,
                'phi_rib': phi_rib_range[g],
-               'mean_val': d[q].mean()}
+               'median': d[q].median()}
         for p, ell in zip(percs, labels):
             lower, upper = np.percentile(d[q].values, p)
             _df[f'{ell}lower'] = lower

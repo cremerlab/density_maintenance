@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import size.viz 
 cor, pal = size.viz.matplotlib_style()
 
-
 # Load the experimental data and restrict to wildtype
 data = pd.read_csv('../../data/collated/aggregated_experimental_data.csv')
 data = data[data['strain']=='wildtype']
@@ -13,6 +12,50 @@ data = data[data['strain']=='wildtype']
 # Load the inference
 preds = pd.read_csv('../../data/mcmc/theory_inference_ppc_summaries.csv')
 pars = pd.read_csv('../../data/mcmc/theory_inference_parameter_summaries.csv')
+
+# Load the empirical densities
+densities = pd.read_csv('../../data/mcmc/empirical_densities_summary.csv')
+densities
+
+#%% Plot the masses and densities within the compartments
+fig, ax = plt.subplots(3, 2, figsize=(5.5, 3.1), sharex=True)
+mapper = {'cyt_tot_per_cell': [ax[0, 0], cor['primary_black']],
+          'rho_cyt_tot': [ax[0, 1], cor['primary_black']],
+          'peri_prot_per_cell': [ax[1, 0], cor['primary_purple']],
+          'rho_peri': [ax[1, 1], cor['primary_purple']],
+          'mem_prot_per_cell': [ax[2, 0], cor['primary_blue']],
+          'sigma_mem': [ax[2, 1], cor['primary_blue']]}
+
+for g, d in densities[densities['quantity'].isin(mapper.keys())].groupby('quantity'):
+    axis, color = mapper[g]
+    fmt = size.viz.style_point('This Study')
+    fmt['markeredgecolor'] = color
+
+    axis.vlines(d['growth_rate_hr'], d['sig2_lower'], d['sig2_upper'], lw=0.5, 
+                color=color)
+    axis.vlines(d['growth_rate_hr'], d['sig1_lower'], d['sig1_upper'], lw=1, 
+                color=color)
+    axis.plot(d['growth_rate_hr'], d['mean'], **fmt)
+
+
+# Add context
+for i in range(2):
+    ax[-1, i].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+ax[0, 0].set_ylabel('$M_{prot}^{(cyt)} + M_{RNA}$\n[fg / cell]', fontsize=6)
+ax[1, 0].set_ylabel('$M_{prot}^{(peri)}$\n[fg/ cell]', fontsize=6)
+ax[2, 0].set_ylabel('$M_{prot}^{(mem)}$\n[fg/ cell]', fontsize=6)
+ax[0, 1].set_ylabel(r'$\rho_{cyt}$' + '\n[fg / µm$^3$]', fontsize=6)
+ax[1, 1].set_ylabel(r'$\rho_{peri}$' + '\n[fg / µm$^3$]', fontsize=6)
+ax[2, 1].set_ylabel(r'$\sigma_{mem}$' + '\n[fg / µm$^2$]', fontsize=6)
+
+# Control bounds
+ax[0, 0].set_ylim([100, 1200])
+ax[0, 1].set_ylim([100, 700])
+ax[1, 0].set_ylim([0, 40])
+ax[1, 1].set_ylim([0, 300])
+ax[1, 2].set_ylim([0])
+plt.subplots_adjust(hspace=0.1)
+
 
 #%% Plot the fit of phi_mem and phi_peri vs phi_rib
 fig, ax = plt.subplots(1, 2, figsize=(3, 1.5), sharex=True)

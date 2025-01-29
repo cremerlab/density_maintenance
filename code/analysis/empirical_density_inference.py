@@ -9,7 +9,6 @@ ms_data = pd.read_csv('../../data/collated/aggregated_experimental_data.csv')
 ms_data = ms_data[ms_data['strain']=='wildtype']
 rp_data = pd.read_csv('../../data/collated/experimental_rna_protein_per_cell.csv')
 
-
 # Load and compile the inference model
 model = cmdstanpy.CmdStanModel(stan_file='./empirical_density_inference.stan')
 
@@ -40,7 +39,7 @@ data_dict = {
         
         # Constants and fit variables
         'fit_lam': fit_lam,
-        'W_PERI': 0.025
+        'W_PERI': 0.025 # in um
 }
 
 # Sample the model and extract to xarray. 
@@ -50,21 +49,23 @@ samples = az.from_cmdstanpy(_samples)
 #%%
 # Set a mapper for dimension to wildtype sample
 mapper = {i:(ms_data.iloc[i]['carbon_source'], 
-             ms_data.iloc[i]['replicate']) for i in range(len(ms_data))}
+             ms_data.iloc[i]['replicate'], 
+             ms_data.iloc[i]['growth_rate_hr']) for i in range(len(ms_data))}
 
 #%%
 # Summarize the various quantities.
 percs = [0.025, 0.975, 0.16, 0.84]  # Corresponding to 2 and 1 sigma (approx)
 quants = ['tot_prot_per_cell', 'cyt_prot_per_cell',
-          'cyt_rna_per_cell', 'peri_prot_per_cell',
+          'cyt_rna_per_cell', 'cyt_tot_per_cell','peri_prot_per_cell',
           'mem_prot_per_cell', 'rho_cyt_prot',
           'rho_cyt_rna', 'rho_cyt_tot', 
           'rho_peri', 'sigma_mem']
 
 # Group by 'carbon_source' and 'replicate' and compute the percentiles and mean for a specific column
 def compute_group_stats(group, quantiles):
-    quantiles_dict = {f'quantile_{q}': group.quantile(q) for q in quantiles}
-    mean_dict = {'mean': group.mean()}
+    percs = np.percentile(group, [q * 100 for q in quantiles]) 
+    quantiles_dict = {f'quantile_{q}': p for q, p in zip(quantiles, percs)}
+    mean_dict = {'median': group.median()}
     return pd.Series({**mean_dict, **quantiles_dict})
 
 # Apply the function to each group and each quantity
@@ -74,13 +75,13 @@ for i, q in enumerate(quants):
     post = samples.posterior[q].to_dataframe().reset_index()
 
     # Map conditions    
-    post[['carbon_source', 'replicate']] = [mapper[v] for v in post[f'{q}_dim_0']]
+    post[['carbon_source', 'replicate', 'growth_rate_hr']] = [mapper[v] for v in post[f'{q}_dim_0']]
 
     # Group and compute the percentiles and mean
-    grouped = post.groupby(['carbon_source', 'replicate'])[q].apply(lambda x: compute_group_stats(x, percs)).unstack()
+    grouped = post.groupby(['carbon_source', 'replicate', 'growth_rate_hr'])[q].apply(lambda x: compute_group_stats(x, percs)).unstack()
 
     # Flatten the hierarchical index and rename the columns
-    grouped.columns = ['sig2_lower', 'sig2_upper', 'sig1_lower', 'sig1_upper', 'mean']
+    grouped.columns = ['sig2_lower', 'sig2_upper', 'sig1_lower', 'sig1_upper', 'median']
     grouped = grouped.reset_index()
 
     grouped['quantity'] = q
@@ -99,7 +100,7 @@ for i, q in enumerate(quants):
     grouped = post.groupby(f'{q}_dim_0')[q].apply(
         lambda x: compute_group_stats(x, percs)).unstack().reset_index()
     grouped.drop(columns=[f'{q}_dim_0'], inplace=True)
-    grouped.columns = ['sig2_lower', 'sig2_upper', 'sig1_lower', 'sig1_upper', 'mean']
+    grouped.columns = ['sig2_lower', 'sig2_upper', 'sig1_lower', 'sig1_upper', 'median']
     grouped['growth_rate_hr'] = fit_lam
     grouped['quantity'] = q
     ppc_df.append(grouped)

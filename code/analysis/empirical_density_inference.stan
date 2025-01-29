@@ -83,6 +83,7 @@ generated quantities {
     vector[N_obs] tot_prot_per_cell;
     vector[N_obs] cyt_prot_per_cell;
     vector[N_obs] cyt_rna_per_cell;
+    vector[N_obs] cyt_tot_per_cell;
     vector[N_obs] peri_prot_per_cell;
     vector[N_obs] mem_prot_per_cell;
     vector[N_obs] rho_cyt_prot;
@@ -99,15 +100,16 @@ generated quantities {
 
     // Compute the empirical quantities. 
     for (i in 1:N_obs) {
-        tot_prot_per_cell[i] = prot_per_cell_beta_0 * exp(prot_per_cell_beta_1 * lam[i]);
-        cyt_rna_per_cell[i] = rna_per_cell_beta_0 * exp(rna_per_cell_beta_1 * lam[i]);
+        tot_prot_per_cell[i] = exp(log_prot_per_cell_beta_0 + prot_per_cell_beta_1 * lam[i]);
+        cyt_rna_per_cell[i] = exp(log_rna_per_cell_beta_0  + rna_per_cell_beta_1 * lam[i]);
         cyt_prot_per_cell[i] = phi_cyto[i] * tot_prot_per_cell[i];
+        cyt_tot_per_cell[i] = cyt_prot_per_cell[i] + cyt_rna_per_cell[i]; 
         peri_prot_per_cell[i] = phi_peri[i] * tot_prot_per_cell[i];
         mem_prot_per_cell[i] = phi_mem[i] * tot_prot_per_cell[i];
         rho_cyt_prot[i] = cyt_prot_per_cell[i] / (volume[i] - W_PERI * surface_area[i]);
         rho_cyt_rna[i] = cyt_rna_per_cell[i] / (volume[i] - W_PERI * surface_area[i]);
         rho_cyt_tot[i] = (cyt_prot_per_cell[i] + cyt_rna_per_cell[i]) / (volume[i] - W_PERI * surface_area[i]);
         rho_peri[i] = peri_prot_per_cell[i] / (W_PERI * surface_area[i]);
-        sigma_mem[i] = mem_prot_per_cell[i] / surface_area[i];
+        sigma_mem[i] = mem_prot_per_cell[i] / (2 * surface_area[i]);
     }      
 }

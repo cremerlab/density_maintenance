@@ -1,5 +1,4 @@
 #%%
-
 import numpy as np 
 from collections import defaultdict
 import scipy.stats
@@ -25,9 +24,9 @@ cal = pd.read_csv('./raw/biuret_calibration_curve.csv')
 
 # Perform a simple linear regression
 popt = scipy.stats.linregress(cal['protein_conc_ug_ml'], cal['od_555nm'])
-
+#%%
 # Using the fit, compute the ug_protein_per_biomass
-tot_prot['ug_protein_per_mL'] =  0.2 * (tot_prot['od555nm'] - popt[1]) / (popt[0] * tot_prot['culture_volume_mL'])
+tot_prot['ug_protein_per_mL'] =  0.2 * (tot_prot['od555nm'] - tot_prot['od555nm_neg_control']) / (popt[0] * tot_prot['culture_volume_mL'])
 tot_prot['ug_protein_per_biomass'] = tot_prot['ug_protein_per_mL'] / tot_prot['adjusted_od600nm']
 tot_prot = tot_prot[['strain', 'carbon_source', 'replicate', 'ug_protein_per_biomass']]
 

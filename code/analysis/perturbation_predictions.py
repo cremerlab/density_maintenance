@@ -20,12 +20,11 @@ def prediction(kappa: float,
     sav = numer / denom
     return sav
 
-
-data['predicted_SAV_mean'] = prediction(kappa['mean'].values[0])
-data['predicted_SAV_2sig_lower'] = prediction(kappa['2sig_lower'].values[0])
-data['predicted_SAV_2sig_upper'] = prediction(kappa['2sig_upper'].values[0])
-data['predicted_SAV_1sig_lower'] = prediction(kappa['1sig_lower'].values[0])
-data['predicted_SAV_1sig_upper'] = prediction(kappa['1sig_upper'].values[0])
+data['predicted_SAV_median'] = prediction(kappa['median'].values[0])
+data['predicted_SAV_sig2_lower'] = prediction(kappa['sig2_lower'].values[0])
+data['predicted_SAV_sig2_upper'] = prediction(kappa['sig2_upper'].values[0])
+data['predicted_SAV_sig1_lower'] = prediction(kappa['sig1_lower'].values[0])
+data['predicted_SAV_sig1_upper'] = prediction(kappa['sig1_upper'].values[0])
 data.to_csv('../../data/mcmc/predicted_SAV_summary.csv', index=False)
 
 

@@ -10,7 +10,7 @@ metadata = metadata[metadata['strain']=='wildtype']
 
 # Iterate through the experiment folder and load the fcs files. 
 # Define constants
-flow_rate = 24/60  # in µl per sec
+flow_rate = 24/60  # in ul per sec
 dil_factor = 91
 culture_volume = 1  # in mL
 
@@ -20,7 +20,6 @@ files = glob.glob('./202*/*.fcs')
 counts = pd.DataFrame([])
 for i, f in enumerate(tqdm.tqdm(files)):
         
-
     # Parse the metadata
     date, run_no = f.split('/')[-2].split('_')
     run_no = int(run_no[1:])
@@ -62,7 +61,7 @@ for i, f in enumerate(tqdm.tqdm(files)):
     counts = pd.concat([counts, _df], sort=False)
 
 # %%
-# Average across technical replicates
+# # Average across technical replicates
 counts = counts.groupby(
     ['date', 'strain', 'carbon_source', 'run_no']).mean().reset_index()
 counts.to_csv('./cells_per_biomass.csv', index=False)
