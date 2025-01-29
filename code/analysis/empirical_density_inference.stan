@@ -91,6 +91,7 @@ generated quantities {
     vector[N_obs] rho_cyt_tot;
     vector[N_obs] rho_peri;
     vector[N_obs] sigma_mem;
+    vector[N_obs] empirical_kappa;
 
     // Compute the posterior predictive checks.
     for (i in 1:N_fit) { 
@@ -111,5 +112,6 @@ generated quantities {
         rho_cyt_tot[i] = (cyt_prot_per_cell[i] + cyt_rna_per_cell[i]) / (volume[i] - W_PERI * surface_area[i]);
         rho_peri[i] = peri_prot_per_cell[i] / (W_PERI * surface_area[i]);
         sigma_mem[i] = mem_prot_per_cell[i] / (2 * surface_area[i]);
+        empirical_kappa[i] = rho_cyt_tot[i] / sigma_mem[i];
     }      
 }
