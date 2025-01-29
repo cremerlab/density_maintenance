@@ -14,6 +14,7 @@ model = cmdstanpy.CmdStanModel(stan_file='theory_inference.stan')
 #%%
 # Define the range of ribosomal allocation over which to draw the ppcs
 phi_rib_range = np.linspace(0, 0.45, 20)
+
 # Define the data dictionary
 data_dict = {
 
@@ -51,7 +52,8 @@ labels = ['sig2_', 'sig1_']
 dfs = []
 for g, d in melted.groupby('variable'):
     _df = {'quantity': g,
-           'median': d['value'].median()}
+           'median': d['value'].median(),
+           'mean': d['value'].mean()}
     for p, ell in zip(percs, labels):
         lower, upper = np.percentile(d['value'].values, p) 
         _df[f'{ell}lower'] = lower
@@ -78,6 +80,7 @@ for q in quants:
     for g, d in post.groupby(f'{q}_dim_0'):
         _df = {'quantity': q,
                'phi_rib': phi_rib_range[g],
+               'mean': d[q].mean(),
                'median': d[q].median()}
         for p, ell in zip(percs, labels):
             lower, upper = np.percentile(d[q].values, p)

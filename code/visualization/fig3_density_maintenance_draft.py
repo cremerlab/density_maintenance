@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd 
 import matplotlib.pyplot as plt 
 import size.viz 
+import scipy.stats
 cor, pal = size.viz.matplotlib_style()
 
 # Load the experimental data and restrict to wildtype
@@ -15,7 +16,6 @@ pars = pd.read_csv('../../data/mcmc/theory_inference_parameter_summaries.csv')
 
 # Load the empirical densities
 densities = pd.read_csv('../../data/mcmc/empirical_densities_summary.csv')
-densities
 
 #%% Plot the masses and densities within the compartments
 fig, ax = plt.subplots(3, 2, figsize=(5.5, 3.1), sharex=True)
@@ -25,19 +25,32 @@ mapper = {'cyt_tot_per_cell': [ax[0, 0], cor['primary_black']],
           'rho_peri': [ax[1, 1], cor['primary_purple']],
           'mem_prot_per_cell': [ax[2, 0], cor['primary_blue']],
           'sigma_mem': [ax[2, 1], cor['primary_blue']]}
+# Set the range to compute the empirical trend
+lam_range = np.linspace(0, 2.5)
 
+# Iterate through each quantity and plot
+res = {}
 for g, d in densities[densities['quantity'].isin(mapper.keys())].groupby('quantity'):
     axis, color = mapper[g]
     fmt = size.viz.style_point('This Study')
     fmt['markeredgecolor'] = color
-
+    fmt['alpha'] = 0.75 
     axis.vlines(d['growth_rate_hr'], d['sig2_lower'], d['sig2_upper'], lw=0.5, 
                 color=color)
     axis.vlines(d['growth_rate_hr'], d['sig1_lower'], d['sig1_upper'], lw=1, 
                 color=color)
     axis.plot(d['growth_rate_hr'], d['mean'], **fmt)
 
-
+    # Plot the empirical fits:
+    if ('cyt_tot_per_cell' ==  g) or ('mem_prot_per_cell' == g) or (g == 'rho_peri'): 
+        popt = scipy.stats.linregress(d['growth_rate_hr'], np.log(d['mean']))
+        fit = np.exp(popt[1] + popt[0] * lam_range)
+    else:
+        popt = scipy.stats.linregress(d['growth_rate_hr'], d['mean'])
+        fit = popt[1] + popt[0] * lam_range
+    res[g] = popt 
+    axis.plot(lam_range, fit, '--', color=color, lw=1)
+ 
 # Add context
 for i in range(2):
     ax[-1, i].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
@@ -52,10 +65,11 @@ ax[2, 1].set_ylabel(r'$\sigma_{mem}$' + '\n[fg / µm$^2$]', fontsize=6)
 ax[0, 0].set_ylim([100, 1200])
 ax[0, 1].set_ylim([100, 700])
 ax[1, 0].set_ylim([0, 40])
-ax[1, 1].set_ylim([0, 300])
-ax[1, 2].set_ylim([0])
+ax[1, 1].set_ylim([30, 300])
+ax[2, 0].set_ylim([0, 80])
+ax[2, 1].set_ylim([0, 5])
 plt.subplots_adjust(hspace=0.1)
-
+plt.savefig('./plots/fig2_masses_densities.pdf', bbox_inches='tight')
 
 #%% Plot the fit of phi_mem and phi_peri vs phi_rib
 fig, ax = plt.subplots(1, 2, figsize=(3, 1.5), sharex=True)
@@ -71,12 +85,12 @@ ax[1].plot(data['phi_rib'], data['phi_peri'], zorder=1000, **fmt)
 colors = ['blue', 'purple']
 for i, q in enumerate(['phi_mem_ppc', 'phi_peri_ppc']):
     _pred = preds[preds['quantity']==q]
-    ax[i].fill_between(_pred['phi_rib'], _pred['2sig_lower'], _pred['2sig_upper'],
+    ax[i].fill_between(_pred['phi_rib'], _pred['sig2_lower'], _pred['sig2_upper'],
                        color=cor[f'pale_{colors[i]}'], alpha=0.75)
-    ax[i].fill_between(_pred['phi_rib'], _pred['1sig_lower'], _pred['1sig_upper'],
+    ax[i].fill_between(_pred['phi_rib'], _pred['sig1_lower'], _pred['sig1_upper'],
                        color=cor[f'light_{colors[i]}'], alpha=0.75) 
-    ax[i].plot(_pred['phi_rib'], _pred['mean_val'], lw=1, color=cor[f'{colors[i]}'])
-
+    ax[i].plot(_pred['phi_rib'], _pred['mean'], lw=1, color=cor[f'{colors[i]}'])
+ 
 # Set context
 ax[0].set_xlim([0.1, 0.4])
 ax[0].set_ylim([0, 0.2])
@@ -90,7 +104,7 @@ ax[1].set_yticks([0, 0.05, 0.1, 0.15])
 
 ax[0].set_ylabel('$\phi_{mem}$\nmembrane protein allocation', fontsize=6)
 ax[1].set_ylabel('$\phi_{peri}$\nperiplasmic protein allocation', fontsize=6)
-plt.savefig('./plots/fig3_allocation_trends.pdf', bbox_inches='tight')
+plt.savefig('./plots/fig2_allocation_trends.pdf', bbox_inches='tight')
 
 
 #%% Plot the SAV theory and estimated values of kappa. 
@@ -123,11 +137,11 @@ for k in kappas:
 
 # Plot the inference
 theo = preds[preds['quantity'] == 'theory_ppc']
-ax.fill_between(theo['phi_rib'], theo['2sig_lower'], theo['2sig_upper'],
+ax.fill_between(theo['phi_rib'], theo['sig2_lower'], theo['sig2_upper'],
                 color=cor['pale_green'], alpha=0.75)
-ax.fill_between(theo['phi_rib'], theo['1sig_lower'], theo['1sig_upper'],
+ax.fill_between(theo['phi_rib'], theo['sig1_lower'], theo['sig1_upper'],
                 color=cor['light_green'], alpha=0.75)
-ax.plot(theo['phi_rib'], theo['mean_val'], lw=1, color=cor['primary_green'])
+ax.plot(theo['phi_rib'], theo['mean'], lw=1, color=cor['primary_green'])
 
 # Plot the wildtype data
 fmt = size.viz.style_point('This Study')
@@ -138,4 +152,4 @@ ax.set_xlim([0.08, 0.35])
 ax.set_ylim([3, 10])
 ax.set_xlabel('ribosomal allocation\n$\phi_{rib}$', fontsize=6)
 ax.set_ylabel('$S_A/V$\nsurface-to-volume [µm$^{-1}$]', fontsize=6)
-plt.savefig('./plots/fig3_theory.pdf', bbox_inches='tight')
+plt.savefig('./plots/fig2_theory.pdf', bbox_inches='tight')
