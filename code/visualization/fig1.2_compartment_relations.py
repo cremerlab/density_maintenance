@@ -36,8 +36,8 @@ ax[1].plot(lam_range, popt[1] + popt[0] * lam_range, '--',
 fmt['markeredgecolor'] = cor['primary_purple']
 fmt['markerfacecolor'] = cor['pale_purple']
 ax[2].plot(data['growth_rate_hr'], data['phi_peri'], **fmt)
-popt = scipy.stats.linregress(data['growth_rate_hr'], np.log(data['phi_peri']))
-ax[2].plot(lam_range, np.exp(popt[1] + popt[0] * lam_range), '--',
+popt = scipy.stats.linregress(data['growth_rate_hr'], data['phi_peri'])
+ax[2].plot(lam_range, popt[1] + popt[0] * lam_range, '--',
            color=cor['primary_purple'], lw=1)
 
 # Add context
