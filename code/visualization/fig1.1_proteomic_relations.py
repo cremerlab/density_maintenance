@@ -6,6 +6,12 @@ import size.viz
 import scipy.stats
 cor, pal = size.viz.matplotlib_style()
 
+#%%
+data = pd.read_csv('../../data/collated/experimental_mass_spectrometry.csv')
+data.head()
+
+
+#%%
 # Load our data 
 data = pd.read_csv('../../data/collated/merged_mass_spectrometry.csv')
 
