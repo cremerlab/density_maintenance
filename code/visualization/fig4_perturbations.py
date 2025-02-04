@@ -1,139 +1,146 @@
 #%%
 import numpy as np 
-import pandas as pd
-import matplotlib.pyplot as plt
-import size.viz 
-np.random.seed(3049344) # Randomly set for the posterior predictive check
+import pandas as pd 
+import matplotlib.pyplot as plt 
+import size.viz
 cor, pal = size.viz.matplotlib_style()
 
+# Define constants
 BETA = 1/0.4558
 
-# Load our mass spec data
-data = pd.read_csv('../processing/mass_spectrometry/total_collated_data.csv')
-data = data[data['strain']!='lacZ']
-wt = data[data['strain']=='wildtype']
+# Load the data, parameter samples, and wild-type predictions
+data = pd.read_csv('../../data/mcmc/predicted_SAV_summary.csv')
 
-# Load the results of the full inference
-samples = pd.read_csv('../analysis/output/phi_rib_scaling_fits_summary.csv')
-samples = samples[samples['interval'].isin(['95%', '68%', 'median'])]
-kappa = pd.read_csv('../analysis/output/kappa_density_samples.csv')
-phi_rib_samples = pd.read_csv('../analysis/output/phi_rib_scaling_fits_samples.csv')
+# Define a graphical language for the perturbations
+inducer_concs = {0:'pale_', 2:'primary_', 4:'', 100:''}
+strain_colors = {'relA':  'red',
+                 'meshI': 'gold'} 
+markers = {'glucose': 'D', 'glucoseCAA': 's'}
 
-# Load the literature mass spec data
-lit_data = pd.read_csv('../../data/collated/literature_mass_spec_aggregated.csv')
+# Plot the changes in the growth rate, ribosome content, and SAV
+fig, axes = plt.subplots(5, 3, figsize=(3.5, 1.5))
 
-# Set a mapper for colors
-mapper = {'95%':'pale_', '68%':'primary_', 'median':''}
+# Set the columnsj
+cols = {'phi_rib':0, 'growth_rate_hr':1,  'measured_SAV':2}
+rows = {('meshI', 100): 0, ('meshI', 0): 1, 
+        ('relA', 0): 2, ('relA', 2): 3, ('relA', 4):4}
 
-fig, ax = plt.subplots(2, 2, figsize=(4, 3))
-ax = ax.ravel()
-ax[0].set_ylim([5, 8])
-ax[0].set_xlim([0.1, 0.2])
+# Iterate through and plot the individual replicates
+for g, d in data[data['strain']!='wildtype'].groupby(['strain', 'inducer_conc', 'carbon_source']):
+    for q, c in cols.items():
 
-# Plot the prediction
-pred = samples[samples['quantity']=='sav_ppc']
-for g, d in pred.groupby('interval', sort=False):
-    # Do the fill between
-    if g == 'median':
-        ax[0].plot(d['phi_rib'], d['lower'], color=cor[f'{mapper[g]}green'], lw=1)
-    else:
-        ax[0].fill_between(d['phi_rib'], d['lower'], d['upper'], color=cor[f'{mapper[g]}green'], alpha=0.4)
+        # Slice out the axis
+        ax = axes[rows[g[:2]], c]
 
-# plot the wildtype samples
-fmt = size.viz.style_point('This Study')
-fmt['alpha'] = 0.5
-ax[0].plot(wt['phi_rib'], wt['surface_to_volume'], **fmt)
+        # Style the point
+        fmt = {'marker': markers[g[2]],
+               'markersize': 4,
+               'markeredgecolor': cor[f'dark_{strain_colors[g[0]]}'],
+               'markerfacecolor': cor[f'{inducer_concs[g[1]]}{strain_colors[g[0]]}'],
+               'linestyle': 'none',
+               'alpha':0.75
+               }
+        ax.plot(d[q], [0, 1], **fmt)
 
-# Compute the predicted versus measured SAV
-fmt = size.viz.style_point('This Study')
-fmt['markersize'] = 3
-fmt['alpha'] = 0.5
-color_mapper = {0:'light_',  2: 'primary_', 4:'', 100:''}
+# Adjust ranges and set context
+for i in range(5):
+    axes[i, 0].set_xlim(0.1, 0.2)
+    axes[i, 1].set_xlim(0.3, 1.5)   
+    axes[i, 2].set_xlim(5, 7.5)
 
-# Plot the scaling predicted vs measured
-for i in range(len(wt)):
-    pred_phi_mem_mu = phi_rib_samples.beta_0_phi_mem + phi_rib_samples.beta_1_phi_mem * wt['phi_rib'].values[i]
-    pred_phi_mem = np.random.normal(pred_phi_mem_mu, phi_rib_samples.phi_mem_sigma)
-    pred_median = np.median(pred_phi_mem)
-    pred_2sig =  np.percentile(pred_phi_mem, [2.5, 97.5])
-    pred_sig = np.percentile(pred_phi_mem, [16, 84]) 
-    ax[1].vlines(wt['phi_mem'].values[i], pred_2sig[0], pred_2sig[1], lw=0.5, color=fmt['markeredgecolor'])
-    ax[1].vlines(wt['phi_mem'].values[i], pred_sig[0], pred_sig[1], lw=1, color=fmt['markeredgecolor'])
-    ax[1].plot(wt['phi_mem'].values[i], pred_median, **fmt)
+axes[-1, 0].set_xlabel('ribosomal proteome allocation\n$\phi_{rib}$', fontsize=6)
+axes[-1, 1].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+axes[-1, 2].set_xlabel('surface-to-volume [µm$^{-1}$]\n$S_A/V$', fontsize=6)
 
-    pred_phi_peri_mu = phi_rib_samples.beta_0_phi_peri + phi_rib_samples.beta_1_phi_peri * wt['phi_rib'].values[i]
-    pred_phi_peri = np.exp(np.random.normal(pred_phi_peri_mu, phi_rib_samples.phi_peri_sigma))
-    pred_median = np.median(pred_phi_peri)
-    pred_2sig =  np.percentile(pred_phi_peri, [2.5, 97.5])
-    pred_sig = np.percentile(pred_phi_peri, [16, 84]) 
-    ax[2].vlines(wt['phi_peri'].values[i], pred_2sig[0], pred_2sig[1], lw=0.5, color=fmt['markeredgecolor'])
-    ax[2].vlines(wt['phi_peri'].values[i], pred_sig[0], pred_sig[1], lw=1, color=fmt['markeredgecolor'])
-    ax[2].plot(wt['phi_peri'].values[i], pred_median, **fmt) 
-
-ax[1].plot([0.05, 0.18], [0.05, 0.18], '--', color=cor['primary_black'])
-ax[1].set_ylim([0.05, 0.18])
+# Add specific ticking
+axes[-1, 0].set_xticks([0.1, 0.15, 0.20])
+axes[-1, 1].set_xticks([0.3, 0.9,  1.5])
+axes[-1, 2].set_xticks([5, 6, 7.5])
+for i in range(4):
+    for j in range(3):
+        axes[i, j].set_xticks([])   
 
 
+for a in axes.ravel():
+    a.set_yticks([])
+    a.set_ylim([-3, 3])
+    a.set_facecolor('w')
+    a.spines['bottom'].set_color('black')
+    a.spines['bottom'].set_linewidth(0.25)
+    a.tick_params(axis='x', direction='out', width=0.25, length=1.5, 
+                  colors='black')
+plt.savefig('./plots/fig4_induction_trends.pdf', bbox_inches='tight')
 
-for i in range(len(wt)):
-   pred_SAV_mu = kappa.kappa * wt['phi_mem'].values[i] / (2 * (1 + BETA * wt['phi_rib'].values[i] - wt['phi_mem'].values[i] - wt['phi_peri'].values[i]))
-   pred_SAV = np.random.normal(pred_SAV_mu, kappa.sav_sigma)
-   pred_median = np.median(pred_SAV)
-   pred_2sig =  np.percentile(pred_SAV, [2.5, 97.5])
-   pred_sig = np.percentile(pred_SAV, [16, 84])
-   ax[3].vlines(wt['surface_to_volume'].values[i], pred_2sig[0], pred_2sig[1], lw=0.5, color=fmt['markeredgecolor'])
-   ax[3].vlines(wt['surface_to_volume'].values[i], pred_sig[0], pred_sig[1], lw=1, color=fmt['markeredgecolor'])
-   ax[3].plot(wt['surface_to_volume'].values[i], pred_median, **fmt)
+#%%  Plot the predicted vs measured curves
+fig, ax = plt.subplots(1, 2, figsize=(4, 1.5))
+for a in ax:
+    a.plot([0, 12], [0, 12], 'k-', lw=0.5)
 
-for g, d in data[data['strain']!='wildtype'].groupby(['strain', 'inducer_conc']):
-    if g[0] == 'relA':
-       c = 'red' 
-    else:
-        c = 'gold'
+# Plot the wildtype data
+wt_data = data[data['strain']=='wildtype']
+for a in ax:
     fmt = size.viz.style_point('This Study')
-    fmt['markeredgecolor'] = cor[f'dark_{c}']
-    fmt['color'] = cor[f'{color_mapper[g[1]]}{c}']
-    ax[0].plot(d['phi_rib'], d['surface_to_volume'], **fmt)
+    fmt['markerfacecolor'] = cor['pale_black']
+    fmt['markeredgecolor'] = cor['pale_black']
+    fmt['alpha'] = 0.5
+    fmt['markersize'] = 4
+    a.vlines(wt_data['measured_SAV'], wt_data['predicted_SAV_sig2_lower'], 
+             wt_data['predicted_SAV_sig2_upper'], lw=0.5,
+              color=cor['pale_black'], alpha=0.5)
+    a.vlines(wt_data['measured_SAV'], wt_data['predicted_SAV_sig1_lower'], 
+             wt_data['predicted_SAV_sig1_upper'], lw=1,
+              color=cor['pale_black'], alpha=0.5)
+    a.plot(wt_data['measured_SAV'], wt_data['predicted_SAV_mean'], **fmt)
 
-    # Compute the predicted versus measured SAV
-    for i in range(len(d)):
-        pred_SAV_mu = kappa.kappa * d['phi_mem'].values[i] / (2 * (1 + BETA * d['phi_rib'].values[i] - d['phi_mem'].values[i] - d['phi_peri'].values[i]))
-        pred_SAV = np.random.normal(pred_SAV_mu, kappa.sav_sigma)
-        pred_median = np.median(pred_SAV)
-        pred_2sig =  np.percentile(pred_SAV, [2.5, 97.5])
-        pred_sig = np.percentile(pred_SAV, [16, 84])
-        ax[3].vlines(d['surface_to_volume'].values[i], pred_2sig[0], pred_2sig[1], lw=0.5, color=fmt['markeredgecolor'])
-        ax[3].vlines(d['surface_to_volume'].values[i], pred_sig[0], pred_sig[1], lw=1, color=fmt['markeredgecolor'])
-        ax[3].plot(d['surface_to_volume'].values[i], pred_median, **fmt)
+rel = data[data['strain']=='relA']
+for g, d in rel.groupby(['carbon_source', 'inducer_conc']):
+    fmt = {'marker':markers[g[0]],
+           'markeredgecolor': cor[f'dark_red'],
+           'markeredgewidth': 0.5,
+           'markersize': 3, 
+           'markerfacecolor': cor[f'{inducer_concs[g[1]]}red'],
+           'linestyle':'none', 
+           'alpha': 0.75}
+    ax[1].vlines(d['measured_SAV'], d['predicted_SAV_sig2_lower'], 
+                 d['predicted_SAV_sig2_upper'], lw=0.5,
+              color=cor['dark_red'])
+    ax[1].vlines(d['measured_SAV'], d['predicted_SAV_sig1_lower'], 
+                 d['predicted_SAV_sig1_upper'], lw=1,
+              color=cor['dark_red'])
 
-        pred_phi_mem_mu = phi_rib_samples.beta_0_phi_mem + phi_rib_samples.beta_1_phi_mem * d['phi_rib'].values[i]
-        pred_phi_mem = np.random.normal(pred_phi_mem_mu, phi_rib_samples.phi_mem_sigma)
-        pred_median = np.median(pred_phi_mem)
-        pred_2sig =  np.percentile(pred_phi_mem, [2.5, 97.5])
-        pred_sig = np.percentile(pred_phi_mem, [16, 84]) 
-        ax[1].vlines(d['phi_mem'].values[i], pred_2sig[0], pred_2sig[1], lw=0.5, color=fmt['markeredgecolor'])
-        ax[1].vlines(d['phi_mem'].values[i], pred_sig[0], pred_sig[1], lw=1, color=fmt['markeredgecolor'])
-        ax[1].plot(d['phi_mem'].values[i], pred_median, **fmt) 
+    ax[1].plot(d['measured_SAV'], d['predicted_SAV_mean'], **fmt)
 
+rel = data[data['strain']=='meshI']
+for g, d in rel.groupby(['carbon_source', 'inducer_conc']):
+    fmt = {'marker':markers[g[0]],
+           'markeredgecolor': cor[f'dark_gold'],
+           'markeredgewidth': 0.5,
+           'markersize': 3, 
+           'markerfacecolor': cor[f'{inducer_concs[g[1]]}gold'],
+           'linestyle':'none',
+           'alpha': 0.75}
+    ax[0].vlines(d['measured_SAV'], d['predicted_SAV_sig2_lower'], 
+                 d['predicted_SAV_sig2_upper'], lw=0.5,
+              color=cor['dark_gold'])
+    ax[0].vlines(d['measured_SAV'], d['predicted_SAV_sig1_lower'], 
+                 d['predicted_SAV_sig1_upper'], lw=1,
+              color=cor['dark_gold'])
 
-        pred_phi_peri_mu = phi_rib_samples.beta_0_phi_peri + phi_rib_samples.beta_1_phi_peri * d['phi_rib'].values[i]
-        pred_phi_peri = np.exp(np.random.normal(pred_phi_peri_mu, phi_rib_samples.phi_peri_sigma))
-        pred_median = np.median(pred_phi_peri)
-        pred_2sig =  np.percentile(pred_phi_peri, [2.5, 97.5])
-        pred_sig = np.percentile(pred_phi_peri, [16, 84]) 
-        ax[2].vlines(d['phi_peri'].values[i], pred_2sig[0], pred_2sig[1], lw=0.5, color=fmt['markeredgecolor'])
-        ax[2].vlines(d['phi_peri'].values[i], pred_sig[0], pred_sig[1], lw=1, color=fmt['markeredgecolor'])
-        ax[2].plot(d['phi_peri'].values[i], pred_median, **fmt) 
+    ax[0].plot(d['measured_SAV'], d['predicted_SAV_mean'], **fmt)
 
-ax[2].plot([0, 0.15], [0, 0.15], '--', color=cor['primary_black'])
-ax[3].plot([3, 10], [3, 10], '--', color=cor['primary_black'])
-ax[0].set_xlabel('ribosomal proteome fraction\n$\phi_{rib}$', fontsize=6)
-ax[0].set_ylabel('$S_A/V$\nsurface-to-volume [µm$^{-1}$]', fontsize=6)
-ax[1].set_xlabel('measured\nmembrane fraction', fontsize=6)
-ax[1].set_ylabel('predicted\nmembrane fraction', fontsize=6)
-ax[2].set_xlabel('measured\nperiplasmic fraction', fontsize=6)
-ax[2].set_ylabel('predicted\nperiplasmic fraction', fontsize=6)
-ax[3].set_xlabel('measured $S_A/V$ [µm$^{-1}$]', fontsize=6)
-ax[3].set_ylabel('predicted $S_A/V$ [µm$^{-1}$]', fontsize=6)
-plt.tight_layout()
-plt.savefig('./plots/fig4_perturbations_predictions.pdf', bbox_inches='tight')
+# Add a shaded panel for the non-physiological regime
+min_width = 0.55 # in µm
+aspect_ratio = 4 # Assume, backed up with data.
+max_SAV = ((12 * aspect_ratio) / (3 * aspect_ratio - 1)) / min_width
+
+ax[1].fill_between([0, 8], max_SAV, 20, color=cor['pale_black'], alpha=0.5)
+# Add context
+for a in ax:
+    a.set_xlim([3, 8])
+    a.set_xlabel('measured surface-to-volume [µm$^{-1}$]\n$(S_A/V)_{meas}$', fontsize=6)
+    a.set_ylabel('$(S_A/V)_{pred}$\npredicted\nsurface-to-volume [µm$^{-1}$]', fontsize=6)
+
+ax[0].set_ylim([3, 8])
+ax[1].set_ylim([3, 13])
+plt.subplots_adjust(wspace=0.4)
+plt.savefig('./plots/fig4_pred_vs_meas.pdf', bbox_inches='tight')

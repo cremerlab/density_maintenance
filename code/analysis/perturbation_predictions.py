@@ -21,6 +21,7 @@ def prediction(kappa: float,
     return sav
 
 data['predicted_SAV_median'] = prediction(kappa['median'].values[0])
+data['predicted_SAV_mean'] = prediction(kappa['mean'].values[0])
 data['predicted_SAV_sig2_lower'] = prediction(kappa['sig2_lower'].values[0])
 data['predicted_SAV_sig2_upper'] = prediction(kappa['sig2_upper'].values[0])
 data['predicted_SAV_sig1_lower'] = prediction(kappa['sig1_lower'].values[0])

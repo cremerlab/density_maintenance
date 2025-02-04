@@ -21,6 +21,7 @@ fmt['markerfacecolor'] = cor['pale_black']
 fmt['alpha'] = 0.8
 ax[0].plot(data['growth_rate_hr'], data['phi_cyto'], **fmt)
 popt = scipy.stats.linregress(data['growth_rate_hr'], data['phi_cyto'])
+print(f'phi_cyto slope: {popt[0]}')
 ax[0].plot(lam_range, popt[1] + popt[0] * lam_range, '--',
            color=cor['primary_black'], lw=1)
 
@@ -29,6 +30,7 @@ fmt['markerfacecolor'] = cor['pale_blue']
 fmt['markeredgecolor'] = cor['primary_blue']
 ax[1].plot(data['growth_rate_hr'], data['phi_mem'], **fmt)
 popt = scipy.stats.linregress(data['growth_rate_hr'], data['phi_mem'])
+print(f'phi_mem slope: {popt[0]}')
 ax[1].plot(lam_range, popt[1] + popt[0] * lam_range, '--',
            color=cor['primary_blue'], lw=1)
 
@@ -37,6 +39,7 @@ fmt['markeredgecolor'] = cor['primary_purple']
 fmt['markerfacecolor'] = cor['pale_purple']
 ax[2].plot(data['growth_rate_hr'], data['phi_peri'], **fmt)
 popt = scipy.stats.linregress(data['growth_rate_hr'], data['phi_peri'])
+print(f'phi_peri slope: {popt[0]}')
 ax[2].plot(lam_range, popt[1] + popt[0] * lam_range, '--',
            color=cor['primary_purple'], lw=1)
 
@@ -54,7 +57,7 @@ ax[1].set_ylim([0, 0.2])
 ax[1].set_yticks([0, 0.05, 0.1, 0.15, 0.2])
 ax[2].set_ylim([0, 0.15])
 ax[2].set_yticks([0, 0.05, 0.1, 0.15])
-plt.savefig('./plots/fig1.2_compartment_allocation.pdf', bbox_inches='tight')
+plt.savefig('./plots/fig1_compartment_allocation.pdf', bbox_inches='tight')
 
 #%%  Plot (E - F)
 fig, ax = plt.subplots(2, 1, figsize=(1.6, 3))
@@ -64,11 +67,13 @@ fmt = size.viz.style_point('This Study')
 ax[0].plot(data['phi_peri'], data['phi_cyto'], **fmt)
 phi_peri_range = np.linspace(0, 0.2, 30)
 popt = scipy.stats.linregress(data['phi_peri'], data['phi_cyto'])
+print(f'trade-off slope: {popt[0]}')
 ax[0].plot(phi_peri_range, popt[1] + popt[0] * phi_peri_range, 'k--', lw=1)
 
 # plot the conservation of mass between compartments
 ax[1].plot(data['growth_rate_hr'], data['phi_peri'] + data['phi_cyto'], **fmt)
 popt = scipy.stats.linregress(data['growth_rate_hr'], data['phi_peri'].values + data['phi_cyto'].values)
+print(f'phi_peri + phi_cyto slope: {popt[0]}')
 ax[1].plot(lam_range, popt[1] + popt[0] * lam_range, 'k--', lw=1)
 
 # Set context
@@ -82,4 +87,4 @@ ax[0].set_ylim([0.75, 0.9])
 ax[0].set_xlim([0, 0.15])
 ax[1].set_ylim([0.6, 1.0])
 plt.subplots_adjust(hspace=0.35)
-plt.savefig('./plots/fig1.2_cytoplasm_periplasm_tradeoff.pdf', bbox_inches='tight')
+plt.savefig('./plots/fig1_cytoplasm_periplasm_tradeoff.pdf', bbox_inches='tight')

@@ -19,12 +19,12 @@ densities = pd.read_csv('../../data/mcmc/empirical_densities_summary.csv')
 
 #%% Plot the masses and densities within the compartments
 fig, ax = plt.subplots(3, 2, figsize=(4, 3.1), sharex=True)
-mapper = {'cyt_tot_per_cell': [ax[0, 0], cor['primary_black']],
-          'rho_cyt_tot': [ax[0, 1], cor['primary_black']],
-          'peri_prot_per_cell': [ax[1, 0], cor['primary_purple']],
-          'rho_peri': [ax[1, 1], cor['primary_purple']],
-          'mem_prot_per_cell': [ax[2, 0], cor['primary_blue']],
-          'sigma_mem': [ax[2, 1], cor['primary_blue']]}
+mapper = {'cyt_tot_per_cell': [ax[0, 0], 'black'],
+          'rho_cyt_tot': [ax[0, 1], 'black'],
+          'peri_prot_per_cell': [ax[2, 0], 'purple'],
+          'rho_peri': [ax[2, 1], 'purple'],
+          'mem_prot_per_cell': [ax[1, 0], 'blue'],
+          'sigma_mem': [ax[1, 1], 'blue']}
 # Set the range to compute the empirical trend
 lam_range = np.linspace(0, 2.5)
 
@@ -33,12 +33,13 @@ res = {}
 for g, d in densities[densities['quantity'].isin(mapper.keys())].groupby('quantity'):
     axis, color = mapper[g]
     fmt = size.viz.style_point('This Study')
-    fmt['markeredgecolor'] = color
+    fmt['markeredgecolor'] = cor[f'primary_{color}']
+    fmt['markerfacecolor'] = cor[f'pale_{color}']
     fmt['alpha'] = 0.75 
     axis.vlines(d['growth_rate_hr'], d['sig2_lower'], d['sig2_upper'], lw=0.5, 
-                color=color)
+                color=cor[f'primary_{color}'])
     axis.vlines(d['growth_rate_hr'], d['sig1_lower'], d['sig1_upper'], lw=1, 
-                color=color)
+                color=cor[f'primary_{color}'])
     axis.plot(d['growth_rate_hr'], d['mean'], **fmt)
 
     # Plot the empirical fits:
@@ -49,33 +50,35 @@ for g, d in densities[densities['quantity'].isin(mapper.keys())].groupby('quanti
         popt = scipy.stats.linregress(d['growth_rate_hr'], d['mean'])
         fit = popt[1] + popt[0] * lam_range
     res[g] = popt 
-    axis.plot(lam_range, fit, '--', color=color, lw=1)
+    axis.plot(lam_range, fit, '--', color=cor[f'primary_{color}'], lw=1)
  
 # Add context
 for i in range(2):
     ax[-1, i].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
 ax[0, 0].set_ylabel('$M_{prot}^{(cyt)} + M_{RNA}$\n[fg / cell]', fontsize=6)
-ax[1, 0].set_ylabel('$M_{prot}^{(peri)}$\n[fg/ cell]', fontsize=6)
-ax[2, 0].set_ylabel('$M_{prot}^{(mem)}$\n[fg/ cell]', fontsize=6)
+ax[2, 0].set_ylabel('$M_{prot}^{(peri)}$\n[fg/ cell]', fontsize=6)
+ax[1, 0].set_ylabel('$M_{prot}^{(mem)}$\n[fg/ cell]', fontsize=6)
 ax[0, 1].set_ylabel(r'$\rho_{cyt}$' + '\n[fg / µm$^3$]', fontsize=6)
-ax[1, 1].set_ylabel(r'$\rho_{peri}$' + '\n[fg / µm$^3$]', fontsize=6)
-ax[2, 1].set_ylabel(r'$\sigma_{mem}$' + '\n[fg / µm$^2$]', fontsize=6)
+ax[2, 1].set_ylabel(r'$\rho_{peri}$' + '\n[fg / µm$^3$]', fontsize=6)
+ax[1, 1].set_ylabel(r'$\sigma_{mem}$' + '\n[fg / µm$^2$]', fontsize=6)
 
 # Control bounds
 ax[0, 0].set_ylim([100, 1200])
 ax[0, 1].set_ylim([100, 700])
-ax[1, 0].set_ylim([0, 40])
-ax[1, 1].set_ylim([30, 300])
-ax[2, 0].set_ylim([0, 80])
-ax[2, 1].set_ylim([0, 5])
+ax[2, 0].set_ylim([0, 40])
+ax[2, 1].set_ylim([30, 300])
+ax[1, 0].set_ylim([0, 80])
+ax[1, 1].set_ylim([0, 5])
 plt.subplots_adjust(hspace=0.1)
 plt.savefig('./plots/fig2_masses_densities.pdf', bbox_inches='tight')
+
 
 #%% Plot the empirical kappa
 fig, ax = plt.subplots(1, 1, figsize=(2, 1.3))
 emp_kappa = densities[densities['quantity']=='empirical_kappa']
 fmt = size.viz.style_point('This Study')
 fmt['markeredgecolor'] = cor['primary_red']
+fmt['markerfacecolor'] = cor['pale_red']
 fmt['alpha'] = 0.75
 ax.vlines(emp_kappa['growth_rate_hr'], emp_kappa['sig2_lower'], 
           emp_kappa['sig2_upper'], lw=0.5, color=cor['primary_red'])
