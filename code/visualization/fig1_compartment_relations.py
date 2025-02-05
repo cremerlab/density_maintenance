@@ -12,6 +12,7 @@ data = data[data['strain']=='wildtype']
 
 #%% Plot (B - D) the allocation across the three  compartments
 fig, ax = plt.subplots(3, 1, figsize=(2.3, 3), sharex=True)
+
 # Set the growth rate ratge over whidh to plot the empirical fits
 lam_range = np.linspace(0, 2.5, 30)
 
@@ -25,38 +26,39 @@ print(f'phi_cyto slope: {popt[0]}')
 ax[0].plot(lam_range, popt[1] + popt[0] * lam_range, '--',
            color=cor['primary_black'], lw=1)
 
-# Plot membrane allocation
-fmt['markerfacecolor'] = cor['pale_blue']
-fmt['markeredgecolor'] = cor['primary_blue']
-ax[1].plot(data['growth_rate_hr'], data['phi_mem'], **fmt)
-popt = scipy.stats.linregress(data['growth_rate_hr'], data['phi_mem'])
-print(f'phi_mem slope: {popt[0]}')
-ax[1].plot(lam_range, popt[1] + popt[0] * lam_range, '--',
-           color=cor['primary_blue'], lw=1)
-
 # Plot the periplasmic allocation
 fmt['markeredgecolor'] = cor['primary_purple']
 fmt['markerfacecolor'] = cor['pale_purple']
-ax[2].plot(data['growth_rate_hr'], data['phi_peri'], **fmt)
+ax[1].plot(data['growth_rate_hr'], data['phi_peri'], **fmt)
 popt = scipy.stats.linregress(data['growth_rate_hr'], data['phi_peri'])
 print(f'phi_peri slope: {popt[0]}')
-ax[2].plot(lam_range, popt[1] + popt[0] * lam_range, '--',
+ax[1].plot(lam_range, popt[1] + popt[0] * lam_range, '--',
            color=cor['primary_purple'], lw=1)
+
+# Plot membrane allocation
+fmt['markerfacecolor'] = cor['pale_blue']
+fmt['markeredgecolor'] = cor['primary_blue']
+ax[2].plot(data['growth_rate_hr'], data['phi_mem'], **fmt)
+popt = scipy.stats.linregress(data['growth_rate_hr'], data['phi_mem'])
+print(f'phi_mem slope: {popt[0]}')
+ax[2].plot(lam_range, popt[1] + popt[0] * lam_range, '--',
+           color=cor['primary_blue'], lw=1)
+
 
 # Add context
 ax[0].set_ylabel('$\phi_{cyto}$\ncytoplasmic\nproteome allocation\n', fontsize=6)
-ax[1].set_ylabel('$\phi_{mem}$\nmembrane\nproteome allocation\n', fontsize=6)
-ax[2].set_ylabel('$\phi_{peri}$\nperiplasm\nproteome allocation\n', fontsize=6)
+ax[1].set_ylabel('$\phi_{peri}$\nperiplasm\nproteome allocation\n', fontsize=6)
+ax[2].set_ylabel('$\phi_{mem}$\nmembrane\nproteome allocation\n', fontsize=6)
 ax[2].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
 
 # Set axis limits
 ax[0].set_ylim([0.6, 1.0])
 ax[0].set_yticks([0.60, 0.7, 0.8, 0.9, 1])
 ax[0].set_yticklabels(['0.60', '0.70', '0.80', '0.90', '1.00'])
-ax[1].set_ylim([0, 0.2])
-ax[1].set_yticks([0, 0.05, 0.1, 0.15, 0.2])
-ax[2].set_ylim([0, 0.15])
-ax[2].set_yticks([0, 0.05, 0.1, 0.15])
+ax[1].set_ylim([0, 0.15])
+ax[1].set_yticks([0, 0.05, 0.1, 0.15])
+ax[2].set_ylim([0, 0.2])
+ax[2].set_yticks([0, 0.05, 0.1, 0.15, 0.2])
 plt.savefig('./plots/fig1_compartment_allocation.pdf', bbox_inches='tight')
 
 #%%  Plot (E - F)
