@@ -65,10 +65,11 @@ fmt = size.viz.style_point('This Study')
 
 # Plot the tradoff between periplasm and cytoplasm
 ax[0].plot(data['phi_peri'], data['phi_cyto'], **fmt)
-phi_peri_range = np.linspace(0, 0.2, 30)
-popt = scipy.stats.linregress(data['phi_peri'], data['phi_cyto'])
-print(f'trade-off slope: {popt[0]}')
-ax[0].plot(phi_peri_range, popt[1] + popt[0] * phi_peri_range, 'k--', lw=1)
+# Plot a line with a slope of -1 showing a strong tradeoff
+phi_peri_range = np.array([0.05, 0.11])
+phi_cyto_range = np.array([0.85, 0.79])
+ax[0].plot(phi_peri_range, phi_cyto_range, '-', color=cor['light_black'], 
+           lw=0.5)
 
 # plot the conservation of mass between compartments
 ax[1].plot(data['growth_rate_hr'], data['phi_peri'] + data['phi_cyto'], **fmt)
