@@ -58,13 +58,13 @@ for i in range(2):
 ax[0, 0].set_ylabel('$M_{prot}^{(cyt)} + M_{RNA}$\n[fg / cell]', fontsize=6)
 ax[2, 0].set_ylabel('$M_{prot}^{(peri)}$\n[fg/ cell]', fontsize=6)
 ax[1, 0].set_ylabel('$M_{prot}^{(mem)}$\n[fg/ cell]', fontsize=6)
-ax[0, 1].set_ylabel(r'$\rho_{cyt}$' + '\n[fg / µm$^3$]', fontsize=6)
+ax[0, 1].set_ylabel(r'$\rho_{cyto}$' + '\n[fg / µm$^3$]', fontsize=6)
 ax[2, 1].set_ylabel(r'$\rho_{peri}$' + '\n[fg / µm$^3$]', fontsize=6)
 ax[1, 1].set_ylabel(r'$\sigma_{mem}$' + '\n[fg / µm$^2$]', fontsize=6)
 
 # Control bounds
 ax[0, 0].set_ylim([100, 1200])
-ax[0, 1].set_ylim([100, 700])
+ax[0, 1].set_ylim([0, 800])
 ax[2, 0].set_ylim([0, 40])
 ax[2, 1].set_ylim([30, 300])
 ax[1, 0].set_ylim([0, 80])
