@@ -52,9 +52,8 @@ ax[2].set_ylabel('$\phi_{mem}$\nmembrane\nproteome allocation\n', fontsize=6)
 ax[2].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
 
 # Set axis limits
-ax[0].set_ylim([0.6, 1.0])
-ax[0].set_yticks([0.60, 0.7, 0.8, 0.9, 1])
-ax[0].set_yticklabels(['0.60', '0.70', '0.80', '0.90', '1.00'])
+ax[0].set_ylim([0.7, 0.9])
+ax[0].set_yticks([0.7, 0.75, 0.8, 0.85, 0.9])
 ax[1].set_ylim([0, 0.15])
 ax[1].set_yticks([0, 0.05, 0.1, 0.15])
 ax[2].set_ylim([0, 0.2])
