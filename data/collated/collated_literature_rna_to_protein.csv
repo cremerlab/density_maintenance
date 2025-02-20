@@ -1,0 +1,249 @@
+growth_rate_hr,rna_to_protein,source,notes
+0.000,0.088,Dai et al. 2016,Data taken from Table S3
+0.033,0.097,Dai et al. 2016,Data taken from Table S3
+0.128,0.121,Dai et al. 2016,Data taken from Table S3
+0.197,0.129,Dai et al. 2016,Data taken from Table S3
+0.231,0.134,Dai et al. 2016,Data taken from Table S3
+0.285,0.147,Dai et al. 2016,Data taken from Table S3
+0.336,0.151,Dai et al. 2016,Data taken from Table S3
+0.407,0.171,Dai et al. 2016,Data taken from Table S3
+0.418,0.169,Dai et al. 2016,Data taken from Table S3
+0.452,0.171,Dai et al. 2016,Data taken from Table S3
+0.486,0.182,Dai et al. 2016,Data taken from Table S3
+0.550,0.189,Dai et al. 2016,Data taken from Table S3
+0.673,0.215,Dai et al. 2016,Data taken from Table S3
+0.686,0.215,Dai et al. 2016,Data taken from Table S3
+0.700,0.215,Dai et al. 2016,Data taken from Table S3
+0.717,0.215,Dai et al. 2016,Data taken from Table S3
+0.744,0.233,Dai et al. 2016,Data taken from Table S3
+0.918,0.252,Dai et al. 2016,Data taken from Table S3
+0.945,0.272,Dai et al. 2016,Data taken from Table S3
+0.993,0.265,Dai et al. 2016,Data taken from Table S3
+0.975,0.294,Dai et al. 2016,Data taken from Table S3
+1.098,0.305,Dai et al. 2016,Data taken from Table S3
+1.162,0.329,Dai et al. 2016,Data taken from Table S3
+1.268,0.362,Dai et al. 2016,Data taken from Table S3
+1.567,0.441,Dai et al. 2016,Data taken from Table S3
+1.795,0.478,Dai et al. 2016,Data taken from Table S3
+0.420,0.200,Bremer & Dennis 2008,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+0.690,0.226,Bremer & Dennis 2008,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+1.040,0.331,Bremer & Dennis 2008,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+1.390,0.391,Bremer & Dennis 2008,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+1.730,0.472,Bremer & Dennis 2008,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+0.380,0.189,Forchhammer & Lindahl 1971,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+0.600,0.224,Forchhammer & Lindahl 1971,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+1.040,0.294,Forchhammer & Lindahl 1971,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+1.460,0.421,Forchhammer & Lindahl 1971,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+1.730,0.470,Forchhammer & Lindahl 1971,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+0.400,0.178,Scott et al. 2010,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+0.570,0.230,Scott et al. 2010,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+0.710,0.222,Scott et al. 2010,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+1.000,0.287,Scott et al. 2010,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+1.310,0.415,Scott et al. 2010,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+1.580,0.465,Scott et al. 2010,Calculated from RNA/Protein ratio assuming 0.86 µg rRNA/1µg RNA and 0.53 µg ribosomal protein per 1µg rRNA
+0.409,0.169,Brunschede et al. 1977,"Data recorded from Table 1, using conversion factor described in text. Mass fraction computed assuming conversion factor of RNA/protein * 0.4558 = mass fraction."
+0.409,0.189,Brunschede et al. 1977,"Data recorded from Table 1, using conversion factor described in text. Mass fraction computed assuming conversion factor of RNA/protein * 0.4558 = mass fraction."
+0.492,0.208,Brunschede et al. 1977,"Data recorded from Table 1, using conversion factor described in text. Mass fraction computed assuming conversion factor of RNA/protein * 0.4558 = mass fraction."
+0.492,0.219,Brunschede et al. 1977,"Data recorded from Table 1, using conversion factor described in text. Mass fraction computed assuming conversion factor of RNA/protein * 0.4558 = mass fraction."
+0.513,0.147,Brunschede et al. 1977,"Data recorded from Table 1, using conversion factor described in text. Mass fraction computed assuming conversion factor of RNA/protein * 0.4558 = mass fraction."
+0.478,0.169,Brunschede et al. 1977,"Data recorded from Table 1, using conversion factor described in text. Mass fraction computed assuming conversion factor of RNA/protein * 0.4558 = mass fraction."
+0.478,0.178,Brunschede et al. 1977,"Data recorded from Table 1, using conversion factor described in text. Mass fraction computed assuming conversion factor of RNA/protein * 0.4558 = mass fraction."
+0.679,0.105,Brunschede et al. 1977,"Data recorded from Table 1, using conversion factor described in text. Mass fraction computed assuming conversion factor of RNA/protein * 0.4558 = mass fraction."
+0.866,0.270,Brunschede et al. 1977,"Data recorded from Table 1, using conversion factor described in text. Mass fraction computed assuming conversion factor of RNA/protein * 0.4558 = mass fraction."
+0.866,0.296,Brunschede et al. 1977,"Data recorded from Table 1, using conversion factor described in text. Mass fraction computed assuming conversion factor of RNA/protein * 0.4558 = mass fraction."
+0.866,0.301,Brunschede et al. 1977,"Data recorded from Table 1, using conversion factor described in text. Mass fraction computed assuming conversion factor of RNA/protein * 0.4558 = mass fraction."
+0.943,0.327,Brunschede et al. 1977,"Data recorded from Table 1, using conversion factor described in text. Mass fraction computed assuming conversion factor of RNA/protein * 0.4558 = mass fraction."
+0.943,0.358,Brunschede et al. 1977,"Data recorded from Table 1, using conversion factor described in text. Mass fraction computed assuming conversion factor of RNA/protein * 0.4558 = mass fraction."
+1.428,0.430,Brunschede et al. 1977,"Data recorded from Table 1, using conversion factor described in text. Mass fraction computed assuming conversion factor of RNA/protein * 0.4558 = mass fraction."
+1.428,0.419,Brunschede et al. 1977,"Data recorded from Table 1, using conversion factor described in text. Mass fraction computed assuming conversion factor of RNA/protein * 0.4558 = mass fraction."
+0.040,0.097,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.135,0.118,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.204,0.129,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.232,0.134,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.293,0.147,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.334,0.151,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.341,0.151,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.381,0.160,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.412,0.173,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.462,0.173,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.502,0.184,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.551,0.193,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.691,0.219,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.720,0.217,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.701,0.228,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.691,0.228,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.750,0.235,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.918,0.254,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.949,0.274,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.989,0.270,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.980,0.296,Wu et al. 2021,Data digitized from Fig. 3 C and converted to Ribosomal mass fraction
+0.13,0.138,Erickson et al. 2017,Taken from table in FigS1 (panel H)
+0.19,0.158,Erickson et al. 2017,Taken from table in FigS1 (panel H)
+0.61,0.213,Erickson et al. 2017,Taken from table in FigS1 (panel H)
+0.91,0.305,Erickson et al. 2017,Taken from table in FigS1 (panel H)
+0.91,0.272,Erickson et al. 2017,Taken from table in FigS1 (panel H)
+0.62,0.211,Erickson et al. 2017,Taken from table in FigS1 (panel H)
+0.79,0.292,Erickson et al. 2017,Taken from table in FigS1 (panel H)
+1.04,0.312,Erickson et al. 2017,Taken from table in FigS1 (panel H)
+0.93,0.303,Erickson et al. 2017,Taken from table in FigS1 (panel H)
+0.71,0.248,Erickson et al. 2017,Taken from table in FigS1 (panel H)
+0.45,0.195,Erickson et al. 2017,Taken from table in FigS1 (panel H)
+0.98,0.307,Erickson et al. 2017,Taken from table in FigS1 (panel H)
+0.06,0.132,Erickson et al. 2017,Taken from table in FigS1 (panel I). This are different strains than panel H
+0.16,0.143,Erickson et al. 2017,Taken from table in FigS1 (panel I). This are different strains than panel H
+0.25,0.160,Erickson et al. 2017,Taken from table in FigS1 (panel I). This are different strains than panel H
+0.40,0.184,Erickson et al. 2017,Taken from table in FigS1 (panel I). This are different strains than panel H
+0.29,0.162,Erickson et al. 2017,Taken from table in FigS1 (panel I). This are different strains than panel H
+0.43,0.189,Erickson et al. 2017,Taken from table in FigS1 (panel I). This are different strains than panel H
+0.55,0.226,Erickson et al. 2017,Taken from table in FigS1 (panel I). This are different strains than panel H
+0.31,0.219,Erickson et al. 2017,Taken from table in FigS1 (panel I). This are different strains than panel H
+0.79,0.283,Erickson et al. 2017,Taken from table in FigS1 (panel I). This are different strains than panel H
+0.18,0.129,Erickson et al. 2017,Taken from table in FigS1 (panel I). This are different strains than panel H
+0.32,0.171,Erickson et al. 2017,Taken from table in FigS1 (panel I). This are different strains than panel H
+0.38,0.189,Erickson et al. 2017,Taken from table in FigS1 (panel I). This are different strains than panel H
+0.57,0.230,Erickson et al. 2017,Taken from table in FigS1 (panel I). This are different strains than panel H
+0.091,0.1593762308068990,Li et al. 2018,
+0.3,0.1732400762081010,Li et al. 2018,
+0.47,0.221252139023061,Li et al. 2018,
+0.62,0.248732083792723,Li et al. 2018,
+0.091,0.157799442896935,Li et al. 2018,
+0.3,0.1923373072544730,Li et al. 2018,
+0.44,0.217768781463677,Li et al. 2018,
+0.63,0.258567774936062,Li et al. 2018,
+1.67,0.556408383682080,Li et al. 2018,
+1.1,0.369688801990257,Li et al. 2018,
+0.93,0.344690794380616,Li et al. 2018,
+0.6,0.265442395034388,Li et al. 2018,
+0.56,0.261787810728530,Li et al. 2018,
+0.44,0.186837209764096,Li et al. 2018,
+0.2306,0.1715160889622850,Li et al. 2018,
+0.06716417910447760,0.13073394495412800,Mori et al. 2017,Data digitized from Fig S2A.
+0.19402985074626900,0.12844036697247700,Mori et al. 2017,Data digitized from Fig S2A.
+0.12686567164179100,0.13761467889908300,Mori et al. 2017,Data digitized from Fig S2A.
+0.14925373134328300,0.14220183486238500,Mori et al. 2017,Data digitized from Fig S2A.
+0.19402985074626900,0.15825688073394500,Mori et al. 2017,Data digitized from Fig S2A.
+0.25373134328358200,0.16284403669724800,Mori et al. 2017,Data digitized from Fig S2A.
+0.2910447761194030,0.16055045871559600,Mori et al. 2017,Data digitized from Fig S2A.
+0.32835820895522400,0.17201834862385300,Mori et al. 2017,Data digitized from Fig S2A.
+0.3656716417910450,0.19036697247706400,Mori et al. 2017,Data digitized from Fig S2A.
+0.3955223880597010,0.1834862385321100,Mori et al. 2017,Data digitized from Fig S2A.
+0.4402985074626870,0.19036697247706400,Mori et al. 2017,Data digitized from Fig S2A.
+0.4552238805970150,0.19266055045871600,Mori et al. 2017,Data digitized from Fig S2A.
+0.5522388059701490,0.22477064220183400,Mori et al. 2017,Data digitized from Fig S2A.
+0.5746268656716420,0.22706422018348600,Mori et al. 2017,Data digitized from Fig S2A.
+0.6194029850746270,0.2178899082568810,Mori et al. 2017,Data digitized from Fig S2A.
+0.6194029850746270,0.21100917431192700,Mori et al. 2017,Data digitized from Fig S2A.
+0.716417910447761,0.24770642201834800,Mori et al. 2017,Data digitized from Fig S2A.
+0.7985074626865670,0.2821100917431200,Mori et al. 2017,Data digitized from Fig S2A.
+0.7910447761194030,0.28899082568807400,Mori et al. 2017,Data digitized from Fig S2A.
+0.9029850746268660,0.3027522935779820,Mori et al. 2017,Data digitized from Fig S2A.
+0.9253731343283580,0.3027522935779820,Mori et al. 2017,Data digitized from Fig S2A.
+0.9104477611940300,0.27293577981651400,Mori et al. 2017,Data digitized from Fig S2A.
+0.9850746268656720,0.3027522935779820,Mori et al. 2017,Data digitized from Fig S2A.
+1.0447761194029800,0.30963302752293500,Mori et al. 2017,Data digitized from Fig S2A.
+0.44,0.170000,You et al. 2013,Data taken from Table S10
+0.41,0.170000,You et al. 2013,Data taken from Table S10
+0.62,0.230000,You et al. 2013,Data taken from Table S10
+0.64,0.230000,You et al. 2013,Data taken from Table S10
+0.87,0.280000,You et al. 2013,Data taken from Table S10
+1.00,0.3030491,You et al. 2013,Data taken from Table S10
+1.84,0.465045592705167,Basan et al. 2015,Data taken from Table S4
+1.27,0.362776025236593,Basan et al. 2015,Data taken from Table S4
+0.98,0.293993993993993,Basan et al. 2015,Data taken from Table S4
+0.7,0.234929577464789,Basan et al. 2015,Data taken from Table S4
+0.45,0.1706349206349210,Basan et al. 2015,Data taken from Table S4
+0.42,0.1690537084398980,Basan et al. 2015,Data taken from Table S4
+0.4197633609961770,0.17081583141630,Zhu & Dai 2019,Data digitized from Fig 2D
+0.4608100999473960,0.1769775530553440,Zhu & Dai 2019,Data digitized from Fig 2D
+0.690806880903217,0.224663374343434,Zhu & Dai 2019,Data digitized from Fig 2D
+0.9742869032009860,0.292313550605731,Zhu & Dai 2019,Data digitized from Fig 2D
+1.3643565444738400,0.363110538836591,Zhu & Dai 2019,Data digitized from Fig 2D
+1.828589823109600,0.472278533686119,Zhu & Dai 2019,Data digitized from Fig 2D
+2.0023,0.431110000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.9522,0.482890000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.75155,0.27770000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.0344,0.286840000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.56926,0.255860000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.75501,0.192830000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.8144,0.43790000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.8154,0.472420000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.4587,0.358540000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.2686,0.306210000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.88083,0.267390000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.65611,0.214090000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.59741,0.1975000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+2.1133,0.372420000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.8779,0.344460000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.4313,0.285240000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.2541,0.275580000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.0632,0.253120000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.75406,0.207540000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.78904,0.228270000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.8088,0.47065000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.5663,0.378060000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.1517,0.296710000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.1026,0.252660000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.62786,0.25430000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.7342,0.386740000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.1273,0.268090000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.83602,0.292330000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.70943,0.21005000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.39136,0.153780000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.7854,0.44510000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.0818,0.322270000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.83287,0.28780000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.73618,0.160630000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.69244,0.218140000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.31271,0.148030000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.7662,0.45210000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.0637,0.28585000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.80028,0.28570000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.82842,0.28745000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.70978,0.150410000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.66856,0.217790000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.4499,0.165470000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.6541,0.347620000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.4993,0.348470000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.72045,0.273270000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.0654,0.242530000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.82866,0.105820000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.75346,0.16825000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.41312,0.137270000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.7479,0.499990000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.4982,0.419910000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.3375,0.376710000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.0379,0.36905000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.79254,0.273430000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.75655,0.274440000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.34007,0.195530000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.1988,0.274640000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.1731,0.266960000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.2352,0.276680000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.7573,0.417560000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.7095,0.461610000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.9438,0.429830000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.7703,0.44965000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.7077,0.37865000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.3168,0.323810000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.4475,0.373710000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.3448,0.441510000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.503,0.376520000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.5053,0.402460000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.2583,0.41690000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.3125,0.316540000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.1146,0.292570000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.1547,0.3125000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.0276,0.278840000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.058,0.243120000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.1048,0.322930000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.0261,0.259670000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.70007,0.387840000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.75945,0.192710000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.64728,0.209880000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.64552,0.18790000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.6694,0.192980000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.35841,0.150370000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.2071,0.254960000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+0.64317,0.150370000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.7284,0.42185000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
+1.1884,0.261940000,Si et al. 2017,"Data calculated from supplemental data file, considering only NCM3722 and MG1655 nutrient limitation and 0 antibiotics"
