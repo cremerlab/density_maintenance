@@ -47,13 +47,20 @@ for g, d in lit_data.groupby('gene_name'):
     else:
         d['localization'] = 'unassigned_localization'
     d['cog_category'] = lcz['COG_functionname'].values[0]
-    d['cog_letter'] = lcz['COG_function'].values[0]
+    letter = lcz['COG_function'].values[0]
+
+    # Use only the first assigned  COG letter
+    if letter == 'notdefined':
+        letter = 'X'
+    elif (len(letter) > 0):
+        letter = letter[0]
+    d['cog_letter'] = letter
     filt = pd.concat([filt, d])
 
 filt = filt[['gene_name', 'source', 'condition', 'growth_rate_hr', 'mass_frac', 'localization', 'cog_letter', 'cog_class', 'strain']]
 filt.rename(columns={'gene_name':'name'}, inplace=True)
 filt['name'] = filt['name'].str.lower()
-filt.to_csv('./compiled_data/compiled_literature_mass_fractions.csv', index=False)
+filt.to_csv('../../../data/collated/compiled_literature_mass_fractions.csv', index=False)
 
 #%%
 # Do two passes of computing the allocation. First based on localization, second 
@@ -66,7 +73,7 @@ phi_rib['localization'] = 'phi_rib'
 # Concatenate and then pivot
 concat = pd.concat([allocs, phi_rib])
 concat.rename(columns={'localization':'allocation'}, inplace=True)
-concat.to_csv('./compiled_data/compiled_literature_allocation_assigments_long.csv', index=False)
+concat.to_csv('./compiled_data/compiled_literature_allocation_assignments_long.csv', index=False)
 
 # Generate a wide-format table
 groups[-1] = 'allocation'
@@ -78,4 +85,4 @@ for g, d in concat.groupby(groups[:-2]):
         _df[_g] = _d['mass_frac'].values 
     _df.drop(columns=['allocation', 'mass_frac'], inplace=True)
     pivot = pd.concat([pivot, _df])
-pivot.to_csv('../../../data/collated/compiled_literature_allocation_assigments_wide.csv', index=False)
+pivot.to_csv('../../../data/collated/compiled_literature_allocation_assignments_wide.csv', index=False)

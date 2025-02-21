@@ -25,6 +25,8 @@ locs = {'membrane': ['IM', 'LPI', 'LPO', 'OM', 'MR'],
        'periplasm': ['PE', 'EC'],
        'cytoplasm': ['CP'],       
 }
+
+#%%
 filt = pd.DataFrame([])
 for g, d in ms_data.groupby(['name', 'synonyms']):
     lcz = gene_class.loc[(gene_class['gene']==g[0]) | (gene_class['gene'].isin(g[1].split()))]
@@ -40,7 +42,14 @@ for g, d in ms_data.groupby(['name', 'synonyms']):
     else:
         d['localization'] = 'unassigned_localization'
     d['cog_category'] = lcz['COG_functionname'].values[0]
-    d['cog_letter'] = lcz['COG_function'].values[0]
+
+    # Use only the primary cog association.
+    letter = lcz['COG_function'].values[0]
+    if letter == 'notdefined':
+        letter = 'X'
+    elif (len(letter) > 0):
+        letter = letter[0]
+    d['cog_letter'] = letter
     filt = pd.concat([filt, d])
 
 filt = filt[['strain', 'carbon_source', 'date', 'inducer_conc', 'replicate',

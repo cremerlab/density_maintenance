@@ -1,16 +1,17 @@
 #%%
-
 import pandas as pd 
 ################################################################################
 ## Merge individual gene copy numbers, only for wildtype
 ################################################################################
 
 # Load the full literature data 
-lit_data = pd.read_csv('../literature/compiled_data/compiled_literature_mass_fractions.csv')
+lit_data = pd.read_csv('../../../data/collated/compiled_literature_mass_fractions.csv')
 
+#%%
 # Load experimental data
 exp_data = pd.read_csv('../../../data/collated/experimental_mass_spectrometry.csv')
 
+#%%
 # Unify column names
 exp_data = exp_data[exp_data['strain']=='wildtype']
 exp_data['source'] = 'This Study'
