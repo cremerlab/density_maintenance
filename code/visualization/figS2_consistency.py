@@ -113,7 +113,7 @@ ax[2].plot(our_rp['growth_rate_hr'], our_rp['fg_rna_per_cell']/our_rp['fg_protei
 # Set context
 for a in ax:
     a.set_xlim([0, 2.5])
-    a.set_xlabel('growth rate hr[$^{-1}$]', fontsize=6)
+    a.set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
     a.legend()
 ax[0].set_ylabel('total RNA [fg / cell]', fontsize=6)
 ax[0].set_ylim([0, 1000])
