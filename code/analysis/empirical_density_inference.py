@@ -6,7 +6,6 @@ import arviz as az
 
 # Load the data and restrict to wildtype as necessary
 ms_data = pd.read_csv('../../data/collated/aggregated_experimental_data.csv')
-ms_data = ms_data[ms_data['strain']=='wildtype']
 rp_data = pd.read_csv('../../data/collated/experimental_rna_protein_per_cell.csv')
 
 # Load and compile the inference model
@@ -50,7 +49,9 @@ samples = az.from_cmdstanpy(_samples)
 # Set a mapper for dimension to wildtype sample
 mapper = {i:(ms_data.iloc[i]['carbon_source'], 
              ms_data.iloc[i]['replicate'], 
-             ms_data.iloc[i]['growth_rate_hr']) for i in range(len(ms_data))}
+             ms_data.iloc[i]['growth_rate_hr'],
+             ms_data.iloc[i]['strain'],
+             ms_data.iloc[i]['inducer_conc']) for i in range(len(ms_data))}
 
 #%%
 # Summarize the various quantities.
@@ -69,6 +70,8 @@ for i, q in enumerate(quants):
     for g, d in post.groupby(f'{q}_dim_0'):
         quants = np.percentile(d[q], percs)
         _df = pd.DataFrame({'quantity': q,
+                            'strain': mapper[g][3],
+                            'inducer_conc': mapper[g][4],
                             'carbon_source': mapper[g][0],
                             'replicate': mapper[g][1],
                             'growth_rate_hr': mapper[g][2],
