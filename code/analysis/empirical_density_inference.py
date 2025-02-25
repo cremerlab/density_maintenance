@@ -6,6 +6,7 @@ import arviz as az
 
 # Load the data and restrict to wildtype as necessary
 ms_data = pd.read_csv('../../data/collated/aggregated_experimental_data.csv')
+ms_data = ms_data[ms_data['strain']=='wildtype']
 rp_data = pd.read_csv('../../data/collated/experimental_rna_protein_per_cell.csv')
 
 # Load and compile the inference model
