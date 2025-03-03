@@ -46,9 +46,9 @@ ax[2].plot(lam_range, popt[1] + popt[0] * lam_range, '--',
 
 
 # Add context
-ax[0].set_ylabel('$\phi_{cyto}$\ncytoplasmic\nproteome allocation\n', fontsize=6)
-ax[1].set_ylabel('$\phi_{peri}$\nperiplasm\nproteome allocation\n', fontsize=6)
-ax[2].set_ylabel('$\phi_{mem}$\nmembrane\nproteome allocation\n', fontsize=6)
+ax[0].set_ylabel('$\psi_{cyto}$\ncytoplasmic\nproteome partition\n', fontsize=6)
+ax[1].set_ylabel('$\psi_{peri}$\nperiplasm\nproteome partition\n', fontsize=6)
+ax[2].set_ylabel('$\psi_{mem}$\nmembrane\nproteome partition\n', fontsize=6)
 ax[2].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
 
 # Set axis limits
@@ -58,7 +58,7 @@ ax[1].set_ylim([0, 0.15])
 ax[1].set_yticks([0, 0.05, 0.1, 0.15])
 ax[2].set_ylim([0, 0.2])
 ax[2].set_yticks([0, 0.05, 0.1, 0.15, 0.2])
-plt.savefig('./plots/fig1_compartment_allocation.pdf', bbox_inches='tight')
+plt.savefig('./plots/fig1_compartment_partition.pdf', bbox_inches='tight')
 
 #%%  Plot (E - F)
 fig, ax = plt.subplots(2, 1, figsize=(1.6, 3))
@@ -79,10 +79,10 @@ print(f'phi_peri + phi_cyto slope: {popt[0]}')
 ax[1].plot(lam_range, popt[1] + popt[0] * lam_range, 'k--', lw=1)
 
 # Set context
-ax[0].set_xlabel('periplasm proteome allocation\n$\phi_{peri}$', fontsize=6)
-ax[0].set_ylabel('$\phi_{cyto}$\ncytoplasm\nproteome allocation', fontsize=6)
+ax[0].set_xlabel('periplasm proteome partition\n$\psi_{peri}$', fontsize=6)
+ax[0].set_ylabel('$\psi_{cyto}$\ncytoplasm\nproteome partition', fontsize=6)
 ax[1].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
-ax[1].set_ylabel('$\phi_{cyto} + \phi_{peri}$\nperiplasm + cytoplasm\nproteome allocation', fontsize=6)
+ax[1].set_ylabel('$\psi_{cyto} + \psi_{peri}$\nperiplasm + cytoplasm\nproteome partition', fontsize=6)
 
 # Set limits and adjust subplots
 ax[0].set_ylim([0.75, 0.9])

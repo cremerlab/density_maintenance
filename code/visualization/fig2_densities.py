@@ -95,8 +95,7 @@ ax.plot(lam_range, fit, '--', color=cor['primary_red'], lw=1)
 
 # Add context
 ax.set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
-ax.set_ylabel(r'$\kappa$' + '\ndensity ratio [µm$^{-1}$]',
-              fontsize=6)
+ax.set_ylabel('cytoplasm-membrane\ndensity ratio [µm$^{-1}$]',fontsize=6)
 ax.set_ylim([50, 250])
 ax.set_xlim([0, 2.5])
 plt.savefig('./plots/fig2_empirical_kappa.pdf', bbox_inches='tight')

@@ -22,8 +22,9 @@ ribo_prots = ['rrsa', 'rpsa', 'rpsb', 'rpsc', 'rpd', 'rpse', 'rpsf', 'rpsg', 'rp
 
 # Define the localization
 locs = {'membrane': ['IM', 'LPI', 'LPO', 'OM', 'MR'],
-       'periplasm': ['PE', 'EC'],
+       'periplasm': ['PE'],
        'cytoplasm': ['CP'],       
+       'extracellular': ['EC'],
 }
 
 #%%
@@ -39,6 +40,8 @@ for g, d in ms_data.groupby(['name', 'synonyms']):
         d['localization'] = 'phi_peri'
     elif lcz['location'].values[0] in locs['cytoplasm']:
         d['localization'] = 'phi_cyto'
+    elif lcz['location'].values[0] in locs['extracellular']:
+        d['localization'] = 'phi_ext'
     else:
         d['localization'] = 'unassigned_localization'
     d['cog_category'] = lcz['COG_functionname'].values[0]

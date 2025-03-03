@@ -49,9 +49,9 @@ for a in ax:
 ax[0].set_yticks([0, 0.05, 0.1, 0.15, 0.2])
 ax[1].set_yticks([0, 0.05, 0.1, 0.15])
 
-ax[0].set_ylabel('$\phi_{mem}$\nmembrane proteome allocation', fontsize=6)
-ax[1].set_ylabel('$\phi_{peri}$\nperiplasm proteome allocation', fontsize=6)
-plt.savefig('./plots/fig3_allocation_trends.pdf', bbox_inches='tight')
+ax[0].set_ylabel('$\psi_{mem}$\nmembrane proteome parition', fontsize=6)
+ax[1].set_ylabel('$\psi_{peri}$\nperiplasm proteome partition', fontsize=6)
+plt.savefig('./plots/fig3_partition_trends.pdf', bbox_inches='tight')
 
 
 #%% Plot the SAV theory and estimated values of kappa. 
