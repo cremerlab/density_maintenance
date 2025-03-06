@@ -29,10 +29,14 @@ locs = {'membrane': ['IM', 'LPI', 'LPO', 'OM', 'MR'],
 
 #%%
 filt = pd.DataFrame([])
+not_classified = 0
+not_classified_mass_frac = 0
 for g, d in ms_data.groupby(['name', 'synonyms']):
     lcz = gene_class.loc[(gene_class['gene']==g[0]) | (gene_class['gene'].isin(g[1].split()))]
     if len(lcz) == 0:
         print(f'could not classify {g}')     
+        not_classified += 1
+        not_classified_mass_frac += d.groupby(['strain', 'carbon_source', 'replicate', 'inducer_conc'])['mass_frac'].max().values[0]
         continue
     if lcz['location'].values[0] in locs['membrane']:
         d['localization'] = 'phi_mem'

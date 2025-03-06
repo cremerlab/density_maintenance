@@ -97,6 +97,7 @@ axes = {'rho_cyt': ax[0],
         'rho_peri': ax[1], 
         'sigma_mem': ax[2],
         'empirical_kappa': ax[3]}
+
 for g, d in rel.groupby(['carbon_source', 'inducer_conc']):
     for q, a in axes.items():
         _d = d[d['quantity']==q]
