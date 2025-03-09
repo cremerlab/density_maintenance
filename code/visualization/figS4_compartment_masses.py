@@ -76,13 +76,13 @@ for i, q in enumerate(['cyt_tot_per_cell', 'peri_prot_per_cell', 'mem_prot_per_c
 
 # Set context
 ax[0].set_ylim([0, 1000])
-ax[0].set_ylabel('$\phi_{cyt}M_{prot}^{(tot)} + M_{RNA}^{(tot)}$ [fg / cell]\ncytoplasmic\nRNA + protein mass',
+ax[0].set_ylabel('$\psi_{cyt}M_{prot}^{(tot)} + M_{RNA}^{(tot)}$ [fg / cell]\ncytoplasmic\nRNA + protein mass',
                  fontsize=6)
 ax[1].set_ylim([0, 50])
-ax[1].set_ylabel('$\phi_{peri}M_{prot}^{(tot)}$ [fg / cell]\nperiplasmic\nprotein mass', 
+ax[1].set_ylabel('$\psi_{peri}M_{prot}^{(tot)}$ [fg / cell]\nperiplasmic\nprotein mass', 
                  fontsize=6)
 ax[2].set_ylim([0, 100])
-ax[2].set_ylabel('$\phi_{mem}M_{prot}^{(tot)}$ [fg / cell]\nmembrane \nprotein mass',
+ax[2].set_ylabel('$\psi_{mem}M_{prot}^{(tot)}$ [fg / cell]\nmembrane \nprotein mass',
                  fontsize=6)
 ax[2].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
 plt.tight_layout()
