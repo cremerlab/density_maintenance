@@ -10,7 +10,7 @@ data = pd.read_csv('../../data/collated/aggregated_experimental_data.csv')
 
 # Directly calculate the emprical kappa given by Eq. 8 in main text
 W_PERI = 0.025
-BETA = 1 / 0.4558
+BETA = 2.19
 data['empirical_kappa'] = (2 * data['surface_area_um2'] / (data['volume_fL'] - W_PERI * data['surface_area_um2'])) * (data['phi_cyto'] + BETA * data['phi_rib']) / data['phi_mem']
 
 #%% Plot the break of the sav and growth rate

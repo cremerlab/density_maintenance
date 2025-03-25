@@ -35,7 +35,7 @@ data_dict = {
     'obs_volume': perturb['volume_fL'].values,
 
     'ppc_lam_range': lam_range,
-    'BETA_RIB': 1/0.4558,
+    'BETA_RIB': 2.19,
     'W_PERI': 0.025
 }
 

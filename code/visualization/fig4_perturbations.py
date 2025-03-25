@@ -6,7 +6,7 @@ import size.viz
 cor, pal = size.viz.matplotlib_style()
 
 # Define constants
-BETA = 1/0.4558
+BETA = 2.19 
 
 # Load the data, parameter samples, and wild-type predictions
 data = pd.read_csv('../../data/mcmc/predicted_SAV_summary.csv')

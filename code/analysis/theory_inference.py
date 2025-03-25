@@ -32,7 +32,7 @@ data_dict = {
     'phi_rib_range': phi_rib_range,
 
     # Define the conversion factor for ribosomal allocation to RNA-to-protein
-    'BETA': 1/0.4558,
+    'BETA': 2.19,
 }
 
 # Sample the model and extract

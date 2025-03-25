@@ -14,7 +14,7 @@ data.rename(columns={'surface_to_volume_inv_um':'measured_SAV'}, inplace=True)
 
 # Define a function to compute the theory
 def prediction(kappa: float,
-               beta: float = 1/0.4558) -> np.ndarray:
+               beta: float = 2.19) -> np.ndarray:
     numer = kappa * data.phi_mem.values
     denom = 2 * (1 + beta * data.phi_rib.values - data.phi_peri.values - data.phi_mem.values)
     sav = numer / denom

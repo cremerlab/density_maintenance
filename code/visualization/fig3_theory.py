@@ -17,6 +17,7 @@ pars = pd.read_csv('../../data/mcmc/theory_inference_parameter_summaries.csv')
 densities = pd.read_csv('../../data/mcmc/empirical_densities_summary.csv')
 
 #%% Plot the fit of phi_mem and phi_peri vs phi_rib
+
 fig, ax = plt.subplots(1, 2, figsize=(3, 1.5), sharex=True)
 
 # Plot our data
@@ -70,7 +71,7 @@ def prediction_helper(kappa: np.ndarray) -> np.ndarray:
 
     # Compute the theory
     numer = kappa * phi_mem 
-    denom = 2 * (1 + (1/0.4558) * phi_rib_range - phi_mem - phi_peri)
+    denom = 2 * (1 + 2.19 * phi_rib_range - phi_mem - phi_peri)
     return numer / denom
 
 
