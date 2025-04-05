@@ -39,13 +39,13 @@ for g, d in ms_data.groupby(['name', 'synonyms']):
         not_classified_mass_frac += d.groupby(['strain', 'carbon_source', 'replicate', 'inducer_conc'])['mass_frac'].max().values[0]
         continue
     if lcz['location'].values[0] in locs['membrane']:
-        d['localization'] = 'phi_mem'
+        d['localization'] = 'psi_mem'
     elif lcz['location'].values[0] in locs['periplasm']:
-        d['localization'] = 'phi_peri'
+        d['localization'] = 'psi_peri'
     elif lcz['location'].values[0] in locs['cytoplasm']:
-        d['localization'] = 'phi_cyto'
+        d['localization'] = 'psi_cyto'
     elif lcz['location'].values[0] in locs['extracellular']:
-        d['localization'] = 'phi_ext'
+        d['localization'] = 'psi_ext'
     else:
         d['localization'] = 'unassigned_localization'
     d['cog_category'] = lcz['COG_functionname'].values[0]

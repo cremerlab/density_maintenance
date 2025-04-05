@@ -16,7 +16,7 @@ pars = pd.read_csv('../../data/mcmc/theory_inference_parameter_summaries.csv')
 # Load the empirical densities
 densities = pd.read_csv('../../data/mcmc/empirical_densities_summary.csv')
 
-#%% Plot the fit of phi_mem and phi_peri vs phi_rib
+#%% Plot the fit of psi_mem and psi_peri vs phi_rib
 
 fig, ax = plt.subplots(1, 2, figsize=(3, 1.5), sharex=True)
 
@@ -24,14 +24,14 @@ fig, ax = plt.subplots(1, 2, figsize=(3, 1.5), sharex=True)
 fmt = size.viz.style_point('This Study')
 fmt['markeredgecolor'] = cor['primary_blue']
 fmt['markerfacecolor'] = cor['pale_blue']
-ax[0].plot(data['phi_rib'], data['phi_mem'], zorder=1000, **fmt)
+ax[0].plot(data['phi_rib'], data['psi_mem'], zorder=1000, **fmt)
 fmt['markeredgecolor'] = cor['primary_purple']
 fmt['markerfacecolor'] = cor['pale_purple']
-ax[1].plot(data['phi_rib'], data['phi_peri'], zorder=1000, **fmt)
+ax[1].plot(data['phi_rib'], data['psi_peri'], zorder=1000, **fmt)
 
 # Plot the PPCs
 colors = ['blue', 'purple']
-for i, q in enumerate(['phi_mem_ppc', 'phi_peri_ppc']):
+for i, q in enumerate(['psi_mem_ppc', 'psi_peri_ppc']):
     _pred = preds[preds['quantity']==q]
     ax[i].fill_between(_pred['phi_rib'], _pred['sig2_lower'], _pred['sig2_upper'],
                        color=cor[f'pale_{colors[i]}'], alpha=0.5)
@@ -60,18 +60,18 @@ plt.savefig('./plots/fig3_partition_trends.pdf', bbox_inches='tight')
 phi_rib_range = np.linspace(0.08, 0.4, 100)
 def prediction_helper(kappa: np.ndarray) -> np.ndarray:
     # Extract the empirical parameters for fits
-    beta_0_phi_mem = pars[pars['quantity']=='beta_0_phi_mem']['mean'].values[0]
-    beta_1_phi_mem = pars[pars['quantity']=='beta_1_phi_mem']['mean'].values[0]
-    beta_0_phi_peri = pars[pars['quantity']=='beta_0_phi_peri']['mean'].values[0]
-    beta_1_phi_peri = pars[pars['quantity']=='beta_1_phi_peri']['mean'].values[0]
+    beta_0_psi_mem = pars[pars['quantity']=='beta_0_psi_mem']['mean'].values[0]
+    beta_1_psi_mem = pars[pars['quantity']=='beta_1_psi_mem']['mean'].values[0]
+    beta_0_psi_peri = pars[pars['quantity']=='beta_0_psi_peri']['mean'].values[0]
+    beta_1_psi_peri = pars[pars['quantity']=='beta_1_psi_peri']['mean'].values[0]
     
     # Compute the empirical allocation 
-    phi_mem = beta_0_phi_mem + beta_1_phi_mem * phi_rib_range
-    phi_peri = beta_0_phi_peri * np.exp(beta_1_phi_peri * phi_rib_range)
+    psi_mem = beta_0_psi_mem + beta_1_psi_mem * phi_rib_range
+    psi_peri = beta_0_psi_peri * np.exp(beta_1_psi_peri * phi_rib_range)
 
     # Compute the theory
-    numer = kappa * phi_mem 
-    denom = 2 * (1 + 2.19 * phi_rib_range - phi_mem - phi_peri)
+    numer = kappa * psi_mem 
+    denom = 2 * (1 + 2.19 * phi_rib_range - psi_mem - psi_peri)
     return numer / denom
 
 # Set the range of kappas 

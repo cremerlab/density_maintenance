@@ -24,8 +24,8 @@ data_dict = {
 
     # Define the observed data
     'obs_phi_rib': data['phi_rib'].values,
-    'obs_phi_mem': data['phi_mem'].values,
-    'obs_phi_peri': data['phi_peri'].values,
+    'obs_psi_mem': data['psi_mem'].values,
+    'obs_psi_peri': data['psi_peri'].values,
     'obs_sav': data['surface_to_volume_inv_um'].values,
 
     # Define the ribosomal allocation range
@@ -41,8 +41,8 @@ samples = az.from_cmdstanpy(_samples)
 
 #%%
 # Extract the estimates for the parameters. 
-pars = ['kappa', 'sigma', 'beta_0_phi_mem', 'beta_1_phi_mem', 'sigma_phi_mem',
-        'beta_0_phi_peri', 'beta_1_phi_peri', 'sigma_phi_peri']
+pars = ['kappa', 'sigma', 'beta_0_psi_mem', 'beta_1_psi_mem', 'sigma_psi_mem',
+        'beta_0_psi_peri', 'beta_1_psi_peri', 'sigma_psi_peri']
 post = samples.posterior[pars].to_dataframe().reset_index()
 melted = post.melt(value_vars=pars)
 
@@ -70,7 +70,7 @@ par_samples.to_csv('../../data/mcmc/theory_inference_parameter_samples.csv', ind
 
 #%%
 # Extract the ppcs for the theorya nd the trend fits
-quants = ['phi_mem_mu', 'phi_mem_ppc', 'phi_peri_mu', 'phi_peri_ppc', 
+quants = ['psi_mem_mu', 'psi_mem_ppc', 'psi_peri_mu', 'psi_peri_ppc', 
         'theory_mu', 'theory_ppc']
 
 # Compute the percentiles for each parameter

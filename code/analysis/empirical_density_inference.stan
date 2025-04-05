@@ -15,9 +15,9 @@ data {
     vector<lower=0>[N_obs] lam; //  Growth rate
     
     // Define input data for generative modeling
-    vector<lower=0>[N_obs] phi_cyto; // Cytoplasmic mass fraction measurements
-    vector<lower=0>[N_obs] phi_mem; // Membrane mass fraction measurements
-    vector<lower=0>[N_obs] phi_peri; // Periplasmic mass fraction measurements
+    vector<lower=0>[N_obs] psi_cyto; // Cytoplasmic mass fraction measurements
+    vector<lower=0>[N_obs] psi_mem; // Membrane mass fraction measurements
+    vector<lower=0>[N_obs] psi_peri; // Periplasmic mass fraction measurements
 
     // Input data for generative fit generation
     vector<lower=0>[N_fit] fit_lam; // Growth rate measurements for fit generation
@@ -103,10 +103,10 @@ generated quantities {
     for (i in 1:N_obs) {
         tot_prot_per_cell[i] = exp(log_prot_per_cell_beta_0 + prot_per_cell_beta_1 * lam[i]);
         cyt_rna_per_cell[i] = exp(log_rna_per_cell_beta_0  + rna_per_cell_beta_1 * lam[i]);
-        cyt_prot_per_cell[i] = phi_cyto[i] * tot_prot_per_cell[i];
+        cyt_prot_per_cell[i] = psi_cyto[i] * tot_prot_per_cell[i];
         cyt_tot_per_cell[i] = cyt_prot_per_cell[i] + cyt_rna_per_cell[i]; 
-        peri_prot_per_cell[i] = phi_peri[i] * tot_prot_per_cell[i];
-        mem_prot_per_cell[i] = phi_mem[i] * tot_prot_per_cell[i];
+        peri_prot_per_cell[i] = psi_peri[i] * tot_prot_per_cell[i];
+        mem_prot_per_cell[i] = psi_mem[i] * tot_prot_per_cell[i];
         rho_cyt_prot[i] = cyt_prot_per_cell[i] / (volume[i] - W_PERI * surface_area[i]);
         rho_cyt_rna[i] = cyt_rna_per_cell[i] / (volume[i] - W_PERI * surface_area[i]);
         rho_cyt_tot[i] = (cyt_prot_per_cell[i] + cyt_rna_per_cell[i]) / (volume[i] - W_PERI * surface_area[i]);

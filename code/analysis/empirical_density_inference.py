@@ -33,9 +33,9 @@ data_dict = {
         'lam': ms_data['growth_rate_hr'].values,
 
         # Allocation parameters for empricial quantity calculation 
-        'phi_cyto': ms_data['phi_cyto'].values,
-        'phi_mem': ms_data['phi_mem'].values,
-        'phi_peri': ms_data['phi_peri'].values,
+        'psi_cyto': ms_data['psi_cyto'].values,
+        'psi_mem': ms_data['psi_mem'].values,
+        'psi_peri': ms_data['psi_peri'].values,
         
         # Constants and fit variables
         'fit_lam': fit_lam,

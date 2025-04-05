@@ -24,7 +24,7 @@ ms_data = ms_data.groupby(['date', 'carbon_source', 'replicate', 'growth_rate_hr
 
 #%% Instantiate the figure canvas
 fig, ax = plt.subplots(1, 3, figsize=(6, 2), sharex=True)
-axes = {'phi_cyto': ax[0], 'phi_peri': ax[1], 'phi_mem':ax[2]}
+axes = {'psi_cyto': ax[0], 'psi_peri': ax[1], 'psi_mem':ax[2]}
 
 # Set colors for different compartments
 pal = sns.color_palette('husl', 4)
@@ -33,6 +33,8 @@ mapper = {'info': pal[0], 'metabolism': pal[1], 'other': pal[2], 'signaling':pal
 # Style the marker
 fmt = size.viz.style_point('This Study')
 for g, d in ms_data.groupby(['localization', 'date', 'carbon_source', 'replicate']):
+    if g[0] == 'psi_ext':
+        continue
     # Compute the relative mass fraction change in the compartment
     tot_mass = d['mass_frac'].sum()
     d['rel_mass_frac'] = d['mass_frac'] / tot_mass

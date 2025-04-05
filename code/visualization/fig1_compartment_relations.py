@@ -20,27 +20,27 @@ lam_range = np.linspace(0, 2.5, 30)
 fmt = size.viz.style_point('This Study')
 fmt['markerfacecolor'] = cor['pale_black']
 fmt['alpha'] = 0.8
-ax[0].plot(data['growth_rate_hr'], data['phi_cyto'], **fmt)
-popt = scipy.stats.linregress(data['growth_rate_hr'], data['phi_cyto'])
-print(f'phi_cyto slope: {popt[0]}')
+ax[0].plot(data['growth_rate_hr'], data['psi_cyto'], **fmt)
+popt = scipy.stats.linregress(data['growth_rate_hr'], data['psi_cyto'])
+print(f'psi_cyto slope: {popt[0]}')
 ax[0].plot(lam_range, popt[1] + popt[0] * lam_range, '--',
            color=cor['primary_black'], lw=1)
 
 # Plot the periplasmic allocation
 fmt['markeredgecolor'] = cor['primary_purple']
 fmt['markerfacecolor'] = cor['pale_purple']
-ax[1].plot(data['growth_rate_hr'], data['phi_peri'], **fmt)
-popt = scipy.stats.linregress(data['growth_rate_hr'], data['phi_peri'])
-print(f'phi_peri slope: {popt[0]}')
+ax[1].plot(data['growth_rate_hr'], data['psi_peri'], **fmt)
+popt = scipy.stats.linregress(data['growth_rate_hr'], data['psi_peri'])
+print(f'psi_peri slope: {popt[0]}')
 ax[1].plot(lam_range, popt[1] + popt[0] * lam_range, '--',
            color=cor['primary_purple'], lw=1)
 
 # Plot membrane allocation
 fmt['markerfacecolor'] = cor['pale_blue']
 fmt['markeredgecolor'] = cor['primary_blue']
-ax[2].plot(data['growth_rate_hr'], data['phi_mem'], **fmt)
-popt = scipy.stats.linregress(data['growth_rate_hr'], data['phi_mem'])
-print(f'phi_mem slope: {popt[0]}')
+ax[2].plot(data['growth_rate_hr'], data['psi_mem'], **fmt)
+popt = scipy.stats.linregress(data['growth_rate_hr'], data['psi_mem'])
+print(f'psi_mem slope: {popt[0]}')
 ax[2].plot(lam_range, popt[1] + popt[0] * lam_range, '--',
            color=cor['primary_blue'], lw=1)
 
@@ -65,17 +65,17 @@ fig, ax = plt.subplots(2, 1, figsize=(1.6, 3))
 fmt = size.viz.style_point('This Study')
 
 # Plot the tradoff between periplasm and cytoplasm
-ax[0].plot(data['phi_peri'], data['phi_cyto'], **fmt)
+ax[0].plot(data['psi_peri'], data['psi_cyto'], **fmt)
 # Plot a line with a slope of -1 showing a strong tradeoff
-phi_peri_range = np.array([0.05, 0.11])
-phi_cyto_range = np.array([0.85, 0.79])
-ax[0].plot(phi_peri_range, phi_cyto_range, '-', color=cor['light_black'], 
+psi_peri_range = np.array([0.05, 0.11])
+psi_cyto_range = np.array([0.85, 0.79])
+ax[0].plot(psi_peri_range, psi_cyto_range, '-', color=cor['light_black'], 
            lw=0.5)
 
 # plot the conservation of mass between compartments
-ax[1].plot(data['growth_rate_hr'], data['phi_peri'] + data['phi_cyto'], **fmt)
-popt = scipy.stats.linregress(data['growth_rate_hr'], data['phi_peri'].values + data['phi_cyto'].values)
-print(f'phi_peri + phi_cyto slope: {popt[0]}')
+ax[1].plot(data['growth_rate_hr'], data['psi_peri'] + data['psi_cyto'], **fmt)
+popt = scipy.stats.linregress(data['growth_rate_hr'], data['psi_peri'].values + data['psi_cyto'].values)
+print(f'psi_peri + psi_cyto slope: {popt[0]}')
 ax[1].plot(lam_range, popt[1] + popt[0] * lam_range, 'k--', lw=1)
 
 # Set context

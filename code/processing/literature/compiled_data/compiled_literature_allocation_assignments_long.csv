@@ -1,220 +1,220 @@
 source,strain,condition,growth_rate_hr,allocation,mass_frac
-Caglar et al. 2017,REL606,gluconate_growth,0.6630116912775283,phi_cyto,0.8658769673663816
-Caglar et al. 2017,REL606,gluconate_growth,0.6630116912775283,phi_mem,0.08132261682034266
-Caglar et al. 2017,REL606,gluconate_growth,0.6630116912775283,phi_peri,0.052503587313217595
-Caglar et al. 2017,REL606,glucose_time_course,0.7747553284413429,phi_cyto,0.8523427331842834
-Caglar et al. 2017,REL606,glucose_time_course,0.7747553284413429,phi_mem,0.10072106490199408
-Caglar et al. 2017,REL606,glucose_time_course,0.7747553284413429,phi_peri,0.04649491212363179
-Li et al. 2014,MG1655,MOPS complete,1.934364224818452,phi_cyto,0.8139837923520963
-Li et al. 2014,MG1655,MOPS complete,1.934364224818452,phi_mem,0.14741038993203254
-Li et al. 2014,MG1655,MOPS complete,1.934364224818452,phi_peri,0.015595134798668054
-Li et al. 2014,MG1655,MOPS complete without methionine,1.5693898427772346,phi_cyto,0.8257497358676843
-Li et al. 2014,MG1655,MOPS complete without methionine,1.5693898427772346,phi_mem,0.12177425148092795
-Li et al. 2014,MG1655,MOPS complete without methionine,1.5693898427772346,phi_peri,0.03236835675204801
-Li et al. 2014,MG1655,MOPS minimal,0.738700370046123,phi_cyto,0.769720292510956
-Li et al. 2014,MG1655,MOPS minimal,0.738700370046123,phi_mem,0.16353818823297514
-Li et al. 2014,MG1655,MOPS minimal,0.738700370046123,phi_peri,0.04780043065016484
-Mori et al. 2021,EQ 59,0.2% melibiose,0.6817841120261757,phi_cyto,0.8036084013146
-Mori et al. 2021,EQ 59,0.2% melibiose,0.6817841120261757,phi_mem,0.15242982354134998
-Mori et al. 2021,EQ 59,0.2% melibiose,0.6817841120261757,phi_peri,0.043961790924
-Mori et al. 2021,EQ353,0.2% glucose,0.69,phi_cyto,0.7861515133752868
-Mori et al. 2021,EQ353,0.2% glucose,0.69,phi_mem,0.15267284034389483
-Mori et al. 2021,EQ353,0.2% glucose,0.69,phi_peri,0.0634280028101642
-Mori et al. 2021,NCM3722,0.2% galactose,0.4892803627481966,phi_cyto,0.73641834873835
-Mori et al. 2021,NCM3722,0.2% galactose,0.4892803627481966,phi_mem,0.16412220161744
-Mori et al. 2021,NCM3722,0.2% galactose,0.4892803627481966,phi_peri,0.099459437375
-Mori et al. 2021,NCM3722,0.4% sodium acetate,0.5010702510071894,phi_cyto,0.8011790132247
-Mori et al. 2021,NCM3722,0.4% sodium acetate,0.5010702510071894,phi_mem,0.14187790838376
-Mori et al. 2021,NCM3722,0.4% sodium acetate,0.5010702510071894,phi_peri,0.0569430575554
-Mori et al. 2021,NCM3722,10 mM glucose-6-phosphate + 10 mM gluconate,1.1240224549620734,phi_cyto,0.8250646084725
-Mori et al. 2021,NCM3722,10 mM glucose-6-phosphate + 10 mM gluconate,1.1240224549620734,phi_mem,0.1458043541363
-Mori et al. 2021,NCM3722,10 mM glucose-6-phosphate + 10 mM gluconate,1.1240224549620734,phi_peri,0.029131032968
-Mori et al. 2021,NCM3722,12 mM arabinose,0.8487516496652392,phi_cyto,0.7993028558331
-Mori et al. 2021,NCM3722,12 mM arabinose,0.8487516496652392,phi_mem,0.14678147349744
-Mori et al. 2021,NCM3722,12 mM arabinose,0.8487516496652392,phi_peri,0.053915653896000004
-Mori et al. 2021,NCM3722,20 mM mannitol,0.9041050181216675,phi_cyto,0.7982427184561
-Mori et al. 2021,NCM3722,20 mM mannitol,0.9041050181216675,phi_mem,0.15496324730082
-Mori et al. 2021,NCM3722,20 mM mannitol,0.9041050181216675,phi_peri,0.0467940317136
-Mori et al. 2021,NCM3722,24 mM xylose + 20 mM oxaloacetate,0.8317766166719343,phi_cyto,0.798716973261
-Mori et al. 2021,NCM3722,24 mM xylose + 20 mM oxaloacetate,0.8317766166719343,phi_mem,0.1542370110801
-Mori et al. 2021,NCM3722,24 mM xylose + 20 mM oxaloacetate,0.8317766166719343,phi_peri,0.0470460083443
-Mori et al. 2021,NCM3722,40 mM glycerol + 30 mM succinate,0.7701635339554948,phi_cyto,0.7861295853581
-Mori et al. 2021,NCM3722,40 mM glycerol + 30 mM succinate,0.7701635339554948,phi_mem,0.15749447646394
-Mori et al. 2021,NCM3722,40 mM glycerol + 30 mM succinate,0.7701635339554948,phi_peri,0.0563759386858
-Mori et al. 2021,NQ1243,0.2% glucose,0.55,phi_cyto,0.743946779625
-Mori et al. 2021,NQ1243,0.2% glucose,0.55,phi_mem,0.16454646379693
-Mori et al. 2021,NQ1243,0.2% glucose,0.55,phi_peri,0.09015192169
-Mori et al. 2021,NQ1243,0.2% glucose,0.56,phi_cyto,0.7581930553428695
-Mori et al. 2021,NQ1243,0.2% glucose,0.56,phi_mem,0.1630767090573183
-Mori et al. 2021,NQ1243,0.2% glucose,0.56,phi_peri,0.0826799027754996
-Mori et al. 2021,NQ1243,0.2% glucose,0.69,phi_cyto,0.7779733080244
-Mori et al. 2021,NQ1243,0.2% glucose,0.69,phi_mem,0.14867259495407
-Mori et al. 2021,NQ1243,0.2% glucose,0.69,phi_peri,0.071756444226
-Mori et al. 2021,NQ1243,0.2% glucose,0.71,phi_cyto,0.7716205231635
-Mori et al. 2021,NQ1243,0.2% glucose,0.71,phi_mem,0.15065882445217002
-Mori et al. 2021,NQ1243,0.2% glucose,0.71,phi_peri,0.07636628478100001
-Mori et al. 2021,NQ1243,0.2% glucose,0.72,phi_cyto,0.7794546836588
-Mori et al. 2021,NQ1243,0.2% glucose,0.72,phi_mem,0.14982185639583
-Mori et al. 2021,NQ1243,0.2% glucose,0.72,phi_peri,0.069116160675
-Mori et al. 2021,NQ1243,0.2% glucose,0.81,phi_cyto,0.799024670406749
-Mori et al. 2021,NQ1243,0.2% glucose,0.81,phi_mem,0.14229784664588999
-Mori et al. 2021,NQ1243,0.2% glucose,0.81,phi_peri,0.0571014962335
-Mori et al. 2021,NQ1390,0.2% glucose,0.33,phi_cyto,0.727463048
-Mori et al. 2021,NQ1390,0.2% glucose,0.33,phi_mem,0.17642914863102
-Mori et al. 2021,NQ1390,0.2% glucose,0.33,phi_peri,0.094323346359
-Mori et al. 2021,NQ1390,0.2% glucose,0.34,phi_cyto,0.7365737331889
-Mori et al. 2021,NQ1390,0.2% glucose,0.34,phi_mem,0.17131461552096
-Mori et al. 2021,NQ1390,0.2% glucose,0.34,phi_peri,0.09047866852
-Mori et al. 2021,NQ1390,0.2% glucose,0.35,phi_cyto,0.72923852092496
-Mori et al. 2021,NQ1390,0.2% glucose,0.35,phi_mem,0.17452923982772
-Mori et al. 2021,NQ1390,0.2% glucose,0.35,phi_peri,0.094504841426
-Mori et al. 2021,NQ1390,0.2% glucose,0.48,phi_cyto,0.7444900141162
-Mori et al. 2021,NQ1390,0.2% glucose,0.48,phi_mem,0.16133824913263
-Mori et al. 2021,NQ1390,0.2% glucose,0.48,phi_peri,0.092551229401
-Mori et al. 2021,NQ1390,0.2% glucose,0.49,phi_cyto,0.7486208976013999
-Mori et al. 2021,NQ1390,0.2% glucose,0.49,phi_mem,0.1625203921923
-Mori et al. 2021,NQ1390,0.2% glucose,0.49,phi_peri,0.087171913813
-Mori et al. 2021,NQ1390,0.2% glucose,0.5,phi_cyto,0.7582320345931
-Mori et al. 2021,NQ1390,0.2% glucose,0.5,phi_mem,0.15774242709767
-Mori et al. 2021,NQ1390,0.2% glucose,0.5,phi_peri,0.082436118266
-Peebo et al. 2015,BW25113,glucose_minimal,0.21,phi_cyto,0.7839632800889037
-Peebo et al. 2015,BW25113,glucose_minimal,0.21,phi_mem,0.12315444473659146
-Peebo et al. 2015,BW25113,glucose_minimal,0.21,phi_peri,0.07447952060061729
-Peebo et al. 2015,BW25113,glucose_minimal,0.22,phi_cyto,0.7943170269275849
-Peebo et al. 2015,BW25113,glucose_minimal,0.22,phi_mem,0.121001221903342
-Peebo et al. 2015,BW25113,glucose_minimal,0.22,phi_peri,0.06706841638156966
-Peebo et al. 2015,BW25113,glucose_minimal,0.26,phi_cyto,0.7965582791577137
-Peebo et al. 2015,BW25113,glucose_minimal,0.26,phi_mem,0.12174538938138536
-Peebo et al. 2015,BW25113,glucose_minimal,0.26,phi_peri,0.06334419881136873
-Peebo et al. 2015,BW25113,glucose_minimal,0.31,phi_cyto,0.791369614900382
-Peebo et al. 2015,BW25113,glucose_minimal,0.31,phi_mem,0.12371853994696669
-Peebo et al. 2015,BW25113,glucose_minimal,0.31,phi_peri,0.06647962564799823
-Peebo et al. 2015,BW25113,glucose_minimal,0.36,phi_cyto,0.8055348374766662
-Peebo et al. 2015,BW25113,glucose_minimal,0.36,phi_mem,0.1236947574976561
-Peebo et al. 2015,BW25113,glucose_minimal,0.36,phi_peri,0.052784226588630974
-Peebo et al. 2015,BW25113,glucose_minimal,0.41,phi_cyto,0.8092748027886196
-Peebo et al. 2015,BW25113,glucose_minimal,0.41,phi_mem,0.12736849253175028
-Peebo et al. 2015,BW25113,glucose_minimal,0.41,phi_peri,0.04582205339014487
-Peebo et al. 2015,BW25113,glucose_minimal,0.46,phi_cyto,0.8190112974177195
-Peebo et al. 2015,BW25113,glucose_minimal,0.46,phi_mem,0.12613655141210028
-Peebo et al. 2015,BW25113,glucose_minimal,0.46,phi_peri,0.03795906801474316
-Peebo et al. 2015,BW25113,glucose_minimal,0.51,phi_cyto,0.8234367960519164
-Peebo et al. 2015,BW25113,glucose_minimal,0.51,phi_mem,0.1279367788793487
-Peebo et al. 2015,BW25113,glucose_minimal,0.51,phi_peri,0.03225431422055636
-Peebo et al. 2015,BW25113,rich,0.25,phi_cyto,0.7977967645490506
-Peebo et al. 2015,BW25113,rich,0.25,phi_mem,0.11313629432288022
-Peebo et al. 2015,BW25113,rich,0.25,phi_peri,0.07132839377703767
-Peebo et al. 2015,BW25113,rich,0.35,phi_cyto,0.7983350600012472
-Peebo et al. 2015,BW25113,rich,0.35,phi_mem,0.1114105822152336
-Peebo et al. 2015,BW25113,rich,0.35,phi_peri,0.07222207754958608
-Peebo et al. 2015,BW25113,rich,0.42,phi_cyto,0.7965811563626924
-Peebo et al. 2015,BW25113,rich,0.42,phi_mem,0.10951292135166978
-Peebo et al. 2015,BW25113,rich,0.42,phi_peri,0.07467599911426895
-Peebo et al. 2015,BW25113,rich,0.45,phi_cyto,0.8078686187136535
-Peebo et al. 2015,BW25113,rich,0.45,phi_mem,0.11023374661639511
-Peebo et al. 2015,BW25113,rich,0.45,phi_peri,0.06373598602808359
-Peebo et al. 2015,BW25113,rich,0.53,phi_cyto,0.812057289534404
-Peebo et al. 2015,BW25113,rich,0.53,phi_mem,0.1132739662440156
-Peebo et al. 2015,BW25113,rich,0.53,phi_peri,0.0550512047902968
-Peebo et al. 2015,BW25113,rich,0.55,phi_cyto,0.8229465193911387
-Peebo et al. 2015,BW25113,rich,0.55,phi_mem,0.10738499337833841
-Peebo et al. 2015,BW25113,rich,0.55,phi_peri,0.05112485080805427
-Peebo et al. 2015,BW25113,rich,0.63,phi_cyto,0.81133066527344
-Peebo et al. 2015,BW25113,rich,0.63,phi_mem,0.11111344758073907
-Peebo et al. 2015,BW25113,rich,0.63,phi_peri,0.05840881906504297
-Peebo et al. 2015,BW25113,rich,0.65,phi_cyto,0.8213524833545205
-Peebo et al. 2015,BW25113,rich,0.65,phi_mem,0.1106950627494653
-Peebo et al. 2015,BW25113,rich,0.65,phi_peri,0.04956007762891425
-Peebo et al. 2015,BW25113,rich,0.73,phi_cyto,0.7947908405874723
-Peebo et al. 2015,BW25113,rich,0.73,phi_mem,0.11136498730605551
-Peebo et al. 2015,BW25113,rich,0.73,phi_peri,0.07448964179664513
-Peebo et al. 2015,BW25113,rich,0.74,phi_cyto,0.8174469003281147
-Peebo et al. 2015,BW25113,rich,0.74,phi_mem,0.11819101323989101
-Peebo et al. 2015,BW25113,rich,0.74,phi_peri,0.0462248358161997
-Peebo et al. 2015,BW25113,rich,0.78,phi_cyto,0.8312420029047856
-Peebo et al. 2015,BW25113,rich,0.78,phi_mem,0.11379068583133672
-Peebo et al. 2015,BW25113,rich,0.78,phi_peri,0.036443531423132315
-Peebo et al. 2015,BW25113,rich,0.82,phi_cyto,0.8451915771233107
-Peebo et al. 2015,BW25113,rich,0.82,phi_mem,0.12320091335905231
-Peebo et al. 2015,BW25113,rich,0.82,phi_peri,0.015047469472415956
-Schmidt et al. 2016,BW25113,42C,0.66,phi_cyto,0.8540082674997526
-Schmidt et al. 2016,BW25113,42C,0.66,phi_mem,0.09314144107450457
-Schmidt et al. 2016,BW25113,42C,0.66,phi_peri,0.03631551098437875
-Schmidt et al. 2016,BW25113,acetate,0.3,phi_cyto,0.8381878779296213
-Schmidt et al. 2016,BW25113,acetate,0.3,phi_mem,0.0923303183842622
-Schmidt et al. 2016,BW25113,acetate,0.3,phi_peri,0.05218917754930559
-Schmidt et al. 2016,BW25113,chemostat_u0.12,0.12,phi_cyto,0.7986152884522181
-Schmidt et al. 2016,BW25113,chemostat_u0.12,0.12,phi_mem,0.11118093659592251
-Schmidt et al. 2016,BW25113,chemostat_u0.12,0.12,phi_peri,0.07185278540554915
-Schmidt et al. 2016,BW25113,chemostat_u0.2,0.2,phi_cyto,0.7963961934901639
-Schmidt et al. 2016,BW25113,chemostat_u0.2,0.2,phi_mem,0.11064246392975378
-Schmidt et al. 2016,BW25113,chemostat_u0.2,0.2,phi_peri,0.07452819117238844
-Schmidt et al. 2016,BW25113,chemostat_u0.35,0.35,phi_cyto,0.7970724875089498
-Schmidt et al. 2016,BW25113,chemostat_u0.35,0.35,phi_mem,0.11294956625269822
-Schmidt et al. 2016,BW25113,chemostat_u0.35,0.35,phi_peri,0.07137148224167096
-Schmidt et al. 2016,BW25113,chemostat_u0.5,0.5,phi_cyto,0.8183809993594432
-Schmidt et al. 2016,BW25113,chemostat_u0.5,0.5,phi_mem,0.10986691274158644
-Schmidt et al. 2016,BW25113,chemostat_u0.5,0.5,phi_peri,0.05337997419913427
-Schmidt et al. 2016,BW25113,fructose,0.65,phi_cyto,0.8480923840602922
-Schmidt et al. 2016,BW25113,fructose,0.65,phi_mem,0.09118874294307805
-Schmidt et al. 2016,BW25113,fructose,0.65,phi_peri,0.04318327263102602
-Schmidt et al. 2016,BW25113,fumarate,0.42,phi_cyto,0.8166144029407252
-Schmidt et al. 2016,BW25113,fumarate,0.42,phi_mem,0.09816644974068076
-Schmidt et al. 2016,BW25113,fumarate,0.42,phi_peri,0.06547808691275155
-Schmidt et al. 2016,BW25113,galactose,0.26,phi_cyto,0.7990873015871974
-Schmidt et al. 2016,BW25113,galactose,0.26,phi_mem,0.09567028973623384
-Schmidt et al. 2016,BW25113,galactose,0.26,phi_peri,0.08652203586442642
-Schmidt et al. 2016,BW25113,glucosamine,0.46,phi_cyto,0.814221977434768
-Schmidt et al. 2016,BW25113,glucosamine,0.46,phi_mem,0.1096976906962278
-Schmidt et al. 2016,BW25113,glucosamine,0.46,phi_peri,0.05639283244974005
-Schmidt et al. 2016,BW25113,glucose,0.58,phi_cyto,0.8434110649682898
-Schmidt et al. 2016,BW25113,glucose,0.58,phi_mem,0.09814838226292973
-Schmidt et al. 2016,BW25113,glucose,0.58,phi_peri,0.041094100759512316
-Schmidt et al. 2016,BW25113,glycerol,0.47,phi_cyto,0.8256891495276896
-Schmidt et al. 2016,BW25113,glycerol,0.47,phi_mem,0.10125084655510688
-Schmidt et al. 2016,BW25113,glycerol,0.47,phi_peri,0.05498288187906009
-Schmidt et al. 2016,BW25113,glycerol_pAA,1.27,phi_cyto,0.8395138239323774
-Schmidt et al. 2016,BW25113,glycerol_pAA,1.27,phi_mem,0.09840273076921126
-Schmidt et al. 2016,BW25113,glycerol_pAA,1.27,phi_peri,0.043069251328437946
-Schmidt et al. 2016,BW25113,lb_miller,1.9,phi_cyto,0.8637515028771855
-Schmidt et al. 2016,BW25113,lb_miller,1.9,phi_mem,0.08909705941171217
-Schmidt et al. 2016,BW25113,lb_miller,1.9,phi_peri,0.02851360351403566
-Schmidt et al. 2016,BW25113,mannose,0.47,phi_cyto,0.8256346424039631
-Schmidt et al. 2016,BW25113,mannose,0.47,phi_mem,0.09060356093971797
-Schmidt et al. 2016,BW25113,mannose,0.47,phi_peri,0.06505145440684462
-Schmidt et al. 2016,BW25113,osmotic_stress_glucose,0.55,phi_cyto,0.8132645743750974
-Schmidt et al. 2016,BW25113,osmotic_stress_glucose,0.55,phi_mem,0.11911060377846534
-Schmidt et al. 2016,BW25113,osmotic_stress_glucose,0.55,phi_peri,0.05182691077278534
-Schmidt et al. 2016,BW25113,pH6,0.63,phi_cyto,0.8121804050820682
-Schmidt et al. 2016,BW25113,pH6,0.63,phi_mem,0.11469579606888385
-Schmidt et al. 2016,BW25113,pH6,0.63,phi_peri,0.05568493145681457
-Schmidt et al. 2016,BW25113,pyruvate,0.4,phi_cyto,0.8206661496748172
-Schmidt et al. 2016,BW25113,pyruvate,0.4,phi_mem,0.09575912530121984
-Schmidt et al. 2016,BW25113,pyruvate,0.4,phi_peri,0.05913899722724309
-Schmidt et al. 2016,BW25113,succinate,0.44,phi_cyto,0.8241190248249912
-Schmidt et al. 2016,BW25113,succinate,0.44,phi_mem,0.09434885315821034
-Schmidt et al. 2016,BW25113,succinate,0.44,phi_peri,0.06138379139378036
-Schmidt et al. 2016,BW25113,xylose,0.55,phi_cyto,0.8422493064153839
-Schmidt et al. 2016,BW25113,xylose,0.55,phi_mem,0.10195270537282919
-Schmidt et al. 2016,BW25113,xylose,0.55,phi_peri,0.03850653524949054
-Soufi et al. 2015,BW25113,M9_glucose,0.6931471805599453,phi_cyto,0.8212860001843638
-Soufi et al. 2015,BW25113,M9_glucose,0.6931471805599453,phi_mem,0.1103785767830999
-Soufi et al. 2015,BW25113,M9_glucose,0.6931471805599453,phi_peri,0.0625606776086369
-Valgepea et al. 2013,MG1655,glucose_minimal,0.11,phi_cyto,0.8249639695097438
-Valgepea et al. 2013,MG1655,glucose_minimal,0.11,phi_mem,0.041521026069640206
-Valgepea et al. 2013,MG1655,glucose_minimal,0.11,phi_peri,0.10636972672420394
-Valgepea et al. 2013,MG1655,glucose_minimal,0.21,phi_cyto,0.8445743506352207
-Valgepea et al. 2013,MG1655,glucose_minimal,0.21,phi_mem,0.03933994697347934
-Valgepea et al. 2013,MG1655,glucose_minimal,0.21,phi_peri,0.08737562485670154
-Valgepea et al. 2013,MG1655,glucose_minimal,0.31,phi_cyto,0.8542032556195345
-Valgepea et al. 2013,MG1655,glucose_minimal,0.31,phi_mem,0.03924971505468604
-Valgepea et al. 2013,MG1655,glucose_minimal,0.31,phi_peri,0.07748940587441945
-Valgepea et al. 2013,MG1655,glucose_minimal,0.4,phi_cyto,0.8679400172585541
-Valgepea et al. 2013,MG1655,glucose_minimal,0.4,phi_mem,0.03711386859659061
-Valgepea et al. 2013,MG1655,glucose_minimal,0.4,phi_peri,0.06779967024102015
-Valgepea et al. 2013,MG1655,glucose_minimal,0.49,phi_cyto,0.8783420362875065
-Valgepea et al. 2013,MG1655,glucose_minimal,0.49,phi_mem,0.034346903212645864
-Valgepea et al. 2013,MG1655,glucose_minimal,0.49,phi_peri,0.06025562007092104
+Caglar et al. 2017,REL606,gluconate_growth,0.6630116912775283,psi_cyto,0.8658769673663816
+Caglar et al. 2017,REL606,gluconate_growth,0.6630116912775283,psi_mem,0.08132261682034266
+Caglar et al. 2017,REL606,gluconate_growth,0.6630116912775283,psi_peri,0.052503587313217595
+Caglar et al. 2017,REL606,glucose_time_course,0.7747553284413429,psi_cyto,0.8523427331842834
+Caglar et al. 2017,REL606,glucose_time_course,0.7747553284413429,psi_mem,0.10072106490199408
+Caglar et al. 2017,REL606,glucose_time_course,0.7747553284413429,psi_peri,0.04649491212363179
+Li et al. 2014,MG1655,MOPS complete,1.934364224818452,psi_cyto,0.8139837923520963
+Li et al. 2014,MG1655,MOPS complete,1.934364224818452,psi_mem,0.14741038993203254
+Li et al. 2014,MG1655,MOPS complete,1.934364224818452,psi_peri,0.015595134798668054
+Li et al. 2014,MG1655,MOPS complete without methionine,1.5693898427772346,psi_cyto,0.8257497358676843
+Li et al. 2014,MG1655,MOPS complete without methionine,1.5693898427772346,psi_mem,0.12177425148092795
+Li et al. 2014,MG1655,MOPS complete without methionine,1.5693898427772346,psi_peri,0.03236835675204801
+Li et al. 2014,MG1655,MOPS minimal,0.738700370046123,psi_cyto,0.769720292510956
+Li et al. 2014,MG1655,MOPS minimal,0.738700370046123,psi_mem,0.16353818823297514
+Li et al. 2014,MG1655,MOPS minimal,0.738700370046123,psi_peri,0.04780043065016484
+Mori et al. 2021,EQ 59,0.2% melibiose,0.6817841120261757,psi_cyto,0.8036084013146
+Mori et al. 2021,EQ 59,0.2% melibiose,0.6817841120261757,psi_mem,0.15242982354134998
+Mori et al. 2021,EQ 59,0.2% melibiose,0.6817841120261757,psi_peri,0.043961790924
+Mori et al. 2021,EQ353,0.2% glucose,0.69,psi_cyto,0.7861515133752868
+Mori et al. 2021,EQ353,0.2% glucose,0.69,psi_mem,0.15267284034389483
+Mori et al. 2021,EQ353,0.2% glucose,0.69,psi_peri,0.0634280028101642
+Mori et al. 2021,NCM3722,0.2% galactose,0.4892803627481966,psi_cyto,0.73641834873835
+Mori et al. 2021,NCM3722,0.2% galactose,0.4892803627481966,psi_mem,0.16412220161744
+Mori et al. 2021,NCM3722,0.2% galactose,0.4892803627481966,psi_peri,0.099459437375
+Mori et al. 2021,NCM3722,0.4% sodium acetate,0.5010702510071894,psi_cyto,0.8011790132247
+Mori et al. 2021,NCM3722,0.4% sodium acetate,0.5010702510071894,psi_mem,0.14187790838376
+Mori et al. 2021,NCM3722,0.4% sodium acetate,0.5010702510071894,psi_peri,0.0569430575554
+Mori et al. 2021,NCM3722,10 mM glucose-6-phosphate + 10 mM gluconate,1.1240224549620734,psi_cyto,0.8250646084725
+Mori et al. 2021,NCM3722,10 mM glucose-6-phosphate + 10 mM gluconate,1.1240224549620734,psi_mem,0.1458043541363
+Mori et al. 2021,NCM3722,10 mM glucose-6-phosphate + 10 mM gluconate,1.1240224549620734,psi_peri,0.029131032968
+Mori et al. 2021,NCM3722,12 mM arabinose,0.8487516496652392,psi_cyto,0.7993028558331
+Mori et al. 2021,NCM3722,12 mM arabinose,0.8487516496652392,psi_mem,0.14678147349744
+Mori et al. 2021,NCM3722,12 mM arabinose,0.8487516496652392,psi_peri,0.053915653896000004
+Mori et al. 2021,NCM3722,20 mM mannitol,0.9041050181216675,psi_cyto,0.7982427184561
+Mori et al. 2021,NCM3722,20 mM mannitol,0.9041050181216675,psi_mem,0.15496324730082
+Mori et al. 2021,NCM3722,20 mM mannitol,0.9041050181216675,psi_peri,0.0467940317136
+Mori et al. 2021,NCM3722,24 mM xylose + 20 mM oxaloacetate,0.8317766166719343,psi_cyto,0.798716973261
+Mori et al. 2021,NCM3722,24 mM xylose + 20 mM oxaloacetate,0.8317766166719343,psi_mem,0.1542370110801
+Mori et al. 2021,NCM3722,24 mM xylose + 20 mM oxaloacetate,0.8317766166719343,psi_peri,0.0470460083443
+Mori et al. 2021,NCM3722,40 mM glycerol + 30 mM succinate,0.7701635339554948,psi_cyto,0.7861295853581
+Mori et al. 2021,NCM3722,40 mM glycerol + 30 mM succinate,0.7701635339554948,psi_mem,0.15749447646394
+Mori et al. 2021,NCM3722,40 mM glycerol + 30 mM succinate,0.7701635339554948,psi_peri,0.0563759386858
+Mori et al. 2021,NQ1243,0.2% glucose,0.55,psi_cyto,0.743946779625
+Mori et al. 2021,NQ1243,0.2% glucose,0.55,psi_mem,0.16454646379693
+Mori et al. 2021,NQ1243,0.2% glucose,0.55,psi_peri,0.09015192169
+Mori et al. 2021,NQ1243,0.2% glucose,0.56,psi_cyto,0.7581930553428695
+Mori et al. 2021,NQ1243,0.2% glucose,0.56,psi_mem,0.1630767090573183
+Mori et al. 2021,NQ1243,0.2% glucose,0.56,psi_peri,0.0826799027754996
+Mori et al. 2021,NQ1243,0.2% glucose,0.69,psi_cyto,0.7779733080244
+Mori et al. 2021,NQ1243,0.2% glucose,0.69,psi_mem,0.14867259495407
+Mori et al. 2021,NQ1243,0.2% glucose,0.69,psi_peri,0.071756444226
+Mori et al. 2021,NQ1243,0.2% glucose,0.71,psi_cyto,0.7716205231635
+Mori et al. 2021,NQ1243,0.2% glucose,0.71,psi_mem,0.15065882445217002
+Mori et al. 2021,NQ1243,0.2% glucose,0.71,psi_peri,0.07636628478100001
+Mori et al. 2021,NQ1243,0.2% glucose,0.72,psi_cyto,0.7794546836588
+Mori et al. 2021,NQ1243,0.2% glucose,0.72,psi_mem,0.14982185639583
+Mori et al. 2021,NQ1243,0.2% glucose,0.72,psi_peri,0.069116160675
+Mori et al. 2021,NQ1243,0.2% glucose,0.81,psi_cyto,0.799024670406749
+Mori et al. 2021,NQ1243,0.2% glucose,0.81,psi_mem,0.14229784664588999
+Mori et al. 2021,NQ1243,0.2% glucose,0.81,psi_peri,0.0571014962335
+Mori et al. 2021,NQ1390,0.2% glucose,0.33,psi_cyto,0.727463048
+Mori et al. 2021,NQ1390,0.2% glucose,0.33,psi_mem,0.17642914863102
+Mori et al. 2021,NQ1390,0.2% glucose,0.33,psi_peri,0.094323346359
+Mori et al. 2021,NQ1390,0.2% glucose,0.34,psi_cyto,0.7365737331889
+Mori et al. 2021,NQ1390,0.2% glucose,0.34,psi_mem,0.17131461552096
+Mori et al. 2021,NQ1390,0.2% glucose,0.34,psi_peri,0.09047866852
+Mori et al. 2021,NQ1390,0.2% glucose,0.35,psi_cyto,0.72923852092496
+Mori et al. 2021,NQ1390,0.2% glucose,0.35,psi_mem,0.17452923982772
+Mori et al. 2021,NQ1390,0.2% glucose,0.35,psi_peri,0.094504841426
+Mori et al. 2021,NQ1390,0.2% glucose,0.48,psi_cyto,0.7444900141162
+Mori et al. 2021,NQ1390,0.2% glucose,0.48,psi_mem,0.16133824913263
+Mori et al. 2021,NQ1390,0.2% glucose,0.48,psi_peri,0.092551229401
+Mori et al. 2021,NQ1390,0.2% glucose,0.49,psi_cyto,0.7486208976013999
+Mori et al. 2021,NQ1390,0.2% glucose,0.49,psi_mem,0.1625203921923
+Mori et al. 2021,NQ1390,0.2% glucose,0.49,psi_peri,0.087171913813
+Mori et al. 2021,NQ1390,0.2% glucose,0.5,psi_cyto,0.7582320345931
+Mori et al. 2021,NQ1390,0.2% glucose,0.5,psi_mem,0.15774242709767
+Mori et al. 2021,NQ1390,0.2% glucose,0.5,psi_peri,0.082436118266
+Peebo et al. 2015,BW25113,glucose_minimal,0.21,psi_cyto,0.7839632800889037
+Peebo et al. 2015,BW25113,glucose_minimal,0.21,psi_mem,0.12315444473659146
+Peebo et al. 2015,BW25113,glucose_minimal,0.21,psi_peri,0.07447952060061729
+Peebo et al. 2015,BW25113,glucose_minimal,0.22,psi_cyto,0.7943170269275849
+Peebo et al. 2015,BW25113,glucose_minimal,0.22,psi_mem,0.121001221903342
+Peebo et al. 2015,BW25113,glucose_minimal,0.22,psi_peri,0.06706841638156966
+Peebo et al. 2015,BW25113,glucose_minimal,0.26,psi_cyto,0.7965582791577137
+Peebo et al. 2015,BW25113,glucose_minimal,0.26,psi_mem,0.12174538938138536
+Peebo et al. 2015,BW25113,glucose_minimal,0.26,psi_peri,0.06334419881136873
+Peebo et al. 2015,BW25113,glucose_minimal,0.31,psi_cyto,0.791369614900382
+Peebo et al. 2015,BW25113,glucose_minimal,0.31,psi_mem,0.12371853994696669
+Peebo et al. 2015,BW25113,glucose_minimal,0.31,psi_peri,0.06647962564799823
+Peebo et al. 2015,BW25113,glucose_minimal,0.36,psi_cyto,0.8055348374766662
+Peebo et al. 2015,BW25113,glucose_minimal,0.36,psi_mem,0.1236947574976561
+Peebo et al. 2015,BW25113,glucose_minimal,0.36,psi_peri,0.052784226588630974
+Peebo et al. 2015,BW25113,glucose_minimal,0.41,psi_cyto,0.8092748027886196
+Peebo et al. 2015,BW25113,glucose_minimal,0.41,psi_mem,0.12736849253175028
+Peebo et al. 2015,BW25113,glucose_minimal,0.41,psi_peri,0.04582205339014487
+Peebo et al. 2015,BW25113,glucose_minimal,0.46,psi_cyto,0.8190112974177195
+Peebo et al. 2015,BW25113,glucose_minimal,0.46,psi_mem,0.12613655141210028
+Peebo et al. 2015,BW25113,glucose_minimal,0.46,psi_peri,0.03795906801474316
+Peebo et al. 2015,BW25113,glucose_minimal,0.51,psi_cyto,0.8234367960519164
+Peebo et al. 2015,BW25113,glucose_minimal,0.51,psi_mem,0.1279367788793487
+Peebo et al. 2015,BW25113,glucose_minimal,0.51,psi_peri,0.03225431422055636
+Peebo et al. 2015,BW25113,rich,0.25,psi_cyto,0.7977967645490506
+Peebo et al. 2015,BW25113,rich,0.25,psi_mem,0.11313629432288022
+Peebo et al. 2015,BW25113,rich,0.25,psi_peri,0.07132839377703767
+Peebo et al. 2015,BW25113,rich,0.35,psi_cyto,0.7983350600012472
+Peebo et al. 2015,BW25113,rich,0.35,psi_mem,0.1114105822152336
+Peebo et al. 2015,BW25113,rich,0.35,psi_peri,0.07222207754958608
+Peebo et al. 2015,BW25113,rich,0.42,psi_cyto,0.7965811563626924
+Peebo et al. 2015,BW25113,rich,0.42,psi_mem,0.10951292135166978
+Peebo et al. 2015,BW25113,rich,0.42,psi_peri,0.07467599911426895
+Peebo et al. 2015,BW25113,rich,0.45,psi_cyto,0.8078686187136535
+Peebo et al. 2015,BW25113,rich,0.45,psi_mem,0.11023374661639511
+Peebo et al. 2015,BW25113,rich,0.45,psi_peri,0.06373598602808359
+Peebo et al. 2015,BW25113,rich,0.53,psi_cyto,0.812057289534404
+Peebo et al. 2015,BW25113,rich,0.53,psi_mem,0.1132739662440156
+Peebo et al. 2015,BW25113,rich,0.53,psi_peri,0.0550512047902968
+Peebo et al. 2015,BW25113,rich,0.55,psi_cyto,0.8229465193911387
+Peebo et al. 2015,BW25113,rich,0.55,psi_mem,0.10738499337833841
+Peebo et al. 2015,BW25113,rich,0.55,psi_peri,0.05112485080805427
+Peebo et al. 2015,BW25113,rich,0.63,psi_cyto,0.81133066527344
+Peebo et al. 2015,BW25113,rich,0.63,psi_mem,0.11111344758073907
+Peebo et al. 2015,BW25113,rich,0.63,psi_peri,0.05840881906504297
+Peebo et al. 2015,BW25113,rich,0.65,psi_cyto,0.8213524833545205
+Peebo et al. 2015,BW25113,rich,0.65,psi_mem,0.1106950627494653
+Peebo et al. 2015,BW25113,rich,0.65,psi_peri,0.04956007762891425
+Peebo et al. 2015,BW25113,rich,0.73,psi_cyto,0.7947908405874723
+Peebo et al. 2015,BW25113,rich,0.73,psi_mem,0.11136498730605551
+Peebo et al. 2015,BW25113,rich,0.73,psi_peri,0.07448964179664513
+Peebo et al. 2015,BW25113,rich,0.74,psi_cyto,0.8174469003281147
+Peebo et al. 2015,BW25113,rich,0.74,psi_mem,0.11819101323989101
+Peebo et al. 2015,BW25113,rich,0.74,psi_peri,0.0462248358161997
+Peebo et al. 2015,BW25113,rich,0.78,psi_cyto,0.8312420029047856
+Peebo et al. 2015,BW25113,rich,0.78,psi_mem,0.11379068583133672
+Peebo et al. 2015,BW25113,rich,0.78,psi_peri,0.036443531423132315
+Peebo et al. 2015,BW25113,rich,0.82,psi_cyto,0.8451915771233107
+Peebo et al. 2015,BW25113,rich,0.82,psi_mem,0.12320091335905231
+Peebo et al. 2015,BW25113,rich,0.82,psi_peri,0.015047469472415956
+Schmidt et al. 2016,BW25113,42C,0.66,psi_cyto,0.8540082674997526
+Schmidt et al. 2016,BW25113,42C,0.66,psi_mem,0.09314144107450457
+Schmidt et al. 2016,BW25113,42C,0.66,psi_peri,0.03631551098437875
+Schmidt et al. 2016,BW25113,acetate,0.3,psi_cyto,0.8381878779296213
+Schmidt et al. 2016,BW25113,acetate,0.3,psi_mem,0.0923303183842622
+Schmidt et al. 2016,BW25113,acetate,0.3,psi_peri,0.05218917754930559
+Schmidt et al. 2016,BW25113,chemostat_u0.12,0.12,psi_cyto,0.7986152884522181
+Schmidt et al. 2016,BW25113,chemostat_u0.12,0.12,psi_mem,0.11118093659592251
+Schmidt et al. 2016,BW25113,chemostat_u0.12,0.12,psi_peri,0.07185278540554915
+Schmidt et al. 2016,BW25113,chemostat_u0.2,0.2,psi_cyto,0.7963961934901639
+Schmidt et al. 2016,BW25113,chemostat_u0.2,0.2,psi_mem,0.11064246392975378
+Schmidt et al. 2016,BW25113,chemostat_u0.2,0.2,psi_peri,0.07452819117238844
+Schmidt et al. 2016,BW25113,chemostat_u0.35,0.35,psi_cyto,0.7970724875089498
+Schmidt et al. 2016,BW25113,chemostat_u0.35,0.35,psi_mem,0.11294956625269822
+Schmidt et al. 2016,BW25113,chemostat_u0.35,0.35,psi_peri,0.07137148224167096
+Schmidt et al. 2016,BW25113,chemostat_u0.5,0.5,psi_cyto,0.8183809993594432
+Schmidt et al. 2016,BW25113,chemostat_u0.5,0.5,psi_mem,0.10986691274158644
+Schmidt et al. 2016,BW25113,chemostat_u0.5,0.5,psi_peri,0.05337997419913427
+Schmidt et al. 2016,BW25113,fructose,0.65,psi_cyto,0.8480923840602922
+Schmidt et al. 2016,BW25113,fructose,0.65,psi_mem,0.09118874294307805
+Schmidt et al. 2016,BW25113,fructose,0.65,psi_peri,0.04318327263102602
+Schmidt et al. 2016,BW25113,fumarate,0.42,psi_cyto,0.8166144029407252
+Schmidt et al. 2016,BW25113,fumarate,0.42,psi_mem,0.09816644974068076
+Schmidt et al. 2016,BW25113,fumarate,0.42,psi_peri,0.06547808691275155
+Schmidt et al. 2016,BW25113,galactose,0.26,psi_cyto,0.7990873015871974
+Schmidt et al. 2016,BW25113,galactose,0.26,psi_mem,0.09567028973623384
+Schmidt et al. 2016,BW25113,galactose,0.26,psi_peri,0.08652203586442642
+Schmidt et al. 2016,BW25113,glucosamine,0.46,psi_cyto,0.814221977434768
+Schmidt et al. 2016,BW25113,glucosamine,0.46,psi_mem,0.1096976906962278
+Schmidt et al. 2016,BW25113,glucosamine,0.46,psi_peri,0.05639283244974005
+Schmidt et al. 2016,BW25113,glucose,0.58,psi_cyto,0.8434110649682898
+Schmidt et al. 2016,BW25113,glucose,0.58,psi_mem,0.09814838226292973
+Schmidt et al. 2016,BW25113,glucose,0.58,psi_peri,0.041094100759512316
+Schmidt et al. 2016,BW25113,glycerol,0.47,psi_cyto,0.8256891495276896
+Schmidt et al. 2016,BW25113,glycerol,0.47,psi_mem,0.10125084655510688
+Schmidt et al. 2016,BW25113,glycerol,0.47,psi_peri,0.05498288187906009
+Schmidt et al. 2016,BW25113,glycerol_pAA,1.27,psi_cyto,0.8395138239323774
+Schmidt et al. 2016,BW25113,glycerol_pAA,1.27,psi_mem,0.09840273076921126
+Schmidt et al. 2016,BW25113,glycerol_pAA,1.27,psi_peri,0.043069251328437946
+Schmidt et al. 2016,BW25113,lb_miller,1.9,psi_cyto,0.8637515028771855
+Schmidt et al. 2016,BW25113,lb_miller,1.9,psi_mem,0.08909705941171217
+Schmidt et al. 2016,BW25113,lb_miller,1.9,psi_peri,0.02851360351403566
+Schmidt et al. 2016,BW25113,mannose,0.47,psi_cyto,0.8256346424039631
+Schmidt et al. 2016,BW25113,mannose,0.47,psi_mem,0.09060356093971797
+Schmidt et al. 2016,BW25113,mannose,0.47,psi_peri,0.06505145440684462
+Schmidt et al. 2016,BW25113,osmotic_stress_glucose,0.55,psi_cyto,0.8132645743750974
+Schmidt et al. 2016,BW25113,osmotic_stress_glucose,0.55,psi_mem,0.11911060377846534
+Schmidt et al. 2016,BW25113,osmotic_stress_glucose,0.55,psi_peri,0.05182691077278534
+Schmidt et al. 2016,BW25113,pH6,0.63,psi_cyto,0.8121804050820682
+Schmidt et al. 2016,BW25113,pH6,0.63,psi_mem,0.11469579606888385
+Schmidt et al. 2016,BW25113,pH6,0.63,psi_peri,0.05568493145681457
+Schmidt et al. 2016,BW25113,pyruvate,0.4,psi_cyto,0.8206661496748172
+Schmidt et al. 2016,BW25113,pyruvate,0.4,psi_mem,0.09575912530121984
+Schmidt et al. 2016,BW25113,pyruvate,0.4,psi_peri,0.05913899722724309
+Schmidt et al. 2016,BW25113,succinate,0.44,psi_cyto,0.8241190248249912
+Schmidt et al. 2016,BW25113,succinate,0.44,psi_mem,0.09434885315821034
+Schmidt et al. 2016,BW25113,succinate,0.44,psi_peri,0.06138379139378036
+Schmidt et al. 2016,BW25113,xylose,0.55,psi_cyto,0.8422493064153839
+Schmidt et al. 2016,BW25113,xylose,0.55,psi_mem,0.10195270537282919
+Schmidt et al. 2016,BW25113,xylose,0.55,psi_peri,0.03850653524949054
+Soufi et al. 2015,BW25113,M9_glucose,0.6931471805599453,psi_cyto,0.8212860001843638
+Soufi et al. 2015,BW25113,M9_glucose,0.6931471805599453,psi_mem,0.1103785767830999
+Soufi et al. 2015,BW25113,M9_glucose,0.6931471805599453,psi_peri,0.0625606776086369
+Valgepea et al. 2013,MG1655,glucose_minimal,0.11,psi_cyto,0.8249639695097438
+Valgepea et al. 2013,MG1655,glucose_minimal,0.11,psi_mem,0.041521026069640206
+Valgepea et al. 2013,MG1655,glucose_minimal,0.11,psi_peri,0.10636972672420394
+Valgepea et al. 2013,MG1655,glucose_minimal,0.21,psi_cyto,0.8445743506352207
+Valgepea et al. 2013,MG1655,glucose_minimal,0.21,psi_mem,0.03933994697347934
+Valgepea et al. 2013,MG1655,glucose_minimal,0.21,psi_peri,0.08737562485670154
+Valgepea et al. 2013,MG1655,glucose_minimal,0.31,psi_cyto,0.8542032556195345
+Valgepea et al. 2013,MG1655,glucose_minimal,0.31,psi_mem,0.03924971505468604
+Valgepea et al. 2013,MG1655,glucose_minimal,0.31,psi_peri,0.07748940587441945
+Valgepea et al. 2013,MG1655,glucose_minimal,0.4,psi_cyto,0.8679400172585541
+Valgepea et al. 2013,MG1655,glucose_minimal,0.4,psi_mem,0.03711386859659061
+Valgepea et al. 2013,MG1655,glucose_minimal,0.4,psi_peri,0.06779967024102015
+Valgepea et al. 2013,MG1655,glucose_minimal,0.49,psi_cyto,0.8783420362875065
+Valgepea et al. 2013,MG1655,glucose_minimal,0.49,psi_mem,0.034346903212645864
+Valgepea et al. 2013,MG1655,glucose_minimal,0.49,psi_peri,0.06025562007092104
 Caglar et al. 2017,REL606,gluconate_growth,0.6630116912775283,phi_rib,0.03718513481997503
 Caglar et al. 2017,REL606,glucose_time_course,0.7747553284413429,phi_rib,0.03421099425699334
 Li et al. 2014,MG1655,MOPS complete,1.934364224818452,phi_rib,0.2522289742593567

@@ -9,14 +9,14 @@ data = pd.read_csv('../../data/collated/aggregated_experimental_data.csv')
 kappa = pd.read_csv('../../data/mcmc/theory_inference_parameter_summaries.csv')
 kappa = kappa[kappa['quantity']=='kappa']
 
-data = data[['replicate', 'strain', 'carbon_source', 'inducer_conc', 'surface_to_volume_inv_um', 'phi_mem', 'phi_peri', 'phi_rib', 'growth_rate_hr']]
+data = data[['replicate', 'strain', 'carbon_source', 'inducer_conc', 'surface_to_volume_inv_um', 'psi_mem', 'psi_peri', 'phi_rib', 'growth_rate_hr']]
 data.rename(columns={'surface_to_volume_inv_um':'measured_SAV'}, inplace=True)
 
 # Define a function to compute the theory
 def prediction(kappa: float,
                beta: float = 2.19) -> np.ndarray:
-    numer = kappa * data.phi_mem.values
-    denom = 2 * (1 + beta * data.phi_rib.values - data.phi_peri.values - data.phi_mem.values)
+    numer = kappa * data.psi_mem.values
+    denom = 2 * (1 + beta * data.phi_rib.values - data.psi_peri.values - data.psi_mem.values)
     sav = numer / denom
     return sav
 

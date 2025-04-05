@@ -23,5 +23,3 @@ lit_data.rename(columns={'condition':'carbon_source',
 merged = pd.concat([exp_data, lit_data])
 merged['name'] = merged['name'].str.lower()
 merged.to_csv('../../../data/collated/merged_mass_spectrometry.csv', index=False)
-
-
