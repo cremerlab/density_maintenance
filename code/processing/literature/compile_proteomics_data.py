@@ -39,11 +39,11 @@ for g, d in lit_data.groupby('gene_name'):
         not_classified.append(g)
         continue
     if lcz['location'].values[0] in locs['membrane']:
-        d['localization'] = 'phi_mem'
+        d['localization'] = 'psi_mem'
     elif lcz['location'].values[0] in locs['periplasm']:
-        d['localization'] = 'phi_peri'
+        d['localization'] = 'psi_peri'
     elif lcz['location'].values[0] in locs['cytoplasm']:
-        d['localization'] = 'phi_cyto'
+        d['localization'] = 'psi_cyto'
     else:
         d['localization'] = 'unassigned_localization'
     d['cog_category'] = lcz['COG_functionname'].values[0]

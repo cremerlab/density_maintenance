@@ -74,7 +74,6 @@ def prediction_helper(kappa: np.ndarray) -> np.ndarray:
     denom = 2 * (1 + 2.19 * phi_rib_range - phi_mem - phi_peri)
     return numer / denom
 
-
 # Set the range of kappas 
 kappas = [70, 90, 175, 200]
 

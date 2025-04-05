@@ -41,7 +41,7 @@ model {
     kappa ~ inv_gamma(2.863, 140.1); // [20 inv µm, 250 inv µm]
     sigma ~ normal(0, 1);
     beta_0_phi_mem ~ beta(1.262, 5.967); // [0.01, 0.5]
-    beta_1_phi_mem ~ normal(0, 10);
+    beta_1_phi_mem ~ normal(0, 1);
     sigma_phi_mem ~ normal(0, 0.1);
     beta_0_phi_peri ~ beta(1.262, 5.967); // [0.01, 0.5]
     beta_1_phi_peri ~ normal(0, 10);
