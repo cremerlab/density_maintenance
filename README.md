@@ -1,14 +1,13 @@
-# Stringent Control of Cytoplasmic and Membrane Densities Defines Cell Geometry in *Escherichia coli* 
+# Coordination Between Cytoplasmic and Envelope Densities Shapes Cellular Geometry in *Escherichia coli*
 
 [![DOI](https://zenodo.org/badge/438837626.svg)](https://zenodo.org/doi/10.5281/zenodo.10048570)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Welcome to the research repository for our recent preprint "Stringent Control 
-of Cytoplasmic and Membrane Densities Defines Regulation of Cell Geometry in *Escherichia coli*!"
+Welcome to the research repository for our recent preprint "Coordination Between Cytoplasmic and Envelope Densities Shapes Cellular Geometry in *Escherichia coli*!"
 This repo houses all code and (almost) all data used for the findings reported in 
-the work. Microscopy images are large (≈ 15GB) and hosted separately on the
-Stanford Research Data Repository accessible via doi:10.25740/mk520hp6879.
+the work. Microscopy images used in the final analysis are large (≈ 6GB) and hosted separately on the
+Stanford Research Data Repository accessible via doi: 10.25740/ws785mz0287. All experimental data files, including those that were not included in the final analysis, are also hosted on the Stanford Research Data Repository via doi: 10.25740/ty214py1791.
 
 This repository is still in an active research phase and will be further developed 
 over the course of the review process. Below is a brief summary of each 
@@ -34,9 +33,7 @@ of the figures in this work.
 
 ## `data`
 This is where all of the (small) datasets used in this work live. It is broken 
-down in to groups of literature data and our own measurements. Further documentation 
-of each file and subdirectory will be refined after the review processes has completed.  
-
+down in to groups of literature data and our own measurements.
 
 ## `figures`
 This directory houses all of the figures used in the manuscript, usually separated 
@@ -68,7 +65,7 @@ follows:
 ```
 MIT License
 
-Copyright (c) 2023 The Authors
+Copyright (c) 2025 The Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
