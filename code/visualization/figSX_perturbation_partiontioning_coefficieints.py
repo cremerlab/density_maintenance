@@ -72,3 +72,44 @@ for a in axes.ravel():
     a.tick_params(axis='x', direction='out', width=0.25, length=1.5, 
                   colors='black')
 plt.savefig('./plots/figSX_partition_induction_trends.pdf', bbox_inches='tight')
+
+#%%
+fig, ax = plt.subplots(2, 3, figsize=(5,3))
+
+wt = data[data['strain']=='wildtype']
+quants = ['psi_cyto', 'psi_mem', 'psi_peri']
+for i, q in enumerate(quants):
+    for j, var in enumerate(['phi_rib', 'growth_rate_hr']):
+        ax[j, i].plot(wt[var], wt[q], 'o', markeredgewidth=0,
+                  color=cor['pale_black'], alpha=0.5, ms=4) 
+
+   
+# Iterate through and plot the individual replicates
+for g, d in data[data['strain']!='wildtype'].groupby(['strain', 'inducer_conc', 'carbon_source']):
+    for q, c in cols.items():
+        # Style the point
+        fmt = {'marker': markers[g[2]],
+               'markersize': 4,
+               'markeredgecolor': cor[f'dark_{strain_colors[g[0]]}'],
+               'markerfacecolor': cor[f'{inducer_concs[g[1]]}{strain_colors[g[0]]}'],
+               'linestyle': 'none',
+               'alpha':0.75
+               }
+        for j, var in enumerate(['phi_rib', 'growth_rate_hr']):
+            ax[j, c].plot(d[var], d[q], **fmt)
+
+# Add plot context 
+for i in range(3):
+    ax[0, i].set_xlim([0.1, 0.25])
+    ax[1, i].set_xlim([0, 1.5])
+    ax[0, i].set_xlabel('ribosome proteome allocation\n$\phi_{rib}$', fontsize=6)
+    ax[1, i].set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+for i in range(2):
+    ax[i, 0].set_ylim([0.7, 0.9])
+    ax[i, 0].set_ylabel('$\psi_{cyto}$\ncytoplasm\nproteome allocation', fontsize=6)
+    ax[i, 1].set_ylabel('$\psi_{mem}$\nmembrane\nproteome allocation', fontsize=6)
+    ax[i, 2].set_ylabel('$\psi_{peri}$\nmembrane\nproteome allocation', fontsize=6)
+    ax[i, 1].set_ylim([0, 0.25])
+    ax[i, 2].set_ylim([0,  0.15])
+plt.tight_layout()
+plt.savefig('./plots/figSX_partition_induction_dependence.pdf', bbox_inches='tight')
