@@ -7,6 +7,7 @@ cor, pal = size.viz.matplotlib_style()
 
 # Load the many literature data sets
 lit_ms = pd.read_csv('../../data/collated/merged_mass_spectrometry.csv')
+lit_alloc = pd.read_csv('../../data/collated/compiled_literature_allocation_assignments_wide.csv')
 lit_rp = pd.read_csv('../../data/collated/collated_literature_rna_to_protein.csv')
 lit_size = pd.read_csv('../../data/collated/collated_literature_size_data.csv')
 lit_prot = pd.read_csv('../../data/collated/collated_literature_total_protein.csv')
@@ -16,7 +17,8 @@ lit_rna = pd.read_csv('../../data/collated/collated_literature_total_RNA.csv')
 our_size = pd.read_csv('../../data/collated/aggregated_experimental_data.csv')
 our_size = our_size[our_size['strain']=='wildtype']
 our_rp = pd.read_csv('../../data/collated/experimental_rna_protein_per_cell.csv')
-
+our_alloc = pd.read_csv('../../data/collated/aggregated_experimental_data.csv')
+our_alloc = our_alloc[our_alloc['strain']=='wildtype']
 
 #%% 
 # Assign cog superclasses
@@ -52,6 +54,36 @@ ax[3].set_ylim([0, 0.1])
 ax[0].legend()
 plt.tight_layout()
 plt.savefig('./plots/figS2_MS_consistency.pdf', bbox_inches='tight')
+
+#%% Set figure canvas for allocation parameters
+fig, ax = plt.subplots(1, 4, figsize=(6, 1.75), sharex=True)
+axes = {'phi_rib': ax[0], 'psi_cyto': ax[1], 'psi_mem':ax[2], 'psi_peri': ax[3]}
+# Plot data
+for g, d in lit_alloc.groupby('source'):
+    fmt = size.viz.style_point(g)
+    for q, a in axes.items():
+        a.plot(d['growth_rate_hr'], d[q], **fmt)
+
+# Plot our data
+fmt = size.viz.style_point('This Study')
+for q, a in axes.items():
+    a.plot(our_alloc['growth_rate_hr'], our_alloc[q], **fmt)
+
+# Add context
+ax[0].set_ylim([0, 0.35])
+ax[1].set_ylim([0.5, 1.0])
+ax[2].set_ylim([0, 0.25])
+ax[3].set_ylim([0, 0.15])
+
+for a in ax:
+    a.set_xlim([0, 2.5])
+    a.set_xlabel('growth rate [hr$^{-1}$]', fontsize=6)
+ax[0].set_ylabel('$\phi_{rib}$\nribosomal proteome allocation', fontsize=6)
+ax[1].set_ylabel('$\psi_{cyto}$\ncytoplasmic proteome partition', fontsize=6)
+ax[2].set_ylabel('$\psi_{mem}$\nmembrane proteome partition', fontsize=6)
+ax[3].set_ylabel('$\psi_{peri}$\nperiplasmic proteome partition', fontsize=6)
+plt.tight_layout()
+plt.savefig('./plots/figS2_alloc_consistency.pdf', bbox_inches='tight')
 
 #%% Set figure canvas for cell size
 fig, ax = plt.subplots(1, 4, figsize=(6, 1.75))    
