@@ -46,9 +46,13 @@ for g, d in densities[densities['quantity'].isin(mapper.keys())].groupby('quanti
     # Plot the empirical fits:
     if ('cyt_tot_per_cell' ==  g) or ('mem_prot_per_cell' == g) or (g == 'rho_peri'): 
         popt = scipy.stats.linregress(d['growth_rate_hr'], np.log(d['mean']))
+        print(f'{g} slope: {popt[0]:0.3f} ({popt[0] / d["mean"].mean():0.3f})')
+        print(f'{g} intercept: {popt[1]:0.3f} ({popt[1] / d["mean"].mean():0.3f})')
         fit = np.exp(popt[1] + popt[0] * lam_range)
     else:
         popt = scipy.stats.linregress(d['growth_rate_hr'], d['mean'])
+        print(f'{g} slope: {popt[0]:0.3f} ({popt[0] / d["mean"].mean():0.3f})')
+        print(f'{g} intercept: {popt[1]:0.3f} ({popt[1] / d["mean"].mean():0.3f})')
         fit = popt[1] + popt[0] * lam_range
     res[g] = popt 
     axis.plot(lam_range, fit, '--', color=cor[f'primary_{color}'], lw=1)
@@ -92,6 +96,8 @@ popt = scipy.stats.linregress(emp_kappa['growth_rate_hr'],
                               emp_kappa['mean'])
 lam_range = np.linspace(0, 2.5)
 fit = popt[1] + popt[0] * lam_range
+print(f'kappa slope: {popt[0]:0.3f} ({popt[0] / emp_kappa["mean"].mean():0.3f})')
+print(f'kappa intercept: {popt[1]:0.3f} ({popt[1] / emp_kappa["mean"].mean():0.3f})')
 ax.plot(lam_range, fit, '--', color=cor['primary_red'], lw=1)
 
 # Add context
